@@ -14,11 +14,11 @@ namespace PlanetIO
         void Update()
         {
             mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-            transform.Translate(mousePosition.normalized * (speed * Time.deltaTime));
         }
 
         private void FixedUpdate()
         {
+            rigidbody2D.velocity = mousePosition.normalized * speed;
         }
     }
 }
