@@ -1,0 +1,4 @@
+violet - D269EA
+orange - FB6560
+blue - 8AEAF7
+red - fd3333
