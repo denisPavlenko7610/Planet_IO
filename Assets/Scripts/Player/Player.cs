@@ -8,15 +8,18 @@ namespace PlanetIO
     public class Player : MonoBehaviour
     {
         private CinemachineVirtualCamera _playerCamera;
-        private PointsPool _pointsPool;
-        private PointsGenerator _pointsGenerator;
+        private PointsPool _pointsObjectPool;
+        private CometsPool _cometsPool;
+        private PointsSpawner pointsSpawner;
 
         [Inject]
-        private void Construct(CinemachineVirtualCamera playerCamera, PointsPool pointsPool, PointsGenerator pointsGenerator)
+        private void Construct(CinemachineVirtualCamera playerCamera, PointsPool pointsPool, CometsPool cometsPool,
+            PointsSpawner pointsSpawner)
         {
             _playerCamera = playerCamera;
-            _pointsPool = pointsPool;
-            _pointsGenerator = pointsGenerator;
+            _pointsObjectPool = pointsPool;
+            _cometsPool = cometsPool;
+            this.pointsSpawner = pointsSpawner;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -25,8 +28,12 @@ namespace PlanetIO
             {
                 IncreaseScale(point.Capacity);
                 IncreaseFov(point.Capacity);
-                _pointsPool.Pool.Release(point);
-                _pointsGenerator.CreatePoint();
+                _pointsObjectPool.Pool.Release(point);
+                pointsSpawner.CreatePoint();
+            }
+            else if (other.TryGetComponent(out Comet comet))
+            {
+                _cometsPool.Pool.Release(comet);
             }
         }
 

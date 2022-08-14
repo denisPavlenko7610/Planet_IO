@@ -4,7 +4,7 @@ using Random = UnityEngine.Random;
 
 namespace PlanetIO
 {
-    public class PointsGenerator : MonoBehaviour
+    public class PointsSpawner : MonoBehaviour
     {
         [SerializeField] private Vector2 _spawnPositionX = new(-223f, 223f);
         [SerializeField] private Vector2 _spawnPositionY = new(-139f, 161.9f);
@@ -25,15 +25,18 @@ namespace PlanetIO
 
         public void CreatePoint()
         {
-            var point = _pointsPool.Pool.Get();
+            var point = _pointsPool.Pool?.Get();
             var randomScale = Random.Range(_minPointScale, _maxPointScale);
-            point.Capacity = randomScale;
-            SetPointTransform(point, randomScale);
+            if (point != null)
+            {
+                point.Capacity = randomScale;
+                SetPointTransform(point, randomScale);
+            }
         }
 
         private void GeneratePoints()
         {
-            for (int i = 0; i < _pointsPool.PointCount; i++)
+            for (int i = 0; i < _pointsPool.Count; i++)
             {
                 CreatePoint();
             }
@@ -44,7 +47,8 @@ namespace PlanetIO
             var randomPosition = GenerateRandomPosition();
             var pointTransform = point.transform;
             pointTransform.position = randomPosition;
-            pointTransform.localScale = new Vector3(randomScale, randomScale, 1);
+            var zPosition = 1;
+            pointTransform.localScale = new Vector3(randomScale, randomScale, zPosition);
         }
 
         private Vector2 GenerateRandomPosition() =>

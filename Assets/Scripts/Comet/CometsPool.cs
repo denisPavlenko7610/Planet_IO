@@ -2,7 +2,7 @@
 
 namespace PlanetIO
 {
-    public class PointsPool : ObjectPool<Point>
+    public class CometsPool : ObjectPool<Comet>
     {
         private void OnDestroy()
         {
