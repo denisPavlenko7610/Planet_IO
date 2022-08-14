@@ -8,7 +8,7 @@ namespace PlanetIO
     {
         [SerializeField] private Vector2 _spawnPositionX = new(-223f, 223f);
         [SerializeField] private Vector2 _spawnPositionY = new(-139f, 161.9f);
-        [SerializeField] private float _minPointScale = 0.05f;
+        [SerializeField] private float _minPointScale = 0.4f;
         [SerializeField] private float _maxPointScale = 1f;
         
         private PointsPool _pointsPool;

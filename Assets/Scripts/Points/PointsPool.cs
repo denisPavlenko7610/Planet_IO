@@ -6,14 +6,14 @@ namespace PlanetIO
 {
     public class PointsPool : MonoBehaviour
     {
-        [field: SerializeField] public int PointCount { get; private set; } = 1000;
+        [field: SerializeField] public int PointCount { get; private set; } = 2000;
         [field: SerializeField] public Point[] Points { get; private set; }
         [field: SerializeField] public IObjectPool<Point> Pool { get; private set; }
 
         private void Awake()
         {
             var maxPointsMultiplier = 2;
-            Pool = new ObjectPool<Point>(OnCreatePoint, OnGetPoint, OnDisablePoint, OnDestroyPoint, true,
+            Pool = new ObjectPool<Point>(OnCreatePoint, OnGetPoint, OnReleasePoint, OnDestroyPoint, true,
                 PointCount, PointCount * maxPointsMultiplier);
         }
 
@@ -28,7 +28,7 @@ namespace PlanetIO
             point.transform.SetParent(transform, true);
         }
 
-        private void OnDisablePoint(Point point)
+        private void OnReleasePoint(Point point)
         {
             point.gameObject.SetActive(false);
         }
