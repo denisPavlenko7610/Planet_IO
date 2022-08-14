@@ -1,32 +1,21 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Pool;
 
-public class Comet : MonoBehaviour
+namespace PlanetIO
 {
-    [HideInInspector] public static Comet Instance { get; private set; }
-    
-    [SerializeField] private int _maxTimeLifeComet = 15;
-    [SerializeField] private int _minTimeLifeComet = 5;
-
-    private int _currentTimeLifeComet = 1;
-
-    private void Awake()
+    public class Comet : MonoBehaviour
     {
-        Instance = this;
-    }
-    private void OnDisable() => StopCoroutine(DeathComet());
-    
-    private void OnEnable() => StartCoroutine(DeathComet());
+        private IObjectPool<Comet> _cometPool;
 
+        public void SetPool(IObjectPool<Comet> cometPool) => _cometPool = cometPool;
 
-    IEnumerator DeathComet()
-    {
-        _currentTimeLifeComet = RandomLifeTime();
-        yield return new WaitForSeconds(_currentTimeLifeComet);
-        gameObject.SetActive(false);
-    }
-    private int RandomLifeTime()
-    {
-        return Random.Range(_minTimeLifeComet, _maxTimeLifeComet);
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.TryGetComponent<Player>(out Player player))
+            {
+                _cometPool.Release(this);
+            }
+        }
     }
 }

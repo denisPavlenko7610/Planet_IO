@@ -1,43 +1,55 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
-
-public class SpawnCommet : CometPool
+ 
+namespace PlanetIO
 {
-    [SerializeField] private float _secondBetWeenSpawn;
-    [SerializeField] private GameObject _prefabComet;
-    [SerializeField] private Vector2 _spawnPositionX = new(-223f, 223f);
-    [SerializeField] private Vector2 _spawnPositionY = new(-139f, 161.9f);
-
-    private float _elepsedTime = 0;
-
-    private void Awake()
+    public class SpawnCommet : MonoBehaviour
     {
-        Initialize(_prefabComet);
-    }
+        [SerializeField] private float _secondBetWeenSpawn;
+        [SerializeField] private Vector2 _spawnPositionX = new(-223f, 223f);
+        [SerializeField] private Vector2 _spawnPositionY = new(-139f, 161.9f);
+        [SerializeField] private CometPool _cometPool;
 
-    private void Update()
-    {
-        _elepsedTime += Time.deltaTime;
-        
-        if( _elepsedTime >= _secondBetWeenSpawn)
+        private float _elepsedTime = 0;
+
+
+        private void Start()
         {
-            if(TryGetObject(out GameObject cometPrefab))
+            GenerateComet();
+        }
+
+        private void Update()
+        {
+            _elepsedTime += Time.deltaTime;
+            if(_elepsedTime >= _secondBetWeenSpawn)
             {
                 _elepsedTime = 0;
-                var randomPosition = GenerateRandomPosition();
-                var cometTransform = cometPrefab.transform;
-                cometTransform.position = randomPosition;
-                SetComet(cometPrefab);
-            }    
+                CreateComet();
+            }
         }
-    }
 
+        private void GenerateComet()
+        {
+            for(int i = 0; i < _cometPool.CometCount; i++)
+            {
+                CreateComet();
+            }
+        }
+        public void CreateComet()
+        {
+            var comet = _cometPool.PoolComet.Get();
+            SetCometTransform(comet);
+        }
 
-    private void SetComet(GameObject cometPrefab)
-    {
-        cometPrefab.SetActive(true);
+        private void SetCometTransform(Comet comet)
+        {
+            var randomPosition = GenerateRandomPosition();
+            var cometTransform = comet.transform;
+            cometTransform.position = randomPosition;
+        }
+        private Vector2 GenerateRandomPosition() =>
+            new(Random.Range(_spawnPositionX.x, _spawnPositionX.y),
+                 Random.Range(_spawnPositionY.x, _spawnPositionY.y));
     }
-    private Vector2 GenerateRandomPosition() =>
-        new (Random.Range(_spawnPositionX.x, _spawnPositionX.y),
-             Random.Range(_spawnPositionY.x, _spawnPositionY.y));
 }
+

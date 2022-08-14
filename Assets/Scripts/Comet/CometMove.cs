@@ -4,19 +4,12 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(Rigidbody2D))]
 public class CometMove : MonoBehaviour
 {
-    [HideInInspector] public static CometMove Instance { get; private set; }
-
     [SerializeField] private Rigidbody2D _rigidbody2D;
     [SerializeField] private float _maxSpeed = 0.01f;
     [SerializeField] private float _minSpeed = 0.03f;
     
     private float _currentSpeed = 0.004f;
     private Vector2 _direaction;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
 
     private void OnEnable() => Move();
    
@@ -38,6 +31,6 @@ public class CometMove : MonoBehaviour
     }
     private void Move()
     {
-        _rigidbody2D.AddForce(_currentSpeed * _direaction, ForceMode2D.Force);
+        _rigidbody2D.AddForce(_currentSpeed * _direaction);
     }
 }
