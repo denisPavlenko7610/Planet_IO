@@ -154,8 +154,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pointsObjectPool: {fileID: 1158107521}
-  cometsObjectPool: {fileID: 470327858}
   pointsSpawner: {fileID: 1158107520}
+  cometsObjectPool: {fileID: 470327858}
+  cometsSpawner: {fileID: 470327857}
   _playerCamera: {fileID: 1751847113}
 --- !u!114 &123435267
 MonoBehaviour:
@@ -1025,7 +1026,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.8841153, y: 1}
+    m_SensorSize: {x: 0.72952586, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

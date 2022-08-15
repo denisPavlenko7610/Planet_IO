@@ -11,15 +11,17 @@ namespace PlanetIO
         private PointsPool _pointsObjectPool;
         private CometsPool _cometsPool;
         private PointsSpawner pointsSpawner;
+        private CometsSpawner cometsSpawner;
 
         [Inject]
         private void Construct(CinemachineVirtualCamera playerCamera, PointsPool pointsPool, CometsPool cometsPool,
-            PointsSpawner pointsSpawner)
+            PointsSpawner pointsSpawner, CometsSpawner cometsSpawner)
         {
             _playerCamera = playerCamera;
             _pointsObjectPool = pointsPool;
             _cometsPool = cometsPool;
             this.pointsSpawner = pointsSpawner;
+            this.cometsSpawner = cometsSpawner;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -34,6 +36,7 @@ namespace PlanetIO
             else if (other.TryGetComponent(out Comet comet))
             {
                 _cometsPool.Pool.Release(comet);
+                cometsSpawner.CreateComet();
             }
         }
 

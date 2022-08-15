@@ -8,7 +8,9 @@ namespace PlanetIO
     {
         [SerializeField] private Vector2 _spawnPositionX = new(-223f, 223f);
         [SerializeField] private Vector2 _spawnPositionY = new(-139f, 161.9f);
-
+        [SerializeField] private float _minCometScale = 0.4f;
+        [SerializeField] private float _maxCometScale = 1f;
+        
         private CometsPool _cometsPool;
 
         [Inject]
@@ -30,10 +32,15 @@ namespace PlanetIO
         public void CreateComet()
         {
             var comet = _cometsPool.Pool?.Get();
-            SetCometTransform(comet);
+            var randomScale = Random.Range(_minCometScale, _maxCometScale);
+            if (comet != null)
+            {
+                SetCometTransform(comet, randomScale);
+            }
+           
         }
 
-        private void SetCometTransform(Comet comet)
+        private void SetCometTransform(Comet comet, float randomScale)
         {
             if (comet == null)
                 return;
@@ -41,6 +48,8 @@ namespace PlanetIO
             var randomPosition = GenerateRandomPosition();
             var cometTransform = comet.transform;
             cometTransform.position = randomPosition;
+            var zPosition = 1;
+            cometTransform.localScale = new Vector3(randomScale, randomScale, zPosition);
         }
 
         private Vector2 GenerateRandomPosition() =>
