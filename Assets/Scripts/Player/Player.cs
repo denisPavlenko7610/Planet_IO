@@ -1,4 +1,6 @@
 ﻿using Cinemachine;
+using Pool;
+using Spawner;
 using UnityEngine;
 using Zenject;
 
@@ -8,18 +10,18 @@ namespace PlanetIO
     public class Player : MonoBehaviour
     {
         private CinemachineVirtualCamera _playerCamera;
-        private PointsPool _pointsObjectPool;
-        private CometsPool _cometsPool;
-        private PointsSpawner pointsSpawner;
+        private IPool<Point> _pointsObjectPool;
+        private IPool<Comet> _cometsPool;
+        private ISpawner<Point> _pointsSpawner;
 
         [Inject]
-        private void Construct(CinemachineVirtualCamera playerCamera, PointsPool pointsPool, CometsPool cometsPool,
-            PointsSpawner pointsSpawner)
+        private void Construct(CinemachineVirtualCamera playerCamera, IPool<Point> pointsPool, IPool<Comet> cometsPool,
+            ISpawner<Point> pointsSpawner)
         {
             _playerCamera = playerCamera;
             _pointsObjectPool = pointsPool;
             _cometsPool = cometsPool;
-            this.pointsSpawner = pointsSpawner;
+            _pointsSpawner = pointsSpawner;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -29,7 +31,7 @@ namespace PlanetIO
                 IncreaseScale(point.Capacity);
                 IncreaseFov(point.Capacity);
                 _pointsObjectPool.Pool.Release(point);
-                pointsSpawner.CreatePoint();
+                _pointsSpawner.CreateObject();
             }
             else if (other.TryGetComponent(out Comet comet))
             {

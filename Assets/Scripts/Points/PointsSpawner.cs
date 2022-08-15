@@ -1,58 +1,66 @@
-﻿using UnityEngine;
-using Zenject;
+﻿using System.Diagnostics;
+using Pool;
+using Spawner;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace PlanetIO
 {
-    public class PointsSpawner : MonoBehaviour
+    public class PointsSpawner : MonoBehaviour, ISpawner<Point>
     {
-        [SerializeField] private Vector2 _spawnPositionX = new(-223f, 223f);
-        [SerializeField] private Vector2 _spawnPositionY = new(-139f, 161.9f);
         [SerializeField] private float _minPointScale = 0.4f;
         [SerializeField] private float _maxPointScale = 1f;
-        
+        [field: SerializeField] public Vector2 SpawnPositionX { get; set; } = new(-223f, 223f);
+        [field: SerializeField] public Vector2 SpawnPositionY { get; set; } = new(-139f, 161.9f);
+
         private PointsPool _pointsPool;
 
-        [Inject]
-        private void Construct(PointsPool pointsPool)
+        public void Init(IPool<Point> pool)
         {
-            _pointsPool = pointsPool;
-        }
-        private void Start()
-        {
-            GeneratePoints();
+            _pointsPool = (PointsPool)pool;
+            _pointsPool.Init();
+            GenerateObjects();
         }
 
-        public void CreatePoint()
+        public void GenerateObjects()
+        {
+#if UNITY_EDITOR
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+#endif
+            for (int i = 0; i < _pointsPool.Count; i++)
+            {
+                CreateObject();
+            }
+
+#if UNITY_EDITOR
+            stopwatch.Stop();
+            print(stopwatch.ElapsedMilliseconds);
+#endif
+        }
+
+        public void CreateObject()
         {
             var point = _pointsPool.Pool?.Get();
             var randomScale = Random.Range(_minPointScale, _maxPointScale);
             if (point != null)
             {
                 point.Capacity = randomScale;
-                SetPointTransform(point, randomScale);
+                SetTransform(point, randomScale);
             }
         }
 
-        private void GeneratePoints()
-        {
-            for (int i = 0; i < _pointsPool.Count; i++)
-            {
-                CreatePoint();
-            }
-        }
+        public Vector2 GetRandomPosition() =>
+            new(Random.Range(SpawnPositionX.x, SpawnPositionX.y),
+                Random.Range(SpawnPositionY.x, SpawnPositionY.y));
 
-        private void SetPointTransform(Point point, float randomScale)
+        public void SetTransform(Point @object, float randomScale)
         {
-            var randomPosition = GenerateRandomPosition();
-            var pointTransform = point.transform;
+            var randomPosition = GetRandomPosition();
+            var pointTransform = @object.transform;
             pointTransform.position = randomPosition;
             var zPosition = 1;
             pointTransform.localScale = new Vector3(randomScale, randomScale, zPosition);
         }
-
-        private Vector2 GenerateRandomPosition() =>
-            new(Random.Range(_spawnPositionX.x, _spawnPositionX.y),
-                Random.Range(_spawnPositionY.x, _spawnPositionY.y));
     }
 }
