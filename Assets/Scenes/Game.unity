@@ -153,10 +153,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4286f94613b42c3af763a19cb3e7126, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointsObjectPool: {fileID: 1158107521}
-  pointsSpawner: {fileID: 1158107520}
-  cometsObjectPool: {fileID: 470327858}
-  cometsSpawner: {fileID: 470327857}
+  _pointsObjectPool: {fileID: 1158107521}
+  _cometsObjectPool: {fileID: 470327858}
+  _pointsSpawner: {fileID: 1158107520}
+  _cometSpawner: {fileID: 470327857}
   _playerCamera: {fileID: 1751847113}
 --- !u!114 &123435267
 MonoBehaviour:
@@ -538,8 +538,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ac0f0517a06e4247b3353ba53b10cdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spawnPositionX: {x: -223, y: 223}
-  _spawnPositionY: {x: -139, y: 161.9}
+  <SpawnPositionX>k__BackingField: {x: -223, y: 223}
+  <SpawnPositionY>k__BackingField: {x: -139, y: 161.9}
 --- !u!114 &470327858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -926,10 +926,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 405c0dc0fc31438d8f9d8c53304081eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spawnPositionX: {x: -223, y: 223}
-  _spawnPositionY: {x: -139, y: 161.9}
   _minPointScale: 0.4
   _maxPointScale: 1
+  <SpawnPositionX>k__BackingField: {x: -223, y: 223}
+  <SpawnPositionY>k__BackingField: {x: -139, y: 161.9}
 --- !u!114 &1158107521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1026,7 +1026,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 0.72952586, y: 1}
+    m_SensorSize: {x: 1.8841153, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

@@ -1,59 +1,50 @@
+using Pool;
+using Spawner;
 using UnityEngine;
-using Zenject;
 using Random = UnityEngine.Random;
 
 namespace PlanetIO
 {
-    public class CometsSpawner : MonoBehaviour
+    public class CometsSpawner : MonoBehaviour, ISpawner<Comet>
     {
-        [SerializeField] private Vector2 _spawnPositionX = new(-223f, 223f);
-        [SerializeField] private Vector2 _spawnPositionY = new(-139f, 161.9f);
-        [SerializeField] private float _minCometScale = 0.4f;
-        [SerializeField] private float _maxCometScale = 1f;
-        
+        [field: SerializeField] public Vector2 SpawnPositionX { get; set; } = new(-223f, 223f);
+        [field: SerializeField] public Vector2 SpawnPositionY { get; set; } = new(-139f, 161.9f);
+
         private CometsPool _cometsPool;
 
-        [Inject]
-        private void Construct(CometsPool cometsPool)
+        public void Init(IPool<Comet> pool)
         {
-            _cometsPool = cometsPool;
+            _cometsPool = (CometsPool)pool;
+            _cometsPool.Init();
+            GenerateObjects();
         }
 
-        private void Start() => GenerateComet();
-
-        private void GenerateComet()
+        public void GenerateObjects()
         {
             for (int i = 0; i < _cometsPool.Count; i++)
             {
-                CreateComet();
+                CreateObject();
             }
         }
 
-        public void CreateComet()
+        public void CreateObject()
         {
             var comet = _cometsPool.Pool?.Get();
-            var randomScale = Random.Range(_minCometScale, _maxCometScale);
-            if (comet != null)
-            {
-                SetCometTransform(comet, randomScale);
-            }
-           
+            SetTransform(comet, comet.transform.localScale.x);
         }
 
-        private void SetCometTransform(Comet comet, float randomScale)
+        public void SetTransform(Comet @object, float randomScale)
         {
-            if (comet == null)
+            if (@object == null)
                 return;
 
-            var randomPosition = GenerateRandomPosition();
-            var cometTransform = comet.transform;
+            var randomPosition = GetRandomPosition();
+            var cometTransform = @object.transform;
             cometTransform.position = randomPosition;
-            var zPosition = 1;
-            cometTransform.localScale = new Vector3(randomScale, randomScale, zPosition);
         }
 
-        private Vector2 GenerateRandomPosition() =>
-            new(Random.Range(_spawnPositionX.x, _spawnPositionX.y),
-                Random.Range(_spawnPositionY.x, _spawnPositionY.y));
+        public Vector2 GetRandomPosition() =>
+            new(Random.Range(SpawnPositionX.x, SpawnPositionX.y),
+                Random.Range(SpawnPositionY.x, SpawnPositionY.y));
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Cinemachine;
 using Dythervin.AutoAttach;
 using PlanetIO;
+using Pool;
+using Spawner;
 using UnityEngine;
 using Zenject;
 
@@ -8,19 +10,27 @@ namespace PlanetIO_Core
 {
     public class SceneInstaller : MonoInstaller
     {
-        [SerializeField, Attach(Attach.Scene)] private PointsPool pointsObjectPool;
-        [SerializeField, Attach(Attach.Scene)] private PointsSpawner pointsSpawner;
-        [SerializeField, Attach(Attach.Scene)] private CometsPool cometsObjectPool;
-        [SerializeField, Attach(Attach.Scene)] private CometsSpawner cometsSpawner;
+        [SerializeField, Attach(Attach.Scene)] private PointsPool _pointsObjectPool;
+        [SerializeField, Attach(Attach.Scene)] private CometsPool _cometsObjectPool;
+        [SerializeField, Attach(Attach.Scene)] private PointsSpawner _pointsSpawner;
+        [SerializeField, Attach(Attach.Scene)] private CometsSpawner _cometSpawner;
         [SerializeField, Attach(Attach.Scene)] private CinemachineVirtualCamera _playerCamera;
 
         public override void InstallBindings()
         {
-            Container.Bind<PointsPool>().FromInstance(pointsObjectPool).AsSingle();
-            Container.Bind<CometsPool>().FromInstance(cometsObjectPool).AsSingle();
-            Container.Bind<PointsSpawner>().FromInstance(pointsSpawner).AsSingle();
-            Container.Bind<CometsSpawner>().FromInstance(cometsSpawner).AsSingle();
+            Container.Bind<IPool<Point>>().FromInstance(_pointsObjectPool);
+            Container.Bind<IPool<Comet>>().FromInstance(_cometsObjectPool).AsSingle();
+            Container.Bind<ISpawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
+            Container.Bind<ISpawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
             Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
+            
+            Init();
+        }
+
+        private void Init()
+        {
+            _pointsSpawner.Init(_pointsObjectPool);
+            _cometSpawner.Init(_cometsObjectPool);
         }
     }
 }
