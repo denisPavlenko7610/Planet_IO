@@ -1,6 +1,6 @@
 ﻿namespace Spawner
 {
-    public interface ICreateObject
+    public interface ICreate
     {
         void CreateObject();
     }

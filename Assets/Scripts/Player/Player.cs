@@ -10,18 +10,18 @@ namespace PlanetIO
     public class Player : MonoBehaviour
     {
         private CinemachineVirtualCamera _playerCamera;
-        private IPool<Point> _pointsObjectPool;
-        private IPool<Comet> _cometsPool;
-        private ISpawner<Point> _pointsSpawner;
-        private ISpawner<Comet> _cometSpawner;
+        private ObjectPool<Point> pointsObjectObjectPool;
+        private ObjectPool<Comet> cometsObjectPool;
+        private Spawner<Point> _pointsSpawner;
+        private Spawner<Comet> _cometSpawner;
 
         [Inject]
-        private void Construct(CinemachineVirtualCamera playerCamera, IPool<Point> pointsPool, IPool<Comet> cometsPool,
-            ISpawner<Point> pointsSpawner, ISpawner<Comet> cometSpawner)
+        private void Construct(CinemachineVirtualCamera playerCamera, ObjectPool<Point> pointsObjectPool, ObjectPool<Comet> cometsObjectPool,
+            Spawner<Point> pointsSpawner, Spawner<Comet> cometSpawner)
         {
             _playerCamera = playerCamera;
-            _pointsObjectPool = pointsPool;
-            _cometsPool = cometsPool;
+            pointsObjectObjectPool = pointsObjectPool;
+            this.cometsObjectPool = cometsObjectPool;
             _pointsSpawner = pointsSpawner;
             _cometSpawner = cometSpawner;
         }
@@ -32,14 +32,14 @@ namespace PlanetIO
             {
                 IncreaseScale(point.Capacity);
                 IncreaseFov(point.Capacity);
-                _pointsObjectPool.Pool.Release(point);
+                pointsObjectObjectPool.Pool.Release(point);
                 _pointsSpawner.CreateObject();
             }
             else if (other.TryGetComponent(out Comet comet))
             {
                 IncreaseScale(-comet.Capacity);
                 IncreaseFov(-comet.Capacity);
-                _cometsPool.Pool.Release(comet);
+                cometsObjectPool.Pool.Release(comet);
                 _cometSpawner.CreateObject();
             }
         }

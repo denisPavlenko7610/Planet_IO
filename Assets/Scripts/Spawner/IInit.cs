@@ -5,6 +5,6 @@ namespace Spawner
 {
     public interface IInit<T> where T: MonoBehaviour
     {
-        void Init(IPool<T> pool);
+        void Init(ObjectPool<T> objectPool);
     }
 }

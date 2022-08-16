@@ -10,27 +10,27 @@ namespace PlanetIO_Core
 {
     public class SceneInstaller : MonoInstaller
     {
-        [SerializeField, Attach(Attach.Scene)] private PointsPool _pointsObjectPool;
-        [SerializeField, Attach(Attach.Scene)] private CometsPool _cometsObjectPool;
-        [SerializeField, Attach(Attach.Scene)] private PointsSpawner _pointsSpawner;
-        [SerializeField, Attach(Attach.Scene)] private CometsSpawner _cometSpawner;
+        [SerializeField, Attach(Attach.Scene)] private ObjectPool<Point> _pointsPool;
+        [SerializeField, Attach(Attach.Scene)] private ObjectPool<Comet> _cometsPool;
+        [SerializeField, Attach(Attach.Scene)] private Spawner<Point> _pointsSpawner;
+        [SerializeField, Attach(Attach.Scene)] private Spawner<Comet> _cometSpawner;
         [SerializeField, Attach(Attach.Scene)] private CinemachineVirtualCamera _playerCamera;
 
         public override void InstallBindings()
         {
-            Container.Bind<IPool<Point>>().FromInstance(_pointsObjectPool);
-            Container.Bind<IPool<Comet>>().FromInstance(_cometsObjectPool).AsSingle();
-            Container.Bind<ISpawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
-            Container.Bind<ISpawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
-            Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
-            
             Init();
+            
+            Container.Bind<ObjectPool<Point>>().FromInstance(_pointsPool).AsSingle();
+            Container.Bind<ObjectPool<Comet>>().FromInstance(_cometsPool).AsSingle();
+            Container.Bind<Spawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
+            Container.Bind<Spawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
+            Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
         }
 
         private void Init()
         {
-            _pointsSpawner.Init(_pointsObjectPool);
-            _cometSpawner.Init(_cometsObjectPool);
+            _pointsSpawner.Init(_pointsPool);
+            _cometSpawner.Init(_cometsPool);
         }
     }
 }
