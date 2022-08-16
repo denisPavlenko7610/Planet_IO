@@ -180,8 +180,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rigidbody2D: {fileID: 3248940148568355938}
-  _maxSpeed: 0.01
-  _minSpeed: 0.03
+  _cometTransform: {fileID: 3248940148568355939}
+  _minSpeed: 0.01
+  _maxSpeed: 0.03
 --- !u!114 &3248940148568355936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -194,5 +195,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d1294815fd6ac4499e07e0448a26a4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxTimeLifeComet: 15
-  _minTimeLifeComet: 5
