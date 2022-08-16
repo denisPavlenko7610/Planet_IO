@@ -157,6 +157,7 @@ MonoBehaviour:
   _cometsPool: {fileID: 470327858}
   _pointsSpawner: {fileID: 1158107520}
   _cometSpawner: {fileID: 470327857}
+  _playerMovement: {fileID: 1292756757}
   _playerCamera: {fileID: 1751847113}
 --- !u!114 &123435267
 MonoBehaviour:
@@ -950,6 +951,17 @@ MonoBehaviour:
   - {fileID: 3309487184033392244, guid: b21edc5983c318f4a9e5eb127676d133, type: 3}
   - {fileID: 3801453074540520297, guid: 30ca87340b70b7141ae2f44b7dcbb5f9, type: 3}
   - {fileID: 1125028560751816433, guid: 51d1f76d74d87f44b9f832eddd5db64f, type: 3}
+--- !u!114 &1292756757 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+  m_PrefabInstance: {fileID: 8045643209960618505}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e39014f46ffde44cb5478bc83ff5afa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1691944479
 GameObject:
   m_ObjectHideFlags: 0
@@ -1028,7 +1040,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.8841153, y: 1}
+    m_SensorSize: {x: 0.5969828, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -1369,7 +1381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8045643209477139672, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8045643209477139672, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1410,10 +1422,6 @@ PrefabInstance:
     - target: {fileID: 8045643209477139672, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
-      propertyPath: speed
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: mainCamera
