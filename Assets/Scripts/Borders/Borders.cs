@@ -1,6 +1,3 @@
-using System;
-using Pool;
-using Spawner;
 using UnityEngine;
 using Zenject;
 
@@ -8,25 +5,14 @@ namespace PlanetIO
 {
     public class Borders : MonoBehaviour
     {
-        private ObjectPool<Comet> _cometsObjectPool;
-        private Spawner<Comet> _cometSpawner;
+        private LogicsCometsSpawner _logicsCometsSpawner;
+        [SerializeField] private BordersTrigger _bordersTrigger;
 
         [Inject]
-        private void Construct(Spawner<Comet> cometSpawner, ObjectPool<Comet> cometsObjectPool)
-        {
-            _cometSpawner = cometSpawner;
-            _cometsObjectPool = cometsObjectPool;
-        }
+        private void Construct(LogicsCometsSpawner logicsCometsSpawner) => _logicsCometsSpawner = logicsCometsSpawner;
 
-        private void OnTriggerEnter2D(Collider2D col)
-        {
-            if (col.TryGetComponent(out Comet comet))
-            {
-                _cometsObjectPool.Pool.Release(comet);
-                _cometSpawner.CreateObject();
-            }
-        }
+        private void OnEnable() => _bordersTrigger.OnCometTriggeredHandler += _logicsCometsSpawner.CreateComet;
+
+        private void OnDisable() => _bordersTrigger.OnCometTriggeredHandler -= _logicsCometsSpawner.CreateComet;
     }
-    
 }
-
