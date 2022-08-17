@@ -19,8 +19,13 @@ MonoBehaviour:
     width: 2560
     height: 1357
   m_ShowMode: 4
+<<<<<<< HEAD
   m_Title: Hierarchy
   m_RootView: {fileID: 5}
+=======
+  m_Title: Scene
+  m_RootView: {fileID: 2}
+>>>>>>> remotes/origin/master
   m_MinSize: {x: 875, y: 350}
   m_MaxSize: {x: 10000, y: 10000}
   m_Maximized: 1
@@ -195,8 +200,13 @@ MonoBehaviour:
   m_MinSize: {x: 400, y: 300}
   m_MaxSize: {x: 32384, y: 24288}
   vertical: 1
+<<<<<<< HEAD
   controlID: 17
 --- !u!114 &9
+=======
+  controlID: 66
+--- !u!114 &6
+>>>>>>> remotes/origin/master
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -220,8 +230,13 @@ MonoBehaviour:
   m_MinSize: {x: 400, y: 300}
   m_MaxSize: {x: 32384, y: 24288}
   vertical: 0
+<<<<<<< HEAD
   controlID: 18
 --- !u!114 &10
+=======
+  controlID: 67
+--- !u!114 &7
+>>>>>>> remotes/origin/master
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -245,8 +260,13 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 300}
   m_MaxSize: {x: 24288, y: 24288}
   vertical: 1
+<<<<<<< HEAD
   controlID: 230
 --- !u!114 &11
+=======
+  controlID: 68
+--- !u!114 &8
+>>>>>>> remotes/origin/master
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -271,8 +291,13 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 200}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
+<<<<<<< HEAD
   controlID: 231
 --- !u!114 &12
+=======
+  controlID: 57
+--- !u!114 &9
+>>>>>>> remotes/origin/master
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -801,9 +826,15 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
+<<<<<<< HEAD
     m_Target: {x: 170.20447, y: 117.157455, z: 6547.765}
     speed: 2
     m_Value: {x: 170.20447, y: 117.157455, z: 6547.765}
+=======
+    m_Target: {x: -129.09015, y: 111.31312, z: 1407.5151}
+    speed: 2
+    m_Value: {x: -129.09015, y: 111.31312, z: 1407.5151}
+>>>>>>> remotes/origin/master
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -854,9 +885,15 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
+<<<<<<< HEAD
     m_Target: 54.31986
     speed: 2
     m_Value: 54.31986
+=======
+    m_Target: 11.607924
+    speed: 2
+    m_Value: 11.607924
+>>>>>>> remotes/origin/master
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -934,10 +971,17 @@ MonoBehaviour:
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
+<<<<<<< HEAD
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 72b00000
     m_LastClickedID: 45170
     m_ExpandedIDs: 000000005eb0000068b0000000ca9a3b
+=======
+    scrollPos: {x: 0, y: 3.7999268}
+    m_SelectedIDs: 1c650000
+    m_LastClickedID: 25884
+    m_ExpandedIDs: 00000000f2640000f4640000f6640000f8640000fa640000fc640000
+>>>>>>> remotes/origin/master
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -965,7 +1009,11 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
+<<<<<<< HEAD
     m_ExpandedIDs: 
+=======
+    m_ExpandedIDs: 00000000f2640000f4640000f6640000f8640000fa640000fc640000
+>>>>>>> remotes/origin/master
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
