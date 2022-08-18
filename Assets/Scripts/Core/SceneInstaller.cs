@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using Core;
 using Dythervin.AutoAttach;
 using PlanetIO;
 using Pool;
@@ -23,6 +24,9 @@ namespace PlanetIO_Core
         [Header("logics Spawner")] 
         [SerializeField, Attach(Attach.Scene)] private LogicsPointsSpawner _logicsPointsSpawner;
         [SerializeField, Attach(Attach.Scene)] private LogicsCometsSpawner  _logicsCometsSpawner;
+
+        [Header("Core")] 
+        [SerializeField, Attach(Attach.Scene)] private RestartGame _restartGame;
         
 
         public override void InstallBindings()
@@ -39,6 +43,8 @@ namespace PlanetIO_Core
             
             Container.Bind<LogicsCometsSpawner>().FromInstance(_logicsCometsSpawner).AsSingle();
             Container.Bind<LogicsPointsSpawner>().FromInstance(_logicsPointsSpawner).AsSingle();
+
+            Container.Bind<RestartGame>().FromInstance(_restartGame).AsSingle();
         }
 
         private void Init()

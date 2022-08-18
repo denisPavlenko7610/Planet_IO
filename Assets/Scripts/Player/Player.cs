@@ -1,7 +1,4 @@
-﻿using Cinemachine;
-using Pool;
-using Spawner;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 namespace PlanetIO
@@ -22,7 +19,6 @@ namespace PlanetIO
         [Inject]
         private void Construct(LogicsCometsSpawner logicsCometsSpawner,LogicsPointsSpawner logicsPointsSpawner )
         {
-           
             _logicsCometsSpawner = logicsCometsSpawner;
             _logicsPointsSpawner = logicsPointsSpawner;
         }

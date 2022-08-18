@@ -1,35 +1,49 @@
-using System;
 using Cinemachine;
+using Core;
 using UnityEngine;
+using UnityEngine.Events;
 using Zenject;
 
 namespace PlanetIO
 {
     public class PlayerScale : MonoBehaviour
     {
+        private UnityEvent<float> _ChangeCapacity = new UnityEvent<float>();
+        
         [Header("Capacity Player")]
         [SerializeField] private float _minCapacityPlayer;
         [SerializeField] private float _maxCapacityPlayer;
         public float _capacityPlayer { get; private set; }
-        
+
+        private RestartGame _restartGame;
         private CinemachineVirtualCamera _playerCamera;
 
 
         [Inject]
-        private void Construct(CinemachineVirtualCamera playerCamera)
+        private void Construct(CinemachineVirtualCamera playerCamera, RestartGame restartGame)
         {
             _playerCamera = playerCamera;
+            _restartGame = restartGame;
         }
 
-        private void Awake()
+        private void Awake() => _capacityPlayer = transform.localScale.x;
+
+        private void Start()
         {
-            _capacityPlayer = transform.localScale.x;
+            _ChangeCapacity.AddListener((capacity) =>
+            {
+                if (capacity < _minCapacityPlayer) 
+                    _restartGame.Restart();
+                
+            });
         }
-
         public void NewScalePlayer(float scaleValue)
         {
-            IncreaseScale(scaleValue);
-            IncreaseFov(scaleValue);
+            if (_capacityPlayer < _maxCapacityPlayer)
+            {
+                IncreaseScale(scaleValue);
+                IncreaseFov(scaleValue);
+            }
         }
 
         public void BordersInteraction(float scaleValue) => InteractionOnBorder(scaleValue);
@@ -40,6 +54,7 @@ namespace PlanetIO
             var scaleDivider = 100;
             scaleValue /= scaleDivider;
             NewCapacityPlayer(scaleValue);
+            _ChangeCapacity.Invoke(_capacityPlayer);
             transform.localScale += new Vector3(scaleValue, scaleValue, 0);
         }
 
