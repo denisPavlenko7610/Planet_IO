@@ -9,6 +9,14 @@ namespace PlanetIO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : MonoBehaviour
     {
+        [Header("Borders")] 
+        [SerializeField] private BordersTrigger _bordersTrigger;
+        
+        [Header("Capacity Player")]
+        [SerializeField] private float _minCapacityPlayer;
+        [SerializeField] private float _maxCapacityPlayer;
+        public float _capacityPlayer { get; private set; }
+        
         private CinemachineVirtualCamera _playerCamera;
         private ObjectPool<Point> pointsObjectObjectPool;
         private ObjectPool<Comet> cometsObjectPool;
@@ -25,6 +33,15 @@ namespace PlanetIO
             _pointsSpawner = pointsSpawner;
             _cometSpawner = cometSpawner;
         }
+
+        private void Awake()
+        {
+            _capacityPlayer = transform.localScale.x;
+        }
+
+        private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += InteractionOnBorder;
+
+        private void OnDisable() => _bordersTrigger.OnPlayerTriggeredHandler -= InteractionOnBorder;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -43,11 +60,12 @@ namespace PlanetIO
                 _cometSpawner.CreateObject();
             }
         }
-
+        
         private void IncreaseScale(float scaleValue)
         {
             var scaleDivider = 100;
             scaleValue /= scaleDivider;
+            NewCapacityPlayer(scaleValue);
             transform.localScale += new Vector3(scaleValue, scaleValue, 0);
         }
 
@@ -57,5 +75,17 @@ namespace PlanetIO
             scaleValue /= scaleDivider;
             _playerCamera.m_Lens.OrthographicSize += scaleValue;
         }
+
+        private void InteractionOnBorder(float scaleValue)
+        {
+            var scaleDivider = 2f;
+            scaleValue /= scaleDivider;
+            if (scaleValue <= _minCapacityPlayer)
+                scaleValue = _minCapacityPlayer;
+            _capacityPlayer = scaleValue;
+            transform.localScale = new(scaleValue, scaleValue, 0);
+        }
+
+        private void NewCapacityPlayer(float scaleValue) => _capacityPlayer += scaleValue;
     }
 }
