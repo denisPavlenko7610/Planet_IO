@@ -57,7 +57,7 @@ namespace PlanetIO
 
         private void OnCollisionEnter2D(Collision2D col)
         {
-            if (col.collider.TryGetComponent(out BordersTrigger borders))
+            if (col.collider.TryGetComponent(out Borders borders))
             {
                 InteractionOnBorder(_capacityPlayer);
                 IncreaseFov(-_capacityPlayer);

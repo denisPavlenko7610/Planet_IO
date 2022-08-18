@@ -1,4 +1,3 @@
-using System;
 using Dythervin.AutoAttach;
 using UnityEngine;
 
@@ -19,11 +18,7 @@ namespace PlanetIO
             _currentSpeed = _normalSpeed;
         }
 
-        void Update()
-        {
-            mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-        }
-
+        void Update() => mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         private void FixedUpdate() => MovePlayer();
 
         private  void MovePlayer() =>  rigidbody2D.velocity = mousePosition.normalized * _currentSpeed;

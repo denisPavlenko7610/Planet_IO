@@ -158,6 +158,7 @@ MonoBehaviour:
   _pointsSpawner: {fileID: 1158107520}
   _cometSpawner: {fileID: 470327857}
   _playerMovement: {fileID: 1292756757}
+  _logicsCometsSpawner: {fileID: 470327857}
   _playerCamera: {fileID: 1751847113}
 --- !u!114 &123435267
 MonoBehaviour:
@@ -900,6 +901,7 @@ GameObject:
   - component: {fileID: 1064358232}
   - component: {fileID: 1064358231}
   - component: {fileID: 1064358237}
+  - component: {fileID: 1064358238}
   m_Layer: 0
   m_Name: Borders
   m_TagString: Untagged
@@ -1007,7 +1009,7 @@ CompositeCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1064358229}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
@@ -1153,6 +1155,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2e68e8cedb4c3649a086b6ccea851bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1064358238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1064358229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa6d3fe1aedc4dbaaa0c2368cb5c3f68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _bordersTrigger: {fileID: 1064358237}
 --- !u!1 &1158107515
 GameObject:
   m_ObjectHideFlags: 0
@@ -1341,7 +1356,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 0.59806037, y: 1}
+    m_SensorSize: {x: 2.0068307, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -1676,6 +1691,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1691944480}
     m_Modifications:
+    - target: {fileID: 770849020, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 770849020, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1764568132, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 519420031}
     - target: {fileID: 8045643209477139654, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_Name
       value: Player
