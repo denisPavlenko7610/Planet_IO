@@ -544,6 +544,7 @@ MonoBehaviour:
   _maxObjectScale: 1
   <SpawnPositionX>k__BackingField: {x: -223, y: 223}
   <SpawnPositionY>k__BackingField: {x: -139, y: 161.9}
+  _bordersTrigger: {fileID: 1064358237}
 --- !u!114 &470327858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -901,7 +902,6 @@ GameObject:
   - component: {fileID: 1064358232}
   - component: {fileID: 1064358231}
   - component: {fileID: 1064358237}
-  - component: {fileID: 1064358238}
   m_Layer: 0
   m_Name: Borders
   m_TagString: Untagged
@@ -1155,19 +1155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2e68e8cedb4c3649a086b6ccea851bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1064358238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1064358229}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa6d3fe1aedc4dbaaa0c2368cb5c3f68, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _bordersTrigger: {fileID: 1064358237}
 --- !u!1 &1158107515
 GameObject:
   m_ObjectHideFlags: 0
@@ -1755,6 +1742,10 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 519420031}
+    - target: {fileID: 8517843457492819226, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: _bordersTrigger
+      value: 
+      objectReference: {fileID: 1064358237}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
 --- !u!4 &8742538545852915487 stripped

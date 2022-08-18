@@ -1,11 +1,13 @@
 using Pool;
 using Zenject;
 using Spawner;
+using UnityEngine;
 
 namespace PlanetIO
 {
     public class LogicsCometsSpawner : Spawner<Comet>
     {
+        [SerializeField] private BordersTrigger _bordersTrigger;
         private ObjectPool<Comet> _cometsObjectPool;
         private Spawner<Comet> _cometSpawner;
 
@@ -16,7 +18,10 @@ namespace PlanetIO
             _cometsObjectPool = cometsObjectPool;
         }
 
-        public void CreateComet(Comet comet)
+        private void OnEnable() => _bordersTrigger.OnCometTriggeredHandler += CreateComet;
+        private void OnDisable() => _bordersTrigger.OnCometTriggeredHandler -= CreateComet;
+
+        private void CreateComet(Comet comet)
         {
             _cometsObjectPool.Pool.Release(comet);
             _cometSpawner.CreateObject();

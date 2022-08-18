@@ -1,5 +1,4 @@
-﻿using System;
-using Cinemachine;
+﻿using Cinemachine;
 using Pool;
 using Spawner;
 using UnityEngine;
@@ -10,10 +9,13 @@ namespace PlanetIO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : MonoBehaviour
     {
+        [Header("Borders")] 
+        [SerializeField] private BordersTrigger _bordersTrigger;
+        
         [Header("Capacity Player")]
         [SerializeField] private float _minCapacityPlayer;
         [SerializeField] private float _maxCapacityPlayer;
-        [SerializeField] private float _capacityPlayer;
+        public float _capacityPlayer { get; private set; }
         
         private CinemachineVirtualCamera _playerCamera;
         private ObjectPool<Point> pointsObjectObjectPool;
@@ -37,6 +39,10 @@ namespace PlanetIO
             _capacityPlayer = transform.localScale.x;
         }
 
+        private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += InteractionOnBorder;
+
+        private void OnDisable() => _bordersTrigger.OnPlayerTriggeredHandler -= InteractionOnBorder;
+
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.TryGetComponent(out Point point))
@@ -54,16 +60,7 @@ namespace PlanetIO
                 _cometSpawner.CreateObject();
             }
         }
-
-        private void OnCollisionEnter2D(Collision2D col)
-        {
-            if (col.collider.TryGetComponent(out Borders borders))
-            {
-                InteractionOnBorder(_capacityPlayer);
-                IncreaseFov(-_capacityPlayer);
-            }
-        }
-
+        
         private void IncreaseScale(float scaleValue)
         {
             var scaleDivider = 100;
