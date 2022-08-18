@@ -158,8 +158,9 @@ MonoBehaviour:
   _pointsSpawner: {fileID: 1158107520}
   _cometSpawner: {fileID: 470327857}
   _playerMovement: {fileID: 1292756757}
-  _logicsCometsSpawner: {fileID: 470327857}
   _playerCamera: {fileID: 1751847113}
+  _logicsPointsSpawner: {fileID: 1158107520}
+  _logicsCometsSpawner: {fileID: 470327857}
 --- !u!114 &123435267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1222,17 +1223,36 @@ MonoBehaviour:
   - {fileID: 3309487184033392244, guid: b21edc5983c318f4a9e5eb127676d133, type: 3}
   - {fileID: 3801453074540520297, guid: 30ca87340b70b7141ae2f44b7dcbb5f9, type: 3}
   - {fileID: 1125028560751816433, guid: 51d1f76d74d87f44b9f832eddd5db64f, type: 3}
+--- !u!1 &1229903826 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8045643209477139654, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+  m_PrefabInstance: {fileID: 8045643209960618505}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1292756757 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
   m_PrefabInstance: {fileID: 8045643209960618505}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1229903826}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e39014f46ffde44cb5478bc83ff5afa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1292756762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229903826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfcb2bdfe70048c6b1ce4d79204d9097, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _minCapacityPlayer: 0.08
+  _maxCapacityPlayer: 0
 --- !u!1 &1664946613
 GameObject:
   m_ObjectHideFlags: 0
@@ -1343,7 +1363,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 2.0068307, y: 1}
+    m_SensorSize: {x: 0.6666667, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -1742,6 +1762,10 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 519420031}
+    - target: {fileID: 8517843457492819226, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: _playerScale
+      value: 
+      objectReference: {fileID: 1292756762}
     - target: {fileID: 8517843457492819226, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: _bordersTrigger
       value: 
