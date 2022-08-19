@@ -9,12 +9,12 @@ namespace PlanetIO_Core
         [SerializeField] private UIDocument _uiDocument;
         
         private Button _startButton;
-        string playbutton = "PlayButton";
+        private string _playbutton = "PlayButton";
 
         void Start()
         {
             var root = _uiDocument.rootVisualElement;
-            _startButton = root.Q<Button>(playbutton);
+            _startButton = root.Q<Button>(_playbutton);
             _startButton.clicked += StartButtonPressed;
         }
 

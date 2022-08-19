@@ -5,9 +5,10 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-    public class LogicsCometsSpawner : Spawner<Comet>
+    public class CometsSpawnerLogic : Spawner<Comet>
     {
         [SerializeField] private BordersTrigger _bordersTrigger;
+        
         private ObjectPool<Comet> _cometsPool;
         private Spawner<Comet> _cometSpawner;
 

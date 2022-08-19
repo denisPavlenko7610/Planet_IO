@@ -12,13 +12,12 @@ namespace PlanetIO
         {
             if (col.TryGetComponent(out Comet comet)) 
                 OnCometTriggeredHandler?.Invoke(comet);
-         
         }
 
         private void OnCollisionEnter2D(Collision2D col)
         {
             if (col.collider.TryGetComponent(out PlayerScale player))
-                OnPlayerTriggeredHandler?.Invoke(player._capacityPlayer);
+                OnPlayerTriggeredHandler?.Invoke(player.CapacityPlayer);
         }
     }
     

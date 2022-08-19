@@ -8,16 +8,14 @@ namespace PlanetIO
 {
     public class PlayerScale : MonoBehaviour
     {
-        private UnityEvent<float> _ChangeCapacity = new UnityEvent<float>();
-        
         [Header("Capacity Player")]
         [SerializeField] private float _minCapacityPlayer;
         [SerializeField] private float _maxCapacityPlayer;
-        public float _capacityPlayer { get; private set; }
+        public float CapacityPlayer { get; private set; }
 
+        private UnityEvent<float> _changeCapacity = new();
         private RestartGame _restartGame;
         private CinemachineVirtualCamera _playerCamera;
-
 
         [Inject]
         private void Construct(CinemachineVirtualCamera playerCamera, RestartGame restartGame)
@@ -26,55 +24,52 @@ namespace PlanetIO
             _restartGame = restartGame;
         }
 
-        private void Awake() => _capacityPlayer = transform.localScale.x;
+        private void Awake() => CapacityPlayer = transform.localScale.x;
 
         private void Start()
         {
-            _ChangeCapacity.AddListener((capacity) =>
+            _changeCapacity.AddListener((capacity) =>
             {
                 if (capacity < _minCapacityPlayer) 
                     _restartGame.Restart();
-                
             });
         }
-        public void NewScalePlayer(float scaleValue)
+        public void IncreasePlayerCapacity(float scaleValue)
         {
-            if (_capacityPlayer < _maxCapacityPlayer)
+            if (CapacityPlayer < _maxCapacityPlayer)
             {
                 IncreaseScale(scaleValue);
-                IncreaseFov(scaleValue);
+                IncreaseFieldOfView(scaleValue);
             }
         }
+        
+        public void DecreasePlayerCapacity(float scaleValue)
+        {
+            var scaleDivider = 2f;
+            scaleValue /= scaleDivider;
+            if (scaleValue <= _minCapacityPlayer)
+                return;
 
-        public void BordersInteraction(float scaleValue) => InteractionOnBorder(scaleValue);
-
+            CapacityPlayer = scaleValue;
+            transform.localScale = new(scaleValue, scaleValue, 0);
+        }
 
         private void IncreaseScale(float scaleValue)
         {
             var scaleDivider = 100;
             scaleValue /= scaleDivider;
-            NewCapacityPlayer(scaleValue);
-            _ChangeCapacity.Invoke(_capacityPlayer);
+            SetPlayerCapacity(scaleValue);
+            _changeCapacity.Invoke(CapacityPlayer);
             transform.localScale += new Vector3(scaleValue, scaleValue, 0);
         }
 
-        private void IncreaseFov(float scaleValue)
+        private void IncreaseFieldOfView(float scaleValue)
         {
             var scaleDivider = 40;
             scaleValue /= scaleDivider;
             _playerCamera.m_Lens.OrthographicSize += scaleValue;
         }
-
-        private void InteractionOnBorder(float scaleValue)
-        {
-            var scaleDivider = 2f;
-            scaleValue /= scaleDivider;
-            if (scaleValue <= _minCapacityPlayer)
-                scaleValue = _minCapacityPlayer;
-            _capacityPlayer = scaleValue;
-            transform.localScale = new(scaleValue, scaleValue, 0);
-        }
-
-        private void NewCapacityPlayer(float scaleValue) => _capacityPlayer += scaleValue;
+        
+        private void SetPlayerCapacity(float scaleValue) => CapacityPlayer += scaleValue;
     }
 }
