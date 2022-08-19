@@ -1,7 +1,4 @@
-﻿using Cinemachine;
-using Pool;
-using Spawner;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 namespace PlanetIO
@@ -12,80 +9,36 @@ namespace PlanetIO
         [Header("Borders")] 
         [SerializeField] private BordersTrigger _bordersTrigger;
         
-        [Header("Capacity Player")]
-        [SerializeField] private float _minCapacityPlayer;
-        [SerializeField] private float _maxCapacityPlayer;
-        public float _capacityPlayer { get; private set; }
+        [Header("player script")]
+        [SerializeField] private PlayerScale _playerScale;
         
-        private CinemachineVirtualCamera _playerCamera;
-        private ObjectPool<Point> pointsObjectObjectPool;
-        private ObjectPool<Comet> cometsObjectPool;
-        private Spawner<Point> _pointsSpawner;
-        private Spawner<Comet> _cometSpawner;
+        [Header("Spawner")]
+        private LogicsCometsSpawner _logicsCometsSpawner;
+        private LogicsPointsSpawner _logicsPointsSpawner;
 
         [Inject]
-        private void Construct(CinemachineVirtualCamera playerCamera, ObjectPool<Point> pointsObjectPool, ObjectPool<Comet> cometsObjectPool,
-            Spawner<Point> pointsSpawner, Spawner<Comet> cometSpawner)
+        private void Construct(LogicsCometsSpawner logicsCometsSpawner,LogicsPointsSpawner logicsPointsSpawner )
         {
-            _playerCamera = playerCamera;
-            pointsObjectObjectPool = pointsObjectPool;
-            this.cometsObjectPool = cometsObjectPool;
-            _pointsSpawner = pointsSpawner;
-            _cometSpawner = cometSpawner;
+            _logicsCometsSpawner = logicsCometsSpawner;
+            _logicsPointsSpawner = logicsPointsSpawner;
         }
 
-        private void Awake()
-        {
-            _capacityPlayer = transform.localScale.x;
-        }
+        private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += _playerScale.BordersInteraction;
 
-        private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += InteractionOnBorder;
-
-        private void OnDisable() => _bordersTrigger.OnPlayerTriggeredHandler -= InteractionOnBorder;
+        private void OnDisable() => _bordersTrigger.OnPlayerTriggeredHandler -= _playerScale.BordersInteraction;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.TryGetComponent(out Point point))
             {
-                IncreaseScale(point.Capacity);
-                IncreaseFov(point.Capacity);
-                pointsObjectObjectPool.Pool.Release(point);
-                _pointsSpawner.CreateObject();
+                _playerScale.NewScalePlayer(point.Capacity);
+                _logicsPointsSpawner.CreatePoint(point);
             }
             else if (other.TryGetComponent(out Comet comet))
             {
-                IncreaseScale(-comet.Capacity);
-                IncreaseFov(-comet.Capacity);
-                cometsObjectPool.Pool.Release(comet);
-                _cometSpawner.CreateObject();
+                _playerScale.NewScalePlayer(-comet.Capacity);
+                _logicsCometsSpawner.CreateComet(comet);
             }
         }
-        
-        private void IncreaseScale(float scaleValue)
-        {
-            var scaleDivider = 100;
-            scaleValue /= scaleDivider;
-            NewCapacityPlayer(scaleValue);
-            transform.localScale += new Vector3(scaleValue, scaleValue, 0);
-        }
-
-        private void IncreaseFov(float scaleValue)
-        {
-            var scaleDivider = 40;
-            scaleValue /= scaleDivider;
-            _playerCamera.m_Lens.OrthographicSize += scaleValue;
-        }
-
-        private void InteractionOnBorder(float scaleValue)
-        {
-            var scaleDivider = 2f;
-            scaleValue /= scaleDivider;
-            if (scaleValue <= _minCapacityPlayer)
-                scaleValue = _minCapacityPlayer;
-            _capacityPlayer = scaleValue;
-            transform.localScale = new(scaleValue, scaleValue, 0);
-        }
-
-        private void NewCapacityPlayer(float scaleValue) => _capacityPlayer += scaleValue;
     }
 }
