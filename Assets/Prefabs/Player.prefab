@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8517843457492819222}
   - component: {fileID: 8517843457492819226}
   - component: {fileID: 1292756762}
-  - component: {fileID: 1263385199048002877}
+  - component: {fileID: 1292756758}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
+  _accelerationButton: {fileID: 0}
   rigidbody2D: {fileID: 8517843457492819217}
   _normalSpeed: 3
   _boostSpeed: 6
@@ -171,7 +172,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _minCapacityPlayer: 0.08
   _maxCapacityPlayer: 20
---- !u!114 &1263385199048002877
+--- !u!114 &1292756758
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -183,5 +184,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a7f2a102e37437c97dc5dceeafe82f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiDocument: {fileID: 0}
-  _playerMovement: {fileID: 8517843457492819222}

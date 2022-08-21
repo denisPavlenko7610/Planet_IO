@@ -828,7 +828,7 @@ GameObject:
   - component: {fileID: 643216468}
   - component: {fileID: 643216467}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Licenseinfo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1807,6 +1807,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Background
       objectReference: {fileID: 0}
+    - target: {fileID: 2786221850126653218, guid: 79b69872c02095644ac654c1a9b0efa5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106680385970839746, guid: 79b69872c02095644ac654c1a9b0efa5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 79b69872c02095644ac654c1a9b0efa5, type: 3}
 --- !u!1001 &8045643209960618505
@@ -1816,10 +1824,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1691944480}
     m_Modifications:
-    - target: {fileID: 1263385199048002877, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
-      propertyPath: _uiDocument
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 8045643209477139654, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1868,14 +1872,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8045643209477139673, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: m_SortingLayer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8045643209477139673, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1509899701
+      objectReference: {fileID: 0}
     - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 519420031}
-    - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
-      propertyPath: accelerationButton
-      value: 
-      objectReference: {fileID: 566410509}
     - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: _accelerationButton
       value: 
@@ -1884,7 +1892,8 @@ PrefabInstance:
       propertyPath: _bordersTrigger
       value: 
       objectReference: {fileID: 1064358237}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1292756758, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
 --- !u!4 &8742538545852915487 stripped
 Transform:
