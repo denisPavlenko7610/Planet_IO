@@ -1,7 +1,7 @@
-﻿using Pool;
+﻿using Planet_IO.ObjectPool;
 using UnityEngine;
 
-namespace Spawner
+namespace Planet_IO
 {
     public interface IInit<T> where T: MonoBehaviour
     {

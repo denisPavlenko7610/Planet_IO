@@ -1,8 +1,7 @@
-﻿using Spawner;
-using Pool;
+﻿using Planet_IO.ObjectPool;
 using Zenject;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     public sealed class LogicsPointsSpawner : Spawner<Point>
     {

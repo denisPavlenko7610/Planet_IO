@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     public class Point : MonoBehaviour, ICapacity
     {

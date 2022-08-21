@@ -1,9 +1,8 @@
-using Pool;
-using Zenject;
-using Spawner;
+using Planet_IO.ObjectPool;
 using UnityEngine;
+using Zenject;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     public class CometsSpawnerLogic : Spawner<Comet>
     {

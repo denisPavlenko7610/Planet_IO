@@ -1,4 +1,4 @@
-﻿namespace PlanetIO
+﻿namespace Planet_IO
 {
     public interface ICapacity
     {

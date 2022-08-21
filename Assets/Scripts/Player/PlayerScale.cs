@@ -1,10 +1,9 @@
 using Cinemachine;
-using Core;
 using UnityEngine;
 using UnityEngine.Events;
 using Zenject;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     public class PlayerScale : MonoBehaviour
     {

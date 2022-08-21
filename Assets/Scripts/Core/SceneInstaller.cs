@@ -1,9 +1,7 @@
 ﻿using Cinemachine;
-using Core;
 using Dythervin.AutoAttach;
-using PlanetIO;
-using Pool;
-using Spawner;
+using Planet_IO;
+using Planet_IO.ObjectPool;
 using UnityEngine;
 using Zenject;
 

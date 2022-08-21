@@ -1,8 +1,7 @@
-using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class CometMovement : MonoBehaviour

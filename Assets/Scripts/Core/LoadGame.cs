@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-namespace PlanetIO_Core
+namespace Planet_IO
 {
     public class LoadGame : MonoBehaviour
     {

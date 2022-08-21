@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
-using PlanetIO;
-using Pool;
+using Planet_IO.ObjectPool;
 using UnityEngine;
 
-namespace Spawner
+namespace Planet_IO
 {
     public abstract class Spawner<T> : MonoBehaviour, IInit<T>, ICreate
         where T : MonoBehaviour, ICapacity

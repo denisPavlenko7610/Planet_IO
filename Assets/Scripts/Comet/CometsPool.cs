@@ -1,8 +1,8 @@
 ﻿using UnityEngine.Pool;
 
-namespace PlanetIO
+namespace Planet_IO
 {
-    public class CometsPool : Pool.ObjectPool<Comet>
+    public class CometsPool :  ObjectPool.ObjectPool<Comet>
     {
         public override void Init() =>
             Pool = new ObjectPool<Comet>(OnCreate, OnGet, OnRelease, OnDestroy, false,

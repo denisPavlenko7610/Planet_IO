@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Extentions
+namespace Planet_IO
 {
-    public static class Extentions
+    public static class Extensions
     {
         public static T With<T>(this T self, Action<T> set)
         {

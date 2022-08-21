@@ -1,4 +1,4 @@
-﻿namespace Spawner
+﻿namespace Planet_IO
 {
     public interface ICreate
     {

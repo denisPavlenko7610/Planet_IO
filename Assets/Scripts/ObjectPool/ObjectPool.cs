@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace Pool
+namespace Planet_IO.ObjectPool
 {
     public abstract class ObjectPool<T> : MonoBehaviour, IInit where T : MonoBehaviour
     {

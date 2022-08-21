@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     public class BordersTrigger : MonoBehaviour
     {

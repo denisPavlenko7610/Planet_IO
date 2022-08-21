@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Zenject;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : MonoBehaviour

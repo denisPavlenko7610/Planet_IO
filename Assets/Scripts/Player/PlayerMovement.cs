@@ -1,7 +1,7 @@
 using Dythervin.AutoAttach;
 using UnityEngine;
 
-namespace PlanetIO
+namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement : MonoBehaviour

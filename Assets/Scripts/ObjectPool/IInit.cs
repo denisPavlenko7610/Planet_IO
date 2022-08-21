@@ -1,4 +1,4 @@
-﻿namespace Pool
+﻿namespace Planet_IO
 {
     public interface IInit
     {

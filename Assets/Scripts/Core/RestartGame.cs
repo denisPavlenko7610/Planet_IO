@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Core
+namespace Planet_IO
 {
     public class RestartGame : MonoBehaviour
     {
