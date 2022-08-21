@@ -11,13 +11,13 @@ namespace Planet_IO
         [Header("player script")] [SerializeField]
         private PlayerScale _playerScale;
 
-        [Header("Spawner")] private CometsSpawnerLogic cometsSpawnerLogic;
+        [Header("Spawner")] private CometsSpawnerLogic _cometsSpawnerLogic;
         private LogicsPointsSpawner _logicsPointsSpawner;
 
         [Inject]
         private void Construct(CometsSpawnerLogic cometsSpawnerLogic, LogicsPointsSpawner logicsPointsSpawner)
         {
-            this.cometsSpawnerLogic = cometsSpawnerLogic;
+            _cometsSpawnerLogic = cometsSpawnerLogic;
             _logicsPointsSpawner = logicsPointsSpawner;
         }
 
@@ -35,7 +35,7 @@ namespace Planet_IO
             else if (other.TryGetComponent(out Comet comet))
             {
                 _playerScale.IncreasePlayerCapacity(-comet.Capacity);
-                cometsSpawnerLogic.CreateComet(comet);
+                _cometsSpawnerLogic.CreateComet(comet);
             }
         }
     }

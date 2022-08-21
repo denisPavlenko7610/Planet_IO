@@ -21,7 +21,7 @@ namespace PlanetIO_Core
 
         [Header("logics Spawner")] 
         [SerializeField, Attach(Attach.Scene)] private LogicsPointsSpawner _logicsPointsSpawner;
-        [SerializeField, Attach(Attach.Scene)] private CometsSpawnerLogic  cometsSpawnerLogic;
+        [SerializeField, Attach(Attach.Scene)] private CometsSpawnerLogic  _cometsSpawnerLogic;
 
         [Header("Core")] 
         [SerializeField, Attach(Attach.Scene)] private RestartGame _restartGame;
@@ -39,7 +39,7 @@ namespace PlanetIO_Core
             Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
             Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
             
-            Container.Bind<CometsSpawnerLogic>().FromInstance(cometsSpawnerLogic).AsSingle();
+            Container.Bind<CometsSpawnerLogic>().FromInstance(_cometsSpawnerLogic).AsSingle();
             Container.Bind<LogicsPointsSpawner>().FromInstance(_logicsPointsSpawner).AsSingle();
 
             Container.Bind<RestartGame>().FromInstance(_restartGame).AsSingle();
