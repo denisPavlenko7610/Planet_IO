@@ -13,6 +13,7 @@ namespace Planet_IO
         [SerializeField] private float _boostSpeed;
 
         private bool _isBoost;
+        private bool _mouseInPlayer;
         private float _currentSpeed;
         private Vector2 _mousePosition;
 
@@ -23,8 +24,9 @@ namespace Planet_IO
 
         void Update()
         {
-            _mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-
+            if (!_mouseInPlayer)
+                _mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+            
             if (_accelerationButton.IsPressed)
             {
                 Boost();
@@ -34,6 +36,17 @@ namespace Planet_IO
                 SetNormalSpeed();
             }
         }
+
+        private void OnMouseEnter()
+        {
+            _mouseInPlayer = true;
+        }
+
+        private void OnMouseExit()
+        {
+            _mouseInPlayer = false;
+        }
+
 
         private void FixedUpdate() => MovePlayer();
 
