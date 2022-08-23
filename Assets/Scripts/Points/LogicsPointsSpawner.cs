@@ -1,9 +1,10 @@
 ﻿using Planet_IO.ObjectPool;
+using UnityEngine;
 using Zenject;
 
 namespace Planet_IO
 {
-    public sealed class LogicsPointsSpawner : Spawner<Point>
+    public class LogicsPointsSpawner : Spawner<Point>
     {
         private ObjectPool<Point> _pointPool;
         private Spawner<Point> _pointSpawner;
@@ -15,10 +16,12 @@ namespace Planet_IO
             _pointSpawner = pointSpawner;
         }
 
-        public void CreatePoint(Point point)
+        public virtual void CreatePoint(Point point)
         {
             _pointPool.Pool.Release(point);
             _pointSpawner.CreateObject();
         }
+        
+        public void CreatePoint(Transform pos) => _pointSpawner.CreateObject(pos);
     }
 }

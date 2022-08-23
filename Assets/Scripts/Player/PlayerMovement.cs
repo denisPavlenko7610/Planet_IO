@@ -1,26 +1,34 @@
 using Dythervin.AutoAttach;
 using UnityEngine;
+using System.Collections;
+
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement : MonoBehaviour
     {
-        [SerializeField, Attach(Attach.Scene)] private Camera mainCamera;
+        [Header("Script Player")]
         [SerializeField, Attach(Attach.Scene)] private AccelerationButton _accelerationButton;
+        [SerializeField, Attach] private Player _player;
+        
+        [Space]
+        [SerializeField, Attach(Attach.Scene)] private Camera mainCamera;
         [SerializeField, Attach] private Rigidbody2D rigidbody2D;
+        
+        [Header("Speed")]
         [SerializeField] private float _normalSpeed = 3f;
         [SerializeField] private float _boostSpeed;
-
-        private bool _isBoost;
-        private bool _mouseInPlayer;
+        [SerializeField] private float _timeToTeak = 1f;
         private float _currentSpeed;
-        private Vector2 _mousePosition;
+        private bool _isBoost;
 
-        private void Start()
-        {
-            _currentSpeed = _normalSpeed;
-        }
+        private bool _mouseInPlayer;
+        private float _angel;
+        private Vector2 _mousePosition;
+        private Coroutine _boostCoroutine;
+
+        private void Start() => _currentSpeed = _normalSpeed;
 
         void Update()
         {
@@ -37,21 +45,45 @@ namespace Planet_IO
             }
         }
 
-        private void OnMouseEnter()
+        private void OnMouseEnter() => _mouseInPlayer = true;
+        private void OnMouseExit() => _mouseInPlayer = false;
+
+        private void RotationPlayer()
         {
-            _mouseInPlayer = true;
+            _angel = Mathf.Atan2(_mousePosition.y, _mousePosition.x) * Mathf.Rad2Deg - 90f;
+            rigidbody2D.rotation = _angel;
         }
 
-        private void OnMouseExit()
+
+        private void FixedUpdate()
         {
-            _mouseInPlayer = false;
+            MovePlayer();
+            RotationPlayer();
+        } 
+
+        private void Boost()
+        {
+            _isBoost = true;
+            _currentSpeed = _boostSpeed;
+            _boostCoroutine ??= StartCoroutine(ScaleBoost());
         }
 
-
-        private void FixedUpdate() => MovePlayer();
-
-        private void Boost() => _currentSpeed = _boostSpeed;
-        private void SetNormalSpeed() => _currentSpeed = _normalSpeed;
+        private void SetNormalSpeed()
+        {
+            _isBoost = false;
+            _currentSpeed = _normalSpeed;
+        }
         private void MovePlayer() => rigidbody2D.velocity = _mousePosition.normalized * _currentSpeed;
+
+        private IEnumerator ScaleBoost()
+        {
+            while (_isBoost)
+            {
+                _player.SpeedLogics();
+                yield return new WaitForSeconds(_timeToTeak);
+            }
+            _boostCoroutine = null;
+        }
+        
     }
 }

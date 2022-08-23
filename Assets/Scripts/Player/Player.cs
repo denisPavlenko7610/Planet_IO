@@ -1,17 +1,22 @@
 ﻿using UnityEngine;
 using Zenject;
+using Dythervin.AutoAttach;
+
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : MonoBehaviour
     {
-        [Header("Borders")] [SerializeField] private BordersTrigger _bordersTrigger;
+        [Header("Borders")] 
+        [SerializeField, Attach(Attach.Scene)] private BordersTrigger _bordersTrigger;
 
-        [Header("player script")] [SerializeField]
-        private PlayerScale _playerScale;
+        [Header("player script")] 
+        [SerializeField,Attach] private PlayerScale _playerScale;
 
-        [Header("Spawner")] private CometsSpawnerLogic _cometsSpawnerLogic;
+        [Header("Spawner")] 
+        [SerializeField] private Transform _pointSpawnTransform;
+        private CometsSpawnerLogic _cometsSpawnerLogic;
         private LogicsPointsSpawner _logicsPointsSpawner;
 
         [Inject]
@@ -24,6 +29,15 @@ namespace Planet_IO
         private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += _playerScale.DecreasePlayerCapacity;
 
         private void OnDisable() => _bordersTrigger.OnPlayerTriggeredHandler -= _playerScale.DecreasePlayerCapacity;
+        
+        public void SpeedLogics()
+        {
+            if (_playerScale.CapacityPlayer > _playerScale.minCapacityPlayer + 0.01f)
+            {
+                _playerScale.IncreasePlayerCapacity(-1f);
+                _logicsPointsSpawner.CreatePoint(_pointSpawnTransform);
+            }
+        }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -38,5 +52,6 @@ namespace Planet_IO
                 _cometsSpawnerLogic.CreateComet(comet);
             }
         }
+
     }
 }

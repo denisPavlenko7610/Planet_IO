@@ -8,7 +8,7 @@ namespace Planet_IO
     public class PlayerScale : MonoBehaviour
     {
         [Header("Capacity Player")]
-        [SerializeField] private float _minCapacityPlayer;
+        public float minCapacityPlayer;
         [SerializeField] private float _maxCapacityPlayer;
         public float CapacityPlayer { get; private set; }
 
@@ -29,7 +29,7 @@ namespace Planet_IO
         {
             _changeCapacity.AddListener((capacity) =>
             {
-                if (capacity < _minCapacityPlayer) 
+                if (capacity < minCapacityPlayer) 
                     _restartGame.Restart();
             });
         }
@@ -46,9 +46,8 @@ namespace Planet_IO
         {
             var scaleDivider = 2f;
             scaleValue /= scaleDivider;
-            if (scaleValue <= _minCapacityPlayer)
-                return;
-
+            if (scaleValue <= minCapacityPlayer)
+                scaleValue = minCapacityPlayer;
             CapacityPlayer = scaleValue;
             transform.localScale = new(scaleValue, scaleValue, 0);
         }
@@ -61,7 +60,6 @@ namespace Planet_IO
             _changeCapacity.Invoke(CapacityPlayer);
             transform.localScale += new Vector3(scaleValue, scaleValue, 0);
         }
-
         private void IncreaseFieldOfView(float scaleValue)
         {
             var scaleDivider = 40;
