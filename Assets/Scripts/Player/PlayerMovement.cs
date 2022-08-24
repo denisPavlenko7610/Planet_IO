@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 
 
+
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
@@ -19,12 +20,13 @@ namespace Planet_IO
         [Header("Speed")]
         [SerializeField] private float _normalSpeed = 3f;
         [SerializeField] private float _boostSpeed;
-        [SerializeField] private float _timeToTeak = 1f;
+        [SerializeField] private float _timeToTick = 1f;
         private float _currentSpeed;
         private bool _isBoost;
 
-        private bool _mouseInPlayer;
-        private float _angel;
+        private bool _mouseOverPlayer;
+        private float _angle;
+        private float _offSet = 90f;
         private Vector2 _mousePosition;
         private Coroutine _boostCoroutine;
 
@@ -32,7 +34,7 @@ namespace Planet_IO
 
         void Update()
         {
-            if (!_mouseInPlayer)
+            if (!_mouseOverPlayer)
                 _mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
             
             if (_accelerationButton.IsPressed)
@@ -45,13 +47,13 @@ namespace Planet_IO
             }
         }
 
-        private void OnMouseEnter() => _mouseInPlayer = true;
-        private void OnMouseExit() => _mouseInPlayer = false;
+        private void OnMouseEnter() => _mouseOverPlayer = true;
+        private void OnMouseExit() => _mouseOverPlayer = false;
 
         private void RotationPlayer()
         {
-            _angel = Mathf.Atan2(_mousePosition.y, _mousePosition.x) * Mathf.Rad2Deg - 90f;
-            rigidbody2D.rotation = _angel;
+            _angle = Mathf.Atan2(_mousePosition.y, _mousePosition.x) * Mathf.Rad2Deg - _offSet;
+            rigidbody2D.rotation = _angle;
         }
 
 
@@ -80,7 +82,7 @@ namespace Planet_IO
             while (_isBoost)
             {
                 _player.SpeedLogics();
-                yield return new WaitForSeconds(_timeToTeak);
+                yield return new WaitForSeconds(_timeToTick);
             }
             _boostCoroutine = null;
         }

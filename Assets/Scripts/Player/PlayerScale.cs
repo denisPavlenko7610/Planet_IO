@@ -7,8 +7,8 @@ namespace Planet_IO
 {
     public class PlayerScale : MonoBehaviour
     {
-        [Header("Capacity Player")]
-        public float minCapacityPlayer;
+        [field: Header("Capacity Player")] 
+        [field: SerializeField] public float MinCapacityPlayer { get; private set; } = 0.08f;
         [SerializeField] private float _maxCapacityPlayer;
         public float CapacityPlayer { get; private set; }
 
@@ -29,11 +29,11 @@ namespace Planet_IO
         {
             _changeCapacity.AddListener((capacity) =>
             {
-                if (capacity < minCapacityPlayer) 
+                if (capacity < MinCapacityPlayer) 
                     _restartGame.Restart();
             });
         }
-        public void IncreasePlayerCapacity(float scaleValue)
+        public void SetPlayerCapacity(float scaleValue)
         {
             if (CapacityPlayer < _maxCapacityPlayer)
             {
@@ -46,8 +46,8 @@ namespace Planet_IO
         {
             var scaleDivider = 2f;
             scaleValue /= scaleDivider;
-            if (scaleValue <= minCapacityPlayer)
-                scaleValue = minCapacityPlayer;
+            if (scaleValue <= MinCapacityPlayer)
+                scaleValue = MinCapacityPlayer;
             CapacityPlayer = scaleValue;
             transform.localScale = new(scaleValue, scaleValue, 0);
         }
@@ -56,7 +56,7 @@ namespace Planet_IO
         {
             var scaleDivider = 100;
             scaleValue /= scaleDivider;
-            SetPlayerCapacity(scaleValue);
+            IncreasePlayerCapacity(scaleValue);
             _changeCapacity.Invoke(CapacityPlayer);
             transform.localScale += new Vector3(scaleValue, scaleValue, 0);
         }
@@ -67,6 +67,6 @@ namespace Planet_IO
             _playerCamera.m_Lens.OrthographicSize += scaleValue;
         }
         
-        private void SetPlayerCapacity(float scaleValue) => CapacityPlayer += scaleValue;
+        private void IncreasePlayerCapacity(float scaleValue) => CapacityPlayer += scaleValue;
     }
 }

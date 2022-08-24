@@ -19,6 +19,8 @@ namespace Planet_IO
         private CometsSpawnerLogic _cometsSpawnerLogic;
         private LogicsPointsSpawner _logicsPointsSpawner;
 
+        private const float _measurementError = 0.01f;
+
         [Inject]
         private void Construct(CometsSpawnerLogic cometsSpawnerLogic, LogicsPointsSpawner logicsPointsSpawner)
         {
@@ -32,9 +34,9 @@ namespace Planet_IO
         
         public void SpeedLogics()
         {
-            if (_playerScale.CapacityPlayer > _playerScale.minCapacityPlayer + 0.01f)
+            if (_playerScale.CapacityPlayer > _playerScale.MinCapacityPlayer + _measurementError)
             {
-                _playerScale.IncreasePlayerCapacity(-1f);
+                _playerScale.SetPlayerCapacity(-_measurementError);
                 _logicsPointsSpawner.CreatePoint(_pointSpawnTransform);
             }
         }
@@ -43,12 +45,12 @@ namespace Planet_IO
         {
             if (other.TryGetComponent(out Point point))
             {
-                _playerScale.IncreasePlayerCapacity(point.Capacity);
+                _playerScale.SetPlayerCapacity(point.Capacity);
                 _logicsPointsSpawner.CreatePoint(point);
             }
             else if (other.TryGetComponent(out Comet comet))
             {
-                _playerScale.IncreasePlayerCapacity(-comet.Capacity);
+                _playerScale.SetPlayerCapacity(-comet.Capacity);
                 _cometsSpawnerLogic.CreateComet(comet);
             }
         }

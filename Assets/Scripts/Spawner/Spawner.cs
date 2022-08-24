@@ -13,7 +13,7 @@ namespace Planet_IO
         [field: SerializeField] public Vector2 SpawnPositionY { get; set; } = new(-139f, 161.9f);
 
         protected ObjectPool<T> _objectPool;
-        private float zPosition = 1;
+        private float zPosition = 1f;
 
         public virtual void Init(ObjectPool<T> objectPool)
         {

@@ -176,7 +176,7 @@ MonoBehaviour:
   rigidbody2D: {fileID: 8517843457492819217}
   _normalSpeed: 3
   _boostSpeed: 6
-  _timeToTeak: 1
+  _timeToTick: 1
 --- !u!114 &8517843457492819226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,5 +204,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfcb2bdfe70048c6b1ce4d79204d9097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minCapacityPlayer: 0.08
+  MinCapacityPlayer: 0.08
   _maxCapacityPlayer: 20

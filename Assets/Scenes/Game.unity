@@ -1824,6 +1824,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1691944480}
     m_Modifications:
+    - target: {fileID: 1292756762, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: MinCapacityPlayer
+      value: 0.08
+      objectReference: {fileID: 0}
     - target: {fileID: 8045643209477139654, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_Name
       value: Player
