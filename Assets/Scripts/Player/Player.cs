@@ -1,18 +1,25 @@
 ﻿using UnityEngine;
 using Zenject;
+using Dythervin.AutoAttach;
+
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : MonoBehaviour
     {
-        [Header("Borders")] [SerializeField] private BordersTrigger _bordersTrigger;
+        [Header("Borders")] 
+        [SerializeField, Attach(Attach.Scene)] private BordersTrigger _bordersTrigger;
 
-        [Header("player script")] [SerializeField]
-        private PlayerScale _playerScale;
+        [Header("player script")] 
+        [SerializeField,Attach] private PlayerScale _playerScale;
 
-        [Header("Spawner")] private CometsSpawnerLogic _cometsSpawnerLogic;
+        [Header("Spawner")] 
+        [SerializeField] private Transform _pointSpawnTransform;
+        private CometsSpawnerLogic _cometsSpawnerLogic;
         private LogicsPointsSpawner _logicsPointsSpawner;
+
+        private const float _measurementError = 0.01f;
 
         [Inject]
         private void Construct(CometsSpawnerLogic cometsSpawnerLogic, LogicsPointsSpawner logicsPointsSpawner)
@@ -24,19 +31,29 @@ namespace Planet_IO
         private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += _playerScale.DecreasePlayerCapacity;
 
         private void OnDisable() => _bordersTrigger.OnPlayerTriggeredHandler -= _playerScale.DecreasePlayerCapacity;
+        
+        public void SpeedLogics()
+        {
+            if (_playerScale.CapacityPlayer > _playerScale.MinCapacityPlayer + _measurementError)
+            {
+                _playerScale.SetPlayerCapacity(-_measurementError);
+                _logicsPointsSpawner.CreatePoint(_pointSpawnTransform);
+            }
+        }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.TryGetComponent(out Point point))
             {
-                _playerScale.IncreasePlayerCapacity(point.Capacity);
+                _playerScale.SetPlayerCapacity(point.Capacity);
                 _logicsPointsSpawner.CreatePoint(point);
             }
             else if (other.TryGetComponent(out Comet comet))
             {
-                _playerScale.IncreasePlayerCapacity(-comet.Capacity);
+                _playerScale.SetPlayerCapacity(-comet.Capacity);
                 _cometsSpawnerLogic.CreateComet(comet);
             }
         }
+
     }
 }
