@@ -12,6 +12,7 @@ namespace Planet_IO
         [Header("Script Player")]
         [SerializeField, Attach(Attach.Scene)] private AccelerationButton _accelerationButton;
         [SerializeField, Attach] private Player _player;
+        [SerializeField, Attach(Attach.Child)] private Arrow _arrowPlayer;
         
         [Space]
         [SerializeField, Attach(Attach.Scene)] private Camera mainCamera;
@@ -47,8 +48,17 @@ namespace Planet_IO
             }
         }
 
-        private void OnMouseEnter() => _mouseOverPlayer = true;
-        private void OnMouseExit() => _mouseOverPlayer = false;
+        private void OnMouseEnter()
+        {
+            _mouseOverPlayer = true;
+            _arrowPlayer.gameObject.SetActive(false);
+        }
+
+        private void OnMouseExit()
+        {
+            _mouseOverPlayer = false;
+            _arrowPlayer.gameObject.SetActive(true);
+        } 
 
         private void RotationPlayer()
         {
