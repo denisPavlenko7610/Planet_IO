@@ -1,7 +1,9 @@
+using System;
 using Dythervin.AutoAttach;
 using UnityEngine;
 using System.Collections;
-
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 
 namespace Planet_IO
@@ -24,20 +26,27 @@ namespace Planet_IO
         [SerializeField] private float _timeToTick = 1f;
         private float _currentSpeed;
         private bool _isBoost;
-
-        private bool _mouseOverPlayer;
+        
         private float _angle;
         private float _offSet = 90f;
         private Vector2 _mousePosition;
         private Coroutine _boostCoroutine;
+        private PlayerInput _playerInput;
 
-        private void Start() => _currentSpeed = _normalSpeed;
+        private void Awake()
+        {
+            _currentSpeed = _normalSpeed;
+            _playerInput = new PlayerInput();
+        }
+
+        private void OnEnable() => _playerInput.Enable();
+
+        private void OnDisable() => _playerInput.Disable();
 
         void Update()
-        {
-            if (!_mouseOverPlayer)
-                _mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-            
+        { 
+            _mousePosition = mainCamera.ScreenToWorldPoint(_playerInput.Player.Move.ReadValue<Vector2>()) - transform.position;
+       
             if (_accelerationButton.IsPressed)
             {
                 Boost();
@@ -47,32 +56,19 @@ namespace Planet_IO
                 SetNormalSpeed();
             }
         }
-
-        private void OnMouseEnter()
-        {
-            _mouseOverPlayer = true;
-            _arrowPlayer.gameObject.SetActive(false);
-        }
-
-        private void OnMouseExit()
-        {
-            _mouseOverPlayer = false;
-            _arrowPlayer.gameObject.SetActive(true);
-        } 
-
+        
         private void RotationPlayer()
         {
-            _angle = Mathf.Atan2(_mousePosition.y, _mousePosition.x) * Mathf.Rad2Deg - _offSet;
+            _angle = Mathf.Atan2(_mousePosition.y, _mousePosition.x) * Mathf.Rad2Deg;
             rigidbody2D.rotation = _angle;
         }
 
 
         private void FixedUpdate()
         {
-            MovePlayer();
+            MovePlayer(); 
             RotationPlayer();
-        } 
-
+        }
         private void Boost()
         {
             _isBoost = true;
