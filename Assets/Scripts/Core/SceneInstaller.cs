@@ -19,11 +19,10 @@ namespace PlanetIO_Core
         [Header("Player")]
         [SerializeField, Attach(Attach.Scene)] private PlayerMovement _playerMovement;
         [SerializeField, Attach(Attach.Scene)] private CinemachineVirtualCamera _playerCamera;
-
-        [FormerlySerializedAs("_logicsPointsSpawner")]
+        
         [Header("logics Spawner")] 
-        [SerializeField, Attach(Attach.Scene)] private PointsSpawnerLogics pointsSpawnerLogics;
-        [FormerlySerializedAs("_cometsSpawnerLogic")] [SerializeField, Attach(Attach.Scene)] private CometsSpawnerLogics  cometsSpawnerLogics;
+        [SerializeField, Attach(Attach.Scene)] private PointsSpawnerLogics _pointsSpawnerLogics;
+        [SerializeField, Attach(Attach.Scene)] private CometsSpawnerLogics _cometsSpawnerLogics;
 
         [Header("Core")] 
         [SerializeField, Attach(Attach.Scene)] private RestartGame _restartGame;
@@ -41,8 +40,8 @@ namespace PlanetIO_Core
             Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
             Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
             
-            Container.Bind<CometsSpawnerLogics>().FromInstance(cometsSpawnerLogics).AsSingle();
-            Container.Bind<PointsSpawnerLogics>().FromInstance(pointsSpawnerLogics).AsSingle();
+            Container.Bind<CometsSpawnerLogics>().FromInstance(_cometsSpawnerLogics).AsSingle();
+            Container.Bind<PointsSpawnerLogics>().FromInstance(_pointsSpawnerLogics).AsSingle();
 
             Container.Bind<RestartGame>().FromInstance(_restartGame).AsSingle();
         }
