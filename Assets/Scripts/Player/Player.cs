@@ -14,7 +14,9 @@ namespace Planet_IO
         [SerializeField, Attach(Attach.Scene)] private BordersTrigger _bordersTrigger;
 
         [Header("player script")] 
-        [SerializeField,Attach] private PlayerScale _playerScale;
+        [SerializeField, Attach] private PlayerScale _playerScale;
+        [SerializeField, Attach] private InputPlayerSystem _inputPlayerSystem;
+        [SerializeField, Attach] private PlayerMovement _playerMovement;
 
         [Header("Spawner")] 
         [SerializeField] private Transform _pointSpawnTransform;
@@ -29,9 +31,17 @@ namespace Planet_IO
             _pointsSpawnerLogics = pointsSpawnerLogics;
         }
 
-        private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += _playerScale.DecreasePlayerCapacity;
+        private void OnEnable()
+        {
+            _bordersTrigger.OnPlayerTriggeredHandler += _playerScale.DecreasePlayerCapacity;
+            _inputPlayerSystem.Input += Move;
+        }
 
-        private void OnDisable() => _bordersTrigger.OnPlayerTriggeredHandler -= _playerScale.DecreasePlayerCapacity;
+        private void OnDisable()
+        {
+            _bordersTrigger.OnPlayerTriggeredHandler -= _playerScale.DecreasePlayerCapacity;
+            _inputPlayerSystem.Input -= Move;
+        } 
         
         public void SpeedLogics()
         {
@@ -41,6 +51,8 @@ namespace Planet_IO
                 _pointsSpawnerLogics.CreatePoint(_pointSpawnTransform);
             }
         }
+
+        private void Move(Vector2 MoveInput) => _playerMovement.Direction = MoveInput;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
