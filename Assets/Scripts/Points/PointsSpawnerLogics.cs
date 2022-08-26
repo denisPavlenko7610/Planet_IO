@@ -4,7 +4,7 @@ using Zenject;
 
 namespace Planet_IO
 {
-    public class LogicsPointsSpawner : Spawner<Point>
+    public class PointsSpawnerLogics : Spawner<Point>
     {
         private ObjectPool<Point> _pointPool;
         private Spawner<Point> _pointSpawner;

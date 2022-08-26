@@ -8,6 +8,8 @@ namespace Planet_IO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : MonoBehaviour
     {
+        private const float _measurementError = 0.01f;
+        
         [Header("Borders")] 
         [SerializeField, Attach(Attach.Scene)] private BordersTrigger _bordersTrigger;
 
@@ -16,16 +18,15 @@ namespace Planet_IO
 
         [Header("Spawner")] 
         [SerializeField] private Transform _pointSpawnTransform;
-        private CometsSpawnerLogic _cometsSpawnerLogic;
-        private LogicsPointsSpawner _logicsPointsSpawner;
+        private CometsSpawnerLogics _cometsSpawnerLogics;
+        private PointsSpawnerLogics _pointsSpawnerLogics;
 
-        private const float _measurementError = 0.01f;
 
         [Inject]
-        private void Construct(CometsSpawnerLogic cometsSpawnerLogic, LogicsPointsSpawner logicsPointsSpawner)
+        private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
         {
-            _cometsSpawnerLogic = cometsSpawnerLogic;
-            _logicsPointsSpawner = logicsPointsSpawner;
+            _cometsSpawnerLogics = cometsSpawnerLogics;
+            _pointsSpawnerLogics = pointsSpawnerLogics;
         }
 
         private void OnEnable() => _bordersTrigger.OnPlayerTriggeredHandler += _playerScale.DecreasePlayerCapacity;
@@ -37,7 +38,7 @@ namespace Planet_IO
             if (_playerScale.CapacityPlayer > _playerScale.MinCapacityPlayer + _measurementError)
             {
                 _playerScale.SetPlayerCapacity(-_measurementError);
-                _logicsPointsSpawner.CreatePoint(_pointSpawnTransform);
+                _pointsSpawnerLogics.CreatePoint(_pointSpawnTransform);
             }
         }
 
@@ -46,12 +47,12 @@ namespace Planet_IO
             if (other.TryGetComponent(out Point point))
             {
                 _playerScale.SetPlayerCapacity(point.Capacity);
-                _logicsPointsSpawner.CreatePoint(point);
+                _pointsSpawnerLogics.CreatePoint(point);
             }
             else if (other.TryGetComponent(out Comet comet))
             {
                 _playerScale.SetPlayerCapacity(-comet.Capacity);
-                _cometsSpawnerLogic.CreateComet(comet);
+                _cometsSpawnerLogics.CreateComet(comet);
             }
         }
 

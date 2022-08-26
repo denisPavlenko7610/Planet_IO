@@ -26,13 +26,13 @@ namespace Planet_IO
     ""name"": ""PlayerInput"",
     ""maps"": [
         {
-            ""name"": ""Player"",
+            ""name"": ""Mouse"",
             ""id"": ""741670f8-08ff-45ee-8960-217f8e932281"",
             ""actions"": [
                 {
-                    ""name"": ""Move"",
+                    ""name"": ""MoveMouse"",
                     ""type"": ""Value"",
-                    ""id"": ""114f99ff-3e06-46c1-a7fb-4676856d3b43"",
+                    ""id"": ""617d8cf2-0b51-4078-871f-6db49413b9b1"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -42,62 +42,85 @@ namespace Planet_IO
             ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""bdc10194-d79b-4c52-810f-29184d122c28"",
+                    ""id"": ""b832e9e8-fdb4-4c0d-83f2-00731fc62226"",
                     ""path"": ""<Mouse>/position"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keybord and Mouse"",
-                    ""action"": ""Move"",
+                    ""groups"": """",
+                    ""action"": ""MoveMouse"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
+                }
+            ]
+        },
+        {
+            ""name"": ""Joystick "",
+            ""id"": ""b51b55aa-9b0e-43cb-9032-19e0e2eb67a3"",
+            ""actions"": [
+                {
+                    ""name"": ""MoveJoystick "",
+                    ""type"": ""Value"",
+                    ""id"": ""ada50e81-05fb-4f09-af77-c54582aa3a72"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""0356a0da-b3b6-45c1-8035-b043a8ae7b27"",
-                    ""path"": ""<AndroidJoystick>/stick"",
+                    ""id"": ""75e2cc3d-1fca-4adb-b669-c741cc7f7e42"",
+                    ""path"": ""<Gamepad>/leftStick"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Joystick "",
-                    ""action"": ""Move"",
+                    ""groups"": """",
+                    ""action"": ""MoveJoystick "",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""SwitchDevice"",
+            ""id"": ""89c954c3-0130-4f61-a754-eb4a7dfd27ae"",
+            ""actions"": [
+                {
+                    ""name"": ""Switch"",
+                    ""type"": ""Button"",
+                    ""id"": ""ad1ab564-dda5-47e7-b28b-fd709913fa24"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""07bfd7bf-2665-46fd-87c9-1b8970a286de"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Switch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
             ]
         }
     ],
-    ""controlSchemes"": [
-        {
-            ""name"": ""Keybord and Mouse"",
-            ""bindingGroup"": ""Keybord and Mouse"",
-            ""devices"": [
-                {
-                    ""devicePath"": ""<Keyboard>"",
-                    ""isOptional"": false,
-                    ""isOR"": false
-                },
-                {
-                    ""devicePath"": ""<Mouse>"",
-                    ""isOptional"": false,
-                    ""isOR"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""Joystick "",
-            ""bindingGroup"": ""Joystick "",
-            ""devices"": [
-                {
-                    ""devicePath"": ""<Joystick>"",
-                    ""isOptional"": false,
-                    ""isOR"": false
-                }
-            ]
-        }
-    ]
+    ""controlSchemes"": []
 }");
-            // Player
-            m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
-            m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
+            // Mouse
+            m_Mouse = asset.FindActionMap("Mouse", throwIfNotFound: true);
+            m_Mouse_MoveMouse = m_Mouse.FindAction("MoveMouse", throwIfNotFound: true);
+            // Joystick 
+            m_Joystick = asset.FindActionMap("Joystick ", throwIfNotFound: true);
+            m_Joystick_MoveJoystick = m_Joystick.FindAction("MoveJoystick ", throwIfNotFound: true);
+            // SwitchDevice
+            m_SwitchDevice = asset.FindActionMap("SwitchDevice", throwIfNotFound: true);
+            m_SwitchDevice_Switch = m_SwitchDevice.FindAction("Switch", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -154,59 +177,115 @@ namespace Planet_IO
             return asset.FindBinding(bindingMask, out action);
         }
 
-        // Player
-        private readonly InputActionMap m_Player;
-        private IPlayerActions m_PlayerActionsCallbackInterface;
-        private readonly InputAction m_Player_Move;
-        public struct PlayerActions
+        // Mouse
+        private readonly InputActionMap m_Mouse;
+        private IMouseActions m_MouseActionsCallbackInterface;
+        private readonly InputAction m_Mouse_MoveMouse;
+        public struct MouseActions
         {
             private @PlayerInput m_Wrapper;
-            public PlayerActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
-            public InputAction @Move => m_Wrapper.m_Player_Move;
-            public InputActionMap Get() { return m_Wrapper.m_Player; }
+            public MouseActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
+            public InputAction @MoveMouse => m_Wrapper.m_Mouse_MoveMouse;
+            public InputActionMap Get() { return m_Wrapper.m_Mouse; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
             public bool enabled => Get().enabled;
-            public static implicit operator InputActionMap(PlayerActions set) { return set.Get(); }
-            public void SetCallbacks(IPlayerActions instance)
+            public static implicit operator InputActionMap(MouseActions set) { return set.Get(); }
+            public void SetCallbacks(IMouseActions instance)
             {
-                if (m_Wrapper.m_PlayerActionsCallbackInterface != null)
+                if (m_Wrapper.m_MouseActionsCallbackInterface != null)
                 {
-                    @Move.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
-                    @Move.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
-                    @Move.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
+                    @MoveMouse.started -= m_Wrapper.m_MouseActionsCallbackInterface.OnMoveMouse;
+                    @MoveMouse.performed -= m_Wrapper.m_MouseActionsCallbackInterface.OnMoveMouse;
+                    @MoveMouse.canceled -= m_Wrapper.m_MouseActionsCallbackInterface.OnMoveMouse;
                 }
-                m_Wrapper.m_PlayerActionsCallbackInterface = instance;
+                m_Wrapper.m_MouseActionsCallbackInterface = instance;
                 if (instance != null)
                 {
-                    @Move.started += instance.OnMove;
-                    @Move.performed += instance.OnMove;
-                    @Move.canceled += instance.OnMove;
+                    @MoveMouse.started += instance.OnMoveMouse;
+                    @MoveMouse.performed += instance.OnMoveMouse;
+                    @MoveMouse.canceled += instance.OnMoveMouse;
                 }
             }
         }
-        public PlayerActions @Player => new PlayerActions(this);
-        private int m_KeybordandMouseSchemeIndex = -1;
-        public InputControlScheme KeybordandMouseScheme
+        public MouseActions @Mouse => new MouseActions(this);
+
+        // Joystick 
+        private readonly InputActionMap m_Joystick;
+        private IJoystickActions m_JoystickActionsCallbackInterface;
+        private readonly InputAction m_Joystick_MoveJoystick;
+        public struct JoystickActions
         {
-            get
+            private @PlayerInput m_Wrapper;
+            public JoystickActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
+            public InputAction @MoveJoystick => m_Wrapper.m_Joystick_MoveJoystick;
+            public InputActionMap Get() { return m_Wrapper.m_Joystick; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(JoystickActions set) { return set.Get(); }
+            public void SetCallbacks(IJoystickActions instance)
             {
-                if (m_KeybordandMouseSchemeIndex == -1) m_KeybordandMouseSchemeIndex = asset.FindControlSchemeIndex("Keybord and Mouse");
-                return asset.controlSchemes[m_KeybordandMouseSchemeIndex];
+                if (m_Wrapper.m_JoystickActionsCallbackInterface != null)
+                {
+                    @MoveJoystick.started -= m_Wrapper.m_JoystickActionsCallbackInterface.OnMoveJoystick;
+                    @MoveJoystick.performed -= m_Wrapper.m_JoystickActionsCallbackInterface.OnMoveJoystick;
+                    @MoveJoystick.canceled -= m_Wrapper.m_JoystickActionsCallbackInterface.OnMoveJoystick;
+                }
+                m_Wrapper.m_JoystickActionsCallbackInterface = instance;
+                if (instance != null)
+                {
+                    @MoveJoystick.started += instance.OnMoveJoystick;
+                    @MoveJoystick.performed += instance.OnMoveJoystick;
+                    @MoveJoystick.canceled += instance.OnMoveJoystick;
+                }
             }
         }
-        private int m_JoystickSchemeIndex = -1;
-        public InputControlScheme JoystickScheme
+        public JoystickActions @Joystick => new JoystickActions(this);
+
+        // SwitchDevice
+        private readonly InputActionMap m_SwitchDevice;
+        private ISwitchDeviceActions m_SwitchDeviceActionsCallbackInterface;
+        private readonly InputAction m_SwitchDevice_Switch;
+        public struct SwitchDeviceActions
         {
-            get
+            private @PlayerInput m_Wrapper;
+            public SwitchDeviceActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
+            public InputAction @Switch => m_Wrapper.m_SwitchDevice_Switch;
+            public InputActionMap Get() { return m_Wrapper.m_SwitchDevice; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(SwitchDeviceActions set) { return set.Get(); }
+            public void SetCallbacks(ISwitchDeviceActions instance)
             {
-                if (m_JoystickSchemeIndex == -1) m_JoystickSchemeIndex = asset.FindControlSchemeIndex("Joystick ");
-                return asset.controlSchemes[m_JoystickSchemeIndex];
+                if (m_Wrapper.m_SwitchDeviceActionsCallbackInterface != null)
+                {
+                    @Switch.started -= m_Wrapper.m_SwitchDeviceActionsCallbackInterface.OnSwitch;
+                    @Switch.performed -= m_Wrapper.m_SwitchDeviceActionsCallbackInterface.OnSwitch;
+                    @Switch.canceled -= m_Wrapper.m_SwitchDeviceActionsCallbackInterface.OnSwitch;
+                }
+                m_Wrapper.m_SwitchDeviceActionsCallbackInterface = instance;
+                if (instance != null)
+                {
+                    @Switch.started += instance.OnSwitch;
+                    @Switch.performed += instance.OnSwitch;
+                    @Switch.canceled += instance.OnSwitch;
+                }
             }
         }
-        public interface IPlayerActions
+        public SwitchDeviceActions @SwitchDevice => new SwitchDeviceActions(this);
+        public interface IMouseActions
         {
-            void OnMove(InputAction.CallbackContext context);
+            void OnMoveMouse(InputAction.CallbackContext context);
+        }
+        public interface IJoystickActions
+        {
+            void OnMoveJoystick(InputAction.CallbackContext context);
+        }
+        public interface ISwitchDeviceActions
+        {
+            void OnSwitch(InputAction.CallbackContext context);
         }
     }
 }
