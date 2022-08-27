@@ -250,8 +250,8 @@ MonoBehaviour:
   _cometSpawner: {fileID: 470327857}
   _playerMovement: {fileID: 1292756757}
   _playerCamera: {fileID: 1751847113}
-  pointsSpawnerLogics: {fileID: 1158107520}
-  cometsSpawnerLogics: {fileID: 470327857}
+  _pointsSpawnerLogics: {fileID: 1158107520}
+  _cometsSpawnerLogics: {fileID: 470327857}
   _restartGame: {fileID: 1122141645}
 --- !u!114 &123435267
 MonoBehaviour:
@@ -1508,7 +1508,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7545748, y: 1}
+    m_SensorSize: {x: 2.0555556, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0

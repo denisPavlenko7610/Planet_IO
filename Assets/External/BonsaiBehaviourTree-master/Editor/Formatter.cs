@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   /// <summary>
   /// Provides utilities to format the visual tree in editor.
   /// </summary>
@@ -126,5 +127,5 @@ namespace Bonsai.Designer
       public const float yLevelSeparation = 50f;
     }
   }
-
+#endif
 }

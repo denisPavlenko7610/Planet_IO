@@ -1,6 +1,7 @@
 ﻿
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   public static class EditorNodeConnecting
   {
     /// <summary>
@@ -27,4 +28,5 @@ namespace Bonsai.Designer
       canvas.AddChild(parent, child);
     }
   }
+  #endif
 }

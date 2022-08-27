@@ -8,6 +8,7 @@ using UnityEditor;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   public class EditorSelection : IReadOnlySelection
   {
     public event EventHandler<BonsaiNode> SingleSelected;
@@ -164,4 +165,5 @@ namespace Bonsai.Designer
       }
     }
   }
+  #endif
 }

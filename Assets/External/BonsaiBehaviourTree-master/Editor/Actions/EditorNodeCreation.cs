@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   /// <summary>
   /// Handles creation and deletion of nodes.
   /// </summary>
@@ -48,5 +49,6 @@ namespace Bonsai.Designer
       return duplicateMap.Values.ToList();
     }
   }
+  #endif
 }
 

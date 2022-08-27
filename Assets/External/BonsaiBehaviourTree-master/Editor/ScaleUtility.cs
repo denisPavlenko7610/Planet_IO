@@ -2,6 +2,7 @@
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   public static class ScaleUtility
   {
     // Helper method to compute the scaled Rect position for BeingScale and EndScale.
@@ -33,4 +34,5 @@ namespace Bonsai.Designer
       GUI.matrix = Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one);
     }
   }
+  #endif
 }

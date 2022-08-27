@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   /// <summary>
   /// The canvas holds the nodes of the behaviour tree.
   /// </summary>
@@ -217,4 +218,5 @@ namespace Bonsai.Designer
     }
 
   }
+  #endif
 }

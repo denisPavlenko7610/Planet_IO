@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   public class BonsaiNode : IIterableNode<BonsaiNode>
   {
     public BonsaiNode Parent { get; private set; }
@@ -370,4 +371,5 @@ namespace Bonsai.Designer
 
     #endregion
   }
+  #endif
 }

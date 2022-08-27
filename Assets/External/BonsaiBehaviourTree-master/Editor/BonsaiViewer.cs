@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
+
   public class BonsaiViewer
   {
     public static float ZoomDelta { get { return BonsaiPreferences.Instance.zoomDelta; } }
@@ -273,4 +275,5 @@ namespace Bonsai.Designer
       }
     }
   }
+  #endif
 }

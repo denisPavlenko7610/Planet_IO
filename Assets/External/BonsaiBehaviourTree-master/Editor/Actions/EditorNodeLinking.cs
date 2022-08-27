@@ -6,6 +6,7 @@ using Bonsai.Standard;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   using LinkArguments = Tuple<Type, Type>;
   using LinkAction = Action<BehaviourNode, BehaviourNode>;
 
@@ -121,4 +122,5 @@ namespace Bonsai.Designer
       }
     }
   }
+  #endif
 }

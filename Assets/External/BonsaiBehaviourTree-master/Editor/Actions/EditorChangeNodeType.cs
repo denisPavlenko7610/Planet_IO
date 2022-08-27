@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   public static class EditorChangeNodeType
   {
     public static void ChangeType(BonsaiNode node, Type newType)
@@ -19,4 +20,5 @@ namespace Bonsai.Designer
       return BonsaiPreferences.Texture(prop.texName);
     }
   }
+  #endif
 }

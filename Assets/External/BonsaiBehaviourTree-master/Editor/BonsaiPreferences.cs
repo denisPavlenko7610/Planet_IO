@@ -2,6 +2,7 @@
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   [CreateAssetMenu(fileName = "BonsaiPreferences", menuName = "Bonsai/Preferences")]
   public class BonsaiPreferences : ScriptableObject
   {
@@ -111,4 +112,5 @@ namespace Bonsai.Designer
       return Resources.Load<Texture2D>(name);
     }
   }
+  #endif
 }

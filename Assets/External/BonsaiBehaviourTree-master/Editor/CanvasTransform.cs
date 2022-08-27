@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   public struct CanvasTransform
   {
     /// <summary>
@@ -77,4 +78,5 @@ namespace Bonsai.Designer
     //}
 
   }
+  #endif
 }

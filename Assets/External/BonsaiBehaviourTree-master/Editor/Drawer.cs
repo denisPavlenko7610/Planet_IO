@@ -4,6 +4,7 @@ using UnityEditor;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   /// <summary>
   /// Provides utilities to draw elements in the editor.
   /// </summary>
@@ -393,5 +394,5 @@ namespace Bonsai.Designer
     }
 
   }
-
+#endif
 }

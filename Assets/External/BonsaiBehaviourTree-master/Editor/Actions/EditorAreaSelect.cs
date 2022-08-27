@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   public static class EditorAreaSelect
   {
     /// <summary>
@@ -62,4 +63,5 @@ namespace Bonsai.Designer
       return Rect.MinMaxRect(xmin, ymin, xmax, ymax);
     }
   }
+  #endif
 }

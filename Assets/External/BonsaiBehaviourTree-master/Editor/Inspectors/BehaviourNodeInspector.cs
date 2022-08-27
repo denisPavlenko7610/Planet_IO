@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   /// <summary>
   /// All behaviour tree nodes will use this inspector so GUI changes are reflected immediately in the tree editor.
   /// </summary>
@@ -112,4 +113,5 @@ namespace Bonsai.Designer
       return ObjectNames.NicifyVariableName(string.IsNullOrEmpty(view.label) ? f.Name : view.label);
     }
   }
+  #endif
 }

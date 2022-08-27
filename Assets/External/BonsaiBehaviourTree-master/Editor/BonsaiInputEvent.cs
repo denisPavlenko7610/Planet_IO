@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   public class BonsaiInputEvent
   {
     public CanvasTransform transform;
@@ -21,4 +22,5 @@ namespace Bonsai.Designer
       return node != null;
     }
   }
+  #endif
 }

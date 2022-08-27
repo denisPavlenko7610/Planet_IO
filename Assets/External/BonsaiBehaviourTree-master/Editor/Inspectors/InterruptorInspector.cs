@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   [CustomEditor(typeof(Interruptor))]
   public class InterruptorInspector : BehaviourNodeInspector
   {
@@ -25,4 +26,5 @@ namespace Bonsai.Designer
       EditorGUILayout.EndVertical();
     }
   }
+  #endif
 }

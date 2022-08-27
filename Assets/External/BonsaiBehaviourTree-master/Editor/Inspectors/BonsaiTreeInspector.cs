@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   [CustomEditor(typeof(BehaviourTree))]
   public class BonsaiTreeInspector : Editor
   {
@@ -146,4 +147,5 @@ namespace Bonsai.Designer
       }
     }
   }
+  #endif
 }

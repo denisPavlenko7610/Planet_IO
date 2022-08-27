@@ -8,6 +8,7 @@ using UnityEditor;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   [CustomEditor(typeof(IsValueOfType))]
   public class IsValueOfTypeInspector : BehaviourNodeInspector
   {
@@ -72,4 +73,5 @@ namespace Bonsai.Designer
 
 #endif
   }
+  #endif
 }

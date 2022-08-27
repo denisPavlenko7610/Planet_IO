@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   /// <summary>
   /// View of the selection.
   /// </summary>
@@ -20,4 +21,5 @@ namespace Bonsai.Designer
     bool IsSingleSelection { get; }
     bool IsMultiSelection { get; }
   }
+  #endif
 }

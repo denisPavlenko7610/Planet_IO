@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   /// <summary>
   /// The editor applies changes to the canvas.
   /// </summary>
@@ -561,4 +562,5 @@ namespace Bonsai.Designer
 
     #endregion
   }
+  #endif
 }

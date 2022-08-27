@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   [CustomEditor(typeof(Guard))]
   public class GuardInspector : BehaviourNodeInspector
   {
@@ -39,4 +40,5 @@ namespace Bonsai.Designer
       }
     }
   }
+  #endif
 }

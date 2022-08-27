@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+#if UNITY_EDITOR
   public static class EditorMultiDrag
   {
     public struct DraggingNode
@@ -65,4 +66,5 @@ namespace Bonsai.Designer
       }
     }
   }
+  #endif
 }

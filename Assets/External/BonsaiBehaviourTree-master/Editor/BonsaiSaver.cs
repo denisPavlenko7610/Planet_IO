@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   using FilePanelResult = Utility.Result<FilePanelError, string>;
 
   enum FilePanelError
@@ -304,4 +305,5 @@ namespace Bonsai.Designer
       SaveMessage?.Invoke(this, "Tree Copied");
     }
   }
+  #endif
 }

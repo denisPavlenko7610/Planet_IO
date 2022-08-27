@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Bonsai.Designer
 {
+  #if UNITY_EDITOR
   /// <summary>
   /// Emits inputs events for the editor.
   /// </summary>
@@ -349,4 +350,5 @@ namespace Bonsai.Designer
       doubleClickTimer.Dispose();
     }
   }
+  #endif
 }
