@@ -1,21 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 namespace Planet_IO
 {
     public class LoadGame : MonoBehaviour
     {
-        [SerializeField] private UIDocument _uiDocument;
-        
-        private Button _startButton;
-        private string _playbutton = "PlayButton";
+        [SerializeField] Button _startButton;
 
         void Start()
         {
-            var root = _uiDocument.rootVisualElement;
-            _startButton = root.Q<Button>(_playbutton);
-            _startButton.clicked += StartButtonPressed;
+            _startButton.onClick.AddListener(StartButtonPressed);
         }
 
         void StartButtonPressed()
@@ -25,7 +20,7 @@ namespace Planet_IO
 
         private void OnDisable()
         {
-            _startButton.clicked -= StartButtonPressed;
+            _startButton.onClick.RemoveListener(StartButtonPressed);
         }
     }
 }
