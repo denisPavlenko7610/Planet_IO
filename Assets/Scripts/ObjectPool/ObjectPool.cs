@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using Random = UnityEngine.Random;
 
 namespace Planet_IO.ObjectPool
 {
@@ -27,6 +29,6 @@ namespace Planet_IO.ObjectPool
 
         protected virtual void OnRelease(T @object) => @object.gameObject.SetActive(false);
 
-        protected virtual void OnDestroy(T @object) => Destroy(@object.gameObject);
+        protected virtual void Destroy(T @object) => Destroy(@object.gameObject);
     }
 }

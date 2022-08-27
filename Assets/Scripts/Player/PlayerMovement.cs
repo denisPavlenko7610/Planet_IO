@@ -1,81 +1,87 @@
+using System;
 using Dythervin.AutoAttach;
 using UnityEngine;
-using System.Collections;
+using Cysharp.Threading.Tasks;
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement : MonoBehaviour
     {
-        public  Vector2 Direction { private get; set; }
-        
-        [Header("Script Player")]
-        [SerializeField, Attach(Attach.Scene)] private AccelerationButton _accelerationButton;
+        public Vector2 Direction { private get; set; } = Vector2.one;
+
+        [Header("Script Player")] [SerializeField, Attach(Attach.Scene)]
+        private AccelerationButton _accelerationButton;
+
         [SerializeField, Attach] private Player _player;
 
-        [Space]
-        [SerializeField, Attach] private Rigidbody2D rigidbody2D;
-        
-        [Header("Speed")]
-        [SerializeField] private float _normalSpeed = 3f;
-        [SerializeField] private float _boostSpeed;
+        [Space] [SerializeField, Attach] private Rigidbody2D rigidbody2D;
+
+        [Header("Speed")] [SerializeField] private float _normalSpeed = 3f;
+        [SerializeField] private float _boostSpeed = 6f;
         [SerializeField] private float _timeToTick = 1f;
+
         private float _currentSpeed;
+
+        private float _rotationAngle;
         private bool _isBoost;
-        
-        private float _angle;
-        private Coroutine _boostCoroutine;
 
         private void Awake() => _currentSpeed = _normalSpeed;
-        
-        void Update()
+
+        private void OnEnable()
         {
-            if (_accelerationButton.IsPressed)
-            {
-                Boost();
-            }
-            else
-            {
-                SetNormalSpeed();
-            }
-        }
-        
-        private void RotationPlayer()
-        {
-            _angle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
-            rigidbody2D.rotation = _angle;
+            _accelerationButton.IsPressed += EnableBoost;
+            _accelerationButton.IsPressed += DisableBoost;
         }
 
+        private void OnDisable()
+        {
+            _accelerationButton.IsPressed -= EnableBoost;
+            _accelerationButton.IsPressed -= DisableBoost;
+        }
+
+        private void RotationPlayer()
+        {
+            _rotationAngle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
+            rigidbody2D.rotation = _rotationAngle;
+        }
 
         private void FixedUpdate()
         {
-            MovePlayer(); 
+            MovePlayer();
             RotationPlayer();
         }
-        private void Boost()
+
+        private void EnableBoost(bool isBoost)
         {
+            if (!isBoost)
+                return;
+            
             _isBoost = true;
-            _currentSpeed = _boostSpeed;
-            _boostCoroutine ??= StartCoroutine(ScaleBoost());
+            var result = ActivatePlayerBoostLogic();
         }
 
-        private void SetNormalSpeed()
+        private void DisableBoost(bool isBoost)
         {
+            if (isBoost)
+                return;
+            
             _isBoost = false;
             _currentSpeed = _normalSpeed;
         }
 
         private void MovePlayer() => rigidbody2D.velocity = Direction.normalized * _currentSpeed;
 
-        private IEnumerator ScaleBoost()
+        private async UniTaskVoid ActivatePlayerBoostLogic()
         {
+            _currentSpeed = _boostSpeed;
+
             while (_isBoost)
             {
-                _player.SpeedLogics();
-                yield return new WaitForSeconds(_timeToTick);
+                _player.EnableBoost();
+                await UniTask.Delay(TimeSpan.FromSeconds(_timeToTick), ignoreTimeScale: false)
+                    .SuppressCancellationThrow();
             }
-            _boostCoroutine = null;
         }
-        
     }
 }

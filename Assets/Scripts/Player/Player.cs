@@ -22,8 +22,7 @@ namespace Planet_IO
         [SerializeField] private Transform _pointSpawnTransform;
         private CometsSpawnerLogics _cometsSpawnerLogics;
         private PointsSpawnerLogics _pointsSpawnerLogics;
-
-
+        
         [Inject]
         private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
         {
@@ -43,16 +42,20 @@ namespace Planet_IO
             _inputPlayerSystem.Input -= Move;
         } 
         
-        public void SpeedLogics()
+        public void EnableBoost()
         {
             if (_playerScale.CapacityPlayer > _playerScale.MinCapacityPlayer + _measurementError)
             {
-                _playerScale.SetPlayerCapacity(-_measurementError);
-                _pointsSpawnerLogics.CreatePoint(_pointSpawnTransform);
+                DecreasePlayerCapacity();
+                CreatePoints();
             }
         }
 
-        private void Move(Vector2 MoveInput) => _playerMovement.Direction = MoveInput;
+        private void CreatePoints() => _pointsSpawnerLogics.CreatePoint(_pointSpawnTransform);
+
+        private void DecreasePlayerCapacity() => _playerScale.SetPlayerCapacity(-_measurementError);
+
+        private void Move(Vector2 moveInput) => _playerMovement.Direction = moveInput;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -67,6 +70,5 @@ namespace Planet_IO
                 _cometsSpawnerLogics.CreateComet(comet);
             }
         }
-
     }
 }
