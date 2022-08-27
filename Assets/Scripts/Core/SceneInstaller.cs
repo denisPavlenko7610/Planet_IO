@@ -3,6 +3,7 @@ using Dythervin.AutoAttach;
 using Planet_IO;
 using Planet_IO.ObjectPool;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 namespace PlanetIO_Core
@@ -18,10 +19,10 @@ namespace PlanetIO_Core
         [Header("Player")]
         [SerializeField, Attach(Attach.Scene)] private PlayerMovement _playerMovement;
         [SerializeField, Attach(Attach.Scene)] private CinemachineVirtualCamera _playerCamera;
-
+        
         [Header("logics Spawner")] 
-        [SerializeField, Attach(Attach.Scene)] private LogicsPointsSpawner _logicsPointsSpawner;
-        [SerializeField, Attach(Attach.Scene)] private CometsSpawnerLogic  _cometsSpawnerLogic;
+        [SerializeField, Attach(Attach.Scene)] private PointsSpawnerLogics _pointsSpawnerLogics;
+        [SerializeField, Attach(Attach.Scene)] private CometsSpawnerLogics _cometsSpawnerLogics;
 
         [Header("Core")] 
         [SerializeField, Attach(Attach.Scene)] private RestartGame _restartGame;
@@ -39,8 +40,8 @@ namespace PlanetIO_Core
             Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
             Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
             
-            Container.Bind<CometsSpawnerLogic>().FromInstance(_cometsSpawnerLogic).AsSingle();
-            Container.Bind<LogicsPointsSpawner>().FromInstance(_logicsPointsSpawner).AsSingle();
+            Container.Bind<CometsSpawnerLogics>().FromInstance(_cometsSpawnerLogics).AsSingle();
+            Container.Bind<PointsSpawnerLogics>().FromInstance(_pointsSpawnerLogics).AsSingle();
 
             Container.Bind<RestartGame>().FromInstance(_restartGame).AsSingle();
         }

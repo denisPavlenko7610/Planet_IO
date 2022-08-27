@@ -1,0 +1,90 @@
+{
+    "name": "PlayerInput",
+    "maps": [
+        {
+            "name": "Mouse",
+            "id": "741670f8-08ff-45ee-8960-217f8e932281",
+            "actions": [
+                {
+                    "name": "MoveMouse",
+                    "type": "Value",
+                    "id": "617d8cf2-0b51-4078-871f-6db49413b9b1",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "b832e9e8-fdb4-4c0d-83f2-00731fc62226",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveMouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Joystick ",
+            "id": "b51b55aa-9b0e-43cb-9032-19e0e2eb67a3",
+            "actions": [
+                {
+                    "name": "MoveJoystick ",
+                    "type": "Value",
+                    "id": "ada50e81-05fb-4f09-af77-c54582aa3a72",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "75e2cc3d-1fca-4adb-b669-c741cc7f7e42",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveJoystick ",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "SwitchDevice",
+            "id": "89c954c3-0130-4f61-a754-eb4a7dfd27ae",
+            "actions": [
+                {
+                    "name": "Switch",
+                    "type": "Button",
+                    "id": "ad1ab564-dda5-47e7-b28b-fd709913fa24",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "07bfd7bf-2665-46fd-87c9-1b8970a286de",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Switch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

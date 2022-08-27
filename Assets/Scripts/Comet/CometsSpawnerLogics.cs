@@ -4,7 +4,7 @@ using Zenject;
 
 namespace Planet_IO
 {
-    public class CometsSpawnerLogic : Spawner<Comet>
+    public class CometsSpawnerLogics : Spawner<Comet>
     {
         [SerializeField] private BordersTrigger _bordersTrigger;
         
