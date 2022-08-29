@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class PlayerMovement : MonoBehaviour
+    public class PlayerMovement : MonoBehaviour, IMove
     {
         public Vector2 Direction { private get; set; } = Vector2.one;
 
@@ -48,7 +48,7 @@ namespace Planet_IO
 
         private void FixedUpdate()
         {
-            MovePlayer();
+            Move();
             RotationPlayer();
         }
 
@@ -70,7 +70,8 @@ namespace Planet_IO
             _currentSpeed = _normalSpeed;
         }
 
-        private void MovePlayer() => rigidbody2D.velocity = Direction.normalized * _currentSpeed;
+        public float _speed { get; set; }
+        public void Move() => rigidbody2D.velocity = Direction.normalized * _currentSpeed;
 
         private async UniTaskVoid ActivatePlayerBoostLogic()
         {

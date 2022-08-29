@@ -4,7 +4,7 @@ using Random = UnityEngine.Random;
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class CometMovement : MonoBehaviour
+    public class CometMovement : MonoBehaviour, IMove
     {
         [SerializeField] private Rigidbody2D _rigidbody2D;
         [SerializeField] private Transform _cometTransform;
@@ -31,8 +31,8 @@ namespace Planet_IO
             return Direction;
         }
         private float RandomSpeed() => Random.Range(_minSpeed, _maxSpeed);
-        
-        private void Move() => _rigidbody2D.AddForce(_currentSpeed * _direction);
+
+        public void Move() => _rigidbody2D.AddForce(_currentSpeed * _direction);
 
         private void Rotation() => _cometTransform.Rotate(0, 0, _direction.y );
     }
