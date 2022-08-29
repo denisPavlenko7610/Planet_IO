@@ -183,3 +183,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speed: 3
   _rigidbody2D: {fileID: 2383583056927174934}
+  _timeToChangeDirection: 10
