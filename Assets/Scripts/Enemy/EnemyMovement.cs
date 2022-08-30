@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Dythervin.AutoAttach;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -9,7 +10,7 @@ namespace Planet_IO
     {
         [field: SerializeField] public float NormalSpeed { get;  set; }
         public float BoostSpeed { get; set; }
-        [SerializeField] private Rigidbody2D _rigidbody2D;
+        [SerializeField, Attach] private Rigidbody2D _rigidbody2D;
         
         [Header("Time")]
         [SerializeField] private float _maxTimeToChangeDirection;

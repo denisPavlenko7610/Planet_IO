@@ -25,14 +25,13 @@ namespace Planet_IO
 
         private void Awake() => CapacityPlayer = transform.localScale.x;
 
-        private void Start()
+        private void Start() => _changeCapacity.AddListener(DeathCheck);
+
+        private void DeathCheck(float capacity)
         {
-            _changeCapacity.AddListener((capacity) =>
-            {
-                if (capacity < MinCapacityPlayer) 
-                    _restartGame.Restart();
-            });
+            if (capacity < MinCapacityPlayer) _restartGame.Restart();
         }
+
         public void SetPlayerCapacity(float scaleValue)
         {
             if (CapacityPlayer < _maxCapacityPlayer)

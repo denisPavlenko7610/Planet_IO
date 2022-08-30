@@ -1,6 +1,6 @@
 namespace Planet_IO
 {
-    interface IMove
+    public interface IMove
     {
         float NormalSpeed { get; set; }
         float BoostSpeed { get; set; }

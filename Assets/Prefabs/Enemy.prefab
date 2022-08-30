@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 2383583056927174935}
   - component: {fileID: 2383583056927174932}
   - component: {fileID: 2383583056927174933}
+  - component: {fileID: 1510974237}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -151,7 +152,7 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -169,6 +170,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9af02a8961450b44b77f421fa8f18d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _enemyMovement: {fileID: 2383583056927174933}
+  _enemyScale: {fileID: 1510974237}
 --- !u!114 &2383583056927174933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,6 +184,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2687d2089e2cfaf4a85b5bffe233df65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 3
+  <NormalSpeed>k__BackingField: 3
   _rigidbody2D: {fileID: 2383583056927174934}
-  _timeToChangeDirection: 10
+  _maxTimeToChangeDirection: 20
+  _minTimeToChangeDirection: 4
+--- !u!114 &1510974237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2383583056927174931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 691aeeb885c4dbb4ea6681eb1f7a7cb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _minCapacityEnemy: 0.9
+  _maxCapacityEnemy: 20

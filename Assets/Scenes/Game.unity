@@ -1449,7 +1449,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7526882, y: 1}
+    m_SensorSize: {x: 0.5827957, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -1687,9 +1687,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1510974237, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+      propertyPath: _minCapacityEnemy
+      value: 0.9
+      objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_RootOrder
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1734,30 +1746,6 @@ PrefabInstance:
     - target: {fileID: 2383583056927174931, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_Name
       value: Enemy
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174933, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: _timeToChangeDirection
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174933, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: _maxTimeToChangeDirection
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174933, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: _minTimeToChangeDirection
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174933, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: <NormalSpeed>k__BackingField
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174933, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: <_normalSpeed>k__BackingField
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174935, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
