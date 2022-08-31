@@ -4,13 +4,10 @@ using Zenject;
 
 namespace Planet_IO
 {
-    [RequireComponent(typeof(EnemyChangeOfDirection))]
     [RequireComponent(typeof(EnemyScale))]
     public class Enemy : MonoBehaviour
     {
-        [Header("Enemy script")] 
-        [SerializeField, Attach] private EnemyMovement _enemyMovement;
-        [SerializeField, Attach] private EnemyChangeOfDirection _enemyChangeOfDirection;
+        [Header("Enemy script")]
         [SerializeField, Attach] private EnemyScale _enemyScale;
 
         [Header("Spawner")] 
@@ -23,10 +20,6 @@ namespace Planet_IO
             _cometsSpawnerLogics = cometsSpawnerLogics;
             _pointsSpawnerLogics = pointsSpawnerLogics;
         }
-
-        private void Start() => _enemyChangeOfDirection.ChangeDirection();
-
-        private void FixedUpdate() => _enemyMovement.Move();
 
         private void OnTriggerEnter2D(Collider2D col)
         {

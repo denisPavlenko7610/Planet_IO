@@ -1,32 +1,32 @@
-using System;
-using Cysharp.Threading.Tasks;
 using Dythervin.AutoAttach;
 using UnityEngine;
-using Random = UnityEngine.Random;
+
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(EnemyMovement))]
-    public class EnemyChangeOfDirection : MonoBehaviour
+    public class EnemyChangeOfDirection : EnemyState
     {
         [SerializeField, Attach] private EnemyMovement _enemyMovement;
-        
-        [Header("Time")]
-        [SerializeField] private float _maxTimeToChangeDirection;
-        [SerializeField] private float _minTimeToChangeDirection;
-        private float _timeToChangeDirection;
-
-        private void Start() => ChangeDirection();
-
-        public async void ChangeDirection()
+        private bool _changeDirection;
+        public override EnemyState RunCurrentState()
         {
-            while (true)
+            if (_changeDirection)
             {
-                _enemyMovement.Direction = _enemyMovement.DirectionMove(_enemyMovement.Direction);
-                _timeToChangeDirection = TimeChangeDirection();
-                await UniTask.Delay(TimeSpan.FromSeconds(_timeToChangeDirection));
+                _changeDirection = false;
+                return _enemyMovement;
             }
+            else
+            {
+                ChangeDirection();
+                return this;
+            }
+            
         }
-        private float TimeChangeDirection() => _timeToChangeDirection = Random.Range(_minTimeToChangeDirection, _maxTimeToChangeDirection);
+        private  void ChangeDirection()
+        {
+            _enemyMovement.Direction = _enemyMovement.DirectionMove(_enemyMovement.Direction);
+            _changeDirection = true;
+        }
     }
 }
