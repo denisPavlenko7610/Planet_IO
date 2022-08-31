@@ -1687,21 +1687,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1510974237, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: _minCapacityEnemy
-      value: 0.9
-      objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_RootOrder
       value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1749,6 +1737,37 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+--- !u!1 &2383583057078394746 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2383583056927174931, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+  m_PrefabInstance: {fileID: 2383583057078394745}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2383583057078394747 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2383583056927174933, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+  m_PrefabInstance: {fileID: 2383583057078394745}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2383583057078394746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2687d2089e2cfaf4a85b5bffe233df65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2383583057078394748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2383583057078394746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 703946fa067c4cc46b554f64fbf171ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemyMovement: {fileID: 2383583057078394747}
+  _maxTimeToChangeDirection: 20
+  _minTimeToChangeDirection: 5
 --- !u!1001 &5398844616338120853
 PrefabInstance:
   m_ObjectHideFlags: 0

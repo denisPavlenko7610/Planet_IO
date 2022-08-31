@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 2383583056927174932}
   - component: {fileID: 2383583056927174933}
   - component: {fileID: 1510974237}
+  - component: {fileID: 2383583057078394748}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -171,6 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyMovement: {fileID: 2383583056927174933}
+  _enemyChangeOfDirection: {fileID: 2383583057078394748}
   _enemyScale: {fileID: 1510974237}
 --- !u!114 &2383583056927174933
 MonoBehaviour:
@@ -186,8 +188,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <NormalSpeed>k__BackingField: 3
   _rigidbody2D: {fileID: 2383583056927174934}
-  _maxTimeToChangeDirection: 20
-  _minTimeToChangeDirection: 4
 --- !u!114 &1510974237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,3 +202,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _minCapacityEnemy: 0.9
   _maxCapacityEnemy: 20
+--- !u!114 &2383583057078394748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2383583056927174931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 703946fa067c4cc46b554f64fbf171ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemyMovement: {fileID: 2383583056927174933}
+  _maxTimeToChangeDirection: 20
+  _minTimeToChangeDirection: 5
