@@ -15,18 +15,20 @@ namespace Planet_IO
             {
                 _changeDirection = false;
                 return _enemyMovement;
-            }
-            else
-            {
-                ChangeDirection();
-                return this;
-            }
-            
+            } 
+            ChangeDirection();
+            return this;
         }
         private  void ChangeDirection()
         {
             _enemyMovement.Direction = _enemyMovement.DirectionMove(_enemyMovement.Direction);
             _changeDirection = true;
+        }
+
+        public void Evade(Vector2 transform)
+        {
+            Vector2 Tepm = Vector2.Reflect(_enemyMovement.Direction.normalized,transform.normalized);
+            _enemyMovement.Direction = -Tepm;
         }
     }
 }

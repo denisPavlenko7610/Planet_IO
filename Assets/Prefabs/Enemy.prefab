@@ -1,5 +1,50 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &150072119
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 150072120}
+  - component: {fileID: 150072121}
+  m_Layer: 0
+  m_Name: State
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &150072120
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 150072119}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2383583056927174930}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &150072121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 150072119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04ffad5099d82cb43beee012ba802eaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _currentState: {fileID: 2383583056927174933}
 --- !u!1 &2383583056658173399
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,6 +164,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2383583056658173398}
+  - {fileID: 150072120}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -171,8 +217,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9af02a8961450b44b77f421fa8f18d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyMovement: {fileID: 2383583056927174933}
-  _enemyChangeOfDirection: {fileID: 2383583057078394748}
   _enemyScale: {fileID: 1510974237}
 --- !u!114 &2383583056927174933
 MonoBehaviour:
@@ -186,6 +230,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2687d2089e2cfaf4a85b5bffe233df65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _enemyChangeOfDirection: {fileID: 2383583057078394748}
+  _maxTimeToChangeDirection: 10
+  _minTimeToChangeDirection: 2
   <NormalSpeed>k__BackingField: 3
   _rigidbody2D: {fileID: 2383583056927174934}
 --- !u!114 &1510974237
@@ -215,5 +262,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyMovement: {fileID: 2383583056927174933}
-  _maxTimeToChangeDirection: 20
-  _minTimeToChangeDirection: 5

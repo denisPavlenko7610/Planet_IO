@@ -70,8 +70,7 @@ namespace Planet_IO
             _isBoost = false;
             _currentSpeed = NormalSpeed;
         }
-
-        public float _speed { get; set; }
+        
         public void Move() => rigidbody2D.velocity = Direction.normalized * _currentSpeed;
 
         private async UniTaskVoid ActivatePlayerBoostLogic()

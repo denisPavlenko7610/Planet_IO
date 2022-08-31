@@ -24,8 +24,8 @@ namespace Planet_IO
                 _timeToChangeDirection = TimeChangeDirection();
                 return _enemyChangeOfDirection;
             }
-            else return this;
-            
+            return this;
+
         }
 
         private void FixedUpdate()
