@@ -21,14 +21,14 @@ namespace Planet_IO
             _pointsSpawnerLogics = pointsSpawnerLogics;
         }
 
-        private void OnTriggerEnter2D(Collider2D coll)
+        private void OnTriggerEnter2D(Collider2D col)
         {
-            if (coll.TryGetComponent(out Point point))
+            if (col.TryGetComponent(out Point point))
             {  
                 _enemyScale.SetEnemyCapacity(point.Capacity);
                 _pointsSpawnerLogics.CreatePoint(point);
             }
-            else if (coll.TryGetComponent(out Comet comet))
+            else if (col.TryGetComponent(out Comet comet))
             {
                 _enemyScale.SetEnemyCapacity(-comet.Capacity);
                 _cometsSpawnerLogics.CreateComet(comet);

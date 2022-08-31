@@ -25,9 +25,9 @@ namespace Planet_IO
             _changeDirection = true;
         }
 
-        public void Evade(Vector2 transform)
+        public void Evade(Vector2 direction)
         {
-            Vector2 Tepm = Vector2.Reflect(_enemyMovement.Direction.normalized,transform.normalized);
+            Vector2 Tepm = Vector2.Reflect(_enemyMovement.Direction.normalized,direction.normalized);
             _enemyMovement.Direction = -Tepm;
         }
     }

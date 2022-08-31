@@ -11,6 +11,11 @@ namespace Planet_IO
             {
                 _enemyChangeOfDirection.Evade(_bordersTrigger.transform.position);
             }
+
+            if (col.TryGetComponent(out Comet _comet))
+            {
+                _enemyChangeOfDirection.Evade(_comet.transform.position);
+            }
         }
     }
 }

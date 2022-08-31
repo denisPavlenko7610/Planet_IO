@@ -12,8 +12,10 @@ namespace Planet_IO
         [SerializeField] private float _maxTimeToChangeDirection;
         [SerializeField] private float _minTimeToChangeDirection;
         private float _timeToChangeDirection;
+        
         [field: SerializeField] public float NormalSpeed { get;  set; }
         public float BoostSpeed { get; set; }
+        
         [SerializeField] private Rigidbody2D _rigidbody2D;
         
         
@@ -25,7 +27,6 @@ namespace Planet_IO
                 return _enemyChangeOfDirection;
             }
             return this;
-
         }
 
         private void FixedUpdate()
