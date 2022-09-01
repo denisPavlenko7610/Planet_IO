@@ -6,19 +6,20 @@ using Cysharp.Threading.Tasks;
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class PlayerMovement : MonoBehaviour
+    public class PlayerMovement : MonoBehaviour, IMove
     {
         public Vector2 Direction { private get; set; } = Vector2.one;
 
-        [Header("Script Player")] [SerializeField, Attach(Attach.Scene)]
-        private AccelerationButton _accelerationButton;
-
+        [Header("Script Player")] 
+        [SerializeField, Attach(Attach.Scene)] private AccelerationButton _accelerationButton;
         [SerializeField, Attach] private Player _player;
+        
+        [Space] 
+        [SerializeField, Attach] private Rigidbody2D rigidbody2D;
 
-        [Space] [SerializeField, Attach] private Rigidbody2D rigidbody2D;
-
-        [Header("Speed")] [SerializeField] private float _normalSpeed = 3f;
-        [SerializeField] private float _boostSpeed = 6f;
+        [field: Header("Speed")] 
+        [field: SerializeField] public float NormalSpeed { get; set; } = 3f;
+        [field: SerializeField] public float BoostSpeed { get; set; }  = 6f;
         [SerializeField] private float _timeToTick = 1f;
 
         private float _currentSpeed;
@@ -26,7 +27,7 @@ namespace Planet_IO
         private float _rotationAngle;
         private bool _isBoost;
 
-        private void Awake() => _currentSpeed = _normalSpeed;
+        private void Awake() => _currentSpeed = NormalSpeed;
 
         private void OnEnable()
         {
@@ -48,7 +49,7 @@ namespace Planet_IO
 
         private void FixedUpdate()
         {
-            MovePlayer();
+            Move();
             RotationPlayer();
         }
 
@@ -67,14 +68,14 @@ namespace Planet_IO
                 return;
             
             _isBoost = false;
-            _currentSpeed = _normalSpeed;
+            _currentSpeed = NormalSpeed;
         }
-
-        private void MovePlayer() => rigidbody2D.velocity = Direction.normalized * _currentSpeed;
+        
+        public void Move() => rigidbody2D.velocity = Direction.normalized * _currentSpeed;
 
         private async UniTaskVoid ActivatePlayerBoostLogic()
         {
-            _currentSpeed = _boostSpeed;
+            _currentSpeed = BoostSpeed;
 
             while (_isBoost)
             {
