@@ -83,7 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5637413c67a4f964cb9fc74530cc3dc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyChangeOfDirection: {fileID: 2383583057078394748}
+  directionState: {fileID: 2383583057078394748}
 --- !u!1 &150072119
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,7 +128,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ffad5099d82cb43beee012ba802eaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentState: {fileID: 2383583056927174933}
 --- !u!1 &2383583056658173399
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,7 +301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9af02a8961450b44b77f421fa8f18d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyScale: {fileID: 1510974237}
+  _scale: {fileID: 1510974237}
 --- !u!114 &2383583056927174933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,11 +314,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2687d2089e2cfaf4a85b5bffe233df65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyChangeOfDirection: {fileID: 2383583057078394748}
+  DirectionState: {fileID: 2383583057078394748}
   _maxTimeToChangeDirection: 30
   _minTimeToChangeDirection: 10
-  <NormalSpeed>k__BackingField: 3
   _rigidbody2D: {fileID: 2383583056927174934}
+  <NormalSpeed>k__BackingField: 3
 --- !u!114 &1510974237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -332,8 +331,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 691aeeb885c4dbb4ea6681eb1f7a7cb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minCapacityEnemy: 0.9
-  _maxCapacityEnemy: 20
+  <MinCapacity>k__BackingField: 0.08
+  _maxCapacity: 10
 --- !u!114 &2383583057078394748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,4 +345,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 703946fa067c4cc46b554f64fbf171ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enemyMovement: {fileID: 2383583056927174933}
+  _movement: {fileID: 2383583056927174933}

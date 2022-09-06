@@ -4,17 +4,17 @@ namespace Planet_IO
 {
     public class EnemyStateManager : MonoBehaviour
     {
-        public EnemyState _currentState;
+        public IState _currentState;
 
         private void Update() => RunStateMachine();
 
         private void RunStateMachine()
         {
-            EnemyState nextState = _currentState?.RunCurrentState();
+            IState nextState = _currentState?.RunCurrentState();
 
             if (nextState != null) SwitchToTheNextState(nextState);
         }
 
-        private void SwitchToTheNextState(EnemyState nextState) => _currentState = nextState;
+        private void SwitchToTheNextState(IState nextState) => _currentState = nextState;
     }
 }

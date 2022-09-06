@@ -6,23 +6,20 @@ using Dythervin.AutoAttach;
 namespace Planet_IO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
-    public class Player : MonoBehaviour
+    public class Player : Planet
     {
         private const float _measurementError = 0.01f;
         
         [Header("Borders")] 
         [SerializeField, Attach(Attach.Scene)] private BordersTrigger _bordersTrigger;
 
-        [Header("player script")] 
-        [SerializeField, Attach] private PlayerScale _playerScale;
+        [Header("player script")]
         [SerializeField, Attach] private InputPlayerSystem _inputPlayerSystem;
         [SerializeField, Attach] private PlayerMovement _playerMovement;
 
         [Header("Spawner")] 
         [SerializeField] private Transform _pointSpawnTransform;
-        private CometsSpawnerLogics _cometsSpawnerLogics;
-        private PointsSpawnerLogics _pointsSpawnerLogics;
-        
+
         [Inject]
         private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
         {
@@ -32,19 +29,19 @@ namespace Planet_IO
 
         private void OnEnable()
         {
-            _bordersTrigger.OnPlayerTriggeredHandler += _playerScale.DecreasePlayerCapacity;
+            _bordersTrigger.OnPlayerTriggeredHandler += _scale.DecreaseCapacity;
             _inputPlayerSystem.Input += Move;
         }
 
         private void OnDisable()
         {
-            _bordersTrigger.OnPlayerTriggeredHandler -= _playerScale.DecreasePlayerCapacity;
+            _bordersTrigger.OnPlayerTriggeredHandler -= _scale.DecreaseCapacity;
             _inputPlayerSystem.Input -= Move;
         } 
         
         public void EnableBoost()
         {
-            if (_playerScale.CapacityPlayer > _playerScale.MinCapacityPlayer + _measurementError)
+            if (_scale.Capacity > _scale.MinCapacity + _measurementError)
             {
                 DecreasePlayerCapacity();
                 CreatePoints();
@@ -53,7 +50,7 @@ namespace Planet_IO
 
         private void CreatePoints() => _pointsSpawnerLogics.CreatePoint(_pointSpawnTransform);
 
-        private void DecreasePlayerCapacity() => _playerScale.SetPlayerCapacity(-_measurementError);
+        private void DecreasePlayerCapacity() => _scale.SetCapacity(-_measurementError);
 
         private void Move(Vector2 moveInput) => _playerMovement.Direction = moveInput;
 
@@ -61,12 +58,12 @@ namespace Planet_IO
         {
             if (other.TryGetComponent(out Point point))
             {
-                _playerScale.SetPlayerCapacity(point.Capacity);
+                _scale.SetCapacity(point.Capacity);
                 _pointsSpawnerLogics.CreatePoint(point);
             }
             else if (other.TryGetComponent(out Comet comet))
             {
-                _playerScale.SetPlayerCapacity(-comet.Capacity);
+                _scale.SetCapacity(-comet.Capacity);
                 _cometsSpawnerLogics.CreateComet(comet);
             }
         }

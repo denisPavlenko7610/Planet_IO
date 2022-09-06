@@ -1,19 +1,11 @@
-using Dythervin.AutoAttach;
 using UnityEngine;
 using Zenject;
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(EnemyScale))]
-    public class Enemy : MonoBehaviour
+    public class Enemy : Planet
     {
-        [Header("Enemy script")]
-        [SerializeField, Attach] private EnemyScale _enemyScale;
-
-        [Header("Spawner")] 
-        private CometsSpawnerLogics _cometsSpawnerLogics;
-        private PointsSpawnerLogics _pointsSpawnerLogics;
-
         [Inject]
         private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
         {
@@ -25,12 +17,12 @@ namespace Planet_IO
         {
             if (col.TryGetComponent(out Point point))
             {  
-                _enemyScale.SetEnemyCapacity(point.Capacity);
+                _scale.IncreaseCapacity(point.Capacity);
                 _pointsSpawnerLogics.CreatePoint(point);
             }
             else if (col.TryGetComponent(out Comet comet))
             {
-                _enemyScale.SetEnemyCapacity(-comet.Capacity);
+                _scale.IncreaseCapacity(-comet.Capacity);
                 _cometsSpawnerLogics.CreateComet(comet);
             }
         }

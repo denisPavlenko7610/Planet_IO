@@ -1450,7 +1450,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 0.5827957, y: 1}
+    m_SensorSize: {x: 2.0555556, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -1688,6 +1688,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1691944480}
     m_Modifications:
+    - target: {fileID: 1510974237, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+      propertyPath: _maxCapacity
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -1929,6 +1933,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1691944480}
     m_Modifications:
+    - target: {fileID: 1292756762, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: _maxCapacity
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 8045643209477139654, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1976,18 +1984,6 @@ PrefabInstance:
     - target: {fileID: 8045643209477139672, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8045643209477139672, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8045643209960618507, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
-      propertyPath: mainCamera
-      value: 
-      objectReference: {fileID: 519420031}
-    - target: {fileID: 8045643209960618507, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
-      propertyPath: _useMouseInput
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: _accelerationButton

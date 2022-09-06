@@ -6,15 +6,14 @@ namespace Planet_IO
     [RequireComponent(typeof(Rigidbody2D))]
     public class CometMovement : MonoBehaviour, IMove
     {
-        private const float _zero = 0f;
-        
         [SerializeField] private Rigidbody2D _rigidbody2D;
         [SerializeField] private Transform _cometTransform;
         [SerializeField] private float _minSpeed = 0.01f;
         [SerializeField] private float _maxSpeed = 0.03f;
 
-        public float NormalSpeed { get; set; } = 0.004f;
-        public float BoostSpeed { get; set; }
+        public float NormalSpeed { get; private set; } = 0.004f;
+        public float BoostSpeed { get; private set; }
+        
         private Vector2 _direction;
 
         private void Start()
@@ -37,6 +36,6 @@ namespace Planet_IO
 
         public void Move() => _rigidbody2D.AddForce(NormalSpeed * _direction);
 
-        private void Rotation() => _cometTransform.Rotate(_zero, _zero, _direction.y );
+        private void Rotation() => _cometTransform.Rotate(0, 0, _direction.y );
     }
 }

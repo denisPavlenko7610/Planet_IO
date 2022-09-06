@@ -17,7 +17,7 @@ namespace Planet_IO
         private void OnCollisionEnter2D(Collision2D col)
         {
             if (col.collider.TryGetComponent(out PlayerScale player))
-                OnPlayerTriggeredHandler?.Invoke(player.CapacityPlayer);
+                OnPlayerTriggeredHandler?.Invoke(player.Capacity);
         }
     }
     

@@ -161,7 +161,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.59, y: 0.7, z: 0}
   m_LocalScale: {x: 0.13, y: 0.13, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 82095068}
   - {fileID: 8321741583575587399}
@@ -269,8 +269,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59c4c42fa62a4572baf18f5ad770809d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _scale: {fileID: 1292756762}
   _bordersTrigger: {fileID: 0}
-  _playerScale: {fileID: 1292756762}
   _inputPlayerSystem: {fileID: 8045643209960618507}
   _playerMovement: {fileID: 8517843457492819222}
   _pointSpawnTransform: {fileID: 82095068}
@@ -289,8 +289,8 @@ MonoBehaviour:
   _accelerationButton: {fileID: 0}
   _player: {fileID: 8517843457492819226}
   rigidbody2D: {fileID: 8517843457492819217}
-  _normalSpeed: 3
-  _boostSpeed: 6
+  <NormalSpeed>k__BackingField: 3
+  <BoostSpeed>k__BackingField: 6
   _timeToTick: 1
 --- !u!114 &1292756762
 MonoBehaviour:
@@ -304,8 +304,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfcb2bdfe70048c6b1ce4d79204d9097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <MinCapacityPlayer>k__BackingField: 0.08
-  _maxCapacityPlayer: 20
+  <MinCapacity>k__BackingField: 0.08
+  _maxCapacity: 10
 --- !u!114 &8045643209960618507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,5 +318,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79af618614919fa4cb54a0aad31b00f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _useMouseInput: 1
   _mainCamera: {fileID: 0}
   _arrow: {fileID: 4812666040821396284}
