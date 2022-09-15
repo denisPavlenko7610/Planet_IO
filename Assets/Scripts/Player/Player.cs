@@ -65,6 +65,15 @@ namespace Planet_IO
             {
                 _scale.SetCapacity(-comet.Capacity);
                 _cometsSpawnerLogics.CreateComet(comet);
+            }else if(other.TryGetComponent(out EnemyScale enemy))
+            {
+                if (_scale.Capacity > enemy.Capacity)
+                {
+                    _scale.SetCapacity(enemy.Capacity * 100f);
+                    enemy.gameObject.SetActive(false);
+                }
+                else
+                    _scale.SetCapacity(-enemy.Capacity * 100f);
             }
         }
     }

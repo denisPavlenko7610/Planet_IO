@@ -3,7 +3,6 @@ using Dythervin.AutoAttach;
 using Planet_IO;
 using Planet_IO.ObjectPool;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 namespace PlanetIO_Core
@@ -18,6 +17,7 @@ namespace PlanetIO_Core
         
         [Header("Player")]
         [SerializeField, Attach(Attach.Scene)] private PlayerMovement _playerMovement;
+        [SerializeField, Attach(Attach.Scene)] private PlayerScale _playerScale;
         [SerializeField, Attach(Attach.Scene)] private CinemachineVirtualCamera _playerCamera;
         
         [Header("logics Spawner")] 
@@ -39,6 +39,7 @@ namespace PlanetIO_Core
             
             Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
             Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
+            Container.Bind<PlayerScale>().FromInstance(_playerScale).AsSingle();
             
             Container.Bind<CometsSpawnerLogics>().FromInstance(_cometsSpawnerLogics).AsSingle();
             Container.Bind<PointsSpawnerLogics>().FromInstance(_pointsSpawnerLogics).AsSingle();

@@ -5,22 +5,18 @@ namespace Planet_IO
 {
     public class PlayerScale : PlanetScale
     {
-        private RestartGame _restartGame;
+        public bool IsDie { get; private set; }
         private CinemachineVirtualCamera _playerCamera;
 
         [Inject]
-        private void Construct(CinemachineVirtualCamera playerCamera, RestartGame restartGame)
-        {
-            _playerCamera = playerCamera;
-            _restartGame = restartGame;
-        }
+        private void Construct(CinemachineVirtualCamera playerCamera) => _playerCamera = playerCamera;
 
         private void Start() => Init();
         
         protected override void DeathCheck(float capacity)
         {
             if (capacity < MinCapacity)
-                _restartGame.Restart();
+                IsDie = true;
         }
 
         public override void SetCapacity(float scaleValue)

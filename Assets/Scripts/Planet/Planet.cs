@@ -5,7 +5,6 @@ namespace Planet_IO
 {
     public abstract class Planet : MonoBehaviour
     {
-        [Header("Enemy script")]
         [SerializeField, Attach] protected PlanetScale _scale;
         
 
