@@ -7,6 +7,7 @@ namespace Planet_IO
     {
         [Header("Enemy script")]
         [SerializeField, Attach] protected PlanetScale _scale;
+        
 
         [Header("Spawner")] 
         protected CometsSpawnerLogics _cometsSpawnerLogics;
