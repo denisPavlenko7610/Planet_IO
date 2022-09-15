@@ -5,13 +5,13 @@ using UnityEngine;
 namespace Planet_IO
 {
     [RequireComponent(typeof(Movement))]
-    public class DirectionState : MonoBehaviour, IState
+    public class DirectionState : EnemyState
     {
         [SerializeField, Attach] private Movement _movement;
 
         private bool _changeDirection;
 
-        public IState RunCurrentState()
+        public override  EnemyState RunCurrentState()
         {
             if (_changeDirection)
             {

@@ -3,7 +3,7 @@ using Random = UnityEngine.Random;
 
 namespace Planet_IO
 {
-    public class Movement : MonoBehaviour, IState, IMove
+    public class Movement : EnemyState, IMove
     {
         public DirectionState DirectionState;
 
@@ -19,7 +19,7 @@ namespace Planet_IO
         public Vector2 Direction { get; set; }
 
 
-        public IState RunCurrentState()
+        public override EnemyState RunCurrentState()
         {
             if (_timeToChangeDirection < 0)
             {
