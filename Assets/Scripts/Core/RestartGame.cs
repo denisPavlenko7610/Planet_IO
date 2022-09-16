@@ -1,10 +1,23 @@
 using UnityEngine;
+using Planet_IO;
 using UnityEngine.SceneManagement;
+using Zenject;
 
-namespace Planet_IO
+namespace PlanetIO_Core
 {
     public class RestartGame : MonoBehaviour
     {
-        public void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        private PlayerScale _playerScale;
+
+        [Inject]
+        private void Construct(PlayerScale playerScale) => _playerScale = playerScale;
+        
+        private void Update()
+        {
+            if (_playerScale.IsDie)
+                Restart();
+        }
+
+        private void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
     }
 }

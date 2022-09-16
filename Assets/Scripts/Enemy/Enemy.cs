@@ -16,13 +16,13 @@ namespace Planet_IO
         private void OnTriggerEnter2D(Collider2D col)
         {
             if (col.TryGetComponent(out Point point))
-            {  
-                _scale.IncreaseCapacity(point.Capacity);
+            {
+                _scale.SetCapacity(point.Capacity);
                 _pointsSpawnerLogics.CreatePoint(point);
             }
             else if (col.TryGetComponent(out Comet comet))
             {
-                _scale.IncreaseCapacity(-comet.Capacity);
+                _scale.SetCapacity(-comet.Capacity);
                 _cometsSpawnerLogics.CreateComet(comet);
             }
         }
