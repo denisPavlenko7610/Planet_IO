@@ -8,9 +8,6 @@ namespace Planet_IO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : Planet
     {
-        [field: SerializeField] public string SomeField { get; private set; }
-        [SerializeReference] public ICapacity Planets;
-
         [Header("Borders")] [SerializeField, Attach(Attach.Scene)]
         private BordersTrigger _bordersTrigger;
 
