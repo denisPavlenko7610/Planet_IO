@@ -8,17 +8,19 @@ namespace Planet_IO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : Planet
     {
-        private const float _measurementError = 0.01f;
-        
-        [Header("Borders")] 
-        [SerializeField, Attach(Attach.Scene)] private BordersTrigger _bordersTrigger;
+        [field: SerializeField] public string SomeField { get; private set; }
+        [SerializeReference] public ICapacity Planets;
 
-        [Header("player script")]
-        [SerializeField, Attach] private InputPlayerSystem _inputPlayerSystem;
+        [Header("Borders")] [SerializeField, Attach(Attach.Scene)]
+        private BordersTrigger _bordersTrigger;
+
+        [Header("player script")] [SerializeField, Attach]
+        private InputPlayerSystem _inputPlayerSystem;
+
         [SerializeField, Attach] private PlayerMovement _playerMovement;
+        [Header("Spawner")] [SerializeField] private Transform _pointSpawnTransform;
 
-        [Header("Spawner")] 
-        [SerializeField] private Transform _pointSpawnTransform;
+        private const float _measurementError = 0.01f;
 
         [Inject]
         private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
@@ -37,8 +39,8 @@ namespace Planet_IO
         {
             _bordersTrigger.OnPlayerTriggeredHandler -= _scale.DecreaseCapacity;
             _inputPlayerSystem.Input -= Move;
-        } 
-        
+        }
+
         public void EnableBoost()
         {
             if (_scale.Capacity > _scale.MinCapacity + _measurementError)
@@ -65,7 +67,8 @@ namespace Planet_IO
             {
                 _scale.SetCapacity(-comet.Capacity);
                 _cometsSpawnerLogics.CreateComet(comet);
-            }else if(other.TryGetComponent(out EnemyScale enemy))
+            }
+            else if (other.TryGetComponent(out EnemyScale enemy))
             {
                 if (_scale.Capacity > enemy.Capacity)
                 {
