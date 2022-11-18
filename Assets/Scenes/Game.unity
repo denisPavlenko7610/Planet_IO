@@ -1745,15 +1745,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174930, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1779,6 +1779,10 @@ PrefabInstance:
       propertyPath: _spriteRenderer
       value: 
       objectReference: {fileID: 2383583057078394761}
+    - target: {fileID: 2383583056927174933, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+      propertyPath: _enemyTransform
+      value: 
+      objectReference: {fileID: 2383583057078394753}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
