@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f2d042133c4af29386fc6136341b77, type: 3}
+  m_Name: EnemyDate
+  m_EditorClassIdentifier: 
+  <EnemySprites>k__BackingField:
+  - {fileID: 21300000, guid: b82d72e19631266429304b92c1710fcc, type: 3}
+  - {fileID: 21300000, guid: 0d3fe788df9f2ab45a1d9a655406baa8, type: 3}
+  - {fileID: 21300000, guid: 992576d838d02f34abbdcd31a516c499, type: 3}
+  - {fileID: 21300000, guid: ef4b841b2d1af5243a5a5f5ec7685fa8, type: 3}
+  - {fileID: 21300000, guid: 14ab230260f12754ca96d46571344495, type: 3}
