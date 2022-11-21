@@ -167,7 +167,7 @@ Transform:
   - {fileID: 150072120}
   - {fileID: 57896314}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &163752541173436847
 SpriteRenderer:
@@ -271,6 +271,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _scale: {fileID: 1510974237}
+  _spriteRenderer: {fileID: 163752541173436847}
+  _enemyDate: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
 --- !u!114 &2383583056927174933
 MonoBehaviour:
   m_ObjectHideFlags: 0

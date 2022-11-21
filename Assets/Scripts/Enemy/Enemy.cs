@@ -1,11 +1,20 @@
+using RDTools;
 using UnityEngine;
 using Zenject;
+using Random = UnityEngine.Random;
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(EnemyScale))]
     public class Enemy : Planet
     {
+        [Expandable]
+        [SerializeField] private EnemyDate _enemyDate;
+
+        private Sprite _sprite;
+
+        private void Start() => SetRandomSprite(_sprite);
+
         [Inject]
         private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
         {
@@ -25,6 +34,13 @@ namespace Planet_IO
                 _scale.SetCapacity(-comet.Capacity);
                 _cometsSpawnerLogics.CreateComet(comet);
             }
+        }
+
+        private void SetRandomSprite(Sprite sprite)
+        {
+            var index = Random.Range(0, _enemyDate.EnemySprites.Count);
+            sprite = _enemyDate.EnemySprites[index];
+            _spriteRenderer.sprite = sprite;
         }
     }
 }

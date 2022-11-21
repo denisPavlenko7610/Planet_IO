@@ -7,8 +7,11 @@ namespace Planet_IO
     {
         public DirectionState DirectionState;
 
-        [Header("Time")] [SerializeField] private float _maxTimeToChangeDirection;
+        [Header("Time")] 
+        [SerializeField] private float _maxTimeToChangeDirection;
         [SerializeField] private float _minTimeToChangeDirection;
+        
+        [SerializeField] private Transform _enemyTransform;
         [SerializeField] private Rigidbody2D _rigidbody2D;
         
         [field: SerializeField] public float NormalSpeed { get; private set; }
@@ -34,6 +37,7 @@ namespace Planet_IO
         {
             _timeToChangeDirection -= Time.fixedDeltaTime;
             Move();
+            Rotation();
         }
 
         private float TimeChangeDirection() => _timeToChangeDirection =
@@ -48,5 +52,7 @@ namespace Planet_IO
             Direction.y = Random.Range(-rangeValue, rangeValue);
             return Direction;
         }
+
+        private void Rotation() => _enemyTransform.Rotate(0, 0, Direction.y);
     }
 }
