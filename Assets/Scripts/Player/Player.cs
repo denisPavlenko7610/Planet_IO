@@ -1,4 +1,5 @@
 ﻿using RDTools.AutoAttach;
+using TMPro;
 using UnityEngine;
 using Zenject;
 
@@ -8,14 +9,19 @@ namespace Planet_IO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : Planet
     {
-        [Header("Borders")] [SerializeField, Attach(Attach.Scene)]
+        [Header("Borders")] 
+        [SerializeField, Attach(Attach.Scene)]
         private BordersTrigger _bordersTrigger;
 
-        [Header("player script")] [SerializeField, Attach]
-        private InputPlayerSystem _inputPlayerSystem;
-
+        [Header("player script")] 
+        [SerializeField, Attach] private InputPlayerSystem _inputPlayerSystem;
         [SerializeField, Attach] private PlayerMovement _playerMovement;
-        [Header("Spawner")] [SerializeField] private Transform _pointSpawnTransform;
+        
+        [Header("Spawner")] 
+        [SerializeField] private Transform _pointSpawnTransform;
+
+
+
 
         private const float _measurementError = 0.01f;
 
@@ -37,7 +43,6 @@ namespace Planet_IO
             _bordersTrigger.OnPlayerTriggeredHandler -= _scale.DecreaseCapacity;
             _inputPlayerSystem.Input -= Move;
         }
-
         public void EnableBoost()
         {
             if (_scale.Capacity > _scale.MinCapacity + _measurementError)
