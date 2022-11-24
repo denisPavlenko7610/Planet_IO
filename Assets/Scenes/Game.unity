@@ -322,14 +322,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pointsPool: {fileID: 1158107521}
+  _enemyPool: {fileID: 0}
   _cometsPool: {fileID: 470327858}
   _pointsSpawner: {fileID: 1158107520}
   _cometSpawner: {fileID: 470327857}
+  _enemySpawner: {fileID: 0}
   _playerMovement: {fileID: 1292756757}
   _playerScale: {fileID: 1612963228}
   _playerCamera: {fileID: 1751847113}
   _pointsSpawnerLogics: {fileID: 1158107520}
   _cometsSpawnerLogics: {fileID: 470327857}
+  _enemySpawnerLogics: {fileID: 0}
   _restartGame: {fileID: 1122141645}
 --- !u!114 &123435267
 MonoBehaviour:
@@ -696,6 +699,7 @@ Transform:
   m_Children:
   - {fileID: 1158107517}
   - {fileID: 470327856}
+  - {fileID: 549707338}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -852,6 +856,70 @@ MonoBehaviour:
   m_CameraActivatedEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &549707337
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 549707338}
+  - component: {fileID: 549707340}
+  - component: {fileID: 549707339}
+  m_Layer: 0
+  m_Name: EnemySpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &549707338
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549707337}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 504850297}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &549707339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549707337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e38ce1407ef3402396ec080dbfec8b17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Count>k__BackingField: 10
+  <Prefabs>k__BackingField:
+  - {fileID: 1510974237, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+--- !u!114 &549707340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549707337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e18f3a6e1f7b4c1a8d9cb0b9bc2544fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _minObjectScale: 0.4
+  _maxObjectScale: 1
+  <SpawnPositionX>k__BackingField: {x: -223, y: 223}
+  <SpawnPositionY>k__BackingField: {x: -139, y: 161.9}
 --- !u!1 &566410503
 GameObject:
   m_ObjectHideFlags: 0

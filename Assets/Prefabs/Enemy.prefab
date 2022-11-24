@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ffad5099d82cb43beee012ba802eaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _currentState: {fileID: 0}
+  _currentState: {fileID: 2383583056927174933}
 --- !u!1 &2383583056927174931
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,6 +288,7 @@ MonoBehaviour:
   DirectionState: {fileID: 2383583057078394748}
   _maxTimeToChangeDirection: 30
   _minTimeToChangeDirection: 10
+  _enemyTransform: {fileID: 2383583056927174930}
   _rigidbody2D: {fileID: 2383583056927174934}
   <NormalSpeed>k__BackingField: 3
 --- !u!114 &1510974237
@@ -316,4 +317,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 703946fa067c4cc46b554f64fbf171ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movement: {fileID: 2383583056927174933}
+  enemyMovement: {fileID: 2383583056927174933}

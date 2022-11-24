@@ -3,7 +3,7 @@ using Random = UnityEngine.Random;
 
 namespace Planet_IO
 {
-    public class Movement : EnemyState, IMove
+    public class EnemyMovement : EnemyState, IMove
     {
         public DirectionState DirectionState;
 
