@@ -38,9 +38,9 @@ namespace PlanetIO_Core
             
             Container.Bind<ObjectPool<Point>>().FromInstance(_pointsPool).AsSingle();
             Container.Bind<ObjectPool<Comet>>().FromInstance(_cometsPool).AsSingle();
+            Container.Bind<ObjectPool<EnemyScale>>().FromInstance(_enemyPool).AsSingle();
             Container.Bind<Spawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
             Container.Bind<Spawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
-            Container.Bind<ObjectPool<EnemyScale>>().FromInstance(_enemyPool).AsSingle();
             Container.Bind<Spawner<EnemyScale>>().FromInstance(_enemySpawner).AsSingle();
             
             Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();

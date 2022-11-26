@@ -1,5 +1,6 @@
 ﻿using RDTools.AutoAttach;
 using UnityEngine;
+using Zenject;
 
 namespace Planet_IO
 {
@@ -11,5 +12,14 @@ namespace Planet_IO
         [Header("Spawner")] 
         protected CometsSpawnerLogics _cometsSpawnerLogics;
         protected PointsSpawnerLogics _pointsSpawnerLogics;
+        
+        
+        
+        [Inject]
+        private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
+        {
+            _cometsSpawnerLogics = cometsSpawnerLogics;
+            _pointsSpawnerLogics = pointsSpawnerLogics;
+        }
     }
 }

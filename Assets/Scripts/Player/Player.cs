@@ -24,13 +24,7 @@ namespace Planet_IO
 
 
         private const float _measurementError = 0.01f;
-
-        [Inject]
-        private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
-        {
-            _cometsSpawnerLogics = cometsSpawnerLogics;
-            _pointsSpawnerLogics = pointsSpawnerLogics;
-        }
+        
 
         private void OnEnable()
         {

@@ -322,17 +322,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pointsPool: {fileID: 1158107521}
-  _enemyPool: {fileID: 0}
+  _enemyPool: {fileID: 549707339}
   _cometsPool: {fileID: 470327858}
   _pointsSpawner: {fileID: 1158107520}
   _cometSpawner: {fileID: 470327857}
-  _enemySpawner: {fileID: 0}
+  _enemySpawner: {fileID: 549707340}
   _playerMovement: {fileID: 1292756757}
   _playerScale: {fileID: 1612963228}
   _playerCamera: {fileID: 1751847113}
   _pointsSpawnerLogics: {fileID: 1158107520}
   _cometsSpawnerLogics: {fileID: 470327857}
-  _enemySpawnerLogics: {fileID: 0}
+  _enemySpawnerLogics: {fileID: 549707340}
   _restartGame: {fileID: 1122141645}
 --- !u!114 &123435267
 MonoBehaviour:
@@ -2089,6 +2089,10 @@ PrefabInstance:
       propertyPath: _enemyTransform
       value: 
       objectReference: {fileID: 2383583057078394753}
+    - target: {fileID: 2383583057078394748, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+      propertyPath: enemyMovement
+      value: 
+      objectReference: {fileID: 2383583057078394755}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
