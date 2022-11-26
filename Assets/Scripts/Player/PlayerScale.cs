@@ -7,32 +7,35 @@ namespace Planet_IO
 {
     public class PlayerScale : PlanetScale
     {
-        
         [Header("UI")] 
         [SerializeField] private TextMeshProUGUI _UIScaleText;
         
-        public bool IsDie { get; private set; }
         private CinemachineVirtualCamera _playerCamera;
+        public bool IsDie { get; private set; }
 
         [Inject]
         private void Construct(CinemachineVirtualCamera playerCamera) => _playerCamera = playerCamera;
 
-        private void Start() => Init();
-        
+        private void Start()
+        {
+            Init();
+            UpdateUI();
+        }
+
         protected override void DeathCheck(float capacity)
         {
             if (capacity < MinCapacity)
                 IsDie = true;
         }
 
-        public override void SetCapacity(float scaleValue)
+        protected override void SetCapacity(float scaleValue)
         {
             base.SetCapacity(scaleValue);
             IncreaseFieldOfView(scaleValue);
             UpdateUI();
         }
 
-        public override void DecreaseCapacity(float scaleValue)
+        protected override void DecreaseCapacity(float scaleValue)
         {
             base.DecreaseCapacity(scaleValue);
             UpdateUI();

@@ -328,7 +328,6 @@ MonoBehaviour:
   _cometSpawner: {fileID: 470327857}
   _enemySpawner: {fileID: 549707340}
   _playerMovement: {fileID: 1292756757}
-  _playerScale: {fileID: 1612963228}
   _playerCamera: {fileID: 1751847113}
   _pointsSpawnerLogics: {fileID: 1158107520}
   _cometsSpawnerLogics: {fileID: 470327857}
@@ -903,7 +902,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Count>k__BackingField: 10
   <Prefabs>k__BackingField:
-  - {fileID: 1510974237, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+  - {fileID: 2383583056927174932, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
 --- !u!114 &549707340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1512,17 +1511,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1346651474}
   m_CullTransparentMesh: 1
---- !u!114 &1612963228 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1292756762, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
-  m_PrefabInstance: {fileID: 8045643209960618505}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfcb2bdfe70048c6b1ce4d79204d9097, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!212 &1612963233 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 8045643209477139673, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
@@ -2082,6 +2070,10 @@ PrefabInstance:
       value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 2383583056927174932, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+      propertyPath: _scale
+      value: 
+      objectReference: {fileID: 2383583057078394765}
+    - target: {fileID: 2383583056927174932, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
       propertyPath: _spriteRenderer
       value: 
       objectReference: {fileID: 2383583057078394761}
@@ -2117,6 +2109,17 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 163752541173436847, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
   m_PrefabInstance: {fileID: 2383583057078394745}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2383583057078394765 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2383583056927174932, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
+  m_PrefabInstance: {fileID: 2383583057078394745}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9af02a8961450b44b77f421fa8f18d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5398844616338120853
 PrefabInstance:
   m_ObjectHideFlags: 0

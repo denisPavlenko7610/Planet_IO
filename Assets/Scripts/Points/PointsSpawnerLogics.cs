@@ -4,7 +4,7 @@ using Zenject;
 
 namespace Planet_IO
 {
-    public class PointsSpawnerLogics : Spawner<Point>
+    public sealed class PointsSpawnerLogics : Spawner<Point>
     {
         private ObjectPool<Point> _pointPool;
         private Spawner<Point> _pointSpawner;
@@ -16,7 +16,7 @@ namespace Planet_IO
             _pointSpawner = pointSpawner;
         }
 
-        public virtual void CreatePoint(Point point)
+        public void CreatePoint(Point point)
         {
             _pointPool.Pool.Release(point);
             _pointSpawner.CreateObject();

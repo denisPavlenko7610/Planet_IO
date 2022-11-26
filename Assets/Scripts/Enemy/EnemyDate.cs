@@ -6,6 +6,6 @@ namespace Planet_IO
     [CreateAssetMenu(menuName = "Sample/Enemy/Date")]
     public class EnemyDate : ScriptableObject
     {
-        [field: SerializeField] public List<Sprite> EnemySprites { private set; get; }
+        [field: SerializeField] public List<Sprite> EnemySprites { get; private set; }
     }
 }

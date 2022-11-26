@@ -143,7 +143,6 @@ GameObject:
   - component: {fileID: 2383583056927174935}
   - component: {fileID: 2383583056927174932}
   - component: {fileID: 2383583056927174933}
-  - component: {fileID: 1510974237}
   - component: {fileID: 2383583057078394748}
   m_Layer: 0
   m_Name: Enemy
@@ -270,9 +269,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9af02a8961450b44b77f421fa8f18d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scale: {fileID: 1510974237}
-  _spriteRenderer: {fileID: 163752541173436847}
+  <MinCapacity>k__BackingField: 0.08
+  _maxCapacity: 10
   _enemyDate: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
+  _spriteRenderer: {fileID: 163752541173436847}
 --- !u!114 &2383583056927174933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,20 +291,6 @@ MonoBehaviour:
   _enemyTransform: {fileID: 2383583056927174930}
   _rigidbody2D: {fileID: 2383583056927174934}
   <NormalSpeed>k__BackingField: 3
---- !u!114 &1510974237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2383583056927174931}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 691aeeb885c4dbb4ea6681eb1f7a7cb9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  <MinCapacity>k__BackingField: 0.08
-  _maxCapacity: 10
 --- !u!114 &2383583057078394748
 MonoBehaviour:
   m_ObjectHideFlags: 0
