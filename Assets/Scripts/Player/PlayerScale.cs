@@ -1,10 +1,16 @@
 using Cinemachine;
+using TMPro;
 using Zenject;
+using UnityEngine;
 
 namespace Planet_IO
 {
     public class PlayerScale : PlanetScale
     {
+        
+        [Header("UI")] 
+        [SerializeField] private TextMeshProUGUI _UIScaleText;
+        
         public bool IsDie { get; private set; }
         private CinemachineVirtualCamera _playerCamera;
 
@@ -23,6 +29,13 @@ namespace Planet_IO
         {
             base.SetCapacity(scaleValue);
             IncreaseFieldOfView(scaleValue);
+            UpdateUI();
+        }
+
+        public override void DecreaseCapacity(float scaleValue)
+        {
+            base.DecreaseCapacity(scaleValue);
+            UpdateUI();
         }
 
         private void IncreaseFieldOfView(float scaleValue)
@@ -30,6 +43,8 @@ namespace Planet_IO
             var scaleDivider = 40;
             scaleValue /= scaleDivider;
             _playerCamera.m_Lens.OrthographicSize += scaleValue;
+            UpdateUI();
         }
+        private void UpdateUI() => _UIScaleText.text = Capacity.ToString("F3");
     }
 }

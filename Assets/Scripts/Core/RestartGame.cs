@@ -14,8 +14,8 @@ namespace PlanetIO_Core
         
         private void Update()
         {
-            if (_playerScale.IsDie)
-                Restart();
+          //  if (_playerScale.IsDie) 
+               // Restart();
         }
 
         private void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);

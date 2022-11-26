@@ -1,6 +1,5 @@
 using RDTools;
 using UnityEngine;
-using Zenject;
 using Random = UnityEngine.Random;
 
 namespace Planet_IO
@@ -14,13 +13,6 @@ namespace Planet_IO
         private Sprite _sprite;
 
         private void Start() => SetRandomSprite(_sprite);
-
-        [Inject]
-        private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
-        {
-            _cometsSpawnerLogics = cometsSpawnerLogics;
-            _pointsSpawnerLogics = pointsSpawnerLogics;
-        }
 
         private void OnTriggerEnter2D(Collider2D col)
         {

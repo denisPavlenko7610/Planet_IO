@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace Planet_IO
 {
-    [RequireComponent(typeof(Movement))]
+    [RequireComponent(typeof(EnemyMovement))]
     public class DirectionState : EnemyState
     {
-        [SerializeField, Attach] private Movement _movement;
+        [SerializeField, Attach] private EnemyMovement enemyMovement;
 
         private bool _changeDirection;
 
@@ -16,7 +16,7 @@ namespace Planet_IO
             if (_changeDirection)
             {
                 _changeDirection = false;
-                return _movement;
+                return enemyMovement;
             }
 
             ChangeDirection();
@@ -25,14 +25,14 @@ namespace Planet_IO
 
         private void ChangeDirection()
         {
-            _movement.Direction = _movement.DirectionMove(_movement.Direction);
+            enemyMovement.Direction = enemyMovement.DirectionMove(enemyMovement.Direction);
             _changeDirection = true;
         }
 
         public void Evade(Vector2 direction)
         {
-            Vector2 tepmVector = Vector2.Reflect(_movement.Direction.normalized, direction.normalized);
-            _movement.Direction = -tepmVector;
+            Vector2 tepmVector = Vector2.Reflect(enemyMovement.Direction.normalized, direction.normalized);
+            enemyMovement.Direction = -tepmVector;
         }
     }
 }
