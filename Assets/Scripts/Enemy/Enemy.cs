@@ -14,15 +14,8 @@ namespace Planet_IO
         private Sprite _sprite;
         
         [Header("Spawner")] 
-        private CometsSpawnerLogics _cometsSpawnerLogics;
-        private PointsSpawnerLogics _pointsSpawnerLogics;
-        
-        [Inject]
-        private void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
-        {
-            _cometsSpawnerLogics = cometsSpawnerLogics;
-            _pointsSpawnerLogics = pointsSpawnerLogics;
-        }
+        [SerializeField] private CometsSpawnerLogics _cometsSpawnerLogics;
+        [SerializeField] private PointsSpawnerLogics _pointsSpawnerLogics;
 
         private void Start()
         {
@@ -30,27 +23,22 @@ namespace Planet_IO
             SetRandomSprite(_sprite);
         }
 
+        public void InitDependencies(CometsSpawnerLogics cometsSpawnerLogics,PointsSpawnerLogics pointsSpawnerLogics )
+        {
+            _cometsSpawnerLogics = cometsSpawnerLogics;
+            _pointsSpawnerLogics = pointsSpawnerLogics;
+        }
+
         private void OnTriggerEnter2D(Collider2D collider2D)
         {
             if (collider2D.TryGetComponent(out Point point))
             {
                 SetCapacity(point.Capacity);
-                if (_pointsSpawnerLogics == null)
-                {
-                    return;
-                }
-                
                 _pointsSpawnerLogics.CreatePoint(point);
             }
             else if (collider2D.TryGetComponent(out Comet comet))
             {
                 SetCapacity(-comet.Capacity);
-
-                if (_cometsSpawnerLogics == null)
-                {
-                    return;
-                }
-                
                 _cometsSpawnerLogics.CreateComet(comet);
             }
         }
