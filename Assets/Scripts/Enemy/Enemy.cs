@@ -1,7 +1,6 @@
 using RDTools;
 using RDTools.AutoAttach;
 using UnityEngine;
-using Zenject;
 using Random = UnityEngine.Random;
 
 namespace Planet_IO
@@ -14,8 +13,8 @@ namespace Planet_IO
         private Sprite _sprite;
         
         [Header("Spawner")] 
-        [SerializeField] private CometsSpawnerLogics _cometsSpawnerLogics;
-        [SerializeField] private PointsSpawnerLogics _pointsSpawnerLogics;
+        [SerializeField, Attach(Attach.Scene)] private CometsSpawnerLogics _cometsSpawnerLogics;
+        [SerializeField, Attach(Attach.Scene)] private PointsSpawnerLogics _pointsSpawnerLogics;
 
         private void Start()
         {

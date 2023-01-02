@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Cinemachine;
+﻿using System.Collections.Generic;
 using Planet_IO;
 using Planet_IO.ObjectPool;
 using RDTools.AutoAttach;
@@ -14,6 +12,7 @@ namespace PlanetIO_Core
         [Header("Pool and Spawner")] [SerializeField, Attach(Attach.Scene)]
         private ObjectPool<Point> _pointsPool;
 
+        [SerializeField, Attach(Attach.Scene)] private Camera _playerCamera;
         [SerializeField, Attach(Attach.Scene)] private ObjectPool<Enemy> _enemyPool;
         [SerializeField, Attach(Attach.Scene)] private ObjectPool<Comet> _cometsPool;
 
@@ -24,7 +23,7 @@ namespace PlanetIO_Core
         [Header("Player")] [SerializeField, Attach(Attach.Scene)]
         private PlayerMovement _playerMovement;
 
-        [SerializeField, Attach(Attach.Scene)] private CinemachineVirtualCamera _playerCamera;
+        private Player _player;
 
         [Header("logics Spawner")] [SerializeField, Attach(Attach.Scene)]
         private PointsSpawnerLogics _pointsSpawnerLogics;
@@ -38,15 +37,17 @@ namespace PlanetIO_Core
 
         public override void InstallBindings()
         {
+            _player = _playerMovement.Player;
+            
             Container.Bind<ObjectPool<Point>>().FromInstance(_pointsPool).AsSingle();
             Container.Bind<ObjectPool<Comet>>().FromInstance(_cometsPool).AsSingle();
             Container.Bind<ObjectPool<Enemy>>().FromInstance(_enemyPool).AsSingle();
             Container.Bind<Spawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
             Container.Bind<Spawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
             Container.Bind<Spawner<Enemy>>().FromInstance(_enemySpawner).AsSingle();
-
-            Container.Bind<CinemachineVirtualCamera>().FromInstance(_playerCamera).AsSingle();
+            Container.Bind<Camera>().FromInstance(_playerCamera).AsSingle();
             Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
+            Container.Bind<Player>().FromInstance(_player).AsSingle();
 
             Container.Bind<CometsSpawnerLogics>().FromInstance(_cometsSpawnerLogics).AsSingle();
             Container.Bind<PointsSpawnerLogics>().FromInstance(_pointsSpawnerLogics).AsSingle();

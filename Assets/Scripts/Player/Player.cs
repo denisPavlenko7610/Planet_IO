@@ -1,4 +1,5 @@
-﻿using RDTools.AutoAttach;
+﻿using Planet_IO.Utils;
+using RDTools.AutoAttach;
 using UnityEngine;
 using Zenject;
 
@@ -10,20 +11,16 @@ namespace Planet_IO
         [Header("Borders")] 
         [SerializeField, Attach(Attach.Scene)]
         private BordersTrigger _bordersTrigger;
-        
-        [Header("player script")] 
-        [SerializeField, Attach] private InputPlayerSystem _inputPlayerSystem;
-        [SerializeField, Attach] private PlayerMovement _playerMovement;
-        
+
         [Header("Spawner")] 
         [SerializeField] private Transform _pointSpawnTransform;
         
         [Header("Spawner")] 
         private CometsSpawnerLogics _cometsSpawnerLogics;
         private PointsSpawnerLogics _pointsSpawnerLogics;
-        
-        private const float _measurementError = 0.01f;
-        
+
+        private Vector3 movementVector;
+
         [Inject]
         public void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
         {
@@ -34,28 +31,27 @@ namespace Planet_IO
         private void OnEnable()
         {
             _bordersTrigger.OnPlayerTriggeredHandler += DecreaseCapacity;
-            _inputPlayerSystem.Input += Move;
         }
 
         private void OnDisable()
         {
             _bordersTrigger.OnPlayerTriggeredHandler -= DecreaseCapacity;
-            _inputPlayerSystem.Input -= Move;
         }
+
         public void EnableBoost()
         {
-            if (Capacity > MinCapacity + _measurementError)
-            {
-                DecreasePlayerCapacity();
-                CreatePoints();
-            }
+            if (!(Capacity > MinCapacity + Constants.MeasurementError))
+                return;
+            
+            DecreasePlayerCapacity();
+            CreatePoints();
         }
 
         private void CreatePoints() => _pointsSpawnerLogics.CreatePoint(_pointSpawnTransform);
 
-        private void DecreasePlayerCapacity() => SetCapacity(-_measurementError);
+        private void DecreasePlayerCapacity() => SetCapacity(-Constants.MeasurementError);
 
-        private void Move(Vector2 moveInput) => _playerMovement.Direction = moveInput;
+       
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -71,14 +67,15 @@ namespace Planet_IO
             }
             else if (other.TryGetComponent(out Enemy enemy))
             {
+                var capacityMultValue = 100f;
                 if (Capacity > enemy.Capacity)
                 {
-                    SetCapacity(enemy.Capacity * 100f);
+                    SetCapacity(enemy.Capacity * capacityMultValue);
                     enemy.gameObject.SetActive(false);
                 }
                 else
                 {
-                    SetCapacity(-enemy.Capacity * 100f);
+                    SetCapacity(-enemy.Capacity * capacityMultValue);
                 }
             }
         }

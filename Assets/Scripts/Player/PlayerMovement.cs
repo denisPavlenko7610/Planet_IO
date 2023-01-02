@@ -8,19 +8,20 @@ namespace Planet_IO
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement : MonoBehaviour, IMove
     {
-        public Vector2 Direction { private get; set; } = Vector2.one;
+        public Vector2 Direction { get; private set; } = Vector2.one;
 
-        [Header("Script Player")] 
+        [Header("Player")] 
         [SerializeField, Attach(Attach.Scene)] private AccelerationButton _accelerationButton;
-        [SerializeField, Attach] private Player _player;
+        [SerializeField, Attach] private InputPlayerSystem _inputPlayerSystem;
+        [field:SerializeField, Attach] public Player Player { get; private set; }
         
         [Space] 
-        [SerializeField, Attach] private Rigidbody2D rigidbody2D;
+        [SerializeField, Attach] private Rigidbody2D _rigidbody2D;
+        [SerializeField] private float _timeToTick = 1f;
 
         [field: Header("Speed")] 
         [field: SerializeField] public float NormalSpeed { get; set; } = 3f;
         [field: SerializeField] public float BoostSpeed { get; set; }  = 6f;
-        [SerializeField] private float _timeToTick = 1f;
 
         private float _currentSpeed;
 
@@ -33,24 +34,36 @@ namespace Planet_IO
         {
             _accelerationButton.IsPressed += EnableBoost;
             _accelerationButton.IsPressed += DisableBoost;
+            _inputPlayerSystem.Input += SetDirection;
         }
 
         private void OnDisable()
         {
             _accelerationButton.IsPressed -= EnableBoost;
             _accelerationButton.IsPressed -= DisableBoost;
+            _inputPlayerSystem.Input -= SetDirection;
         }
 
         private void RotationPlayer()
         {
             _rotationAngle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
-            rigidbody2D.rotation = _rotationAngle;
+            _rigidbody2D.rotation = _rotationAngle;
         }
 
         private void FixedUpdate()
         {
             Move();
             RotationPlayer();
+        }
+
+        public void Move()
+        {
+            if (Direction == default)
+            {
+                Direction = Player.transform.forward;
+            }
+            
+            _rigidbody2D.velocity = Direction.normalized * _currentSpeed;
         }
 
         private void EnableBoost(bool isBoost)
@@ -70,8 +83,16 @@ namespace Planet_IO
             _isBoost = false;
             _currentSpeed = NormalSpeed;
         }
-        
-        public void Move() => rigidbody2D.velocity = Direction.normalized * _currentSpeed;
+
+        private void SetDirection(Vector2 moveInput)
+        {
+            if (moveInput == default)
+            {
+                return;
+            }
+            
+            Direction = moveInput;                     
+        }
 
         private async UniTaskVoid ActivatePlayerBoostLogic()
         {
@@ -79,7 +100,7 @@ namespace Planet_IO
 
             while (_isBoost)
             {
-                _player.EnableBoost();
+                Player.EnableBoost();
                 await UniTask.Delay(TimeSpan.FromSeconds(_timeToTick), ignoreTimeScale: false)
                     .SuppressCancellationThrow();
             }

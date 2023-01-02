@@ -18,17 +18,6 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "b832e9e8-fdb4-4c0d-83f2-00731fc62226",
-                    "path": "<Mouse>/position",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "40b1d44b-a4f2-47cd-93da-738d37a06ab2",
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
