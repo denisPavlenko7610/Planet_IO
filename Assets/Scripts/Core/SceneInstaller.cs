@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Planet_IO;
+using Planet_IO.Camera;
 using Planet_IO.ObjectPool;
 using RDTools.AutoAttach;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace PlanetIO_Core
         [Header("Pool and Spawner")] [SerializeField, Attach(Attach.Scene)]
         private ObjectPool<Point> _pointsPool;
 
-        [SerializeField, Attach(Attach.Scene)] private Camera _playerCamera;
+        [SerializeField, Attach(Attach.Scene)] private PlayerCamera _playerCamera;
         [SerializeField, Attach(Attach.Scene)] private ObjectPool<Enemy> _enemyPool;
         [SerializeField, Attach(Attach.Scene)] private ObjectPool<Comet> _cometsPool;
 
@@ -45,7 +46,7 @@ namespace PlanetIO_Core
             Container.Bind<Spawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
             Container.Bind<Spawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
             Container.Bind<Spawner<Enemy>>().FromInstance(_enemySpawner).AsSingle();
-            Container.Bind<Camera>().FromInstance(_playerCamera).AsSingle();
+            Container.Bind<PlayerCamera>().FromInstance(_playerCamera).AsSingle();
             Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
             Container.Bind<Player>().FromInstance(_player).AsSingle();
 

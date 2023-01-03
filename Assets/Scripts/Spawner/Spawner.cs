@@ -13,8 +13,8 @@ namespace Planet_IO
     {
         [SerializeField] private float _minObjectScale = 0.4f;
         [SerializeField] private float _maxObjectScale = 1f;
-        [field: SerializeField] public Vector2 SpawnPositionX { get; set; } = new(-223f, 223f);
-        [field: SerializeField] public Vector2 SpawnPositionY { get; set; } = new(-139f, 161.9f);
+        [field: SerializeField] public Vector2 SpawnPositionX { get; private set; } = new(-223f, 223f);
+        [field: SerializeField] public Vector2 SpawnPositionY { get; private set; } = new(-139f, 161.9f);
 
         private List<T> _createdObjects = new();
         public event Action<T> OnObjectCreated;

@@ -1,5 +1,6 @@
-﻿using DG.Tweening;
+﻿using Planet_IO.Camera;
 using Planet_IO.Utils;
+using RDTools;
 using RDTools.AutoAttach;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,14 +10,14 @@ namespace Planet_IO.Arrow
 {
     public class Arrow : MonoBehaviour
     {
-        [SerializeField, Attach] private Image arrowImage;
+        [SerializeField, Attach] private Image _arrowImage;
+        [SerializeField, ReadOnly] private PlayerCamera _playerCamera;
 
         private Player _player;
         private PlayerMovement _playerMovement;
-        private UnityEngine.Camera _playerCamera;
 
         [Inject]
-        private void Construct(PlayerMovement playerMovement, UnityEngine.Camera playerCamera)
+        private void Construct(PlayerMovement playerMovement, PlayerCamera playerCamera)
         {
             _player = playerMovement.Player;
             _playerMovement = playerMovement;
@@ -25,14 +26,28 @@ namespace Planet_IO.Arrow
 
         private void LateUpdate()
         {
-            arrowImage.transform
-                .DOMove(_playerCamera
-                    .WorldToScreenPoint(_player.transform.position + _player.transform.right *
-                                                 (_player.Capacity * Constants.ArrowCapacityMultiplayer)), Time.deltaTime);
-            
+            SetArrowPosition();
+            SetArrowRotation();
+            SetArrowScale();
+        }
+
+        private void SetArrowPosition()
+        {
+            _arrowImage.transform.position = _playerCamera.Camera.WorldToScreenPoint(_player.transform.position + _player.transform.right *
+                (_player.Capacity * Constants.ArrowPositionMult));
+        }
+
+        private void SetArrowRotation()
+        {
             var rotationAngle = Mathf.Atan2(_playerMovement.Direction.y, _playerMovement.Direction.x) * Mathf.Rad2Deg;
-            arrowImage.transform.rotation = Quaternion.Euler(0, 0, rotationAngle + Constants.AdditionRotationAngle);
-            //arrowImage.transform.localScale = arrowImage.transform.localScale * _player.Capacity;
+            _arrowImage.transform.rotation = Quaternion.Euler(0, 0, rotationAngle + Constants.AdditionRotationAngle);
+        }
+
+        private void SetArrowScale()
+        {
+            _arrowImage.transform.localScale = new Vector3(_player.Capacity * Constants.ArrowScaleMult,
+                _player.Capacity * Constants.ArrowScaleMult,
+                _player.Capacity * Constants.ArrowScaleMult);
         }
     }
 }
