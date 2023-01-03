@@ -67,15 +67,14 @@ namespace Planet_IO
             }
             else if (other.TryGetComponent(out Enemy enemy))
             {
-                var capacityMultValue = 100f;
                 if (Capacity > enemy.Capacity)
                 {
-                    SetCapacity(enemy.Capacity * capacityMultValue);
+                    SetCapacity(enemy.Capacity * Constants.CapacityMultValue);
                     enemy.gameObject.SetActive(false);
                 }
                 else
                 {
-                    SetCapacity(-enemy.Capacity * capacityMultValue);
+                    SetCapacity(-enemy.Capacity * Constants.CapacityMultValue);
                 }
             }
         }

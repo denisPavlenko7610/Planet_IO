@@ -64,10 +64,10 @@ namespace Planet_IO
 
         protected virtual void GenerateObjects()
         {
-#if UNITY_EDITOR
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-#endif
+// #if UNITY_EDITOR
+//             Stopwatch stopwatch = new Stopwatch();
+//             stopwatch.Start();
+// #endif
             _createdObjects.Clear();
             for (int i = 0; i < _objectPool.Count; i++)
             {
@@ -76,10 +76,10 @@ namespace Planet_IO
             
             OnObjectsInited?.Invoke(_createdObjects);
 
-#if UNITY_EDITOR
-            stopwatch.Stop();
-            print(stopwatch.ElapsedMilliseconds + " ms");
-#endif
+// #if UNITY_EDITOR
+//             stopwatch.Stop();
+//             print(stopwatch.ElapsedMilliseconds + " ms");
+// #endif
         }
 
         protected virtual void SetTransform(T @object, float randomScale)

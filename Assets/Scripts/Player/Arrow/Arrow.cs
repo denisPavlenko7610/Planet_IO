@@ -1,4 +1,5 @@
-﻿using Planet_IO.Utils;
+﻿using DG.Tweening;
+using Planet_IO.Utils;
 using RDTools.AutoAttach;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,12 +23,16 @@ namespace Planet_IO.Arrow
             _playerCamera = playerCamera;
         }
 
-        private void Update()
+        private void LateUpdate()
         {
-            arrowImage.transform.position = Vector3.Lerp(arrowImage.transform.position,
-                _playerCamera.WorldToScreenPoint(_player.transform.position), Time.deltaTime);
+            arrowImage.transform
+                .DOMove(_playerCamera
+                    .WorldToScreenPoint(_player.transform.position + _player.transform.right *
+                                                 (_player.Capacity * Constants.ArrowCapacityMultiplayer)), Time.deltaTime);
+            
             var rotationAngle = Mathf.Atan2(_playerMovement.Direction.y, _playerMovement.Direction.x) * Mathf.Rad2Deg;
             arrowImage.transform.rotation = Quaternion.Euler(0, 0, rotationAngle + Constants.AdditionRotationAngle);
+            //arrowImage.transform.localScale = arrowImage.transform.localScale * _player.Capacity;
         }
     }
 }
