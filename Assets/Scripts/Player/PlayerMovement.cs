@@ -20,8 +20,8 @@ namespace Planet_IO
         [SerializeField] private float _timeToTick = 1f;
 
         [field: Header("Speed")] 
-        [field: SerializeField] public float NormalSpeed { get; set; } = 3f;
-        [field: SerializeField] public float BoostSpeed { get; set; }  = 6f;
+        [field: SerializeField] public float NormalSpeed { get; set; } = 4f;
+        [field: SerializeField] public float BoostSpeed { get; set; }  = 8f;
 
         private float _currentSpeed;
 
@@ -50,10 +50,14 @@ namespace Planet_IO
             _rigidbody2D.rotation = _rotationAngle;
         }
 
+        private void Update()
+        {
+            RotationPlayer();
+        }
+
         private void FixedUpdate()
         {
             Move();
-            RotationPlayer();
         }
 
         public void Move()

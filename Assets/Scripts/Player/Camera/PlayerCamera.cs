@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using RDTools.AutoAttach;
@@ -9,8 +10,8 @@ namespace Planet_IO.Camera
 {
     public class PlayerCamera : MonoBehaviour
     {
-        [field:SerializeField, Attach] public UnityEngine.Camera Camera;
-        
+        [field: SerializeField, Attach] public UnityEngine.Camera Camera;
+
         private Player _player;
         private Vector3 offset;
 
@@ -33,11 +34,29 @@ namespace Planet_IO.Camera
         public async UniTaskVoid UpdateFOV(float value)
         {
             var increasedValue = Camera.orthographicSize + value;
-            while (Camera.orthographicSize < increasedValue)
+
+            if (value > 0)
             {
-                Camera.orthographicSize = Mathf.Lerp(Camera.orthographicSize, Camera.orthographicSize + value, Time.deltaTime);
-                await UniTask.Yield();
+                while (Camera.orthographicSize < increasedValue)
+                {
+                    await UpdateCameraSize(value);
+                }
             }
+            else
+            {
+                while (Camera.orthographicSize > increasedValue)
+                {
+                    await UpdateCameraSize(value);
+                }
+            }
+        }
+
+        private async UniTask UpdateCameraSize(float value)
+        {
+            Camera.orthographicSize =
+                Mathf.Lerp(Camera.orthographicSize, Camera.orthographicSize + value, Time.deltaTime);
+
+            await UniTask.Yield();
         }
     }
 }

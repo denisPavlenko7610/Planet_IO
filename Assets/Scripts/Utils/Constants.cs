@@ -10,6 +10,6 @@
         
         //Arrow
         public const float ArrowPositionMult = 7f;
-        public const float ArrowScaleMult = 5f;
+        public const float ArrowScaleMult = 2f;
     }
 }

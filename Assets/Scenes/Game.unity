@@ -322,7 +322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pointsPool: {fileID: 1158107521}
-  _playerCamera: {fileID: 519420031}
+  _playerCamera: {fileID: 519420034}
   _enemyPool: {fileID: 549707339}
   _cometsPool: {fileID: 470327858}
   _pointsSpawner: {fileID: 1158107520}
@@ -844,6 +844,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc172ec5b3094e98971251bffe0cf588, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Camera: {fileID: 519420031}
 --- !u!1 &549707337
 GameObject:
   m_ObjectHideFlags: 0
@@ -1234,7 +1235,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 797cb10f83fc4cab940b22c4ab49cc54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arrowImage: {fileID: 653068364}
+  _arrowImage: {fileID: 653068364}
+  _playerCamera: {fileID: 0}
 --- !u!4 &1029134033 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8045643209477139672, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
@@ -2434,6 +2436,14 @@ PrefabInstance:
       propertyPath: <Player>k__BackingField
       value: 
       objectReference: {fileID: 1657356196}
+    - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: <BoostSpeed>k__BackingField
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8517843457492819222, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
+      propertyPath: <NormalSpeed>k__BackingField
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 8517843457492819226, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
       propertyPath: _UIScaleText
       value: 

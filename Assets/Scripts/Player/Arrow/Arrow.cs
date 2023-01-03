@@ -1,4 +1,5 @@
-﻿using Planet_IO.Camera;
+﻿using System;
+using Planet_IO.Camera;
 using Planet_IO.Utils;
 using RDTools;
 using RDTools.AutoAttach;
@@ -15,7 +16,8 @@ namespace Planet_IO.Arrow
 
         private Player _player;
         private PlayerMovement _playerMovement;
-
+        private float _scaleX;
+        
         [Inject]
         private void Construct(PlayerMovement playerMovement, PlayerCamera playerCamera)
         {
@@ -24,11 +26,15 @@ namespace Planet_IO.Arrow
             _playerCamera = playerCamera;
         }
 
+        private void Start()
+        {
+            _scaleX = transform.localScale.x;
+        }
+
         private void LateUpdate()
         {
             SetArrowPosition();
             SetArrowRotation();
-            SetArrowScale();
         }
 
         private void SetArrowPosition()
@@ -41,13 +47,6 @@ namespace Planet_IO.Arrow
         {
             var rotationAngle = Mathf.Atan2(_playerMovement.Direction.y, _playerMovement.Direction.x) * Mathf.Rad2Deg;
             _arrowImage.transform.rotation = Quaternion.Euler(0, 0, rotationAngle + Constants.AdditionRotationAngle);
-        }
-
-        private void SetArrowScale()
-        {
-            _arrowImage.transform.localScale = new Vector3(_player.Capacity * Constants.ArrowScaleMult,
-                _player.Capacity * Constants.ArrowScaleMult,
-                _player.Capacity * Constants.ArrowScaleMult);
         }
     }
 }
