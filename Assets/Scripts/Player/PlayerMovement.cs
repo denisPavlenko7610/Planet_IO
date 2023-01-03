@@ -2,11 +2,12 @@ using System;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using RDTools.AutoAttach;
+using Unity.Netcode;
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class PlayerMovement : MonoBehaviour, IMove
+    public class PlayerMovement : NetworkBehaviour, IMove
     {
         public Vector2 Direction { get; private set; } = Vector2.one;
 
@@ -52,11 +53,17 @@ namespace Planet_IO
 
         private void Update()
         {
+            if (!IsOwner)
+                return;
+            
             RotationPlayer();
         }
 
         private void FixedUpdate()
         {
+            if (!IsOwner)
+                return;
+            
             Move();
         }
 

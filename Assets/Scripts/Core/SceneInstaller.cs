@@ -35,8 +35,7 @@ namespace PlanetIO_Core
         [Header("Core")] [SerializeField, Attach(Attach.Scene)]
         private RestartGame _restartGame;
 
-
-        public override void InstallBindings()
+        public void Install()
         {
             _player = _playerMovement.Player;
             
