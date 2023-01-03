@@ -1,5 +1,4 @@
-﻿using System;
-using Planet_IO.Camera;
+﻿using Planet_IO.Camera;
 using Planet_IO.Utils;
 using RDTools;
 using RDTools.AutoAttach;
@@ -16,19 +15,13 @@ namespace Planet_IO.Arrow
 
         private Player _player;
         private PlayerMovement _playerMovement;
-        private float _scaleX;
-        
+
         [Inject]
         private void Construct(PlayerMovement playerMovement, PlayerCamera playerCamera)
         {
             _player = playerMovement.Player;
             _playerMovement = playerMovement;
             _playerCamera = playerCamera;
-        }
-
-        private void Start()
-        {
-            _scaleX = transform.localScale.x;
         }
 
         private void LateUpdate()
