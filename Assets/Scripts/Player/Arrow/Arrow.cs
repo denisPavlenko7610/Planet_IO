@@ -17,11 +17,15 @@ namespace Planet_IO.Arrow
         private PlayerMovement _playerMovement;
 
         [Inject]
-        private void Construct(PlayerMovement playerMovement, PlayerCamera playerCamera)
+        private void Construct(PlayerCamera playerCamera)
         {
-            _player = playerMovement.Player;
-            _playerMovement = playerMovement;
             _playerCamera = playerCamera;
+        }
+
+        private void Start()
+        {
+            _playerMovement = FindObjectOfType<PlayerMovement>();
+            _player = _playerMovement.Player;
         }
 
         private void LateUpdate()

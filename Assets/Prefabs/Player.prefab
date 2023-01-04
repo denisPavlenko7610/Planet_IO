@@ -201,8 +201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <MinCapacity>k__BackingField: 0.08
   _maxCapacity: 10
-  _UIScaleText: {fileID: 0}
-  _bordersTrigger: {fileID: 0}
+  scoreText: {fileID: 0}
   _pointSpawnTransform: {fileID: 82095068}
 --- !u!114 &8517843457492819222
 MonoBehaviour:
@@ -216,12 +215,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e39014f46ffde44cb5478bc83ff5afa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _accelerationButton: {fileID: 0}
-  _inputPlayerSystem: {fileID: 8045643209960618507}
   <Player>k__BackingField: {fileID: 8517843457492819226}
   _rigidbody2D: {fileID: 8517843457492819217}
   _timeToTick: 1
-  <NormalSpeed>k__BackingField: 4
+  <NormalSpeed>k__BackingField: 0.1
   <BoostSpeed>k__BackingField: 8
 --- !u!114 &1292756762
 MonoBehaviour:
@@ -237,7 +234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <MinCapacity>k__BackingField: 0.08
   _maxCapacity: 10
-  _UIScaleText: {fileID: 0}
+  scoreText: {fileID: 0}
 --- !u!114 &8045643209960618507
 MonoBehaviour:
   m_ObjectHideFlags: 0

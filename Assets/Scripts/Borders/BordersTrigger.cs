@@ -11,7 +11,7 @@ namespace Planet_IO
         private void OnTriggerEnter2D(Collider2D col)
         {
             if (col.TryGetComponent(out Comet comet)) 
-                OnCometTriggeredHandler?.Invoke(comet);
+                OnCometTriggeredHandler?.Invoke(comet); 
         }
 
         private void OnCollisionEnter2D(Collision2D col)

@@ -6,7 +6,6 @@ using Planet_IO.ObjectPool;
 using RDTools.AutoAttach;
 using UnityEngine;
 using Zenject;
-
 namespace PlanetIO_Core
 {
     public class SceneInstaller : MonoInstaller
@@ -21,8 +20,7 @@ namespace PlanetIO_Core
         [SerializeField, Attach(Attach.Scene)] private Spawner<Point> _pointsSpawner;
         [SerializeField, Attach(Attach.Scene)] private Spawner<Comet> _cometSpawner;
         [SerializeField, Attach(Attach.Scene)] private Spawner<Enemy> _enemySpawner;
-
-        // [Header("Player")] [SerializeField, Attach(Attach.Scene)]
+        
         private PlayerMovement _playerMovement;
 
         private Player _player;
@@ -43,6 +41,18 @@ namespace PlanetIO_Core
 
         private async UniTaskVoid Install()
         {
+            Container.Bind<ObjectPool<Point>>().FromInstance(_pointsPool).AsSingle();
+            Container.Bind<ObjectPool<Comet>>().FromInstance(_cometsPool).AsSingle();
+            Container.Bind<ObjectPool<Enemy>>().FromInstance(_enemyPool).AsSingle();
+            Container.Bind<Spawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
+            Container.Bind<Spawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
+            Container.Bind<Spawner<Enemy>>().FromInstance(_enemySpawner).AsSingle();
+            
+            Container.Bind<CometsSpawnerLogics>().FromInstance(_cometsSpawnerLogics).AsSingle();
+            Container.Bind<PointsSpawnerLogics>().FromInstance(_pointsSpawnerLogics).AsSingle();
+            Container.Bind<EnemySpawnerLogics>().FromInstance(_enemySpawnerLogics).AsSingle();
+            Container.Bind<PlayerCamera>().FromInstance(_playerCamera).AsSingle();
+
             while (_playerMovement == null)
             {
                 await UniTask.Yield();
@@ -50,21 +60,10 @@ namespace PlanetIO_Core
 
             _playerMovement = FindObjectOfType<PlayerMovement>();
             _player = _playerMovement.Player;
-            
-            Container.Bind<ObjectPool<Point>>().FromInstance(_pointsPool).AsSingle();
-            Container.Bind<ObjectPool<Comet>>().FromInstance(_cometsPool).AsSingle();
-            Container.Bind<ObjectPool<Enemy>>().FromInstance(_enemyPool).AsSingle();
-            Container.Bind<Spawner<Point>>().FromInstance(_pointsSpawner).AsSingle();
-            Container.Bind<Spawner<Comet>>().FromInstance(_cometSpawner).AsSingle();
-            Container.Bind<Spawner<Enemy>>().FromInstance(_enemySpawner).AsSingle();
-            Container.Bind<PlayerCamera>().FromInstance(_playerCamera).AsSingle();
+
             Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
             Container.Bind<Player>().FromInstance(_player).AsSingle();
-
-            Container.Bind<CometsSpawnerLogics>().FromInstance(_cometsSpawnerLogics).AsSingle();
-            Container.Bind<PointsSpawnerLogics>().FromInstance(_pointsSpawnerLogics).AsSingle();
-            Container.Bind<EnemySpawnerLogics>().FromInstance(_enemySpawnerLogics).AsSingle();
-
+            
             Container.Bind<RestartGame>().FromInstance(_restartGame).AsSingle();
 
             Init();

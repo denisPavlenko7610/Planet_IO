@@ -1,7 +1,6 @@
 using Planet_IO.Camera;
 using Planet_IO.UI;
 using Planet_IO.Utils;
-using RDTools.AutoAttach;
 using Zenject;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -13,7 +12,7 @@ namespace Planet_IO
         [FormerlySerializedAs("_uiScaleText")]
         [FormerlySerializedAs("_UIScaleText")]
         [Header("UI")] 
-        [SerializeField, Attach(Attach.Scene)] private ScoreText scoreText;
+        [SerializeField] private ScoreText scoreText;
         
         private PlayerCamera _playerCamera;
         public bool IsDie { get; private set; }
@@ -23,6 +22,7 @@ namespace Planet_IO
 
         private void Start()
         {
+            scoreText = FindObjectOfType<ScoreText>();
             Init();
             UpdateUI();
         }

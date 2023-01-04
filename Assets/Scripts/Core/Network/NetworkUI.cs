@@ -19,15 +19,17 @@ namespace Planet_IO.Core.Network
 
         private void Subscribe()
         {
-            _hostButton.onClick.AddListener(async () => { await Load(); });
-            _clientButton.onClick.AddListener(async () => { await Load(); });
+            _hostButton.onClick.AddListener(async () => await Load());
+            _clientButton.onClick.AddListener(() =>
+            {
+                NetworkManager.Singleton.StartHost();
+            });
         }
 
         private static async Task Load()
         {
             await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
             NetworkManager.Singleton.StartHost();
-            //await SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
         }
     }
 }
