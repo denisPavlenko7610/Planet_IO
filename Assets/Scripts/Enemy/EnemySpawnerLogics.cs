@@ -1,6 +1,4 @@
-using System;
 using Planet_IO.ObjectPool;
-using UnityEngine;
 using Zenject;
 
 namespace Planet_IO
@@ -21,10 +19,7 @@ namespace Planet_IO
             _enemySpawner = enemySpawner;
         }
 
-        private void OnDisable()
-        {
-            _enemySpawner.OnObjectCreated -= InitDependencies;
-        }
+        private void OnDisable() => _enemySpawner.OnObjectCreated -= InitDependencies;
 
         public void CreateEnemy(Enemy enemy)
         {
@@ -33,9 +28,6 @@ namespace Planet_IO
             _enemySpawner.OnObjectCreated += InitDependencies;
         }
 
-        private void InitDependencies(Enemy enemy)
-        {
-            enemy.InitDependencies(_cometsSpawnerLogics, _pointsSpawnerLogics);
-        }
+        private void InitDependencies(Enemy enemy) => enemy.InitDependencies(_cometsSpawnerLogics, _pointsSpawnerLogics);
     }
 }

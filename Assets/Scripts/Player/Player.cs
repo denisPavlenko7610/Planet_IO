@@ -1,5 +1,4 @@
 ﻿using Planet_IO.Utils;
-using RDTools.AutoAttach;
 using UnityEngine;
 using Zenject;
 
@@ -8,8 +7,6 @@ namespace Planet_IO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public class Player : PlayerScale
     {
-        [Header("Borders")] 
-        [SerializeField, Attach(Attach.Scene)]
         private BordersTrigger _bordersTrigger;
 
         [Header("Spawner")] 
@@ -30,6 +27,7 @@ namespace Planet_IO
 
         private void OnEnable()
         {
+            _bordersTrigger = FindObjectOfType<BordersTrigger>();
             _bordersTrigger.OnPlayerTriggeredHandler += DecreaseCapacity;
         }
 

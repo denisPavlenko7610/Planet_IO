@@ -1,7 +1,8 @@
-﻿using System;
-using TMPro;
+﻿using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Planet_IO.Core.Network
@@ -10,9 +11,6 @@ namespace Planet_IO.Core.Network
     {
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
-        [SerializeField] private TextMeshProUGUI _playerText;
-
-        private NetworkVariable<int> playerNum = new(0,NetworkVariableReadPermission.Everyone);
 
         private void Awake()
         {
@@ -21,23 +19,15 @@ namespace Planet_IO.Core.Network
 
         private void Subscribe()
         {
-            _hostButton.onClick.AddListener(() => { NetworkManager.Singleton.StartHost(); });
-            _clientButton.onClick.AddListener(() => { NetworkManager.Singleton.StartClient(); });
+            _hostButton.onClick.AddListener(async () => { await Load(); });
+            _clientButton.onClick.AddListener(async () => { await Load(); });
         }
 
-        private void Update()
+        private static async Task Load()
         {
-            UpdatePlayersCount();
-        }
-
-        private void UpdatePlayersCount()
-        {
-            _playerText.text = "Players: " + playerNum.Value;
-
-            if (!IsServer)
-                return;
-
-            playerNum.Value = NetworkManager.Singleton.ConnectedClients.Count;
+            await SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+            NetworkManager.Singleton.StartHost();
+            //await SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
         }
     }
 }

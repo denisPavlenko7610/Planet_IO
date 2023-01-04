@@ -1,15 +1,19 @@
 using Planet_IO.Camera;
+using Planet_IO.UI;
 using Planet_IO.Utils;
-using TMPro;
+using RDTools.AutoAttach;
 using Zenject;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Planet_IO
 {
     public class PlayerScale : PlanetScale
     {
+        [FormerlySerializedAs("_uiScaleText")]
+        [FormerlySerializedAs("_UIScaleText")]
         [Header("UI")] 
-        [SerializeField] private TextMeshProUGUI _UIScaleText;
+        [SerializeField, Attach(Attach.Scene)] private ScoreText scoreText;
         
         private PlayerCamera _playerCamera;
         public bool IsDie { get; private set; }
@@ -49,6 +53,7 @@ namespace Planet_IO
             _playerCamera.UpdateFOV(scaleValue);
             UpdateUI();
         }
-        private void UpdateUI() => _UIScaleText.text = (Capacity * Constants.ScaleMultiplier).ToString("F1");
+        
+        private void UpdateUI() => scoreText.UIScoreText.text = (Capacity * Constants.ScaleMultiplier).ToString("F1");
     }
 }

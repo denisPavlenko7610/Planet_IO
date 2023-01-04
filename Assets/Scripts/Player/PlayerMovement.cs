@@ -10,11 +10,10 @@ namespace Planet_IO
     public class PlayerMovement : NetworkBehaviour, IMove
     {
         public Vector2 Direction { get; private set; } = Vector2.one;
-
-        [Header("Player")] 
-        [SerializeField, Attach(Attach.Scene)] private AccelerationButton _accelerationButton;
-        [SerializeField, Attach] private InputPlayerSystem _inputPlayerSystem;
-        [field:SerializeField, Attach] public Player Player { get; private set; }
+        
+        private AccelerationButton _accelerationButton;
+        private InputPlayerSystem _inputPlayerSystem;
+        [field:SerializeField] public Player Player { get; private set; }
         
         [Space] 
         [SerializeField, Attach] private Rigidbody2D _rigidbody2D;
@@ -33,6 +32,8 @@ namespace Planet_IO
 
         private void OnEnable()
         {
+            _accelerationButton = FindObjectOfType<AccelerationButton>();
+            _inputPlayerSystem = FindObjectOfType<InputPlayerSystem>();
             _accelerationButton.IsPressed += EnableBoost;
             _accelerationButton.IsPressed += DisableBoost;
             _inputPlayerSystem.Input += SetDirection;

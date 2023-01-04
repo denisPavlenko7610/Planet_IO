@@ -1,31 +1,28 @@
 ﻿using Cysharp.Threading.Tasks;
-using RDTools.AutoAttach;
 using UnityEngine;
-using Zenject;
 
 namespace Planet_IO.Camera
 {
     public class PlayerCamera : MonoBehaviour
     {
-        [field: SerializeField, Attach] public UnityEngine.Camera Camera;
-
+        public UnityEngine.Camera Camera { get; private set; }
+        
         private Player _player;
-        private Vector3 offset;
-
-        [Inject]
-        private void Construct(Player player)
-        {
-            _player = player;
-        }
+        private Vector3 _offset;
 
         private void Start()
         {
-            offset = transform.position;
+            Camera = UnityEngine.Camera.main;
+            _player = FindObjectOfType<Player>();
+            _offset = transform.position;
         }
 
         private void LateUpdate()
         {
-            transform.position = new Vector3(_player.transform.position.x, _player.transform.position.y, offset.z);
+            if (_player)
+            {
+                transform.position = new Vector3(_player.transform.position.x, _player.transform.position.y, _offset.z);
+            }
         }
 
         public async UniTaskVoid UpdateFOV(float value)

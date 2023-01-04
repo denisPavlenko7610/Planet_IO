@@ -26,13 +26,17 @@ namespace Planet_IO.Arrow
 
         private void LateUpdate()
         {
-            SetArrowPosition();
-            SetArrowRotation();
+            if (_player && _playerMovement && _playerCamera)
+            {
+                SetArrowPosition();
+                SetArrowRotation();
+            }
         }
 
         private void SetArrowPosition()
         {
-            _arrowImage.transform.position = _playerCamera.Camera.WorldToScreenPoint(_player.transform.position + _player.transform.right *
+            _arrowImage.transform.position = _playerCamera.Camera
+                .WorldToScreenPoint(_player.transform.position + _player.transform.right *
                 (_player.Capacity * Constants.ArrowPositionMult));
         }
 

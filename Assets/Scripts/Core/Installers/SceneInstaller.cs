@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Planet_IO;
 using Planet_IO.Camera;
 using Planet_IO.ObjectPool;
@@ -21,7 +22,7 @@ namespace PlanetIO_Core
         [SerializeField, Attach(Attach.Scene)] private Spawner<Comet> _cometSpawner;
         [SerializeField, Attach(Attach.Scene)] private Spawner<Enemy> _enemySpawner;
 
-        [Header("Player")] [SerializeField, Attach(Attach.Scene)]
+        // [Header("Player")] [SerializeField, Attach(Attach.Scene)]
         private PlayerMovement _playerMovement;
 
         private Player _player;
@@ -35,8 +36,19 @@ namespace PlanetIO_Core
         [Header("Core")] [SerializeField, Attach(Attach.Scene)]
         private RestartGame _restartGame;
 
-        public void Install()
+        public override void InstallBindings()
         {
+            Install();
+        }
+
+        private async UniTaskVoid Install()
+        {
+            while (_playerMovement == null)
+            {
+                await UniTask.Yield();
+            }
+
+            _playerMovement = FindObjectOfType<PlayerMovement>();
             _player = _playerMovement.Player;
             
             Container.Bind<ObjectPool<Point>>().FromInstance(_pointsPool).AsSingle();
