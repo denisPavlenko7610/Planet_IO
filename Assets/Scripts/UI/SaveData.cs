@@ -16,7 +16,7 @@ namespace Planet_IO
 
         private void SetInput(TMP_InputField userInput)
         {
-            string _nickname = userInput.text;            
+            _nickname = userInput.text;            
         }
     }
 }
