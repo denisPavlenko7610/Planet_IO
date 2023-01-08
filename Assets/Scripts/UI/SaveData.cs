@@ -10,17 +10,17 @@ namespace Planet_IO
         [SerializeField] private TMP_InputField _inputField;
         [SerializeField] private Button _setRandomNickname;
 
-        private List<string> _inputNames = new List<string>() { "Bob", "Tom", "Riki", "Rock", "Margaret", "Monika" };
+        private List<string> _inputNames = new () { "Bob", "Tom", "Riki", "Rock", "Margaret", "Monika" };
         private string _nickname;
 
         private void OnEnable()
         {
-            _setRandomNickname.onClick.AddListener(SetNickname);
+            _setRandomNickname.onClick.AddListener(SetRandomNickname);
         }
 
         private void OnDisable()
         {
-            _setRandomNickname.onClick.RemoveListener(SetNickname);
+            _setRandomNickname.onClick.RemoveListener(SetRandomNickname);
         }
 
         private void Start()
@@ -33,7 +33,7 @@ namespace Planet_IO
             _nickname = userInput.text;            
         }
 
-        private void SetNickname() 
+        private void SetRandomNickname() 
         {
             int arrayCount = _inputNames.Count;
             int numberElement = Random.Range(0, arrayCount);
