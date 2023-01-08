@@ -22,7 +22,7 @@ namespace Planet_IO.Core.Network
             _hostButton.onClick.AddListener(async () => await Load());
             _clientButton.onClick.AddListener(() =>
             {
-                NetworkManager.Singleton.StartHost();
+                NetworkManager.Singleton.StartClient();
             });
         }
 
