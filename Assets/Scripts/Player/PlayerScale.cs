@@ -17,12 +17,10 @@ namespace Planet_IO
         private PlayerCamera _playerCamera;
         public bool IsDie { get; private set; }
 
-        [Inject]
-        private void Construct(PlayerCamera playerCamera) => _playerCamera = playerCamera;
-
         private void Start()
         {
             scoreText = FindObjectOfType<ScoreText>();
+            _playerCamera = FindObjectOfType<PlayerCamera>();
             Init();
             UpdateUI();
         }
@@ -43,14 +41,14 @@ namespace Planet_IO
         protected override void DecreaseCapacity(float scaleValue)
         {
             base.DecreaseCapacity(scaleValue);
-            _playerCamera.UpdateFOV(scaleValue);
+            var result = _playerCamera.UpdateFOV(scaleValue);
             UpdateUI();
         }
 
         private void IncreaseFOV(float scaleValue)
         {
             scaleValue /= Constants.ScaleDivider;
-            _playerCamera.UpdateFOV(scaleValue);
+            var result = _playerCamera.UpdateFOV(scaleValue);
             UpdateUI();
         }
         

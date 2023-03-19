@@ -1,19 +1,18 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Planet_IO;
-using Planet_IO.Camera;
 using Planet_IO.ObjectPool;
 using RDTools.AutoAttach;
 using UnityEngine;
 using Zenject;
+
 namespace PlanetIO_Core
 {
     public class SceneInstaller : MonoInstaller
     {
         [Header("Pool and Spawner")] [SerializeField, Attach(Attach.Scene)]
         private ObjectPool<Point> _pointsPool;
-
-        [SerializeField, Attach(Attach.Scene)] private PlayerCamera _playerCamera;
+        
         [SerializeField, Attach(Attach.Scene)] private ObjectPool<Enemy> _enemyPool;
         [SerializeField, Attach(Attach.Scene)] private ObjectPool<Comet> _cometsPool;
 
@@ -36,10 +35,10 @@ namespace PlanetIO_Core
 
         public override void InstallBindings()
         {
-            Install();
+            var install = Install();
         }
 
-        private async UniTaskVoid Install()
+        private async UniTask Install()
         {
             Container.Bind<ObjectPool<Point>>().FromInstance(_pointsPool).AsSingle();
             Container.Bind<ObjectPool<Comet>>().FromInstance(_cometsPool).AsSingle();
@@ -51,21 +50,8 @@ namespace PlanetIO_Core
             Container.Bind<CometsSpawnerLogics>().FromInstance(_cometsSpawnerLogics).AsSingle();
             Container.Bind<PointsSpawnerLogics>().FromInstance(_pointsSpawnerLogics).AsSingle();
             Container.Bind<EnemySpawnerLogics>().FromInstance(_enemySpawnerLogics).AsSingle();
-            Container.Bind<PlayerCamera>().FromInstance(_playerCamera).AsSingle();
-
-            while (_playerMovement == null)
-            {
-                await UniTask.Yield();
-            }
-
-            _playerMovement = FindObjectOfType<PlayerMovement>();
-            _player = _playerMovement.Player;
-
-            Container.Bind<PlayerMovement>().FromInstance(_playerMovement).AsSingle();
-            Container.Bind<Player>().FromInstance(_player).AsSingle();
-            
             Container.Bind<RestartGame>().FromInstance(_restartGame).AsSingle();
-
+            
             Init();
         }
 

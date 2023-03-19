@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 using Random = UnityEngine.Random;
@@ -21,10 +20,10 @@ namespace Planet_IO.ObjectPool
             return go;
         }
 
-        protected virtual void OnGet(T @object)
+        protected virtual void OnGet(T obj)
         {
-            @object.gameObject.SetActive(true);
-            @object.transform.SetParent(transform, true);
+            obj.gameObject.SetActive(true);
+            obj.transform.SetParent(transform, true);
         }
 
         protected virtual void OnRelease(T @object) => @object.gameObject.SetActive(false);

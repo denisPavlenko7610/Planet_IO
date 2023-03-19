@@ -15,6 +15,7 @@ namespace Planet_IO
 
         private void OnEnable()
         {
+            SetRandomNickname();
             _setRandomNickname.onClick.AddListener(SetRandomNickname);
         }
 

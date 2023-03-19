@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Planet_IO.Camera
@@ -25,7 +26,7 @@ namespace Planet_IO.Camera
             }
         }
 
-        public async UniTaskVoid UpdateFOV(float value)
+        public async Task UpdateFOV(float value)
         {
             var increasedValue = Camera.orthographicSize + value;
 
@@ -45,12 +46,12 @@ namespace Planet_IO.Camera
             }
         }
 
-        private async UniTask UpdateCameraSize(float value)
+        private async Task UpdateCameraSize(float value)
         {
             Camera.orthographicSize =
                 Mathf.Lerp(Camera.orthographicSize, Camera.orthographicSize + value, Time.deltaTime);
 
-            await UniTask.Yield();
+            await Task.Yield();
         }
     }
 }

@@ -1,10 +1,11 @@
+using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class CometMovement : MonoBehaviour, IMove
+    public class CometMovement : NetworkBehaviour, IMove
     {
         [SerializeField] private Rigidbody2D _rigidbody2D;
         [SerializeField] private Transform _cometTransform;

@@ -2,13 +2,13 @@
 using Planet_IO.Utils;
 using RDTools;
 using RDTools.AutoAttach;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
 namespace Planet_IO.Arrow
 {
-    public class Arrow : MonoBehaviour
+    public class Arrow : NetworkBehaviour
     {
         [SerializeField, Attach] private Image _arrowImage;
         [SerializeField, ReadOnly] private PlayerCamera _playerCamera;
@@ -16,20 +16,20 @@ namespace Planet_IO.Arrow
         private Player _player;
         private PlayerMovement _playerMovement;
 
-        [Inject]
-        private void Construct(PlayerCamera playerCamera)
-        {
-            _playerCamera = playerCamera;
-        }
-
         private void Start()
         {
             _playerMovement = FindObjectOfType<PlayerMovement>();
-            _player = _playerMovement.Player;
+            _playerCamera = FindObjectOfType<PlayerCamera>();
+            
+            if(_playerMovement)
+                _player = _playerMovement.Player;
         }
 
         private void LateUpdate()
         {
+            if(_playerMovement == null)
+                return;
+            
             if (_player && _playerMovement && _playerCamera)
             {
                 SetArrowPosition();

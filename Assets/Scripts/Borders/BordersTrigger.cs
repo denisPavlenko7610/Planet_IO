@@ -20,6 +20,5 @@ namespace Planet_IO
                 OnPlayerTriggeredHandler?.Invoke(player.Capacity);
         }
     }
-    
 }
 

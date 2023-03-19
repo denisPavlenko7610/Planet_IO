@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Planet_IO.ObjectPool;
+using Unity.Netcode;
 using UnityEngine;
-using Zenject;
 using Random = UnityEngine.Random;
 
 namespace Planet_IO
 {
-    public abstract class Spawner<T> : MonoBehaviour, IInit<T>, ICreate
-        where T : MonoBehaviour, ICapacity
+    public abstract class Spawner<T> : NetworkBehaviour, IInit<T>, ICreate
+        where T : NetworkBehaviour, ICapacity
     {
         [SerializeField] private float _minObjectScale = 0.4f;
         [SerializeField] private float _maxObjectScale = 1f;
@@ -20,7 +19,7 @@ namespace Planet_IO
         public event Action<T> OnObjectCreated;
         public event Action<List<T>> OnObjectsInited;
         private ObjectPool<T> _objectPool;
-        private float zPosition = 1f;
+        private const float ZPosition = 1f;
 
         public virtual void Init(ObjectPool<T> objectPool)
         {
@@ -31,35 +30,35 @@ namespace Planet_IO
 
         public virtual void CreateObject()
         {
-            var @object = _objectPool.Pool?.Get();
+            var obj = _objectPool.Pool?.Get();
             var randomScale = Random.Range(_minObjectScale, _maxObjectScale);
-            if (@object != null)
+            if (obj != null)
             {
-                @object.Capacity = randomScale;
-                SetTransform(@object, randomScale);
+                obj.Capacity = randomScale;
+                SetTransform(obj, randomScale);
             }
 
-            OnObjectCreated?.Invoke(@object);
+            OnObjectCreated?.Invoke(obj);
             
-            AddEnemyObjectToList(@object);
+            AddEnemyObjectToList(obj);
         }
 
-        private void AddEnemyObjectToList(T @object)
+        private void AddEnemyObjectToList(T obj)
         {
-            if (@object is Enemy)
+            if (obj is Enemy)
             {
-                _createdObjects.Add(@object);
+                _createdObjects.Add(obj);
             }
         }
 
         public void CreateObject(Transform pos)
         {
-            var @object = _objectPool.Pool?.Get();
-            if (@object != null)
-            {
-                @object.Capacity = _minObjectScale;
-                SetTransform(@object, pos);
-            }
+            var obj = _objectPool.Pool?.Get();
+            if (obj == null)
+                return;
+            
+            obj.Capacity = _minObjectScale;
+            SetTransform(obj, pos);
         }
 
         protected virtual void GenerateObjects()
@@ -82,22 +81,22 @@ namespace Planet_IO
 // #endif
         }
 
-        protected virtual void SetTransform(T @object, float randomScale)
+        protected virtual void SetTransform(T obj, float randomScale)
         {
-            if (@object == null)
+            if (obj == null)
                 return;
 
             var randomPosition = GetRandomPosition();
-            var objectTransform = @object.transform;
+            var objectTransform = obj.transform;
             objectTransform.position = randomPosition;
-            objectTransform.localScale = new Vector3(randomScale, randomScale, zPosition);
+            objectTransform.localScale = new Vector3(randomScale, randomScale, ZPosition);
         }
 
-        private void SetTransform(T @object, Transform pos)
+        private void SetTransform(T obj, Transform pos)
         {
-            var objectTransform = @object.transform;
+            var objectTransform = obj.transform;
             objectTransform.position = pos.position;
-            objectTransform.localScale = new Vector3(_minObjectScale, _minObjectScale, zPosition);
+            objectTransform.localScale = new Vector3(_minObjectScale, _minObjectScale, ZPosition);
         }
 
         protected virtual Vector2 GetRandomPosition() =>

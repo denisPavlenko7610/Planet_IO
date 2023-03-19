@@ -16,7 +16,7 @@ namespace Planet_IO
         private CometsSpawnerLogics _cometsSpawnerLogics;
         private PointsSpawnerLogics _pointsSpawnerLogics;
 
-        private Vector3 movementVector;
+        private Vector3 _movementVector;
 
         [Inject]
         public void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
@@ -38,6 +38,9 @@ namespace Planet_IO
 
         public void EnableBoost()
         {
+            if (!IsOwner)
+                return;
+            
             if (!(Capacity > MinCapacity + Constants.MeasurementError))
                 return;
             
@@ -48,9 +51,7 @@ namespace Planet_IO
         private void CreatePoints() => _pointsSpawnerLogics.CreatePoint(_pointSpawnTransform);
 
         private void DecreasePlayerCapacity() => SetCapacity(-Constants.MeasurementError);
-
-       
-
+        
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.TryGetComponent(out Point point))

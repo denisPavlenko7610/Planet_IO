@@ -1,9 +1,10 @@
 ﻿using System;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Planet_IO
 {
-    public abstract class PlanetScale : MonoBehaviour, ICapacity
+    public abstract class PlanetScale : NetworkBehaviour, ICapacity
     {
         [field: Header("Capacity Player")]
         [field: SerializeField]

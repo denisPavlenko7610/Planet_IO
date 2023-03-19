@@ -22,7 +22,7 @@ namespace Planet_IO
             SetRandomSprite(_sprite);
         }
 
-        public void InitDependencies(CometsSpawnerLogics cometsSpawnerLogics,PointsSpawnerLogics pointsSpawnerLogics )
+        public void InitDependencies(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics )
         {
             _cometsSpawnerLogics = cometsSpawnerLogics;
             _pointsSpawnerLogics = pointsSpawnerLogics;

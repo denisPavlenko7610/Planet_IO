@@ -1,10 +1,11 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Planet_IO
 {
-    public class InputPlayerSystem : MonoBehaviour
+    public class InputPlayerSystem : NetworkBehaviour
     {
         public Action<Vector2> Input { get; set; }
 
