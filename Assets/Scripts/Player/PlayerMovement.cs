@@ -11,8 +11,6 @@ namespace Planet_IO
     {
         public Vector2 Direction { get; private set; } = Vector2.one;
         
-        private AccelerationButton _accelerationButton;
-        private InputPlayerSystem _inputPlayerSystem;
         [field:SerializeField] public Player Player { get; private set; }
         
         [Space] 
@@ -24,11 +22,15 @@ namespace Planet_IO
         [field: SerializeField] public float BoostSpeed { get; set; }  = 8f;
 
         private float _currentSpeed;
-
         private float _rotationAngle;
         private bool _isBoost;
-
-        private void Awake() => _currentSpeed = NormalSpeed;
+        
+        private AccelerationButton _accelerationButton;
+        private InputPlayerSystem _inputPlayerSystem;
+        private void Start()
+        {
+            _currentSpeed = NormalSpeed;
+        }
 
         private void OnEnable()
         {

@@ -4,7 +4,6 @@ using RDTools;
 using RDTools.AutoAttach;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
 namespace Planet_IO.Arrow
 {
@@ -16,15 +15,10 @@ namespace Planet_IO.Arrow
         private Player _player;
         private PlayerMovement _playerMovement;
 
-        [Inject]
-        private void Construct(PlayerCamera playerCamera)
-        {
-            _playerCamera = playerCamera;
-        }
-
         private void Start()
         {
             _playerMovement = FindObjectOfType<PlayerMovement>();
+            _playerCamera = FindObjectOfType<PlayerCamera>();
             _player = _playerMovement.Player;
         }
 
