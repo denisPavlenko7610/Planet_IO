@@ -23,7 +23,7 @@ namespace Planet_IO.ObjectPool
         protected virtual void OnGet(T obj)
         {
             obj.gameObject.SetActive(true);
-            obj.transform.SetParent(transform, true);
+            //obj.transform.SetParent(transform, true);
         }
 
         protected virtual void OnRelease(T @object) => @object.gameObject.SetActive(false);

@@ -218,7 +218,7 @@ MonoBehaviour:
   <Player>k__BackingField: {fileID: 8517843457492819226}
   _rigidbody2D: {fileID: 8517843457492819217}
   _timeToTick: 1
-  <NormalSpeed>k__BackingField: 0.1
+  <NormalSpeed>k__BackingField: 4
   <BoostSpeed>k__BackingField: 8
 --- !u!114 &1292756762
 MonoBehaviour:

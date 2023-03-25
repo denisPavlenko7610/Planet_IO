@@ -169,9 +169,9 @@ GameObject:
   - component: {fileID: 2383583056927174932}
   - component: {fileID: 2383583056927174933}
   - component: {fileID: 2383583057078394748}
-  - component: {fileID: 7408454583245508115}
-  - component: {fileID: 4285747807938685}
-  - component: {fileID: -8799258794967535495}
+  - component: {fileID: 1262657238371077527}
+  - component: {fileID: -5667558191824504225}
+  - component: {fileID: 578718261515714328}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -359,7 +359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyMovement: {fileID: 2383583056927174933}
---- !u!114 &7408454583245508115
+--- !u!114 &1262657238371077527
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -385,7 +385,7 @@ MonoBehaviour:
   ScaleThreshold: 0.01
   InLocalSpace: 0
   Interpolate: 1
---- !u!114 &4285747807938685
+--- !u!114 &-5667558191824504225
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -397,7 +397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-8799258794967535495
+--- !u!114 &578718261515714328
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -412,4 +412,4 @@ MonoBehaviour:
   GlobalObjectIdHash: 951099334
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
-  AutoObjectParentSync: 0
+  AutoObjectParentSync: 1

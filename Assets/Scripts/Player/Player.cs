@@ -1,4 +1,5 @@
-﻿using Planet_IO.Utils;
+﻿using System;
+using Planet_IO.Utils;
 using UnityEngine;
 using Zenject;
 
@@ -18,12 +19,12 @@ namespace Planet_IO
 
         private Vector3 _movementVector;
 
-        [Inject]
-        public void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
-        {
-            _cometsSpawnerLogics = cometsSpawnerLogics;
-            _pointsSpawnerLogics = pointsSpawnerLogics;
-        }
+        // [Inject]
+        // public void Construct(CometsSpawnerLogics cometsSpawnerLogics, PointsSpawnerLogics pointsSpawnerLogics)
+        // {
+        //     _cometsSpawnerLogics = cometsSpawnerLogics;
+        //     _pointsSpawnerLogics = pointsSpawnerLogics;
+        // }
 
         private void OnEnable()
         {
@@ -34,6 +35,13 @@ namespace Planet_IO
         private void OnDisable()
         {
             _bordersTrigger.OnPlayerTriggeredHandler -= DecreaseCapacity;
+        }
+
+        //Temp Solution
+        private void Start()
+        {
+            _cometsSpawnerLogics = FindObjectOfType<CometsSpawnerLogics>();
+            _pointsSpawnerLogics = FindObjectOfType<PointsSpawnerLogics>();
         }
 
         public void EnableBoost()

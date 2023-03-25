@@ -17,7 +17,7 @@ namespace Planet_IO
         private PlayerCamera _playerCamera;
         public bool IsDie { get; private set; }
 
-        private void Start()
+        private void Awake()
         {
             scoreText = FindObjectOfType<ScoreText>();
             _playerCamera = FindObjectOfType<PlayerCamera>();

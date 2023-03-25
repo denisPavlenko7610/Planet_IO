@@ -7,8 +7,8 @@ using Random = UnityEngine.Random;
 
 namespace Planet_IO
 {
-    public abstract class Spawner<T> : NetworkBehaviour, IInit<T>, ICreate
-        where T : NetworkBehaviour, ICapacity
+    public abstract class Spawner<T> : MonoBehaviour, IInit<T>, ICreate
+        where T : MonoBehaviour, ICapacity
     {
         [SerializeField] private float _minObjectScale = 0.4f;
         [SerializeField] private float _maxObjectScale = 1f;
