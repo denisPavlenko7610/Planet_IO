@@ -7,24 +7,26 @@ using VContainer;
 namespace Planet_IO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class PlayerMovement : NetworkBehaviour, IMove
+    public sealed class PlayerMovement : NetworkBehaviour, IMove
     {
         [SerializeField, Assign] private Player _player;
         [SerializeField, Assign] private Rigidbody2D _rigidbody2D;
-        [SerializeField, Min(0.05f)] private float _timeToTick = 0.15f;
+        [SerializeField, Min(0.05f)]
+        private float _boostMassConsumptionInterval = 0.15f;
         [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0.35f;
         [SerializeField, Range(0.1f, 1f)] private float _minimumSpeedMultiplier = 0.55f;
         [SerializeField, Min(1f)] private float _turnSpeed = 540f;
 
-        [field: Header("Speed")]
-        [field: SerializeField] public float NormalSpeed { get; set; } = 4f;
-        [field: SerializeField] public float BoostSpeed { get; set; } = 8f;
+        [Header("Speed")]
+        [SerializeField, Min(0f)] private float _normalSpeed = 4f;
+        [SerializeField, Min(0f)] private float _boostSpeed = 8f;
 
         public Player Player => _player;
         public Vector2 Direction { get; private set; } = Vector2.right;
 
         private Vector2 _desiredDirection = Vector2.right;
         private IBoostInput _boostInput;
+        private IGameStateService _gameStateService;
         private float _currentSpeed;
         private bool _boostInputSubscribed;
         private bool _isBoosting;
@@ -36,10 +38,15 @@ namespace Planet_IO
         }
 
         [Inject]
-        public void Construct(IBoostInput boostInput)
+        public void Construct(
+            IBoostInput boostInput,
+            IGameStateService gameStateService)
         {
             UnsubscribeBoostInput();
-            _boostInput = boostInput;
+            _boostInput = boostInput
+                ?? throw new ArgumentNullException(nameof(boostInput));
+            _gameStateService = gameStateService
+                ?? throw new ArgumentNullException(nameof(gameStateService));
 
             if (isActiveAndEnabled)
             {
@@ -55,25 +62,35 @@ namespace Planet_IO
         private void OnDisable()
         {
             _isBoosting = false;
-            _currentSpeed = NormalSpeed;
+            _currentSpeed = _normalSpeed;
             UnsubscribeBoostInput();
         }
 
         private void FixedUpdate()
         {
-            if (IsOwner && _player != null && _rigidbody2D != null)
+            if (!IsOwner || _player == null || _rigidbody2D == null)
             {
-                UpdateDirection();
-
-                float targetSpeed = _isBoosting ? BoostSpeed : NormalSpeed;
-                float sizeAboveMinimum = Mathf.Max(0f, _player.Capacity - _player.MinCapacity);
-                float speedMultiplier = Mathf.Clamp(
-                    1f - sizeAboveMinimum * _massSpeedPenalty,
-                    _minimumSpeedMultiplier,
-                    1f);
-                _currentSpeed = targetSpeed * speedMultiplier;
-                Move();
+                return;
             }
+
+            if (_gameStateService?.IsGameplayActive != true)
+            {
+                _rigidbody2D.linearVelocity = Vector2.zero;
+                return;
+            }
+
+            UpdateDirection();
+
+            float targetSpeed = _isBoosting ? _boostSpeed : _normalSpeed;
+            float sizeAboveMinimum = Mathf.Max(
+                0f,
+                _player.Capacity - _player.MinimumCapacity);
+            float speedMultiplier = Mathf.Clamp(
+                1f - sizeAboveMinimum * _massSpeedPenalty,
+                _minimumSpeedMultiplier,
+                1f);
+            _currentSpeed = targetSpeed * speedMultiplier;
+            Move();
         }
 
         public void Move()
@@ -139,7 +156,7 @@ namespace Planet_IO
 
         private void OnBoostChanged(bool isBoosting)
         {
-            if (!IsOwner)
+            if (!IsOwner || _gameStateService?.IsGameplayActive != true)
             {
                 return;
             }
@@ -147,7 +164,7 @@ namespace Planet_IO
             if (!isBoosting)
             {
                 _isBoosting = false;
-                _currentSpeed = NormalSpeed;
+                _currentSpeed = _normalSpeed;
                 return;
             }
 
@@ -162,7 +179,7 @@ namespace Planet_IO
 
         private async Awaitable ActivatePlayerBoostLogicAsync()
         {
-            _currentSpeed = BoostSpeed;
+            _currentSpeed = _boostSpeed;
 
             try
             {
@@ -175,7 +192,9 @@ namespace Planet_IO
                     }
 
                     _player.EnableBoost();
-                    await Awaitable.WaitForSecondsAsync(_timeToTick, destroyCancellationToken);
+                    await Awaitable.WaitForSecondsAsync(
+                        _boostMassConsumptionInterval,
+                        destroyCancellationToken);
                 }
             }
             catch (OperationCanceledException)

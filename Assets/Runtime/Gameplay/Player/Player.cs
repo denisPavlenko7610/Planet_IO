@@ -6,9 +6,10 @@ using VContainer;
 namespace Planet_IO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
-    public class Player : PlayerScale
+    public sealed class Player : PlanetScale
     {
         private BordersTrigger _bordersTrigger;
+        private Rigidbody2D _rigidbody2D;
 
         [Header("Mass balance")]
         [SerializeField, Min(0.001f)] private float _foodGrowthMultiplier = 0.015f;
@@ -25,10 +26,12 @@ namespace Planet_IO
         private IRespawnService<Enemy> _enemyRespawnService;
         private ISpawnService<Point> _pointSpawnService;
         private INetworkSessionService _networkSessionService;
+        private IGameStateService _gameStateService;
         private bool _servicesReady;
+        private bool _borderEventSubscribed;
         private bool _isDefeated;
 
-        public bool CanBoost => Capacity > MinCapacity + _boostMassCost;
+        public bool CanBoost => Capacity > MinimumCapacity + _boostMassCost;
 
         [Inject]
         public void Construct(
@@ -36,39 +39,50 @@ namespace Planet_IO
             IRespawnService<Point> pointRespawnService,
             IRespawnService<Enemy> enemyRespawnService,
             ISpawnService<Point> pointSpawnService,
-            INetworkSessionService networkSessionService)
+            INetworkSessionService networkSessionService,
+            IGameStateService gameStateService,
+            BordersTrigger bordersTrigger)
         {
-            _cometRespawnService = cometRespawnService;
-            _pointRespawnService = pointRespawnService;
-            _enemyRespawnService = enemyRespawnService;
-            _pointSpawnService = pointSpawnService;
-            _networkSessionService = networkSessionService;
+            _cometRespawnService = cometRespawnService
+                ?? throw new ArgumentNullException(nameof(cometRespawnService));
+            _pointRespawnService = pointRespawnService
+                ?? throw new ArgumentNullException(nameof(pointRespawnService));
+            _enemyRespawnService = enemyRespawnService
+                ?? throw new ArgumentNullException(nameof(enemyRespawnService));
+            _pointSpawnService = pointSpawnService
+                ?? throw new ArgumentNullException(nameof(pointSpawnService));
+            _networkSessionService = networkSessionService
+                ?? throw new ArgumentNullException(nameof(networkSessionService));
+            _gameStateService = gameStateService
+                ?? throw new ArgumentNullException(nameof(gameStateService));
+            SetBordersTrigger(
+                bordersTrigger
+                ?? throw new ArgumentNullException(nameof(bordersTrigger)));
             _servicesReady = true;
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            _rigidbody2D = GetComponent<Rigidbody2D>();
         }
 
         private void OnEnable()
         {
-            _bordersTrigger = FindAnyObjectByType<BordersTrigger>();
-            if (_bordersTrigger != null)
-            {
-                _bordersTrigger.OnPlayerTriggeredHandler += OnBorderHit;
-            }
+            SubscribeToBorderEvent();
         }
 
         private void OnDisable()
         {
-            if (_bordersTrigger != null)
-            {
-                _bordersTrigger.OnPlayerTriggeredHandler -= OnBorderHit;
-            }
+            UnsubscribeFromBorderEvent();
         }
 
         public void EnableBoost()
         {
-            if (!IsOwner)
-			{
-				return;
-			}
+            if (!IsOwner || _gameStateService?.IsGameplayActive != true)
+            {
+                return;
+            }
 
             ApplyBoostRpc();
         }
@@ -76,7 +90,9 @@ namespace Planet_IO
         [Rpc(SendTo.Server)]
         private void ApplyBoostRpc()
         {
-            if (!_servicesReady || Capacity <= MinCapacity + _boostMassCost)
+            if (!_servicesReady ||
+                !_gameStateService.IsGameplayActive ||
+                Capacity <= MinimumCapacity + _boostMassCost)
             {
                 return;
             }
@@ -95,17 +111,66 @@ namespace Planet_IO
             }
         }
 
-        private void OnBorderHit(float capacity)
+        protected override void DeathCheck(float capacity)
         {
-            if (IsServer)
+            if (capacity <= MinimumCapacity)
             {
-                Shrink(Mathf.Max(_boostMassCost, capacity * _borderMassLoss));
+                Defeat();
             }
         }
-        
+
+        private void SetBordersTrigger(BordersTrigger bordersTrigger)
+        {
+            if (_bordersTrigger == bordersTrigger)
+            {
+                return;
+            }
+
+            UnsubscribeFromBorderEvent();
+            _bordersTrigger = bordersTrigger;
+            SubscribeToBorderEvent();
+        }
+
+        private void SubscribeToBorderEvent()
+        {
+            if (_bordersTrigger == null || _borderEventSubscribed)
+            {
+                return;
+            }
+
+            _bordersTrigger.PlayerTriggered += OnBorderHit;
+            _borderEventSubscribed = true;
+        }
+
+        private void UnsubscribeFromBorderEvent()
+        {
+            if (_bordersTrigger == null || !_borderEventSubscribed)
+            {
+                return;
+            }
+
+            _bordersTrigger.PlayerTriggered -= OnBorderHit;
+            _borderEventSubscribed = false;
+        }
+
+        private void OnBorderHit(Player triggeringPlayer)
+        {
+            if (IsServer && triggeringPlayer == this)
+            {
+                Shrink(
+                    Mathf.Max(
+                        _boostMassCost,
+                        Capacity * _borderMassLoss));
+            }
+        }
+
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!IsServer || !_servicesReady || other == null || _isDefeated)
+            if (!IsServer ||
+                !_servicesReady ||
+                !_gameStateService.IsGameplayActive ||
+                other == null ||
+                _isDefeated)
             {
                 return;
             }
@@ -141,6 +206,7 @@ namespace Planet_IO
             }
 
             _isDefeated = true;
+
             if (_rigidbody2D != null)
             {
                 _rigidbody2D.linearVelocity = Vector2.zero;
@@ -152,14 +218,28 @@ namespace Planet_IO
         [Rpc(SendTo.Owner)]
         private void TriggerDefeatRpc()
         {
+            _gameStateService?.FinishGame();
             _ = ShutdownSessionAsync();
         }
 
         private async Awaitable ShutdownSessionAsync()
         {
-            if (_networkSessionService != null)
+            if (_networkSessionService == null)
+            {
+                return;
+            }
+
+            try
             {
                 await _networkSessionService.ShutdownAndReturnToMenuAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // The player or application is shutting down.
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, this);
             }
         }
     }

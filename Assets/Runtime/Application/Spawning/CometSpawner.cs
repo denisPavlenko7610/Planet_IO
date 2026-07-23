@@ -1,27 +1,41 @@
-using Planet_IO.ObjectPool;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 
 namespace Planet_IO
 {
-    public sealed class CometSpawner : Spawner<Comet>, IRespawnService<Comet>
+    public sealed class CometSpawner :
+        Spawner<Comet>,
+        IRespawnService<Comet>
     {
         [SerializeField] private BordersTrigger _bordersTrigger;
-        
-        private void OnEnable() => _bordersTrigger.OnCometTriggeredHandler += CreateComet;
-        private void OnDisable() => _bordersTrigger.OnCometTriggeredHandler -= CreateComet;
 
-        public void CreateComet(Comet comet)
+        private NetworkManager _networkManager;
+
+        [Inject]
+        public void Construct(NetworkManager networkManager)
         {
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
-            {
-                return;
-            }
-
-            RespawnObject(comet);
+            _networkManager = networkManager
+                ?? throw new ArgumentNullException(nameof(networkManager));
         }
 
-        public void Respawn(Comet comet) => CreateComet(comet);
+        private void OnEnable()
+        {
+            _bordersTrigger.CometTriggered += Respawn;
+        }
+
+        private void OnDisable()
+        {
+            _bordersTrigger.CometTriggered -= Respawn;
+        }
+
+        public void Respawn(Comet comet)
+        {
+            if (_networkManager?.IsServer == true)
+            {
+                RespawnObject(comet);
+            }
+        }
     }
 }

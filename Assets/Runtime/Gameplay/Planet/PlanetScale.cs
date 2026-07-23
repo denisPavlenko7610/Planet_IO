@@ -6,11 +6,9 @@ namespace Planet_IO
 {
     public abstract class PlanetScale : NetworkBehaviour, ICapacity
     {
-        [field: Header("Capacity")]
-        [field: SerializeField, Min(0.01f)]
-        public float MinCapacity { get; private set; } = 0.08f;
-
-        [SerializeField, Min(0.02f)] private float _maxCapacity = 2f;
+        [Header("Capacity")]
+        [SerializeField, Min(0.01f)] private float _minimumCapacity = 0.08f;
+        [SerializeField, Min(0.02f)] private float _maximumCapacity = 2f;
 
         private readonly NetworkVariable<float> _networkCapacity = new(
             0f,
@@ -18,6 +16,8 @@ namespace Planet_IO
             NetworkVariableWritePermission.Server);
 
         private float _localCapacity;
+
+        public float MinimumCapacity => _minimumCapacity;
 
         public float Capacity
         {
@@ -122,7 +122,10 @@ namespace Planet_IO
 
         private float ClampCapacity(float value)
         {
-            return Mathf.Clamp(value, MinCapacity, Mathf.Max(MinCapacity, _maxCapacity));
+            return Mathf.Clamp(
+                value,
+                _minimumCapacity,
+                Mathf.Max(_minimumCapacity, _maximumCapacity));
         }
     }
 }

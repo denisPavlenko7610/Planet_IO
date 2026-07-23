@@ -5,6 +5,7 @@ namespace Planet_IO
         Offline,
         StartingHost,
         StartingClient,
+        StartingSinglePlayer,
         Connecting,
         Loading,
         InGame,

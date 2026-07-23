@@ -12,21 +12,26 @@ namespace PlanetIO.Infrastructure.Networking
         IStartable,
         IDisposable
     {
+        private const float ClientConnectionTimeoutSeconds = 3f;
+
         private readonly NetworkManager _networkManager;
         private NetworkSceneManager _networkSceneManager;
         private int _progressGeneration;
         private bool _subscribed;
         private bool _shutdownRequested;
+        private bool _switchingToSinglePlayer;
 
         public NetworkSessionService(NetworkManager networkManager)
         {
-            _networkManager = networkManager;
+            _networkManager = networkManager
+                ?? throw new ArgumentNullException(nameof(networkManager));
         }
 
         public event Action<float> LoadingProgressChanged;
         public event Action<NetworkSessionState, string> StateChanged;
 
         public NetworkSessionState State { get; private set; } = NetworkSessionState.Offline;
+        public NetworkSessionMode Mode { get; private set; } = NetworkSessionMode.None;
         public string Status { get; private set; } = "Готово к подключению";
         public float LoadingProgress { get; private set; }
         public bool IsServer => _networkManager != null && _networkManager.IsServer;
@@ -44,11 +49,13 @@ namespace PlanetIO.Infrastructure.Networking
                 return false;
             }
 
+            Mode = NetworkSessionMode.Host;
             SetState(NetworkSessionState.StartingHost, "Запуск хоста");
             _networkManager.ConnectionApprovalCallback = ApproveConnectionWithoutPlayer;
 
             if (!_networkManager.StartHost())
             {
+                Mode = NetworkSessionMode.None;
                 _networkManager.ConnectionApprovalCallback = null;
                 SetState(NetworkSessionState.Failed, "NetworkManager отклонил запуск хоста");
                 return false;
@@ -67,6 +74,7 @@ namespace PlanetIO.Infrastructure.Networking
 
             if (!_networkManager.IsListening || !_networkManager.IsServer)
             {
+                Mode = NetworkSessionMode.None;
                 SetState(NetworkSessionState.Failed, "Хост не перешёл в состояние Listening");
                 return false;
             }
@@ -74,24 +82,55 @@ namespace PlanetIO.Infrastructure.Networking
             return LoadNetworkScene(SceneNames.Loading);
         }
 
-        public bool StartClient()
+        public async Awaitable<bool> StartClientOrSinglePlayerAsync()
         {
             if (!CanStartSession())
             {
                 return false;
             }
 
+            Mode = NetworkSessionMode.Client;
             SetState(NetworkSessionState.StartingClient, "Подключение к хосту");
 
             if (!_networkManager.StartClient())
             {
-                SetState(NetworkSessionState.Failed, "NetworkManager отклонил запуск клиента");
-                return false;
+                return await StartSinglePlayerFallbackAsync();
             }
 
             SubscribeSceneManager();
             SetState(NetworkSessionState.Connecting, "Ожидание ответа хоста");
-            return true;
+
+            try
+            {
+                float connectionDeadline =
+                    Time.realtimeSinceStartup + ClientConnectionTimeoutSeconds;
+
+                while (Time.realtimeSinceStartup < connectionDeadline)
+                {
+                    if (_networkManager.IsConnectedClient)
+                    {
+                        return true;
+                    }
+
+                    if (!_networkManager.IsListening)
+                    {
+                        break;
+                    }
+
+                    await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
+
+            if (_networkManager.IsConnectedClient)
+            {
+                return true;
+            }
+
+            return await StartSinglePlayerFallbackAsync();
         }
 
         public async Awaitable ContinueToGameAsync()
@@ -130,12 +169,18 @@ namespace PlanetIO.Infrastructure.Networking
             _shutdownRequested = true;
             SetState(NetworkSessionState.ShuttingDown, "Завершение сетевой сессии");
 
-            if (_networkManager != null && _networkManager.IsListening)
+            if (_networkManager.IsListening)
             {
+                UnsubscribeSceneManager();
                 _networkManager.Shutdown();
+
                 try
                 {
-                    await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+                    while (_networkManager.ShutdownInProgress)
+                    {
+                        await Awaitable.NextFrameAsync(
+                            Application.exitCancellationToken);
+                    }
                 }
                 catch (OperationCanceledException)
                 {
@@ -143,25 +188,19 @@ namespace PlanetIO.Infrastructure.Networking
                 }
             }
 
-            if (_networkManager != null)
-            {
-                _networkManager.ConnectionApprovalCallback = null;
-            }
+            _networkManager.ConnectionApprovalCallback = null;
 
             IsSceneEventInProgress = false;
             SetProgress(0f);
             await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
             _shutdownRequested = false;
+            Mode = NetworkSessionMode.None;
             SetState(NetworkSessionState.Offline, "Готово к подключению");
         }
 
         public void Dispose()
         {
-            if (_networkManager != null)
-            {
-                _networkManager.ConnectionApprovalCallback = null;
-            }
-
+            _networkManager.ConnectionApprovalCallback = null;
             Unsubscribe();
         }
 
@@ -174,14 +213,78 @@ namespace PlanetIO.Infrastructure.Networking
             response.Pending = false;
         }
 
-        private bool CanStartSession()
+        private static void ApproveLocalPlayerOnly(
+            NetworkManager.ConnectionApprovalRequest request,
+            NetworkManager.ConnectionApprovalResponse response)
         {
-            if (_networkManager == null)
+            bool isLocalPlayer = request.ClientNetworkId == NetworkManager.ServerClientId;
+            response.Approved = isLocalPlayer;
+            response.CreatePlayerObject = false;
+            response.Pending = false;
+            response.Reason = isLocalPlayer
+                ? string.Empty
+                : "The session is running in single-player mode.";
+        }
+
+        private async Awaitable<bool> StartSinglePlayerFallbackAsync()
+        {
+            _switchingToSinglePlayer = true;
+            SetState(
+                NetworkSessionState.StartingSinglePlayer,
+                "Хост недоступен, запуск одиночной игры");
+
+            try
             {
-                SetState(NetworkSessionState.Failed, "NetworkManager не зарегистрирован");
+                if (_networkManager.IsListening)
+                {
+                    UnsubscribeSceneManager();
+                    _networkManager.Shutdown();
+                }
+
+                while (_networkManager.ShutdownInProgress)
+                {
+                    await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+                }
+
+                Mode = NetworkSessionMode.SinglePlayer;
+                _networkManager.ConnectionApprovalCallback = ApproveLocalPlayerOnly;
+
+                if (!_networkManager.StartHost())
+                {
+                    Mode = NetworkSessionMode.None;
+                    _networkManager.ConnectionApprovalCallback = null;
+                    SetState(
+                        NetworkSessionState.Failed,
+                        "Не удалось запустить одиночную игру");
+                    return false;
+                }
+
+                SubscribeSceneManager();
+                await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+
+                if (!_networkManager.IsListening || !_networkManager.IsServer)
+                {
+                    Mode = NetworkSessionMode.None;
+                    SetState(
+                        NetworkSessionState.Failed,
+                        "Одиночная игра не перешла в состояние Listening");
+                    return false;
+                }
+
+                return LoadNetworkScene(SceneNames.Loading);
+            }
+            catch (OperationCanceledException)
+            {
                 return false;
             }
+            finally
+            {
+                _switchingToSinglePlayer = false;
+            }
+        }
 
+        private bool CanStartSession()
+        {
             if (_networkManager.IsListening)
             {
                 SetState(NetworkSessionState.Failed, "Сетевая сессия уже запущена");
@@ -219,7 +322,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void Subscribe()
         {
-            if (_subscribed || _networkManager == null)
+            if (_subscribed)
             {
                 return;
             }
@@ -235,7 +338,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void Unsubscribe()
         {
-            if (!_subscribed || _networkManager == null)
+            if (!_subscribed)
             {
                 return;
             }
@@ -245,11 +348,7 @@ namespace PlanetIO.Infrastructure.Networking
             _networkManager.OnClientStopped -= OnClientStopped;
             _networkManager.OnServerStopped -= OnServerStopped;
 
-            if (_networkSceneManager != null)
-            {
-                _networkSceneManager.OnSceneEvent -= OnSceneEvent;
-                _networkSceneManager = null;
-            }
+            UnsubscribeSceneManager();
 
             _subscribed = false;
         }
@@ -271,6 +370,17 @@ namespace PlanetIO.Infrastructure.Networking
             _networkSceneManager.OnSceneEvent += OnSceneEvent;
         }
 
+        private void UnsubscribeSceneManager()
+        {
+            if (_networkSceneManager == null)
+            {
+                return;
+            }
+
+            _networkSceneManager.OnSceneEvent -= OnSceneEvent;
+            _networkSceneManager = null;
+        }
+
         private void OnClientConnected(ulong clientId)
         {
             if (clientId == _networkManager.LocalClientId && !_networkManager.IsServer)
@@ -281,7 +391,9 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void OnClientDisconnected(ulong clientId)
         {
-            if (clientId != _networkManager.LocalClientId || _shutdownRequested)
+            if (clientId != _networkManager.LocalClientId ||
+                _shutdownRequested ||
+                _switchingToSinglePlayer)
             {
                 return;
             }
@@ -292,12 +404,12 @@ namespace PlanetIO.Infrastructure.Networking
             SetState(NetworkSessionState.Failed, reason);
         }
 
-        private void OnClientStopped(bool _)
+        private void OnClientStopped(bool wasHost)
         {
             IsSceneEventInProgress = false;
         }
 
-        private void OnServerStopped(bool _)
+        private void OnServerStopped(bool wasHost)
         {
             IsSceneEventInProgress = false;
         }
@@ -312,7 +424,7 @@ namespace PlanetIO.Infrastructure.Networking
                     SetState(
                         NetworkSessionState.Loading,
                         $"Загрузка {sceneEvent.SceneName}");
-                    TrackAsyncOperation(sceneEvent.AsyncOperation);
+                    _ = TrackAsyncOperationAsync(sceneEvent.AsyncOperation);
                     break;
 
                 case SceneEventType.LoadComplete:
@@ -333,7 +445,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
         }
 
-        private async void TrackAsyncOperation(AsyncOperation operation)
+        private async Awaitable TrackAsyncOperationAsync(AsyncOperation operation)
         {
             if (operation == null)
             {

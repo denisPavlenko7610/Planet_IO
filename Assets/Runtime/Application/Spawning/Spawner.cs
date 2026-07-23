@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using Planet_IO.ObjectPool;
 using Unity.Netcode;
 using Unity.Netcode.Components;
@@ -11,130 +10,138 @@ namespace Planet_IO
     public abstract class Spawner<T> : MonoBehaviour
         where T : MonoBehaviour, ICapacity
     {
-        [SerializeField] private float _minObjectScale = 0.4f;
-        [SerializeField] private float _maxObjectScale = 1f;
-        [field: SerializeField] public Vector2 SpawnPositionX { get; private set; } = new(-223f, 223f);
-        [field: SerializeField] public Vector2 SpawnPositionY { get; private set; } = new(-139f, 161.9f);
+        private const float SpawnDepth = 1f;
 
-        private List<T> _createdObjects = new();
-        public event Action<T> OnObjectCreated;
-        public event Action<List<T>> OnObjectsInited;
+        [SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.4f;
+        [SerializeField, Min(0.01f)] private float _maximumObjectScale = 1f;
+        [SerializeField] private Vector2 _horizontalSpawnRange = new(-223f, 223f);
+        [SerializeField] private Vector2 _verticalSpawnRange = new(-139f, 161.9f);
+
         private ObjectPool<T> _objectPool;
-        private const float ZPosition = 1f;
 
-        public virtual void Initialize(ObjectPool<T> objectPool)
+        public void Initialize(ObjectPool<T> objectPool)
         {
-            _objectPool = objectPool;
-            objectPool.Initialize();
-            GenerateObjects();
+            _objectPool = objectPool
+                ?? throw new ArgumentNullException(nameof(objectPool));
+
+            _objectPool.Initialize();
+            GenerateInitialObjects();
         }
 
-        public virtual void CreateObject()
+        public void CreateObject()
         {
-            T obj = _objectPool.Pool?.Get();
-            float randomScale = Random.Range(_minObjectScale, _maxObjectScale);
-            if (obj != null)
+            T spawnedObject = _objectPool.Get();
+            float randomScale = GetRandomScale();
+
+            spawnedObject.Capacity = randomScale;
+            SetRandomTransform(spawnedObject, randomScale);
+            SpawnNetworkObject(spawnedObject);
+        }
+
+        public void CreateObject(Transform spawnTransform)
+        {
+            if (spawnTransform == null)
             {
-                obj.Capacity = randomScale;
-                SetTransform(obj, randomScale);
-                SpawnNetworkObject(obj);
+                throw new ArgumentNullException(nameof(spawnTransform));
             }
 
-            if (obj != null)
-            {
-                OnObjectCreated?.Invoke(obj);
-                _createdObjects.Add(obj);
-            }
+            T spawnedObject = _objectPool.Get();
+            spawnedObject.Capacity = _minimumObjectScale;
+            SetTransform(spawnedObject, spawnTransform.position, _minimumObjectScale);
+            SpawnNetworkObject(spawnedObject);
         }
 
-        public void CreateObject(Transform pos)
+        protected void RespawnObject(T objectToRespawn)
         {
-            T obj = _objectPool.Pool?.Get();
-            if (obj == null)
-			{
-				return;
-			}
-
-			obj.Capacity = _minObjectScale;
-            SetTransform(obj, pos);
-            SpawnNetworkObject(obj);
-            OnObjectCreated?.Invoke(obj);
-            _createdObjects.Add(obj);
-        }
-
-        protected void RespawnObject(T obj)
-        {
-            if (obj == null)
+            if (objectToRespawn == null)
             {
                 return;
             }
 
-            float randomScale = Random.Range(_minObjectScale, _maxObjectScale);
-            obj.Capacity = randomScale;
-            SetTransform(obj, randomScale);
-            obj.gameObject.SetActive(true);
+            float randomScale = GetRandomScale();
+            objectToRespawn.Capacity = randomScale;
+            SetRandomTransform(objectToRespawn, randomScale);
+            objectToRespawn.gameObject.SetActive(true);
 
-            if (obj.TryGetComponent(out NetworkObject networkObject) &&
+            if (objectToRespawn.TryGetComponent(out NetworkObject networkObject) &&
                 networkObject.IsSpawned &&
-                obj.TryGetComponent(out NetworkTransform networkTransform))
+                objectToRespawn.TryGetComponent(out NetworkTransform networkTransform))
             {
                 networkTransform.Teleport(
-                    obj.transform.position,
-                    obj.transform.rotation,
-                    obj.transform.localScale);
+                    objectToRespawn.transform.position,
+                    objectToRespawn.transform.rotation,
+                    objectToRespawn.transform.localScale);
             }
         }
 
-        protected virtual void GenerateObjects()
+        protected virtual Vector2 GetRandomPosition()
         {
-// #if UNITY_EDITOR
-//             Stopwatch stopwatch = new Stopwatch();
-//             stopwatch.Start();
-// #endif
-            _createdObjects.Clear();
-            for (int i = 0; i < _objectPool.Count; i++)
+            return new Vector2(
+                Random.Range(_horizontalSpawnRange.x, _horizontalSpawnRange.y),
+                Random.Range(_verticalSpawnRange.x, _verticalSpawnRange.y));
+        }
+
+        private void GenerateInitialObjects()
+        {
+            for (int objectIndex = 0; objectIndex < _objectPool.Capacity; objectIndex++)
             {
                 CreateObject();
             }
-            
-            OnObjectsInited?.Invoke(_createdObjects);
-
-// #if UNITY_EDITOR
-//             stopwatch.Stop();
-//             print(stopwatch.ElapsedMilliseconds + " ms");
-// #endif
         }
 
-        protected virtual void SetTransform(T obj, float randomScale)
+        private void SetRandomTransform(T spawnedObject, float scale)
         {
-            if (obj == null)
-			{
-				return;
-			}
-
-			Vector2 randomPosition = GetRandomPosition();
-            Transform objectTransform = obj.transform;
-            objectTransform.position = randomPosition;
-            objectTransform.localScale = new Vector3(randomScale, randomScale, ZPosition);
+            SetTransform(spawnedObject, GetRandomPosition(), scale);
         }
 
-        private void SetTransform(T obj, Transform pos)
+        private static void SetTransform(
+            T spawnedObject,
+            Vector2 position,
+            float scale)
         {
-            Transform objectTransform = obj.transform;
-            objectTransform.position = pos.position;
-            objectTransform.localScale = new Vector3(_minObjectScale, _minObjectScale, ZPosition);
+            Transform spawnedTransform = spawnedObject.transform;
+            spawnedTransform.position = position;
+            spawnedTransform.localScale = new Vector3(scale, scale, SpawnDepth);
         }
 
-        protected virtual Vector2 GetRandomPosition() =>
-            new(Random.Range(SpawnPositionX.x, SpawnPositionX.y),
-                Random.Range(SpawnPositionY.x, SpawnPositionY.y));
-
-        private static void SpawnNetworkObject(T obj)
+        private float GetRandomScale()
         {
-            if (obj.TryGetComponent(out NetworkObject networkObject) && !networkObject.IsSpawned)
+            float minimumScale = Mathf.Min(
+                _minimumObjectScale,
+                _maximumObjectScale);
+            float maximumScale = Mathf.Max(
+                _minimumObjectScale,
+                _maximumObjectScale);
+            return Random.Range(minimumScale, maximumScale);
+        }
+
+        private static void SpawnNetworkObject(T spawnedObject)
+        {
+            if (spawnedObject.TryGetComponent(out NetworkObject networkObject) &&
+                !networkObject.IsSpawned)
             {
                 networkObject.Spawn();
             }
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            _maximumObjectScale = Mathf.Max(
+                _minimumObjectScale,
+                _maximumObjectScale);
+
+            NormalizeRange(ref _horizontalSpawnRange);
+            NormalizeRange(ref _verticalSpawnRange);
+        }
+
+        private static void NormalizeRange(ref Vector2 range)
+        {
+            if (range.x > range.y)
+            {
+                (range.x, range.y) = (range.y, range.x);
+            }
+        }
+#endif
     }
 }

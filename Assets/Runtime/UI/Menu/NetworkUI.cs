@@ -1,77 +1,51 @@
-using Planet_IO;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using VContainer;
 
 namespace PlanetIO.UI.Menu
 {
-    public sealed class NetworkUI : MonoBehaviour
+    public interface INetworkMenuView
+    {
+        event Action HostRequested;
+        event Action ClientRequested;
+
+        void SetInteractionEnabled(bool interactionEnabled);
+    }
+
+    public sealed class NetworkUI : MonoBehaviour, INetworkMenuView
     {
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
 
-        private INetworkSessionService _session;
-        private bool _requestInProgress;
+        public event Action HostRequested;
+        public event Action ClientRequested;
 
-        [Inject]
-        public void Construct(INetworkSessionService session)
+        private void OnEnable()
         {
-            _session = session;
+            _hostButton.onClick.AddListener(OnHostRequested);
+            _clientButton.onClick.AddListener(OnClientRequested);
         }
 
-        private void Awake()
+        private void OnDisable()
         {
-            _hostButton.onClick.AddListener(OnHostClicked);
-            _clientButton.onClick.AddListener(OnClientClicked);
+            _hostButton.onClick.RemoveListener(OnHostRequested);
+            _clientButton.onClick.RemoveListener(OnClientRequested);
         }
 
-        private void OnDestroy()
+        public void SetInteractionEnabled(bool interactionEnabled)
         {
-            _hostButton.onClick.RemoveListener(OnHostClicked);
-            _clientButton.onClick.RemoveListener(OnClientClicked);
+            _hostButton.interactable = interactionEnabled;
+            _clientButton.interactable = interactionEnabled;
         }
 
-        private async void OnHostClicked()
+        private void OnHostRequested()
         {
-            if (_requestInProgress || _session == null)
-            {
-                return;
-            }
-
-            SetButtonsInteractable(false);
-            _requestInProgress = true;
-
-            bool started = await _session.StartHostAsync();
-            if (!started)
-            {
-                _requestInProgress = false;
-                SetButtonsInteractable(true);
-                Debug.LogError($"Не удалось запустить хост: {_session.Status}", this);
-            }
+            HostRequested?.Invoke();
         }
 
-        private void OnClientClicked()
+        private void OnClientRequested()
         {
-            if (_requestInProgress || _session == null)
-            {
-                return;
-            }
-
-            _requestInProgress = true;
-            SetButtonsInteractable(false);
-
-            if (!_session.StartClient())
-            {
-                _requestInProgress = false;
-                SetButtonsInteractable(true);
-                Debug.LogError($"Не удалось запустить клиент: {_session.Status}", this);
-            }
-        }
-
-        private void SetButtonsInteractable(bool interactable)
-        {
-            _hostButton.interactable = interactable;
-            _clientButton.interactable = interactable;
+            ClientRequested?.Invoke();
         }
     }
 }

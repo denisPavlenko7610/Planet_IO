@@ -9,13 +9,14 @@ namespace Planet_IO
         event Action<NetworkSessionState, string> StateChanged;
 
         NetworkSessionState State { get; }
+        NetworkSessionMode Mode { get; }
         string Status { get; }
         float LoadingProgress { get; }
         bool IsServer { get; }
         bool IsSceneEventInProgress { get; }
 
         Awaitable<bool> StartHostAsync();
-        bool StartClient();
+        Awaitable<bool> StartClientOrSinglePlayerAsync();
         Awaitable ContinueToGameAsync();
         Awaitable ShutdownAndReturnToMenuAsync();
     }

@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace Planet_IO
 {
-    public class InputPlayerSystem : NetworkBehaviour
+    public sealed class InputPlayerSystem : NetworkBehaviour
     {
         [SerializeField, Assign] private PlayerMovement _playerMovement;
 
@@ -86,7 +86,7 @@ namespace Planet_IO
             _playerMovement.SetDirection(worldPosition - playerPosition);
         }
 
-        private void UpdateInput(InputAction.CallbackContext ctx)
+        private void UpdateInput(InputAction.CallbackContext context)
         {
             if (!IsOwner)
             {
@@ -97,7 +97,7 @@ namespace Planet_IO
             _playerMovement.SetDirection(direction);
         }
 
-        private void CanceledInput(InputAction.CallbackContext ctx)
+        private void CanceledInput(InputAction.CallbackContext context)
         {
             _playerMovement.SetDirection(Vector2.zero);
         }

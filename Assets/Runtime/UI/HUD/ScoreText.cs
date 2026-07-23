@@ -1,63 +1,20 @@
-﻿using Planet_IO.Utils;
 using TMPro;
 using UnityEngine;
 
-namespace Planet_IO.UI
+namespace PlanetIO.UI.Hud
 {
-    public sealed class ScoreText : MonoBehaviour
+    public interface IScoreView
     {
-        [field: SerializeField] public TextMeshProUGUI UIScoreText { get; private set; }
+        void ShowScore(int score);
+    }
 
-        private PlayerScale _player;
+    public sealed class ScoreText : MonoBehaviour, IScoreView
+    {
+        [SerializeField] private TextMeshProUGUI _scoreText;
 
-        private void Update()
+        public void ShowScore(int score)
         {
-            if (_player == null || !_player.IsSpawned || !_player.IsOwner)
-            {
-                BindLocalPlayer();
-            }
-        }
-
-        private void OnDestroy()
-        {
-            UnbindPlayer();
-        }
-
-        private void BindLocalPlayer()
-        {
-            UnbindPlayer();
-
-            foreach (Player candidate in FindObjectsByType<Player>(
-                         FindObjectsInactive.Exclude))
-            {
-                if (!candidate.IsSpawned || !candidate.IsOwner)
-                {
-                    continue;
-                }
-
-                _player = candidate;
-                _player.CapacityChanged += UpdateScore;
-                UpdateScore(_player.Capacity);
-                return;
-            }
-        }
-
-        private void UnbindPlayer()
-        {
-            if (_player != null)
-            {
-                _player.CapacityChanged -= UpdateScore;
-                _player = null;
-            }
-        }
-
-        private void UpdateScore(float capacity)
-        {
-            if (UIScoreText != null)
-            {
-                UIScoreText.text = Mathf.RoundToInt(capacity * Constants.ScaleMultiplier)
-                    .ToString();
-            }
+            _scoreText.text = score.ToString();
         }
     }
 }

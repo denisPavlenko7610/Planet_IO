@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace Planet_IO
 {
-    public class AccelerationButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBoostInput
+    public sealed class AccelerationButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBoostInput
     {
         public event Action<bool> BoostChanged;
 

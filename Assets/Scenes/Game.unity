@@ -628,10 +628,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ac0f0517a06e4247b3353ba53b10cdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minObjectScale: 0.4
-  _maxObjectScale: 1
-  <SpawnPositionX>k__BackingField: {x: -223, y: 223}
-  <SpawnPositionY>k__BackingField: {x: -139, y: 161.9}
+  _minimumObjectScale: 0.4
+  _maximumObjectScale: 1
+  _horizontalSpawnRange: {x: -223, y: 223}
+  _verticalSpawnRange: {x: -139, y: 161.9}
   _bordersTrigger: {fileID: 1064358237}
 --- !u!114 &470327858
 MonoBehaviour:
@@ -645,8 +645,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfb8b0d124ee49058a33c54ade3414da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Count>k__BackingField: 30
-  <Prefabs>k__BackingField:
+  _capacity: 30
+  _prefabs:
   - {fileID: 3248940148568355936, guid: 21601ec4267284f4aa33ab202d741414, type: 3}
 --- !u!1 &504850296
 GameObject:
@@ -880,8 +880,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e38ce1407ef3402396ec080dbfec8b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Count>k__BackingField: 12
-  <Prefabs>k__BackingField:
+  _capacity: 12
+  _prefabs:
   - {fileID: 2383583056927174932, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
 --- !u!114 &549707340
 MonoBehaviour:
@@ -895,10 +895,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e18f3a6e1f7b4c1a8d9cb0b9bc2544fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minObjectScale: 0.4
-  _maxObjectScale: 1
-  <SpawnPositionX>k__BackingField: {x: -223, y: 223}
-  <SpawnPositionY>k__BackingField: {x: -139, y: 161.9}
+  _minimumObjectScale: 0.4
+  _maximumObjectScale: 1
+  _horizontalSpawnRange: {x: -223, y: 223}
+  _verticalSpawnRange: {x: -139, y: 161.9}
 --- !u!1 &566410503
 GameObject:
   m_ObjectHideFlags: 0
@@ -1480,10 +1480,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 405c0dc0fc31438d8f9d8c53304081eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minObjectScale: 0.4
-  _maxObjectScale: 1
-  <SpawnPositionX>k__BackingField: {x: -223, y: 223}
-  <SpawnPositionY>k__BackingField: {x: -139, y: 161.9}
+  _minimumObjectScale: 0.4
+  _maximumObjectScale: 1
+  _horizontalSpawnRange: {x: -223, y: 223}
+  _verticalSpawnRange: {x: -139, y: 161.9}
 --- !u!114 &1158107521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1496,8 +1496,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe45e0ce95a477eb69e9653421fc72a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Count>k__BackingField: 450
-  <Prefabs>k__BackingField:
+  _capacity: 450
+  _prefabs:
   - {fileID: 4853672857700494642, guid: 87f85e5d20ec99d469707d5221dcd379, type: 3}
   - {fileID: 3309487184033392244, guid: b21edc5983c318f4a9e5eb127676d133, type: 3}
   - {fileID: 3801453074540520297, guid: 30ca87340b70b7141ae2f44b7dcbb5f9, type: 3}
@@ -1836,7 +1836,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9dccf950d47425f8c784f2ea62cf351, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <UIScoreText>k__BackingField: {fileID: 1911769971}
+  _scoreText: {fileID: 1911769971}
 --- !u!1 &2106409111
 GameObject:
   m_ObjectHideFlags: 0

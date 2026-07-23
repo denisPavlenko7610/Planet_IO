@@ -4,7 +4,8 @@
     "references": [
         "PlanetIO.Core",
         "VContainer",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "Unity.Collections"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

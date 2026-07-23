@@ -1,4 +1,6 @@
 using UnityEngine;
+using PlanetIO.UI.Hud;
+using VContainer;
 
 namespace Planet_IO.Camera
 {
@@ -13,6 +15,7 @@ namespace Planet_IO.Camera
 		public UnityEngine.Camera Camera { get; private set; }
 
 		private Player _player;
+		private ILocalPlayerProvider _localPlayerProvider;
 		private float _zoomVelocity;
 		private float _cameraDepth;
 		private float _baseOrthographicSize;
@@ -36,9 +39,17 @@ namespace Planet_IO.Camera
 			_targetOrthographicSize = _baseOrthographicSize;
 		}
 
+		[Inject]
+		public void Construct(ILocalPlayerProvider localPlayerProvider)
+		{
+			_localPlayerProvider = localPlayerProvider;
+			_localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
+			OnLocalPlayerChanged(_localPlayerProvider.LocalPlayer);
+		}
+
 		private void LateUpdate()
 		{
-			if (!TryBindLocalPlayer())
+			if (_player == null || !_player.IsSpawned)
 			{
 				return;
 			}
@@ -61,33 +72,24 @@ namespace Planet_IO.Camera
 
 		private void OnDestroy()
 		{
+			if (_localPlayerProvider != null)
+			{
+				_localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
+			}
+
 			UnbindPlayer();
 		}
 
-		private bool TryBindLocalPlayer()
+		private void OnLocalPlayerChanged(Player player)
 		{
-			if (_player != null && _player.IsSpawned && _player.IsOwner)
-			{
-				return true;
-			}
-
 			UnbindPlayer();
-
-			foreach (Player candidate in FindObjectsByType<Player>(FindObjectsInactive.Exclude))
+			_player = player;
+			if (_player != null)
 			{
-				if (!candidate.IsSpawned || !candidate.IsOwner)
-				{
-					continue;
-				}
-
-				_player = candidate;
-				_baseCapacity = Mathf.Max(candidate.Capacity, 0.01f);
+				_baseCapacity = Mathf.Max(_player.Capacity, 0.01f);
 				_player.CapacityChanged += OnCapacityChanged;
-				OnCapacityChanged(candidate.Capacity);
-				return true;
+				OnCapacityChanged(_player.Capacity);
 			}
-
-			return false;
 		}
 
 		private void UnbindPlayer()

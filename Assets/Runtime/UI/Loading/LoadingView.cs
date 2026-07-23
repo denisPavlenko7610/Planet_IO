@@ -1,49 +1,51 @@
-using Planet_IO;
 using UnityEngine;
-using VContainer;
 
 namespace PlanetIO.UI.Loading
 {
-    public sealed class LoadingView : MonoBehaviour
+    public interface ILoadingView
     {
-        private INetworkSessionService _session;
+        void Render(float progress, string status);
+    }
+
+    public sealed class LoadingView : MonoBehaviour, ILoadingView
+    {
         private GUIStyle _titleStyle;
         private GUIStyle _statusStyle;
+        private float _progress;
+        private string _status = string.Empty;
 
-        [Inject]
-        public void Construct(INetworkSessionService session)
+        public void Render(float progress, string status)
         {
-            _session = session;
+            _progress = Mathf.Clamp01(progress);
+            _status = status ?? string.Empty;
         }
 
         private void OnGUI()
         {
-            if (_session == null)
-            {
-                return;
-            }
-
             EnsureStyles();
 
             float width = Mathf.Min(Screen.width * 0.72f, 720f);
-            float height = 28f;
+            const float height = 28f;
             float left = (Screen.width - width) * 0.5f;
             float top = Screen.height * 0.55f;
-            float progress = Mathf.Clamp01(_session.LoadingProgress);
 
             GUI.Label(
                 new Rect(left, top - 72f, width, 36f),
-                "Загрузка мультиплеерной сессии",
+                "Загрузка сессии",
                 _titleStyle);
 
             GUI.Box(new Rect(left, top, width, height), GUIContent.none);
             GUI.Box(
-                new Rect(left + 3f, top + 3f, (width - 6f) * progress, height - 6f),
+                new Rect(
+                    left + 3f,
+                    top + 3f,
+                    (width - 6f) * _progress,
+                    height - 6f),
                 GUIContent.none);
 
             GUI.Label(
                 new Rect(left, top + 38f, width, 28f),
-                $"{_session.Status}  {progress:P0}",
+                $"{_status}  {_progress:P0}",
                 _statusStyle);
         }
 

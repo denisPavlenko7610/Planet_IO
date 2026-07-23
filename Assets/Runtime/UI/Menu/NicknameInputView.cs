@@ -1,68 +1,55 @@
+using System;
+using Planet_IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Planet_IO
+namespace PlanetIO.UI.Menu
 {
-    public sealed class NicknameInputView : MonoBehaviour
+    public interface INicknameInputView
     {
-        private static readonly string[] RandomNicknames =
-        {
-            "Bob",
-            "Tom",
-            "Riki",
-            "Rock",
-            "Margaret",
-            "Monika"
-        };
+        event Action<string> NicknameChanged;
+        event Action RandomNicknameRequested;
 
+        void ShowNickname(string nickname);
+    }
+
+    public sealed class NicknameInputView : MonoBehaviour, INicknameInputView
+    {
         [SerializeField] private TMP_InputField _inputField;
-        [SerializeField] private Button _setRandomNickname;
+        [SerializeField] private Button _setRandomNicknameButton;
 
-        public string Nickname { get; private set; }
+        public event Action<string> NicknameChanged;
+        public event Action RandomNicknameRequested;
 
         private void OnEnable()
         {
-            if (_setRandomNickname != null)
-            {
-                _setRandomNickname.onClick.AddListener(SetRandomNickname);
-            }
-
-            if (_inputField != null)
-            {
-                _inputField.onEndEdit.AddListener(SetNickname);
-            }
-
-            SetRandomNickname();
+            _inputField.characterLimit = NicknameRules.MaximumLength;
+            _inputField.onEndEdit.AddListener(OnNicknameChanged);
+            _setRandomNicknameButton.onClick.AddListener(
+                OnRandomNicknameRequested);
         }
 
         private void OnDisable()
         {
-            if (_setRandomNickname != null)
-            {
-                _setRandomNickname.onClick.RemoveListener(SetRandomNickname);
-            }
-
-            if (_inputField != null)
-            {
-                _inputField.onEndEdit.RemoveListener(SetNickname);
-            }
+            _inputField.onEndEdit.RemoveListener(OnNicknameChanged);
+            _setRandomNicknameButton.onClick.RemoveListener(
+                OnRandomNicknameRequested);
         }
 
-        private void SetNickname(string nickname)
+        public void ShowNickname(string nickname)
         {
-            Nickname = nickname?.Trim() ?? string.Empty;
+            _inputField.SetTextWithoutNotify(nickname);
         }
 
-        private void SetRandomNickname()
+        private void OnNicknameChanged(string nickname)
         {
-            int index = Random.Range(0, RandomNicknames.Length);
-            SetNickname(RandomNicknames[index]);
+            NicknameChanged?.Invoke(nickname);
+        }
 
-            if (_inputField != null)
-            {
-                _inputField.SetTextWithoutNotify(Nickname);
-            }
+        private void OnRandomNicknameRequested()
+        {
+            RandomNicknameRequested?.Invoke();
         }
     }
 }

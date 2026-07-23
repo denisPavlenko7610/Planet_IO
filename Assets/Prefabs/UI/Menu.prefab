@@ -1914,4 +1914,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _inputField: {fileID: 4784340815134898039}
-  _setRandomNickname: {fileID: 8274958999591735222}
+  _setRandomNicknameButton: {fileID: 8274958999591735222}

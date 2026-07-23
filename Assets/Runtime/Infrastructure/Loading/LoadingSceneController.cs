@@ -7,16 +7,17 @@ namespace PlanetIO.Infrastructure.Loading
 {
     public sealed class LoadingSceneController : IStartable
     {
-        private readonly INetworkSessionService _session;
+        private readonly INetworkSessionService _networkSessionService;
 
-        public LoadingSceneController(INetworkSessionService session)
+        public LoadingSceneController(INetworkSessionService networkSessionService)
         {
-            _session = session;
+            _networkSessionService = networkSessionService
+                ?? throw new ArgumentNullException(nameof(networkSessionService));
         }
 
         public void Start()
         {
-            if (_session.IsServer)
+            if (_networkSessionService.IsServer)
             {
                 _ = ContinueToGameAsync();
             }
@@ -26,7 +27,7 @@ namespace PlanetIO.Infrastructure.Loading
         {
             try
             {
-                await _session.ContinueToGameAsync();
+                await _networkSessionService.ContinueToGameAsync();
             }
             catch (OperationCanceledException)
             {

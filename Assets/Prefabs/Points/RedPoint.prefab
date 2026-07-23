@@ -5,8 +5,13 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8613127092626588425, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1547737172
+      objectReference: {fileID: 0}
     - target: {fileID: 1100485805737312826, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
       propertyPath: m_Color.b
       value: 0.2
@@ -21,7 +26,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7519804484521273883, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
       propertyPath: m_Name
-      value: RedPoint 1
+      value: RedPoint
       objectReference: {fileID: 0}
     - target: {fileID: 8526295946806252870, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
       propertyPath: m_RootOrder
@@ -68,4 +73,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
