@@ -1,0 +1,18 @@
+{
+    "name": "PlanetIO.Gameplay",
+    "rootNamespace": "PlanetIO",
+    "references": [
+        "PlanetIO.Core",
+        "VContainer",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

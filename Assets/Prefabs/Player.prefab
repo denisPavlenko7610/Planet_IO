@@ -45,11 +45,11 @@ GameObject:
   - component: {fileID: 8517843457492819217}
   - component: {fileID: 8517843457492819226}
   - component: {fileID: 8517843457492819222}
-  - component: {fileID: 1292756762}
   - component: {fileID: 8045643209960618507}
   - component: {fileID: 6319454034253849638}
   - component: {fileID: -5148852992218740070}
   - component: {fileID: -8062910053270479930}
+  - component: {fileID: 7112992876354291134}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -183,9 +183,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 2
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &8517843457492819226
 MonoBehaviour:
@@ -200,8 +200,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MinCapacity>k__BackingField: 0.08
-  _maxCapacity: 10
-  scoreText: {fileID: 0}
+  _maxCapacity: 2
+  _foodGrowthMultiplier: 0.015
+  _cometDamageMultiplier: 0.02
+  _boostMassCost: 0.004
+  _borderMassLoss: 0.08
+  _eatEnemySizeRatio: 1.08
   _pointSpawnTransform: {fileID: 82095068}
 --- !u!114 &8517843457492819222
 MonoBehaviour:
@@ -215,26 +219,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e39014f46ffde44cb5478bc83ff5afa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Player>k__BackingField: {fileID: 8517843457492819226}
+  _player: {fileID: 8517843457492819226}
   _rigidbody2D: {fileID: 8517843457492819217}
-  _timeToTick: 1
+  _timeToTick: 0.15
+  _massSpeedPenalty: 0.35
+  _minimumSpeedMultiplier: 0.55
+  _turnSpeed: 540
   <NormalSpeed>k__BackingField: 4
   <BoostSpeed>k__BackingField: 8
---- !u!114 &1292756762
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8045643209477139654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfcb2bdfe70048c6b1ce4d79204d9097, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  <MinCapacity>k__BackingField: 0.08
-  _maxCapacity: 10
-  scoreText: {fileID: 0}
 --- !u!114 &8045643209960618507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,7 +264,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8045643209477139654}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df2868252ab5c4d1da357e8f11f1b524, type: 3}
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SyncPositionX: 1
@@ -289,6 +281,7 @@ MonoBehaviour:
   ScaleThreshold: 0.01
   InLocalSpace: 0
   Interpolate: 1
+  AuthorityMode: 1
 --- !u!114 &-8062910053270479930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,5 +292,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
+  UseRigidBodyForMotion: 1
+  AutoUpdateKinematicState: 1
+  AutoSetKinematicOnDespawn: 1
+--- !u!114 &7112992876354291134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11e299ed76ccfa44084008b5a2c6314c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:

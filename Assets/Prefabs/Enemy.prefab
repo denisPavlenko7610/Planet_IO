@@ -154,7 +154,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -162,9 +162,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!58 &2383583056927174935
 CircleCollider2D:
@@ -214,11 +214,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MinCapacity>k__BackingField: 0.08
-  _maxCapacity: 10
-  _enemyDate: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
+  _maxCapacity: 2
+  _enemyConfig: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
   _spriteRenderer: {fileID: 163752541173436847}
-  _cometsSpawnerLogics: {fileID: 0}
-  _pointsSpawnerLogics: {fileID: 0}
 --- !u!114 &2383583056927174933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,7 +257,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2383583056927174931}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df2868252ab5c4d1da357e8f11f1b524, type: 3}
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SyncPositionX: 1

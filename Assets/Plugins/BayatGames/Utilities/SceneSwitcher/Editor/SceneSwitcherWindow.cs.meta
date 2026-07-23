@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: faf2e24203c953349b39c8130eef9a75
+timeCreated: 1517136423
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110262
+  packageName: Scene Switcher Utility
+  packageVersion: 1.1.0
+  assetPath: Assets/BayatGames/Utilities/SceneSwitcher/Editor/SceneSwitcherWindow.cs
+  uploadId: 252648
