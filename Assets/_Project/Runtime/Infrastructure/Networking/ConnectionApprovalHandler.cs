@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using PlanetIO;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -12,8 +11,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         public ConnectionApprovalHandler(NetworkManager networkManager)
         {
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
         }
 
         public void ApproveRoomConnection(
@@ -27,25 +25,19 @@ namespace PlanetIO.Infrastructure.Networking
                 return;
             }
 
-            if (!TryDeserializePayload(
-                    request.Payload,
-                    out RoomConnectionPayload payload))
+            if (!TryDeserializePayload(request.Payload, out RoomConnectionPayload payload))
             {
                 Reject(response, "Invalid connection payload.");
                 return;
             }
 
-            if (!string.Equals(
-                    payload.Protocol,
-                    RoomRules.ProtocolVersion,
-                    StringComparison.Ordinal))
+            if (!string.Equals(payload.Protocol, RoomRules.ProtocolVersion, StringComparison.Ordinal))
             {
                 Reject(response, "Client version does not match room version.");
                 return;
             }
 
-            if (_networkManager.ConnectedClientsIds.Count >=
-                currentRoom.MaxPlayers)
+            if (_networkManager.ConnectedClientsIds.Count >= currentRoom.MaxPlayers)
             {
                 Reject(response, "Room is full.");
                 return;
@@ -54,9 +46,8 @@ namespace PlanetIO.Infrastructure.Networking
             Approve(response);
         }
 
-        public static void ApproveSinglePlayerConnection(
-            NetworkManager.ConnectionApprovalRequest request,
-            NetworkManager.ConnectionApprovalResponse response)
+        public static void ApproveSinglePlayerConnection(NetworkManager.ConnectionApprovalRequest request,
+			NetworkManager.ConnectionApprovalResponse response)
         {
             if (request.ClientNetworkId == NetworkManager.ServerClientId)
             {
@@ -68,8 +59,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
         }
 
-        public static void Approve(
-            NetworkManager.ConnectionApprovalResponse response)
+        public static void Approve(NetworkManager.ConnectionApprovalResponse response)
         {
             response.Approved = true;
             response.CreatePlayerObject = false;
@@ -77,9 +67,7 @@ namespace PlanetIO.Infrastructure.Networking
             response.Reason = string.Empty;
         }
 
-        public static void Reject(
-            NetworkManager.ConnectionApprovalResponse response,
-            string reason)
+        public static void Reject(NetworkManager.ConnectionApprovalResponse response, string reason)
         {
             response.Approved = false;
             response.CreatePlayerObject = false;
@@ -92,9 +80,7 @@ namespace PlanetIO.Infrastructure.Networking
             return Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload));
         }
 
-        public static bool TryDeserializePayload(
-            byte[] bytes,
-            out RoomConnectionPayload payload)
+        public static bool TryDeserializePayload(byte[] bytes, out RoomConnectionPayload payload)
         {
             payload = null;
             if (bytes == null || bytes.Length == 0)
@@ -104,8 +90,7 @@ namespace PlanetIO.Infrastructure.Networking
 
             try
             {
-                payload = JsonUtility.FromJson<RoomConnectionPayload>(
-                    Encoding.UTF8.GetString(bytes));
+                payload = JsonUtility.FromJson<RoomConnectionPayload>(Encoding.UTF8.GetString(bytes));
                 return payload != null;
             }
             catch (Exception)

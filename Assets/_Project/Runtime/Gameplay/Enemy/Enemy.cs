@@ -26,12 +26,9 @@ namespace PlanetIO
             IRespawnService<Point> pointRespawnService,
             IGameStateService gameStateService)
         {
-            CometRespawnService = cometRespawnService
-                ?? throw new ArgumentNullException(nameof(cometRespawnService));
-            PointRespawnService = pointRespawnService
-                ?? throw new ArgumentNullException(nameof(pointRespawnService));
-            _gameStateService = gameStateService
-                ?? throw new ArgumentNullException(nameof(gameStateService));
+            CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
+            PointRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
+            _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
             FoodGrowthMultiplier = _enemyFoodGrowthMultiplier;
             CometDamageMultiplier = _enemyCometDamageMultiplier;
             _servicesReady = true;

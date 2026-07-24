@@ -4,11 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace PlanetIO
 {
-    public sealed class AccelerationButton :
-        MonoBehaviour,
-        IPointerDownHandler,
-        IPointerUpHandler,
-        IPointerExitHandler,
+    public sealed class AccelerationButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
         IBoostInput
     {
         private bool _isPressed;

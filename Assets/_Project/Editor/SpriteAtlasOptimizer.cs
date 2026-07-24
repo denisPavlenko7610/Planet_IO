@@ -19,6 +19,7 @@ namespace PlanetIO.Editor
                 $"{AtlasDirectory}/Gameplay.spriteatlas",
                 "Assets/Sprites/Planets",
                 2048);
+
             ConfigureAtlas(
                 $"{AtlasDirectory}/Controls.spriteatlas",
                 "Assets/Sprites/Buttons",
@@ -34,8 +35,7 @@ namespace PlanetIO.Editor
             string sourceFolderPath,
             int maximumTextureSize)
         {
-            SpriteAtlas atlas =
-                AssetDatabase.LoadAssetAtPath<SpriteAtlas>(atlasPath);
+            SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(atlasPath);
             bool isNewAtlas = atlas == null;
             if (isNewAtlas)
             {
@@ -43,23 +43,20 @@ namespace PlanetIO.Editor
                 AssetDatabase.CreateAsset(atlas, atlasPath);
             }
 
-            SpriteAtlasPackingSettings packingSettings =
-                atlas.GetPackingSettings();
+            SpriteAtlasPackingSettings packingSettings = atlas.GetPackingSettings();
             packingSettings.enableRotation = false;
             packingSettings.enableTightPacking = true;
             packingSettings.padding = 4;
             atlas.SetPackingSettings(packingSettings);
 
-            SpriteAtlasTextureSettings textureSettings =
-                atlas.GetTextureSettings();
+            SpriteAtlasTextureSettings textureSettings = atlas.GetTextureSettings();
             textureSettings.generateMipMaps = false;
             textureSettings.readable = false;
             textureSettings.sRGB = true;
             textureSettings.filterMode = FilterMode.Bilinear;
             atlas.SetTextureSettings(textureSettings);
 
-            TextureImporterPlatformSettings androidSettings =
-                atlas.GetPlatformSettings("Android");
+            TextureImporterPlatformSettings androidSettings = atlas.GetPlatformSettings("Android");
             androidSettings.overridden = true;
             androidSettings.maxTextureSize = maximumTextureSize;
             androidSettings.format = TextureImporterFormat.ETC2_RGBA8;
@@ -68,13 +65,10 @@ namespace PlanetIO.Editor
 
             if (isNewAtlas)
             {
-                Object sourceFolder =
-                    AssetDatabase.LoadAssetAtPath<Object>(
-                        sourceFolderPath);
+                Object sourceFolder = AssetDatabase.LoadAssetAtPath<Object>(sourceFolderPath);
                 if (sourceFolder == null)
                 {
-                    throw new DirectoryNotFoundException(
-                        sourceFolderPath);
+                    throw new DirectoryNotFoundException(sourceFolderPath);
                 }
 
                 atlas.Add(new[] { sourceFolder });

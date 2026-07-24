@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -9,29 +8,23 @@ using Object = UnityEngine.Object;
 
 namespace PlanetIO.Infrastructure.Audio
 {
-    public sealed class AddressableMusicService :
-        IStartable,
-        IDisposable
+    public sealed class AddressableMusicService : IStartable, IDisposable
     {
         private const string MenuMusicAddress = "audio/mars";
         private const string GameMusicAddress = "audio/map";
         private const float MusicVolume = 0.35f;
         private const float FadeDurationSeconds = 0.25f;
 
-        private readonly IContentInitializationService
-            _contentInitializationService;
+        private readonly IContentInitializationService _contentInitializationService;
         private AudioSource _audioSource;
         private AsyncOperationHandle<AudioClip> _clipHandle;
         private string _currentAddress = string.Empty;
         private string _requestedAddress = string.Empty;
         private int _playGeneration;
 
-        public AddressableMusicService(
-            IContentInitializationService contentInitializationService)
+        public AddressableMusicService(IContentInitializationService contentInitializationService)
         {
-            _contentInitializationService = contentInitializationService
-                ?? throw new ArgumentNullException(
-                    nameof(contentInitializationService));
+            _contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
         }
 
         public void Start()
@@ -79,10 +72,7 @@ namespace PlanetIO.Infrastructure.Audio
                 return;
             }
 
-            if (string.Equals(
-                    address,
-                    _requestedAddress,
-                    StringComparison.Ordinal))
+            if (string.Equals(address, _requestedAddress, StringComparison.Ordinal))
             {
                 if (_audioSource != null &&
                     _audioSource.clip != null &&
@@ -98,9 +88,7 @@ namespace PlanetIO.Infrastructure.Audio
             _ = LoadAndPlayAsync(address, ++_playGeneration);
         }
 
-        private async Awaitable LoadAndPlayAsync(
-            string address,
-            int generation)
+        private async Awaitable LoadAndPlayAsync(string address, int generation)
         {
             AsyncOperationHandle<AudioClip> handle = default;
             bool ownershipTransferred = false;
@@ -125,10 +113,9 @@ namespace PlanetIO.Infrastructure.Audio
                     return;
                 }
 
-                if (handle.Status != AsyncOperationStatus.Succeeded ||
-                    handle.Result == null)
+                if (handle.Status != AsyncOperationStatus.Succeeded || handle.Result == null)
                 {
-                    Debug.LogWarning(
+                    LoggerIO.LogWarning(
                         $"Failed to load music '{address}': " +
                         $"{handle.OperationException?.Message}");
                     return;
@@ -152,11 +139,11 @@ namespace PlanetIO.Infrastructure.Audio
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception);
+                LoggerIO.LogException(exception);
             }
             finally
             {
@@ -165,17 +152,14 @@ namespace PlanetIO.Infrastructure.Audio
                     Addressables.Release(handle);
                 }
 
-                if (!ownershipTransferred &&
-                    generation == _playGeneration)
+                if (!ownershipTransferred && generation == _playGeneration)
                 {
                     _requestedAddress = _currentAddress;
                 }
             }
         }
 
-        private async Awaitable FadeToAsync(
-            float targetVolume,
-            int generation)
+        private async Awaitable FadeToAsync(float targetVolume, int generation)
         {
             if (_audioSource == null)
             {
@@ -185,19 +169,14 @@ namespace PlanetIO.Infrastructure.Audio
             float initialVolume = _audioSource.volume;
             float elapsed = 0f;
 
-            while (elapsed < FadeDurationSeconds &&
-                   generation == _playGeneration)
+            while (elapsed < FadeDurationSeconds && generation == _playGeneration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                _audioSource.volume = Mathf.Lerp(
-                    initialVolume,
-                    targetVolume,
-                    Mathf.Clamp01(elapsed / FadeDurationSeconds));
+                _audioSource.volume = Mathf.Lerp(initialVolume, targetVolume, Mathf.Clamp01(elapsed / FadeDurationSeconds));
                 await Awaitable.NextFrameAsync();
             }
 
-            if (generation == _playGeneration &&
-                _audioSource != null)
+            if (generation == _playGeneration && _audioSource != null)
             {
                 _audioSource.volume = targetVolume;
             }

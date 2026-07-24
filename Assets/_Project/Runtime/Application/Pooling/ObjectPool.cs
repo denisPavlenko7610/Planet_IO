@@ -35,7 +35,11 @@ namespace PlanetIO.ObjectPool
                 ActivatePooledObject,
                 DeactivatePooledObject,
                 DestroyPooledObject,
+#if UNITY_EDITOR
+				true,
+#else
                 false,
+#endif
                 Capacity,
                 MaximumPoolSize);
         }
@@ -44,12 +48,26 @@ namespace PlanetIO.ObjectPool
         {
             if (_pool == null)
             {
-                throw new InvalidOperationException(
-                    $"{GetType().Name} must be initialized before use.");
+                throw new InvalidOperationException($"{GetType().Name} must be initialized before use.");
             }
 
             return _pool.Get();
         }
+
+		public void Release(T pooledObject)
+		{
+			if (_pool == null)
+			{
+				throw new InvalidOperationException($"{GetType().Name} must be initialized before use.");
+			}
+
+			if (pooledObject == null)
+			{
+				return;
+			}
+
+			_pool.Release(pooledObject);
+		}
 
         protected virtual T CreatePooledObject()
         {

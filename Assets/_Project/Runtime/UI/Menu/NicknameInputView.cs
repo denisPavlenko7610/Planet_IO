@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,17 +25,14 @@ namespace PlanetIO.UI.Menu
         {
             if (_inputField == null || _setRandomNicknameButton == null)
             {
-                Debug.LogError(
-                    $"{nameof(NicknameInputView)} is not configured.",
-                    this);
+                LoggerIO.LogError($"{nameof(NicknameInputView)} is not configured.", this);
                 enabled = false;
                 return;
             }
 
             _inputField.characterLimit = NicknameRules.MaximumLength;
             _inputField.onEndEdit.AddListener(OnNicknameChanged);
-            _setRandomNicknameButton.onClick.AddListener(
-                OnRandomNicknameRequested);
+            _setRandomNicknameButton.onClick.AddListener(OnRandomNicknameRequested);
         }
 
         private void OnDisable()
@@ -47,14 +43,12 @@ namespace PlanetIO.UI.Menu
             }
 
             _inputField.onEndEdit.RemoveListener(OnNicknameChanged);
-            _setRandomNicknameButton.onClick.RemoveListener(
-                OnRandomNicknameRequested);
+            _setRandomNicknameButton.onClick.RemoveListener(OnRandomNicknameRequested);
         }
 
         public void ShowNickname(string nickname)
         {
-            _inputField?.SetTextWithoutNotify(
-                NicknameRules.Normalize(nickname));
+            _inputField?.SetTextWithoutNotify(NicknameRules.Normalize(nickname));
         }
 
         private void OnNicknameChanged(string nickname)

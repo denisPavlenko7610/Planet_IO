@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using UnityEngine;
 using VContainer.Unity;
 
@@ -11,8 +10,7 @@ namespace PlanetIO.Infrastructure.Loading
 
         public LoadingSceneController(INetworkSessionService networkSessionService)
         {
-            _networkSessionService = networkSessionService
-                ?? throw new ArgumentNullException(nameof(networkSessionService));
+            _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
         }
 
         public void Start()
@@ -31,7 +29,7 @@ namespace PlanetIO.Infrastructure.Loading
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
         }
     }

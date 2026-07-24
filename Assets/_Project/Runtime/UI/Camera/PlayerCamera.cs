@@ -49,20 +49,11 @@ namespace PlanetIO.Camera
             }
 
             Vector3 playerPosition = _player.transform.position;
-            Vector3 targetPosition = new(
-                playerPosition.x,
-                playerPosition.y,
-                _cameraDepth);
-            transform.position = Vector3.SmoothDamp(
-                transform.position,
-                targetPosition,
-                ref _positionVelocity,
+            Vector3 targetPosition = new(playerPosition.x, playerPosition.y, _cameraDepth);
+            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref _positionVelocity,
                 _positionSmoothTime);
 
-            Camera.orthographicSize = Mathf.SmoothDamp(
-                Camera.orthographicSize,
-                _targetOrthographicSize,
-                ref _zoomVelocity,
+            Camera.orthographicSize = Mathf.SmoothDamp(Camera.orthographicSize, _targetOrthographicSize, ref _zoomVelocity,
                 _zoomSmoothTime);
         }
 
@@ -87,8 +78,7 @@ namespace PlanetIO.Camera
                 return;
             }
 
-            _baseCapacity = Mathf.Max(
-                _player.Capacity, Constants.MinimumDisplayCapacity);
+            _baseCapacity = Mathf.Max(_player.Capacity, Constants.MinimumDisplayCapacity);
             _player.CapacityChanged += OnCapacityChanged;
             OnCapacityChanged(_player.Capacity);
         }
@@ -106,12 +96,8 @@ namespace PlanetIO.Camera
 
         private void OnCapacityChanged(float capacity)
         {
-            float additionalZoom =
-                Mathf.Max(0f, capacity - _baseCapacity) *
-                _zoomPerCapacityUnit;
-            _targetOrthographicSize = Mathf.Clamp(
-                _baseOrthographicSize + additionalZoom,
-                _baseOrthographicSize,
+            float additionalZoom = Mathf.Max(0f, capacity - _baseCapacity) * _zoomPerCapacityUnit;
+            _targetOrthographicSize = Mathf.Clamp(_baseOrthographicSize + additionalZoom, _baseOrthographicSize,
                 _maximumOrthographicSize);
         }
     }

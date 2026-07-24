@@ -43,8 +43,7 @@ namespace PlanetIO.UI.Hud
         {
             _arrowImage.enabled = true;
             _arrowImage.rectTransform.position = screenPosition;
-            _arrowImage.rectTransform.rotation =
-                Quaternion.Euler(0f, 0f, angle + _spriteAngleOffset);
+            _arrowImage.rectTransform.rotation = Quaternion.Euler(0f, 0f, angle + _spriteAngleOffset);
             _arrowImage.rectTransform.localScale = Vector3.one * scale;
         }
     }

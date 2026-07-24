@@ -5,11 +5,7 @@ using VContainer.Unity;
 
 namespace PlanetIO.Application
 {
-    public sealed class GameFlowService :
-        IGameStateService,
-        IStartable,
-        ITickable,
-        IDisposable
+    public sealed class GameFlowService : IGameStateService, IStartable, ITickable, IDisposable
     {
         private readonly PointSpawner _pointSpawner;
         private readonly CometSpawner _cometSpawner;
@@ -21,29 +17,16 @@ namespace PlanetIO.Application
         private bool _worldInitialized;
         private bool _disposed;
 
-        public GameFlowService(
-            PointSpawner pointSpawner,
-            CometSpawner cometSpawner,
-            EnemySpawner enemySpawner,
-            ObjectPool<Point> pointsPool,
-            ObjectPool<Comet> cometsPool,
-            ObjectPool<Enemy> enemyPool,
-            NetworkManager networkManager)
+        public GameFlowService(PointSpawner pointSpawner, CometSpawner cometSpawner, EnemySpawner enemySpawner, ObjectPool<Point> pointsPool,
+            ObjectPool<Comet> cometsPool, ObjectPool<Enemy> enemyPool, NetworkManager networkManager)
         {
-            _pointSpawner = pointSpawner
-                ?? throw new ArgumentNullException(nameof(pointSpawner));
-            _cometSpawner = cometSpawner
-                ?? throw new ArgumentNullException(nameof(cometSpawner));
-            _enemySpawner = enemySpawner
-                ?? throw new ArgumentNullException(nameof(enemySpawner));
-            _pointsPool = pointsPool
-                ?? throw new ArgumentNullException(nameof(pointsPool));
-            _cometsPool = cometsPool
-                ?? throw new ArgumentNullException(nameof(cometsPool));
-            _enemyPool = enemyPool
-                ?? throw new ArgumentNullException(nameof(enemyPool));
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
+            _pointSpawner = pointSpawner ?? throw new ArgumentNullException(nameof(pointSpawner));
+            _cometSpawner = cometSpawner ?? throw new ArgumentNullException(nameof(cometSpawner));
+            _enemySpawner = enemySpawner ?? throw new ArgumentNullException(nameof(enemySpawner));
+            _pointsPool = pointsPool ?? throw new ArgumentNullException(nameof(pointsPool));
+            _cometsPool = cometsPool ?? throw new ArgumentNullException(nameof(cometsPool));
+            _enemyPool = enemyPool ?? throw new ArgumentNullException(nameof(enemyPool));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
         }
 
         public event Action<GameState, GameState> StateChanged;

@@ -33,8 +33,7 @@ namespace PlanetIO.UI.Loading
 
             if (_statusText != null)
             {
-                _statusText.text =
-                    $"{status ?? string.Empty}  {normalizedProgress:P0}";
+                _statusText.text = $"{status ?? string.Empty}  {normalizedProgress:P0}";
             }
         }
 
@@ -45,7 +44,14 @@ namespace PlanetIO.UI.Loading
                 return;
             }
 
-            GameObject canvasObject = new("LoadingCanvas");
+            GameObject canvasObject = new("LoadingCanvas")
+			{
+				hideFlags = HideFlags.None,
+				layer = 0,
+				isStatic = false,
+				tag = null
+			};
+
             canvasObject.transform.SetParent(transform, false);
             Canvas canvas = canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -53,17 +59,11 @@ namespace PlanetIO.UI.Loading
 
             CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution =
-                new Vector2(ReferenceWidth, ReferenceHeight);
-            scaler.screenMatchMode =
-                CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.referenceResolution = new Vector2(ReferenceWidth, ReferenceHeight);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f;
 
-            RectTransform background = CreateRect(
-                "Background",
-                canvasObject.transform,
-                Vector2.zero,
-                Vector2.one);
+            RectTransform background = CreateRect("Background", canvasObject.transform, Vector2.zero, Vector2.one);
             Image backgroundImage = background.gameObject.AddComponent<Image>();
             backgroundImage.color = new Color(0.025f, 0.035f, 0.08f, 1f);
 

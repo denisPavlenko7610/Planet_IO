@@ -14,8 +14,7 @@ namespace PlanetIO.UI.Mobile
 
         public static void AttachTo(RectTransform target)
         {
-            if (target != null &&
-                target.GetComponent<SafeAreaElement>() == null)
+            if (target != null && target.GetComponent<SafeAreaElement>() == null)
             {
                 target.gameObject.AddComponent<SafeAreaElement>();
             }
@@ -31,8 +30,7 @@ namespace PlanetIO.UI.Mobile
 
         private void Update()
         {
-            if (SafeAreaHelper.HasScreenChanged(
-                    ref _lastSafeArea, ref _lastScreenSize))
+            if (SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize))
             {
                 Apply();
             }
@@ -48,9 +46,7 @@ namespace PlanetIO.UI.Mobile
             }
 
             Rect safeArea = Screen.safeArea;
-            float scaleFactor = Mathf.Max(
-                _canvas != null ? _canvas.scaleFactor : 1f,
-                0.01f);
+            float scaleFactor = Mathf.Max(_canvas != null ? _canvas.scaleFactor : 1f, 0.01f);
             float left = safeArea.xMin / scaleFactor;
             float right = (Screen.width - safeArea.xMax) / scaleFactor;
             float bottom = safeArea.yMin / scaleFactor;

@@ -17,14 +17,12 @@ namespace PlanetIO
 
         public event Action<string> NicknameChanged;
 
-        public string Nickname =>
-            NicknameRules.Normalize(_networkNickname.Value.ToString());
+        public string Nickname => NicknameRules.Normalize(_networkNickname.Value.ToString());
 
         [Inject]
         public void Construct(IPlayerProfileService playerProfileService)
         {
-            _playerProfileService = playerProfileService
-                ?? throw new ArgumentNullException(nameof(playerProfileService));
+            _playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
         }
 
         public override void OnNetworkSpawn()
@@ -48,8 +46,7 @@ namespace PlanetIO
 
         private void PublishLocalNickname()
         {
-            string nickname = NicknameRules.Normalize(
-                _playerProfileService?.Nickname);
+            string nickname = NicknameRules.Normalize(_playerProfileService?.Nickname);
             FixedString64Bytes serializedNickname = new(nickname);
 
             if (IsServer)
@@ -65,16 +62,14 @@ namespace PlanetIO
         [Rpc(SendTo.Server)]
         private void SubmitNicknameRpc(FixedString64Bytes nickname)
         {
-            _networkNickname.Value = new FixedString64Bytes(
-                NicknameRules.Normalize(nickname.ToString()));
+            _networkNickname.Value = new FixedString64Bytes(NicknameRules.Normalize(nickname.ToString()));
         }
 
         private void OnNetworkNicknameChanged(
             FixedString64Bytes previousNickname,
             FixedString64Bytes currentNickname)
         {
-            NicknameChanged?.Invoke(
-                NicknameRules.Normalize(currentNickname.ToString()));
+            NicknameChanged?.Invoke(NicknameRules.Normalize(currentNickname.ToString()));
         }
     }
 }

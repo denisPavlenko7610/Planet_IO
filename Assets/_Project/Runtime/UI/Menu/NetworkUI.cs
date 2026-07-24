@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using PlanetIO.UI.Mobile;
 using TMPro;
 using UnityEngine;
@@ -54,8 +53,7 @@ namespace PlanetIO.UI.Menu
         {
             _hostButton?.onClick.RemoveListener(OnHostRequested);
             _clientButton?.onClick.RemoveListener(OnJoinRequested);
-            _singlePlayerButton?.onClick.RemoveListener(
-                OnSinglePlayerRequested);
+            _singlePlayerButton?.onClick.RemoveListener(OnSinglePlayerRequested);
         }
 
         public void SetInteractionEnabled(bool interactionEnabled)
@@ -107,27 +105,18 @@ namespace PlanetIO.UI.Menu
             }
 
             Transform controlsRoot = _hostButton.transform.parent;
-            TMP_InputField inputTemplate =
-                controlsRoot.GetComponentInChildren<TMP_InputField>(true);
+            TMP_InputField inputTemplate = controlsRoot.GetComponentInChildren<TMP_InputField>(true);
             if (inputTemplate == null)
             {
-                Debug.LogError(
-                    $"{nameof(NetworkUI)} needs a TMP input template.",
-                    this);
+                LoggerIO.LogError($"{nameof(NetworkUI)} needs a TMP input template.", this);
                 return;
             }
 
             ConfigureLayout(controlsRoot);
 
             int insertionIndex = _hostButton.transform.GetSiblingIndex();
-            _joinCodeInput ??= CreateInput(
-                inputTemplate,
-                controlsRoot,
-                "JoinCodeInput",
-                "Room code (from a friend)",
-                string.Empty,
-                TMP_InputField.ContentType.Alphanumeric,
-                RoomRules.MaximumRoomCodeLength,
+            _joinCodeInput ??= CreateInput(inputTemplate, controlsRoot, "JoinCodeInput", "Room code (from a friend)",
+                string.Empty, TMP_InputField.ContentType.Alphanumeric, RoomRules.MaximumRoomCodeLength,
                 insertionIndex);
 
             SetButtonLabels();
@@ -162,8 +151,7 @@ namespace PlanetIO.UI.Menu
                 return;
             }
 
-            TMP_Text labelTemplate =
-                _hostButton.GetComponentInChildren<TMP_Text>(true);
+            TMP_Text labelTemplate = _hostButton.GetComponentInChildren<TMP_Text>(true);
             _statusText = Instantiate(labelTemplate, controlsRoot);
             _statusText.name = "ConnectionStatus";
             _statusText.text = "Click \"Create Room\" or enter a code";
@@ -190,14 +178,8 @@ namespace PlanetIO.UI.Menu
             }
         }
 
-        private static TMP_InputField CreateInput(
-            TMP_InputField template,
-            Transform parent,
-            string objectName,
-            string placeholder,
-            string initialValue,
-            TMP_InputField.ContentType contentType,
-            int characterLimit,
+        private static TMP_InputField CreateInput(TMP_InputField template, Transform parent, string objectName,
+            string placeholder, string initialValue, TMP_InputField.ContentType contentType, int characterLimit,
             int siblingIndex)
         {
             TMP_InputField input = Instantiate(template, parent);
@@ -265,8 +247,7 @@ namespace PlanetIO.UI.Menu
         {
             foreach (Transform child in controlsRoot)
             {
-                LayoutElement layoutElement =
-                    child.GetComponent<LayoutElement>() ??
+                LayoutElement layoutElement = child.GetComponent<LayoutElement>() ??
                     child.gameObject.AddComponent<LayoutElement>();
                 layoutElement.flexibleHeight = 0f;
 

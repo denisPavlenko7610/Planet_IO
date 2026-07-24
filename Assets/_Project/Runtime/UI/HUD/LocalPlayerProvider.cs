@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using Unity.Netcode;
 using VContainer.Unity;
 
@@ -12,17 +11,13 @@ namespace PlanetIO.UI.Hud
         Player LocalPlayer { get; }
     }
 
-    public sealed class LocalPlayerProvider :
-        ILocalPlayerProvider,
-        ITickable,
-        IDisposable
+    public sealed class LocalPlayerProvider : ILocalPlayerProvider, ITickable, IDisposable
     {
         private readonly NetworkManager _networkManager;
 
         public LocalPlayerProvider(NetworkManager networkManager)
         {
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
         }
 
         public event Action<Player> LocalPlayerChanged;
@@ -52,9 +47,7 @@ namespace PlanetIO.UI.Hud
             NetworkObject playerObject =
                 _networkManager.LocalClient?.PlayerObject;
 
-            return playerObject != null &&
-                   playerObject.IsSpawned &&
-                   playerObject.TryGetComponent(out Player player)
+            return playerObject != null && playerObject.IsSpawned && playerObject.TryGetComponent(out Player player)
                 ? player
                 : null;
         }

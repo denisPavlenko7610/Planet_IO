@@ -40,15 +40,11 @@ namespace PlanetIO
         }
 
         [Inject]
-        public void Construct(
-            IBoostInput boostInput,
-            IGameStateService gameStateService)
+        public void Construct(IBoostInput boostInput, IGameStateService gameStateService)
         {
             UnsubscribeBoostInput();
-            _boostInput = boostInput
-                ?? throw new ArgumentNullException(nameof(boostInput));
-            _gameStateService = gameStateService
-                ?? throw new ArgumentNullException(nameof(gameStateService));
+            _boostInput = boostInput ?? throw new ArgumentNullException(nameof(boostInput));
+            _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
 
             if (isActiveAndEnabled)
             {
@@ -85,11 +81,9 @@ namespace PlanetIO
             UpdateDirection();
 
             float targetSpeed = _isBoosting ? _boostSpeed : _normalSpeed;
-            float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(
-                _player.Capacity,
-                _player.MinimumCapacity,
-                _massSpeedPenalty,
-                _minimumSpeedMultiplier);
+            float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(_player.Capacity, _player.MinimumCapacity,
+                _massSpeedPenalty, _minimumSpeedMultiplier);
+
             _currentSpeed = targetSpeed * speedMultiplier;
             Move();
         }
@@ -102,8 +96,7 @@ namespace PlanetIO
             }
 
             Vector2 normalizedDirection = Direction.normalized;
-            transform.rotation =
-                Constants.DirectionToRotation(normalizedDirection);
+            transform.rotation = Constants.DirectionToRotation(normalizedDirection);
             _rigidbody2D.linearVelocity = normalizedDirection * _currentSpeed;
         }
 
@@ -123,11 +116,8 @@ namespace PlanetIO
                 return;
             }
 
-            Direction = Vector3.RotateTowards(
-                Direction,
-                _desiredDirection,
-                _turnSpeed * Mathf.Deg2Rad * Time.fixedDeltaTime,
-                0f).normalized;
+            Direction = Vector3.RotateTowards(Direction, _desiredDirection,
+				_turnSpeed * Mathf.Deg2Rad * Time.fixedDeltaTime, 0f).normalized;
         }
 
         private void SubscribeBoostInput()
@@ -184,8 +174,7 @@ namespace PlanetIO
 
             try
             {
-                while (_isBoosting &&
-                       generation == _boostGeneration)
+                while (_isBoosting && generation == _boostGeneration)
                 {
                     if (!_player.CanBoost)
                     {
@@ -201,7 +190,7 @@ namespace PlanetIO
             }
             catch (OperationCanceledException)
             {
-                // The player was destroyed while the boost loop was awaiting its next tick.
+				LoggerIO.LogError("The player was destroyed while the boost loop was awaiting its next tick");
             }
         }
     }

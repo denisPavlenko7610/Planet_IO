@@ -19,7 +19,7 @@ namespace PlanetIO
                 (roomCode ?? string.Empty)
                 .Trim()
                 .ToUpperInvariant()
-                .Where(character => char.IsLetterOrDigit(character))
+                .Where(char.IsLetterOrDigit)
                 .Take(MaximumRoomCodeLength)
                 .ToArray());
 
@@ -29,8 +29,7 @@ namespace PlanetIO
         public static bool IsValidRoomCode(string roomCode)
         {
             string normalized = NormalizeRoomCode(roomCode);
-            return normalized.Length >= MinimumRoomCodeLength &&
-                   normalized.Length <= MaximumRoomCodeLength;
+            return normalized.Length >= MinimumRoomCodeLength && normalized.Length <= MaximumRoomCodeLength;
         }
 
         public static int ClampMaxPlayers(int maxPlayers) =>
@@ -52,9 +51,7 @@ namespace PlanetIO
                 return false;
             }
 
-            settings = new RoomConnectionSettings(
-                normalizedRoomCode,
-                DefaultMaxPlayers);
+            settings = new RoomConnectionSettings(normalizedRoomCode, DefaultMaxPlayers);
             validationError = string.Empty;
             return true;
         }

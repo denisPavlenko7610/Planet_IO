@@ -5,9 +5,7 @@ using VContainer;
 
 namespace PlanetIO
 {
-    public sealed class CometSpawner :
-        Spawner<Comet>,
-        IRespawnService<Comet>
+    public sealed class CometSpawner : Spawner<Comet>, IRespawnService<Comet>
     {
         [SerializeField] private BordersTrigger _bordersTrigger;
 
@@ -16,8 +14,7 @@ namespace PlanetIO
         [Inject]
         public void Construct(NetworkManager networkManager)
         {
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
         }
 
         private void OnEnable()

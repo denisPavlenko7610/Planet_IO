@@ -1,5 +1,4 @@
 ﻿using PlanetIO.Core.Attributes;
-using PlanetIO;
 using PlanetIO.Application;
 using PlanetIO.ObjectPool;
 using PlanetIO.UI.Hud;
@@ -63,12 +62,15 @@ namespace PlanetIO.Infrastructure.DependencyInjection
                 .AsSelf()
                 .As<IRespawnService<Point>>()
                 .As<ISpawnService<Point>>();
+
             builder.RegisterComponent(_cometSpawner)
                 .AsSelf()
                 .As<IRespawnService<Comet>>();
+
             builder.RegisterComponent(_enemySpawner)
                 .AsSelf()
                 .As<IRespawnService<Enemy>>();
+
             builder.RegisterComponent(_restartGame);
             builder.RegisterInstance(_playerPrefab);
             builder.RegisterComponentInHierarchy<BordersTrigger>();
@@ -79,15 +81,19 @@ namespace PlanetIO.Infrastructure.DependencyInjection
             builder.RegisterEntryPoint<GameFlowService>()
                 .AsSelf()
                 .As<IGameStateService>();
+
             builder.RegisterEntryPoint<NetworkPlayerSpawner>();
 
             builder.RegisterComponentInHierarchy<ScoreText>()
                 .As<IScoreView>();
+
             builder.RegisterComponentInHierarchy<Arrow>()
                 .As<IDirectionArrowView>();
+
             builder.RegisterComponentInHierarchy<PlayerCamera>();
             builder.RegisterEntryPoint<LocalPlayerProvider>()
                 .As<ILocalPlayerProvider>();
+
             builder.RegisterEntryPoint<ScorePresenter>();
             builder.RegisterEntryPoint<DirectionArrowPresenter>();
             builder.RegisterEntryPoint<PlayerNicknamePresenter>();

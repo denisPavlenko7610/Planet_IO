@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
@@ -12,10 +11,7 @@ using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Networking
 {
-    public sealed class NetworkSessionService :
-        INetworkSessionService,
-        IStartable,
-        IDisposable
+    public sealed class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
     {
         private const float ClientConnectionTimeoutSeconds = 8f;
         private const float PostLoadDelaySeconds = 0.25f;
@@ -27,29 +23,27 @@ namespace PlanetIO.Infrastructure.Networking
         private readonly NetworkManager _networkManager;
         private readonly ConnectionApprovalHandler _approvalHandler;
         private NetworkSceneManager _networkSceneManager;
+		private readonly IPlayerProfileService _playerProfileService;
+
         private int _progressGeneration;
         private bool _subscribed;
         private bool _shutdownRequested;
         private bool _recoveringFromDisconnect;
         private bool _ugsInitialized;
 
-        public NetworkSessionService(
-            NetworkManager networkManager)
+        public NetworkSessionService(NetworkManager networkManager, IPlayerProfileService playerProfileService)
         {
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _approvalHandler = new ConnectionApprovalHandler(networkManager);
+			_playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
         }
 
         public event Action<float> LoadingProgressChanged;
         public event Action<NetworkSessionState, string> StateChanged;
 
-        public NetworkSessionState State { get; private set; } =
-            NetworkSessionState.Offline;
-        public NetworkSessionMode Mode { get; private set; } =
-            NetworkSessionMode.None;
-        public RoomConnectionSettings CurrentRoom { get; private set; } =
-            RoomConnectionSettings.Default;
+        public NetworkSessionState State { get; private set; } = NetworkSessionState.Offline;
+        public NetworkSessionMode Mode { get; private set; } = NetworkSessionMode.None;
+        public RoomConnectionSettings CurrentRoom { get; private set; } = RoomConnectionSettings.Default;
         public string Status { get; private set; } = "Ready to connect";
         public float LoadingProgress { get; private set; }
         public bool IsServer => _networkManager != null && _networkManager.IsServer;
@@ -68,9 +62,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             Mode = NetworkSessionMode.Host;
-            SetState(
-                NetworkSessionState.StartingHost,
-                "Creating room...");
+            SetState(NetworkSessionState.StartingHost, "Creating room...");
 
             try
             {
@@ -84,14 +76,10 @@ namespace PlanetIO.Infrastructure.Networking
 
                 ConfigureTransportForRelay(allocation);
 
-                CurrentRoom = new RoomConnectionSettings(
-                    joinCode,
-                    maxPlayers);
+                CurrentRoom = new RoomConnectionSettings(joinCode, maxPlayers);
 
-                _networkManager.ConnectionApprovalCallback =
-                    (request, response) =>
-                        _approvalHandler.ApproveRoomConnection(
-                            request, response, CurrentRoom);
+                _networkManager.ConnectionApprovalCallback = (request, response) =>
+                        _approvalHandler.ApproveRoomConnection(request, response, CurrentRoom);
 
                 if (!_networkManager.StartHost())
                 {
@@ -111,15 +99,13 @@ namespace PlanetIO.Infrastructure.Networking
                     return false;
                 }
 
-                SetState(
-                    NetworkSessionState.StartingHost,
-                    $"Room created. Code: {joinCode}");
+                SetState(NetworkSessionState.StartingHost, $"Room created. Code: {joinCode}");
 
                 return LoadNetworkScene(SceneNames.Loading);
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception);
+                LoggerIO.LogException(exception);
                 FailStart($"Failed to create room: {exception.Message}");
                 return false;
             }
@@ -140,9 +126,7 @@ namespace PlanetIO.Infrastructure.Networking
 
             Mode = NetworkSessionMode.Client;
             _networkManager.ConnectionApprovalCallback = null;
-            SetState(
-                NetworkSessionState.StartingClient,
-                $"Connecting to {relayJoinCode}...");
+            SetState(NetworkSessionState.StartingClient, $"Connecting to {relayJoinCode}...");
 
             try
             {
@@ -153,9 +137,15 @@ namespace PlanetIO.Infrastructure.Networking
 
                 ConfigureTransportForRelay(joinAllocation);
 
-                CurrentRoom = new RoomConnectionSettings(
-                    relayJoinCode.Trim(),
-                    RoomRules.DefaultMaxPlayers);
+                CurrentRoom = new RoomConnectionSettings(relayJoinCode.Trim(), RoomRules.DefaultMaxPlayers);
+
+				ConnectionApprovalHandler.RoomConnectionPayload payload = new ConnectionApprovalHandler.RoomConnectionPayload
+				{
+					Protocol = RoomRules.ProtocolVersion,
+					Nickname = _playerProfileService.Nickname
+				};
+
+				_networkManager.NetworkConfig.ConnectionData = ConnectionApprovalHandler.SerializePayload(payload);
 
                 if (!_networkManager.StartClient())
                 {
@@ -164,12 +154,9 @@ namespace PlanetIO.Infrastructure.Networking
                 }
 
                 SubscribeSceneManager();
-                SetState(
-                    NetworkSessionState.Connecting,
-                    $"Joining room {relayJoinCode}");
+                SetState(NetworkSessionState.Connecting, $"Joining room {relayJoinCode}");
 
-                float connectionDeadline =
-                    Time.realtimeSinceStartup + ClientConnectionTimeoutSeconds;
+                float connectionDeadline = Time.realtimeSinceStartup + ClientConnectionTimeoutSeconds;
 
                 while (Time.realtimeSinceStartup < connectionDeadline)
                 {
@@ -191,8 +178,7 @@ namespace PlanetIO.Infrastructure.Networking
                     return true;
                 }
 
-                string failureReason = string.IsNullOrWhiteSpace(
-                    _networkManager.DisconnectReason)
+                string failureReason = string.IsNullOrWhiteSpace(_networkManager.DisconnectReason)
                     ? $"Room did not respond within {ClientConnectionTimeoutSeconds:0}s."
                     : _networkManager.DisconnectReason;
 
@@ -202,7 +188,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception);
+                LoggerIO.LogException(exception);
                 FailStart($"Connection error: {exception.Message}");
                 return false;
             }
@@ -210,9 +196,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         public async Awaitable<bool> StartSinglePlayerAsync()
         {
-            RoomConnectionSettings singlePlayerRoom = new(
-                "SOLO",
-                1);
+            RoomConnectionSettings singlePlayerRoom = new("SOLO", 1);
 
             if (!CanStartSession())
             {
@@ -221,11 +205,8 @@ namespace PlanetIO.Infrastructure.Networking
 
             CurrentRoom = singlePlayerRoom;
             Mode = NetworkSessionMode.SinglePlayer;
-            SetState(
-                NetworkSessionState.StartingSinglePlayer,
-                "Starting single player");
-            _networkManager.ConnectionApprovalCallback =
-                ConnectionApprovalHandler.ApproveSinglePlayerConnection;
+            SetState(NetworkSessionState.StartingSinglePlayer, "Starting single player");
+            _networkManager.ConnectionApprovalCallback = ConnectionApprovalHandler.ApproveSinglePlayerConnection;
 
             if (!_networkManager.StartHost())
             {
@@ -241,8 +222,7 @@ namespace PlanetIO.Infrastructure.Networking
 
             if (!_networkManager.IsListening || !_networkManager.IsServer)
             {
-                FailStart(
-                    "Single player did not transition to Listening state");
+                FailStart("Single player did not transition to Listening state");
                 return false;
             }
 
@@ -263,8 +243,7 @@ namespace PlanetIO.Infrastructure.Networking
                     await Awaitable.NextFrameAsync();
                 }
 
-                await Awaitable.WaitForSecondsAsync(
-                    PostLoadDelaySeconds);
+                await Awaitable.WaitForSecondsAsync(PostLoadDelaySeconds);
             }
             catch (OperationCanceledException)
             {
@@ -282,21 +261,18 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             _shutdownRequested = true;
-            SetState(
-                NetworkSessionState.ShuttingDown,
-                "Shutting down network session");
+            SetState(NetworkSessionState.ShuttingDown, "Shutting down network session");
 
             await StopNetworkManagerAsync();
             _networkManager.ConnectionApprovalCallback = null;
+			_networkManager.NetworkConfig.ConnectionData = Array.Empty<byte>();
 
             IsSceneEventInProgress = false;
             SetProgress(0f);
 
             try
             {
-                await SceneManager.LoadSceneAsync(
-                    SceneNames.Menu,
-                    LoadSceneMode.Single);
+                await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
             }
             catch (OperationCanceledException)
             {
@@ -306,9 +282,7 @@ namespace PlanetIO.Infrastructure.Networking
             _shutdownRequested = false;
             Mode = NetworkSessionMode.None;
             CurrentRoom = RoomConnectionSettings.Default;
-            SetState(
-                NetworkSessionState.Offline,
-                "Ready to connect");
+            SetState(NetworkSessionState.Offline, "Ready to connect");
         }
 
         public void Dispose()
@@ -337,18 +311,16 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception);
+                LoggerIO.LogException(exception);
                 throw;
             }
         }
 
         private UnityTransport GetRelayTransport()
         {
-            if (_networkManager.NetworkConfig.NetworkTransport is not
-                UnityTransport transport)
+            if (_networkManager.NetworkConfig.NetworkTransport is not UnityTransport transport)
             {
-                throw new InvalidOperationException(
-                    "Relay requires Unity Transport");
+                throw new InvalidOperationException("Relay requires Unity Transport");
             }
 
             return transport;
@@ -356,24 +328,19 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void ConfigureTransportForRelay(Allocation allocation)
         {
-            GetRelayTransport().SetRelayServerData(
-                AllocationUtils.ToRelayServerData(allocation, "dtls"));
+            GetRelayTransport().SetRelayServerData(allocation.ToRelayServerData("dtls"));
         }
 
         private void ConfigureTransportForRelay(JoinAllocation joinAllocation)
         {
-            GetRelayTransport().SetRelayServerData(
-                AllocationUtils.ToRelayServerData(joinAllocation, "dtls"));
+            GetRelayTransport().SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
         }
 
         private bool CanStartSession()
         {
-            if (_networkManager.IsListening ||
-                _networkManager.ShutdownInProgress)
+            if (_networkManager.IsListening || _networkManager.ShutdownInProgress)
             {
-                SetState(
-                    NetworkSessionState.Failed,
-                    "Network session is already running or shutting down");
+                SetState(NetworkSessionState.Failed, "Network session is already running or shutting down");
                 return false;
             }
 
@@ -386,6 +353,8 @@ namespace PlanetIO.Infrastructure.Networking
         {
             Mode = NetworkSessionMode.None;
             _networkManager.ConnectionApprovalCallback = null;
+			_networkManager.NetworkConfig.ConnectionData = Array.Empty<byte>();
+
             SetState(NetworkSessionState.Failed, reason);
         }
 
@@ -406,7 +375,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
         }
 
@@ -425,33 +394,23 @@ namespace PlanetIO.Infrastructure.Networking
 
         private bool LoadNetworkScene(string sceneName)
         {
-            if (!_networkManager.IsServer ||
-                _networkManager.SceneManager == null)
+            if (!_networkManager.IsServer || _networkManager.SceneManager == null)
             {
-                SetState(
-                    NetworkSessionState.Failed,
-                    "NetworkSceneManager is not ready yet");
+                SetState(NetworkSessionState.Failed, "NetworkSceneManager is not ready yet");
                 return false;
             }
 
-            SceneEventProgressStatus result =
-                _networkManager.SceneManager.LoadScene(
-                    sceneName,
-                    LoadSceneMode.Single);
+            SceneEventProgressStatus result = _networkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
 
             if (result != SceneEventProgressStatus.Started)
             {
-                SetState(
-                    NetworkSessionState.Failed,
-                    $"Failed to load scene {sceneName}: {result}");
+                SetState(NetworkSessionState.Failed, $"Failed to load scene {sceneName}: {result}");
                 return false;
             }
 
             IsSceneEventInProgress = true;
             SetProgress(ProgressInitial);
-            SetState(
-                NetworkSessionState.Loading,
-                $"Loading scene {sceneName}");
+            SetState(NetworkSessionState.Loading, $"Loading scene {sceneName}");
             return true;
         }
 
@@ -517,30 +476,24 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void OnClientConnected(ulong clientId)
         {
-            if (clientId == _networkManager.LocalClientId &&
-                !_networkManager.IsServer)
+            if (clientId == _networkManager.LocalClientId && !_networkManager.IsServer)
             {
-                SetState(
-                    NetworkSessionState.Connecting,
-                    $"Room {CurrentRoom.RoomCode} accepted connection");
+                SetState(NetworkSessionState.Connecting, $"Room {CurrentRoom.RoomCode} accepted connection");
             }
         }
 
         private void OnClientDisconnected(ulong clientId)
         {
-            if (clientId != _networkManager.LocalClientId ||
-                _shutdownRequested)
+            if (clientId != _networkManager.LocalClientId || _shutdownRequested)
             {
                 return;
             }
 
-            string reason = string.IsNullOrWhiteSpace(
-                _networkManager.DisconnectReason)
+            string reason = string.IsNullOrWhiteSpace(_networkManager.DisconnectReason)
                 ? "Connection to room closed"
                 : _networkManager.DisconnectReason;
-            bool shouldReturnToMenu =
-                State is NetworkSessionState.Loading or
-                    NetworkSessionState.InGame;
+
+            bool shouldReturnToMenu = State is NetworkSessionState.Loading or NetworkSessionState.InGame;
             SetState(NetworkSessionState.Failed, reason);
 
             if (shouldReturnToMenu && !_recoveringFromDisconnect)
@@ -555,13 +508,11 @@ namespace PlanetIO.Infrastructure.Networking
             try
             {
                 await ShutdownAndReturnToMenuAsync();
-                SetState(
-                    NetworkSessionState.Failed,
-                    $"Connection lost: {reason}");
+                SetState(NetworkSessionState.Failed, $"Connection lost: {reason}");
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
             finally
             {
@@ -594,10 +545,10 @@ namespace PlanetIO.Infrastructure.Networking
                 case SceneEventType.LoadEventCompleted:
                     IsSceneEventInProgress = false;
                     SetProgress(1f);
-                    SetState(
-                        sceneEvent.SceneName == SceneNames.Game
+                    SetState(sceneEvent.SceneName == SceneNames.Game
                             ? NetworkSessionState.InGame
                             : NetworkSessionState.Loading,
+
                         sceneEvent.SceneName == SceneNames.Game
                             ? $"Room {CurrentRoom.RoomCode}: game loaded"
                             : "Preparing game world");
@@ -605,8 +556,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
         }
 
-        private async Awaitable TrackAsyncOperationAsync(
-            AsyncOperation operation)
+        private async Awaitable TrackAsyncOperationAsync(AsyncOperation operation)
         {
             if (operation == null)
             {
@@ -617,19 +567,16 @@ namespace PlanetIO.Infrastructure.Networking
 
             try
             {
-                while (!operation.isDone &&
-                       generation == _progressGeneration)
+                while (!operation.isDone && generation == _progressGeneration)
                 {
-                    float normalized =
-                        Mathf.Clamp01(operation.progress / ProgressTrackMax);
-                    SetProgress(
-                        Mathf.Lerp(ProgressSceneLoading, ProgressTrackMax, normalized));
+                    float normalized = Mathf.Clamp01(operation.progress / ProgressTrackMax);
+                    SetProgress(Mathf.Lerp(ProgressSceneLoading, ProgressTrackMax, normalized));
                     await Awaitable.NextFrameAsync();
                 }
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
         }
 
@@ -639,9 +586,7 @@ namespace PlanetIO.Infrastructure.Networking
             LoadingProgressChanged?.Invoke(LoadingProgress);
         }
 
-        private void SetState(
-            NetworkSessionState state,
-            string status)
+        private void SetState(NetworkSessionState state, string status)
         {
             State = state;
             Status = status;

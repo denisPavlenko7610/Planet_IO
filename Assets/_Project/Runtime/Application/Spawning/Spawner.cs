@@ -7,9 +7,8 @@ using Random = UnityEngine.Random;
 
 namespace PlanetIO
 {
-    public abstract class Spawner<T> : MonoBehaviour
-        where T : MonoBehaviour, ICapacity
-    {
+    public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ICapacity
+	{
         private const float SpawnDepth = 1f;
 
         [SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.4f;
@@ -21,37 +20,38 @@ namespace PlanetIO
 
         public void Initialize(ObjectPool<T> objectPool)
         {
-            _objectPool = objectPool
-                ?? throw new ArgumentNullException(nameof(objectPool));
+            _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
 
             _objectPool.Initialize();
             GenerateInitialObjects();
         }
 
-        public void CreateObject()
+        public T CreateObject()
         {
-            T spawnedObject = _objectPool.Get();
-            float randomScale = GetRandomScale();
-
-            spawnedObject.Capacity = randomScale;
-            SetRandomTransform(spawnedObject, randomScale);
-            SpawnNetworkObject(spawnedObject);
+			return CreateSpawnedObject();
         }
 
-        public void CreateObject(Transform spawnTransform)
-        {
-            if (spawnTransform == null)
+        public T CreateObject(Transform spawnTransform)
+		{
+			if (spawnTransform == null)
             {
                 throw new ArgumentNullException(nameof(spawnTransform));
             }
 
-            T spawnedObject = _objectPool.Get();
-            spawnedObject.Capacity = _minimumObjectScale;
-            SetTransform(spawnedObject, spawnTransform.position, _minimumObjectScale);
-            SpawnNetworkObject(spawnedObject);
-        }
+			T spawnedObject = CreateSpawnedObject();
+			SetTransform(spawnedObject, spawnTransform.position, _minimumObjectScale);
+			return spawnedObject;
+		}
 
-        protected void RespawnObject(T objectToRespawn)
+		private T CreateSpawnedObject()
+		{
+			T spawnedObject = _objectPool.Get();
+			spawnedObject.Capacity = _minimumObjectScale;
+			SpawnNetworkObject(spawnedObject);
+			return spawnedObject;
+		}
+
+		protected void RespawnObject(T objectToRespawn)
         {
             if (objectToRespawn == null)
             {
@@ -74,6 +74,21 @@ namespace PlanetIO
             }
         }
 
+		protected void ReleaseObject(T objectToRelease)
+		{
+			if (objectToRelease == null)
+			{
+				return;
+			}
+
+			if (objectToRelease.TryGetComponent(out NetworkObject networkObject) && networkObject.IsSpawned)
+			{
+				networkObject.Despawn(false);
+			}
+
+			_objectPool.Release(objectToRelease);
+		}
+
         protected virtual Vector2 GetRandomPosition()
         {
             return new Vector2(
@@ -94,10 +109,7 @@ namespace PlanetIO
             SetTransform(spawnedObject, GetRandomPosition(), scale);
         }
 
-        private static void SetTransform(
-            T spawnedObject,
-            Vector2 position,
-            float scale)
+        private static void SetTransform(T spawnedObject, Vector2 position, float scale)
         {
             Transform spawnedTransform = spawnedObject.transform;
             spawnedTransform.position = position;
@@ -106,19 +118,14 @@ namespace PlanetIO
 
         private float GetRandomScale()
         {
-            float minimumScale = Mathf.Min(
-                _minimumObjectScale,
-                _maximumObjectScale);
-            float maximumScale = Mathf.Max(
-                _minimumObjectScale,
-                _maximumObjectScale);
+            float minimumScale = Mathf.Min(_minimumObjectScale, _maximumObjectScale);
+            float maximumScale = Mathf.Max(_minimumObjectScale, _maximumObjectScale);
             return Random.Range(minimumScale, maximumScale);
         }
 
         private static void SpawnNetworkObject(T spawnedObject)
         {
-            if (spawnedObject.TryGetComponent(out NetworkObject networkObject) &&
-                !networkObject.IsSpawned)
+            if (spawnedObject.TryGetComponent(out NetworkObject networkObject) && !networkObject.IsSpawned)
             {
                 networkObject.Spawn();
             }
@@ -127,9 +134,7 @@ namespace PlanetIO
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            _maximumObjectScale = Mathf.Max(
-                _minimumObjectScale,
-                _maximumObjectScale);
+            _maximumObjectScale = Mathf.Max(_minimumObjectScale, _maximumObjectScale);
 
             NormalizeRange(ref _horizontalSpawnRange);
             NormalizeRange(ref _verticalSpawnRange);

@@ -9,13 +9,11 @@ namespace PlanetIO.Utils
         public const float MinimumDirectionSquaredMagnitude = 0.0001f;
         public const float MinimumDisplayCapacity = 0.01f;
 
-        public static int CapacityToScore(float capacity) =>
-            Mathf.RoundToInt(capacity * ScaleMultiplier);
+        public static int CapacityToScore(float capacity) => Mathf.RoundToInt(capacity * ScaleMultiplier);
 
         public static Quaternion DirectionToRotation(Vector2 direction)
         {
-            float angle =
-                Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             return Quaternion.Euler(0f, 0f, angle);
         }
 

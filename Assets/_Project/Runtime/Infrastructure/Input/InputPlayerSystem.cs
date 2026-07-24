@@ -12,7 +12,12 @@ namespace PlanetIO
         private PlayerInput _playerInput;
         private UnityEngine.Camera _camera;
 
-        private void Awake()
+		private void Start()
+		{
+			_camera = UnityEngine.Camera.main;
+		}
+
+		private void Awake()
         {
             if (_playerMovement == null)
             {
@@ -36,12 +41,14 @@ namespace PlanetIO
                 .With("Down", "<Keyboard>/s")
                 .With("Left", "<Keyboard>/a")
                 .With("Right", "<Keyboard>/d");
+
             _playerInput.Move.Movement
                 .AddCompositeBinding("2DVector")
                 .With("Up", "<Keyboard>/upArrow")
                 .With("Down", "<Keyboard>/downArrow")
                 .With("Left", "<Keyboard>/leftArrow")
                 .With("Right", "<Keyboard>/rightArrow");
+
             _playerInput.Enable();
             _playerInput.Move.Movement.performed += UpdateInput;
             _playerInput.Move.Movement.canceled += CanceledInput;
@@ -62,9 +69,9 @@ namespace PlanetIO
                 return;
             }
 
-            _camera ??= UnityEngine.Camera.main;
             if (_camera == null || Mouse.current == null)
             {
+				LoggerIO.LogError("Camera is null");
                 return;
             }
 
@@ -75,9 +82,7 @@ namespace PlanetIO
 
             Vector3 playerPosition = _playerMovement.Player.transform.position;
             Vector2 pointerPosition = Mouse.current.position.ReadValue();
-            Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(
-                pointerPosition.x,
-                pointerPosition.y,
+            Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(pointerPosition.x, pointerPosition.y,
                 -_camera.transform.position.z));
             _playerMovement.SetDirection(worldPosition - playerPosition);
         }

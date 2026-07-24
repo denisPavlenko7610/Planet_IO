@@ -41,21 +41,13 @@ namespace PlanetIO
             IGameStateService gameStateService,
             BordersTrigger bordersTrigger)
         {
-            CometRespawnService = cometRespawnService
-                ?? throw new ArgumentNullException(nameof(cometRespawnService));
-            PointRespawnService = pointRespawnService
-                ?? throw new ArgumentNullException(nameof(pointRespawnService));
-            _enemyRespawnService = enemyRespawnService
-                ?? throw new ArgumentNullException(nameof(enemyRespawnService));
-            _pointSpawnService = pointSpawnService
-                ?? throw new ArgumentNullException(nameof(pointSpawnService));
-            _networkSessionService = networkSessionService
-                ?? throw new ArgumentNullException(nameof(networkSessionService));
-            _gameStateService = gameStateService
-                ?? throw new ArgumentNullException(nameof(gameStateService));
-            SetBordersTrigger(
-                bordersTrigger
-                ?? throw new ArgumentNullException(nameof(bordersTrigger)));
+            CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
+            PointRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
+            _enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
+            _pointSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
+            _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
+            _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
+            SetBordersTrigger(bordersTrigger ?? throw new ArgumentNullException(nameof(bordersTrigger)));
             FoodGrowthMultiplier = _playerFoodGrowthMultiplier;
             CometDamageMultiplier = _playerCometDamageMultiplier;
             _servicesReady = true;
@@ -157,10 +149,7 @@ namespace PlanetIO
         {
             if (IsServer && triggeringPlayer == this)
             {
-                Shrink(
-                    Mathf.Max(
-                        _boostMassCost,
-                        Capacity * _borderMassLoss));
+                Shrink(Mathf.Max(_boostMassCost, Capacity * _borderMassLoss));
             }
         }
 
@@ -229,11 +218,11 @@ namespace PlanetIO
             }
             catch (OperationCanceledException)
             {
-                // The player or application is shutting down.
+				LoggerIO.LogError("The player or application is shutting down");
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception, this);
+                LoggerIO.LogException(exception, this);
             }
         }
     }

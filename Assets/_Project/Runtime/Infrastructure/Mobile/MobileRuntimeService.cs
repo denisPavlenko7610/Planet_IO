@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using PlanetIO.UI.Mobile;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,10 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace PlanetIO.Infrastructure.Mobile
 {
-    public sealed class MobileRuntimeService :
-        IStartable,
-        ITickable,
-        IDisposable
+    public sealed class MobileRuntimeService : IStartable, ITickable, IDisposable
     {
         private const int TargetFrameRate = 60;
 
@@ -20,18 +16,14 @@ namespace PlanetIO.Infrastructure.Mobile
         private bool _returnToMenuInProgress;
         private bool _memoryCleanupInProgress;
 
-        public MobileRuntimeService(
-            INetworkSessionService networkSessionService)
+        public MobileRuntimeService(INetworkSessionService networkSessionService)
         {
-            _networkSessionService = networkSessionService
-                ?? throw new ArgumentNullException(
-                    nameof(networkSessionService));
+            _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
         }
 
         public void Start()
         {
-            if (UnityEngine.Application.isMobilePlatform &&
-                QualitySettings.names.Length > 1)
+            if (UnityEngine.Application.isMobilePlatform && QualitySettings.names.Length > 1)
             {
                 QualitySettings.SetQualityLevel(1, true);
             }
@@ -46,15 +38,13 @@ namespace PlanetIO.Infrastructure.Mobile
 
         public void Tick()
         {
-            if (!UnityEngine.Application.isMobilePlatform ||
-                Keyboard.current?.escapeKey.wasPressedThisFrame != true)
+            if (!UnityEngine.Application.isMobilePlatform || Keyboard.current?.escapeKey.wasPressedThisFrame != true)
             {
                 return;
             }
 
             Scene activeScene = SceneManager.GetActiveScene();
-            if (activeScene.name == SceneNames.Game ||
-                activeScene.name == SceneNames.Loading)
+            if (activeScene.name is SceneNames.Game or SceneNames.Loading)
             {
                 _ = ReturnToMenuAsync();
                 return;
@@ -85,16 +75,11 @@ namespace PlanetIO.Infrastructure.Mobile
                 : SleepTimeout.SystemSetting;
 
             Canvas.ForceUpdateCanvases();
-            RectTransform[] rectTransforms =
-                Object.FindObjectsByType<RectTransform>(
-                    FindObjectsInactive.Include);
+            RectTransform[] rectTransforms = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include);
 
             foreach (RectTransform rectTransform in rectTransforms)
             {
-                if (rectTransform.name is "Score" or
-                    "Joystick " or
-                    "Joystick" or
-                    "AccelerationButton")
+                if (rectTransform.name is "Score" or "Joystick " or "Joystick" or "AccelerationButton")
                 {
                     SafeAreaElement.AttachTo(rectTransform);
                 }
@@ -122,7 +107,7 @@ namespace PlanetIO.Infrastructure.Mobile
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
             finally
             {
@@ -140,16 +125,15 @@ namespace PlanetIO.Infrastructure.Mobile
             _returnToMenuInProgress = true;
             try
             {
-                await _networkSessionService
-                    .ShutdownAndReturnToMenuAsync();
+                await _networkSessionService.ShutdownAndReturnToMenuAsync();
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception);
+                LoggerIO.LogException(exception);
             }
             finally
             {

@@ -76,8 +76,7 @@ namespace PlanetIO
         [Inject]
         public void Construct(IGameStateService gameStateService)
         {
-            _gameStateService = gameStateService
-                ?? throw new ArgumentNullException(nameof(gameStateService));
+            _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
         }
 
         public override void OnNetworkSpawn()
@@ -124,13 +123,11 @@ namespace PlanetIO
                 _thinkTimeRemaining = Mathf.Max(MinimumThinkInterval, _thinkInterval);
             }
 
-            if (State == MovementState.Roaming &&
-                _stateTimeRemaining <= 0f)
+            if (State == MovementState.Roaming && _stateTimeRemaining <= 0f)
             {
                 EnterRoaming();
             }
-            else if (State == MovementState.Evading &&
-                     _stateTimeRemaining <= 0f)
+            else if (State == MovementState.Evading && _stateTimeRemaining <= 0f)
             {
                 Think();
             }
@@ -143,10 +140,7 @@ namespace PlanetIO
         public void Move()
         {
             float speedMultiplier =
-                EnemyDecisionRules.GetCapacitySpeedMultiplier(
-                    _enemy.Capacity,
-                    _enemy.MinimumCapacity,
-                    _massSpeedPenalty,
+                EnemyDecisionRules.GetCapacitySpeedMultiplier(_enemy.Capacity, _enemy.MinimumCapacity, _massSpeedPenalty,
                     _minimumSpeedMultiplier);
 
             float stateMultiplier = State switch
@@ -167,11 +161,8 @@ namespace PlanetIO
                 return;
             }
 
-            Vector2 directionAway =
-                (Vector2)_enemyTransform.position - threatPosition;
-            _desiredDirection =
-                directionAway.sqrMagnitude >
-                Constants.MinimumDirectionSquaredMagnitude
+            Vector2 directionAway = (Vector2)_enemyTransform.position - threatPosition;
+            _desiredDirection = directionAway.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
                     ? directionAway.normalized
                     : GetRandomDirection();
 
@@ -182,11 +173,7 @@ namespace PlanetIO
         private void Think()
         {
             Vector2 position = _enemyTransform.position;
-            int hitCount = Physics2D.OverlapCircle(
-                position,
-                _awarenessRadius,
-                ContactFilter2D.noFilter,
-                _nearbyColliders);
+            int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, ContactFilter2D.noFilter, _nearbyColliders);
 
             Player nearestPlayer = null;
             Point nearestFood = null;
@@ -198,15 +185,13 @@ namespace PlanetIO
             for (int index = 0; index < hitCount; index++)
             {
                 Collider2D candidate = _nearbyColliders[index];
-                if (candidate == null ||
-                    candidate.transform == _enemyTransform)
+                if (candidate == null || candidate.transform == _enemyTransform)
                 {
                     continue;
                 }
 
                 Vector2 candidatePosition = candidate.transform.position;
-                float distanceSquared =
-                    (candidatePosition - position).sqrMagnitude;
+                float distanceSquared = (candidatePosition - position).sqrMagnitude;
 
                 if (candidate.TryGetComponent(out Player player) &&
                     distanceSquared < playerDistanceSquared)
@@ -214,54 +199,41 @@ namespace PlanetIO
                     nearestPlayer = player;
                     playerDistanceSquared = distanceSquared;
                 }
-                else if (candidate.TryGetComponent(out Point point) &&
-                         distanceSquared < foodDistanceSquared)
+                else if (candidate.TryGetComponent(out Point point) && distanceSquared < foodDistanceSquared)
                 {
                     nearestFood = point;
                     foodDistanceSquared = distanceSquared;
                 }
-                else if (candidate.TryGetComponent(out Comet _) &&
-                         distanceSquared < hazardDistanceSquared)
+                else if (candidate.TryGetComponent(out Comet _) && distanceSquared < hazardDistanceSquared)
                 {
                     hazardPosition = candidatePosition;
                     hazardDistanceSquared = distanceSquared;
                 }
             }
 
-            bool hasImmediateHazard =
-                hazardDistanceSquared <= _hazardDistance * _hazardDistance;
-            EnemyIntent intent = EnemyDecisionRules.ChooseIntent(
-                _enemy.Capacity,
-                nearestPlayer?.Capacity ?? 0f,
-                nearestFood != null,
-                hasImmediateHazard,
-                _huntSizeRatio,
-                _threatSizeRatio);
+            bool hasImmediateHazard = hazardDistanceSquared <= _hazardDistance * _hazardDistance;
+            EnemyIntent intent = EnemyDecisionRules.ChooseIntent(_enemy.Capacity, nearestPlayer?.Capacity ?? 0f,
+                nearestFood != null, hasImmediateHazard, _huntSizeRatio, _threatSizeRatio);
 
             switch (intent)
             {
                 case EnemyIntent.Evade:
                     Vector2 dangerPosition = hasImmediateHazard
                         ? hazardPosition
-                        : (Vector2)nearestPlayer.transform.position;
+                        : nearestPlayer.transform.position;
                     EvadeFrom(dangerPosition);
                     break;
 
                 case EnemyIntent.Hunt:
-                    SetTarget(
-                        nearestPlayer.transform.position,
-                        MovementState.Hunting);
+                    SetTarget(nearestPlayer.transform.position, MovementState.Hunting);
                     break;
 
                 case EnemyIntent.Forage:
-                    SetTarget(
-                        nearestFood.transform.position,
-                        MovementState.Foraging);
+                    SetTarget(nearestFood.transform.position, MovementState.Foraging);
                     break;
 
                 default:
-                    if (State != MovementState.Roaming ||
-                        _stateTimeRemaining <= 0f)
+                    if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
                     {
                         EnterRoaming();
                     }
@@ -269,14 +241,10 @@ namespace PlanetIO
             }
         }
 
-        private void SetTarget(
-            Vector2 targetPosition,
-            MovementState state)
+        private void SetTarget(Vector2 targetPosition, MovementState state)
         {
-            Vector2 targetDirection =
-                targetPosition - (Vector2)_enemyTransform.position;
-            if (targetDirection.sqrMagnitude <=
-                Constants.MinimumDirectionSquaredMagnitude)
+            Vector2 targetDirection = targetPosition - (Vector2)_enemyTransform.position;
+            if (targetDirection.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
             {
                 return;
             }
@@ -291,44 +259,31 @@ namespace PlanetIO
             State = MovementState.Roaming;
             _desiredDirection = GetRandomDirection();
 
-            float minimum = Mathf.Max(
-                MinimumRoamTime,
-                _minimumTimeToChangeDirection);
-            float maximum = Mathf.Max(
-                minimum,
-                _maximumTimeToChangeDirection);
+            float minimum = Mathf.Max(MinimumRoamTime, _minimumTimeToChangeDirection);
+            float maximum = Mathf.Max(minimum, _maximumTimeToChangeDirection);
             _stateTimeRemaining = Random.Range(minimum, maximum);
         }
 
         private void UpdateDirection(float deltaTime)
         {
-            if (_desiredDirection.sqrMagnitude <=
-                Constants.MinimumDirectionSquaredMagnitude)
+            if (_desiredDirection.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
             {
                 return;
             }
 
-            Direction = Vector3.RotateTowards(
-                Direction,
-                _desiredDirection,
-                _turnSpeed * Mathf.Deg2Rad * deltaTime,
-                0f).normalized;
+            Direction = Vector3.RotateTowards(Direction, _desiredDirection,
+				_turnSpeed * Mathf.Deg2Rad * deltaTime, 0f).normalized;
         }
 
         private void RotateTowardsDirection(float deltaTime)
         {
-            if (Direction.sqrMagnitude <=
-                Constants.MinimumDirectionSquaredMagnitude)
+            if (Direction.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
             {
                 return;
             }
 
-            Quaternion targetRotation =
-                Constants.DirectionToRotation(Direction);
-            _enemyTransform.rotation = Quaternion.RotateTowards(
-                _enemyTransform.rotation,
-                targetRotation,
-                _turnSpeed * deltaTime);
+            Quaternion targetRotation = Constants.DirectionToRotation(Direction);
+            _enemyTransform.rotation = Quaternion.RotateTowards(_enemyTransform.rotation, targetRotation, _turnSpeed * deltaTime);
         }
 
         private void StopMovement()
@@ -339,19 +294,14 @@ namespace PlanetIO
             }
         }
 
-        private static Vector2 GetRandomDirection() =>
-            Constants.GetRandomDirection();
+        private static Vector2 GetRandomDirection() => Constants.GetRandomDirection();
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            _maximumTimeToChangeDirection = Mathf.Max(
-                _minimumTimeToChangeDirection,
-                _maximumTimeToChangeDirection);
+            _maximumTimeToChangeDirection = Mathf.Max(_minimumTimeToChangeDirection, _maximumTimeToChangeDirection);
             _thinkInterval = Mathf.Max(MinimumThinkInterval, _thinkInterval);
-            _awarenessRadius = Mathf.Max(
-                _hazardDistance,
-                _awarenessRadius);
+            _awarenessRadius = Mathf.Max(_hazardDistance, _awarenessRadius);
         }
 #endif
     }

@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
@@ -8,15 +7,11 @@ namespace PlanetIO.Infrastructure.Boot
 {
     public sealed class ApplicationBootstrap : IStartable
     {
-        private readonly IContentInitializationService
-            _contentInitializationService;
+        private readonly IContentInitializationService _contentInitializationService;
 
-        public ApplicationBootstrap(
-            IContentInitializationService contentInitializationService)
+        public ApplicationBootstrap(IContentInitializationService contentInitializationService)
         {
-            _contentInitializationService = contentInitializationService
-                ?? throw new ArgumentNullException(
-                    nameof(contentInitializationService));
+            _contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
         }
 
         public void Start()
@@ -37,7 +32,7 @@ namespace PlanetIO.Infrastructure.Boot
             }
             catch (OperationCanceledException)
             {
-                // Application is closing.
+				LoggerIO.LogError("Application is closing");
             }
         }
     }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using PlanetIO;
 using PlanetIO.Utils;
 using PlanetIO.UI.Mobile;
 using TMPro;
@@ -13,10 +12,7 @@ using Object = UnityEngine.Object;
 
 namespace PlanetIO.UI.Hud
 {
-    public sealed class GameSessionHudPresenter :
-        IStartable,
-        ITickable,
-        IDisposable
+    public sealed class GameSessionHudPresenter : IStartable, ITickable, IDisposable
     {
         private const float RefreshIntervalSeconds = 0.5f;
         private const int VisibleLeaderboardEntries = 6;
@@ -31,15 +27,10 @@ namespace PlanetIO.UI.Hud
         private float _refreshTimeRemaining;
         private bool _leaveInProgress;
 
-        public GameSessionHudPresenter(
-            NetworkManager networkManager,
-            INetworkSessionService networkSessionService)
+        public GameSessionHudPresenter(NetworkManager networkManager, INetworkSessionService networkSessionService)
         {
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
-            _networkSessionService = networkSessionService
-                ?? throw new ArgumentNullException(
-                    nameof(networkSessionService));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
+            _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
         }
 
         public void Start()
@@ -78,15 +69,11 @@ namespace PlanetIO.UI.Hud
             Canvas canvas = Object.FindAnyObjectByType<Canvas>();
             if (canvas == null)
             {
-                Debug.LogWarning("Game HUD canvas was not found.");
+                LoggerIO.LogWarning("Game HUD canvas was not found.");
                 return;
             }
 
-            _viewRoot = new GameObject(
-                "SessionHud",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image));
+            _viewRoot = new GameObject("SessionHud", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             RectTransform panel = _viewRoot.GetComponent<RectTransform>();
             panel.SetParent(canvas.transform, false);
             panel.anchorMin = Vector2.one;
@@ -94,13 +81,10 @@ namespace PlanetIO.UI.Hud
             panel.pivot = Vector2.one;
             panel.anchoredPosition = new Vector2(-28f, -28f);
             panel.sizeDelta = new Vector2(470f, 390f);
-            _viewRoot.GetComponent<Image>().color =
-                new Color(0.025f, 0.055f, 0.12f, 0.82f);
+            _viewRoot.GetComponent<Image>().color = new Color(0.025f, 0.055f, 0.12f, 0.82f);
             SafeAreaElement.AttachTo(panel);
 
-            _sessionText = CreateText(
-                "Session",
-                panel,
+            _sessionText = CreateText("Session", panel,
                 new Vector2(0f, 1f),
                 new Vector2(1f, 1f),
                 new Vector2(22f, -18f),
@@ -233,7 +217,7 @@ namespace PlanetIO.UI.Hud
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception);
+                LoggerIO.LogException(exception);
                 _leaveInProgress = false;
                 if (_leaveButton != null)
                 {

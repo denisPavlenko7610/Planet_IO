@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using PlanetIO;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -14,9 +13,7 @@ namespace PlanetIO.UI.Hud
         void Dispose();
     }
 
-    public sealed class PlayerNicknameView :
-        MonoBehaviour,
-        IPlayerNicknameView
+    public sealed class PlayerNicknameView : MonoBehaviour, IPlayerNicknameView
     {
         private const float VerticalOffset = 0.35f;
         private const float PlayerVisualRadius = 3.55f;
@@ -26,10 +23,8 @@ namespace PlanetIO.UI.Hud
 
         public static PlayerNicknameView Create(Player player)
         {
-            GameObject viewObject = new(
-                $"Nickname View ({player.OwnerClientId})");
-            PlayerNicknameView view =
-                viewObject.AddComponent<PlayerNicknameView>();
+            GameObject viewObject = new($"Nickname View ({player.OwnerClientId})");
+            PlayerNicknameView view = viewObject.AddComponent<PlayerNicknameView>();
             view.Initialize(player);
             return view;
         }
@@ -54,17 +49,16 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            float height =
-                _player.Capacity * PlayerVisualRadius + VerticalOffset;
-            transform.position =
-                _player.transform.position + Vector3.up * height;
+            float height = _player.Capacity * PlayerVisualRadius + VerticalOffset;
+            transform.position = _player.transform.position + Vector3.up * height;
         }
 
         private void Initialize(Player player)
         {
             _player = player
-                ? player
+				? player
                 : throw new ArgumentNullException(nameof(player));
+
             _nicknameText = gameObject.AddComponent<TextMeshPro>();
             _nicknameText.alignment = TextAlignmentOptions.Center;
             _nicknameText.textWrappingMode = TextWrappingModes.NoWrap;
@@ -81,15 +75,13 @@ namespace PlanetIO.UI.Hud
         private const float RefreshIntervalSeconds = 0.25f;
 
         private readonly NetworkManager _networkManager;
-        private readonly Dictionary<PlayerNickname, NicknameBinding>
-            _viewsByNickname = new();
+        private readonly Dictionary<PlayerNickname, NicknameBinding> _viewsByNickname = new();
         private readonly List<PlayerNickname> _nicknamesToRemove = new();
         private float _refreshTimeRemaining;
 
         public PlayerNicknamePresenter(NetworkManager networkManager)
         {
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
         }
 
         public void Tick()
@@ -107,8 +99,7 @@ namespace PlanetIO.UI.Hud
 
         public void Dispose()
         {
-            foreach (KeyValuePair<PlayerNickname, NicknameBinding> binding
-                     in _viewsByNickname)
+            foreach (KeyValuePair<PlayerNickname, NicknameBinding> binding in _viewsByNickname)
             {
                 if (binding.Key != null)
                 {
@@ -129,27 +120,19 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            foreach (NetworkObject networkObject in
-                     _networkManager.SpawnManager.SpawnedObjectsList)
+            foreach (NetworkObject networkObject in _networkManager.SpawnManager.SpawnedObjectsList)
             {
                 if (!networkObject.IsPlayerObject ||
-                    !networkObject.TryGetComponent(
-                        out PlayerNickname playerNickname) ||
+                    !networkObject.TryGetComponent(out PlayerNickname playerNickname) ||
                     _viewsByNickname.ContainsKey(playerNickname) ||
                     !networkObject.TryGetComponent(out Player player))
                 {
                     continue;
                 }
 
-                IPlayerNicknameView nicknameView =
-                    PlayerNicknameView.Create(player);
-                Action<string> nicknameChangedHandler =
-                    nicknameView.ShowNickname;
-                _viewsByNickname.Add(
-                    playerNickname,
-                    new NicknameBinding(
-                        nicknameView,
-                        nicknameChangedHandler));
+                IPlayerNicknameView nicknameView = PlayerNicknameView.Create(player);
+                Action<string> nicknameChangedHandler = nicknameView.ShowNickname;
+                _viewsByNickname.Add(playerNickname, new NicknameBinding(nicknameView, nicknameChangedHandler));
                 playerNickname.NicknameChanged += nicknameChangedHandler;
                 nicknameView.ShowNickname(playerNickname.Nickname);
             }
@@ -169,8 +152,7 @@ namespace PlanetIO.UI.Hud
 
             foreach (PlayerNickname playerNickname in _nicknamesToRemove)
             {
-                NicknameBinding binding =
-                    _viewsByNickname[playerNickname];
+                NicknameBinding binding = _viewsByNickname[playerNickname];
 
                 if (playerNickname != null)
                 {
@@ -184,10 +166,8 @@ namespace PlanetIO.UI.Hud
 
         private sealed class NicknameBinding
         {
-            public NicknameBinding(
-                IPlayerNicknameView view,
-                Action<string> handler)
-            {
+            public NicknameBinding(IPlayerNicknameView view, Action<string> handler)
+			{
                 View = view;
                 Handler = handler;
             }

@@ -29,8 +29,7 @@ namespace PlanetIO
         [Inject]
         public void Construct(IGameStateService gameStateService)
         {
-            _gameStateService = gameStateService
-                ?? throw new ArgumentNullException(nameof(gameStateService));
+            _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
         }
 
         public override void OnNetworkSpawn()
@@ -81,8 +80,7 @@ namespace PlanetIO
 
         private void RotateTowardsDirection()
         {
-            _cometTransform.rotation =
-                Constants.DirectionToRotation(_direction);
+            _cometTransform.rotation = Constants.DirectionToRotation(_direction);
         }
 
         private void StopMovement()

@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -18,25 +17,14 @@ namespace PlanetIO.Editor
         [MenuItem("Planet IO/Android/Apply release settings")]
         public static void ApplyReleaseSettings()
         {
-            PlayerSettings.SetApplicationIdentifier(
-                NamedBuildTarget.Android,
-                ApplicationIdentifier);
-            PlayerSettings.Android.minSdkVersion =
-                AndroidSdkVersions.AndroidApiLevel26;
-            PlayerSettings.Android.targetSdkVersion =
-                AndroidSdkVersions.AndroidApiLevel36;
-            PlayerSettings.SetScriptingBackend(
-                NamedBuildTarget.Android,
-                ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures =
-                AndroidArchitecture.ARMv7 |
-                AndroidArchitecture.ARM64;
-            PlayerSettings.SetManagedStrippingLevel(
-                NamedBuildTarget.Android,
-                ManagedStrippingLevel.Low);
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, ApplicationIdentifier);
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
+            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Low);
 
-            PlayerSettings.defaultInterfaceOrientation =
-                UIOrientation.LandscapeLeft;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
@@ -46,9 +34,7 @@ namespace PlanetIO.Editor
             EditorUserBuildSettings.buildAppBundle = true;
 
             AssetDatabase.SaveAssets();
-            Debug.Log(
-                "Planet IO Android settings applied: API 36, " +
-                "IL2CPP, ARMv7 + ARM64, AAB.");
+            Debug.Log("Planet IO Android settings applied: API 36, " + "IL2CPP, ARMv7 + ARM64, AAB.");
         }
 
         [MenuItem("Planet IO/Android/Validate release")]
@@ -74,11 +60,11 @@ namespace PlanetIO.Editor
                 .Where(scene => scene.enabled)
                 .Select(scene => scene.path)
                 .ToArray();
+
             BuildPlayerOptions options = new()
             {
                 scenes = scenes,
-                locationPathName =
-                    Path.Combine(BuildDirectory, BundleName),
+                locationPathName = Path.Combine(BuildDirectory, BundleName),
                 target = BuildTarget.Android,
                 targetGroup = BuildTargetGroup.Android,
                 options = BuildOptions.CleanBuildCache
@@ -87,8 +73,7 @@ namespace PlanetIO.Editor
             BuildReport report = BuildPipeline.BuildPlayer(options);
             if (report.summary.result != BuildResult.Succeeded)
             {
-                throw new BuildFailedException(
-                    $"Android build failed: {report.summary.result}");
+                throw new BuildFailedException($"Android build failed: {report.summary.result}");
             }
 
             Debug.Log(
@@ -99,28 +84,22 @@ namespace PlanetIO.Editor
 
         private static string GetValidationError()
         {
-            if (!BuildPipeline.IsBuildTargetSupported(
-                    BuildTargetGroup.Android,
-                    BuildTarget.Android))
+            if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android, BuildTarget.Android))
             {
                 return "Android Build Support is not installed for this Unity Editor.";
             }
 
-            if (PlayerSettings.Android.targetSdkVersion !=
-                AndroidSdkVersions.AndroidApiLevel36)
+            if (PlayerSettings.Android.targetSdkVersion != AndroidSdkVersions.AndroidApiLevel36)
             {
                 return "Target API must be Android 16 / API 36.";
             }
 
-            if ((PlayerSettings.Android.targetArchitectures &
-                 AndroidArchitecture.ARM64) == 0)
+            if ((PlayerSettings.Android.targetArchitectures & AndroidArchitecture.ARM64) == 0)
             {
                 return "ARM64 architecture is required.";
             }
 
-            if (PlayerSettings.GetScriptingBackend(
-                    NamedBuildTarget.Android) !=
-                ScriptingImplementation.IL2CPP)
+            if (PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android) != ScriptingImplementation.IL2CPP)
             {
                 return "Android release must use IL2CPP.";
             }

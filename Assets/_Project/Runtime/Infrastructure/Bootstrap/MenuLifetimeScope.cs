@@ -10,8 +10,10 @@ namespace PlanetIO.Infrastructure
         {
             builder.RegisterComponentInHierarchy<NetworkUI>()
                 .As<INetworkMenuView>();
+
             builder.RegisterComponentInHierarchy<NicknameInputView>()
                 .As<INicknameInputView>();
+
             builder.RegisterEntryPoint<MenuPresenter>();
         }
 

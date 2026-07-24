@@ -12,8 +12,7 @@ namespace PlanetIO.UI.Mobile
 
         public static void AttachTo(Transform target)
         {
-            if (target is not RectTransform rectTransform ||
-                rectTransform.GetComponent<SafeAreaFitter>() != null)
+            if (target is not RectTransform rectTransform || rectTransform.GetComponent<SafeAreaFitter>() != null)
             {
                 return;
             }
@@ -34,8 +33,7 @@ namespace PlanetIO.UI.Mobile
 
         private void Update()
         {
-            if (SafeAreaHelper.HasScreenChanged(
-                    ref _lastSafeArea, ref _lastScreenSize))
+            if (SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize))
             {
                 Apply();
             }

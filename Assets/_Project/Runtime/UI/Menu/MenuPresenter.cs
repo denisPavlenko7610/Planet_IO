@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using UnityEngine;
 using VContainer.Unity;
 
@@ -13,20 +12,13 @@ namespace PlanetIO.UI.Menu
         private readonly IPlayerProfileService _playerProfileService;
         private bool _sessionRequestInProgress;
 
-        public MenuPresenter(
-            INetworkMenuView networkMenuView,
-            INicknameInputView nicknameInputView,
-            INetworkSessionService networkSessionService,
+        public MenuPresenter(INetworkMenuView networkMenuView, INicknameInputView nicknameInputView, INetworkSessionService networkSessionService,
             IPlayerProfileService playerProfileService)
         {
-            _networkMenuView = networkMenuView
-                ?? throw new ArgumentNullException(nameof(networkMenuView));
-            _nicknameInputView = nicknameInputView
-                ?? throw new ArgumentNullException(nameof(nicknameInputView));
-            _networkSessionService = networkSessionService
-                ?? throw new ArgumentNullException(nameof(networkSessionService));
-            _playerProfileService = playerProfileService
-                ?? throw new ArgumentNullException(nameof(playerProfileService));
+            _networkMenuView = networkMenuView ?? throw new ArgumentNullException(nameof(networkMenuView));
+            _nicknameInputView = nicknameInputView ?? throw new ArgumentNullException(nameof(nicknameInputView));
+            _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
+            _playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
         }
 
         public void Start()
@@ -35,27 +27,22 @@ namespace PlanetIO.UI.Menu
             _networkMenuView.JoinRequested += OnJoinRequested;
             _networkMenuView.SinglePlayerRequested += OnSinglePlayerRequested;
             _nicknameInputView.NicknameChanged += OnNicknameChanged;
-            _nicknameInputView.RandomNicknameRequested +=
-                OnRandomNicknameRequested;
+            _nicknameInputView.RandomNicknameRequested += OnRandomNicknameRequested;
             _playerProfileService.NicknameChanged += OnProfileNicknameChanged;
             _networkSessionService.StateChanged += OnSessionStateChanged;
 
             _nicknameInputView.ShowNickname(_playerProfileService.Nickname);
             _networkMenuView.SetInteractionEnabled(true);
-            _networkMenuView.ShowStatus(
-                _networkSessionService.Status,
-                false);
+            _networkMenuView.ShowStatus(_networkSessionService.Status, false);
         }
 
         public void Dispose()
         {
             _networkMenuView.HostRequested -= OnHostRequested;
             _networkMenuView.JoinRequested -= OnJoinRequested;
-            _networkMenuView.SinglePlayerRequested -=
-                OnSinglePlayerRequested;
+            _networkMenuView.SinglePlayerRequested -= OnSinglePlayerRequested;
             _nicknameInputView.NicknameChanged -= OnNicknameChanged;
-            _nicknameInputView.RandomNicknameRequested -=
-                OnRandomNicknameRequested;
+            _nicknameInputView.RandomNicknameRequested -= OnRandomNicknameRequested;
             _playerProfileService.NicknameChanged -= OnProfileNicknameChanged;
             _networkSessionService.StateChanged -= OnSessionStateChanged;
         }
@@ -63,23 +50,18 @@ namespace PlanetIO.UI.Menu
         private void OnHostRequested()
         {
             _ = StartSessionAsync(
-                () => _networkSessionService.StartHostAsync(
-                    RoomRules.DefaultMaxPlayers),
-                "Failed to start host");
+				() => _networkSessionService.StartHostAsync(RoomRules.DefaultMaxPlayers), "Failed to start host");
         }
 
         private void OnJoinRequested(string relayJoinCode)
         {
             _ = StartSessionAsync(
-                () => _networkSessionService.StartClientAsync(relayJoinCode),
-                "Failed to connect to room");
+                () => _networkSessionService.StartClientAsync(relayJoinCode), "Failed to connect to room");
         }
 
         private void OnSinglePlayerRequested()
         {
-            _ = StartSessionAsync(
-                _networkSessionService.StartSinglePlayerAsync,
-                "Failed to start single player");
+            _ = StartSessionAsync(_networkSessionService.StartSinglePlayerAsync, "Failed to start single player");
         }
 
         private void OnNicknameChanged(string nickname)
@@ -97,9 +79,7 @@ namespace PlanetIO.UI.Menu
             _nicknameInputView.ShowNickname(nickname);
         }
 
-        private void OnSessionStateChanged(
-            NetworkSessionState state,
-            string status)
+        private void OnSessionStateChanged(NetworkSessionState state, string status)
         {
             bool isError = state == NetworkSessionState.Failed;
             _networkMenuView.ShowStatus(status, isError);
@@ -110,9 +90,7 @@ namespace PlanetIO.UI.Menu
             }
         }
 
-        private async Awaitable StartSessionAsync(
-            Func<Awaitable<bool>> startSession,
-            string failureMessage)
+        private async Awaitable StartSessionAsync(Func<Awaitable<bool>> startSession, string failureMessage)
         {
             if (_sessionRequestInProgress)
             {
@@ -131,17 +109,16 @@ namespace PlanetIO.UI.Menu
                 }
 
                 RestoreInteraction();
-                Debug.LogError(
-                    $"{failureMessage}: {_networkSessionService.Status}");
+                LoggerIO.LogError($"{failureMessage}: {_networkSessionService.Status}");
             }
             catch (OperationCanceledException)
             {
-                // The menu or application is closing.
+				LoggerIO.LogError("The menu or application is closing");
             }
             catch (Exception exception)
             {
                 RestoreInteraction();
-                Debug.LogException(exception);
+                LoggerIO.LogException(exception);
             }
         }
 

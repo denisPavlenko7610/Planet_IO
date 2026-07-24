@@ -1,5 +1,4 @@
 using PlanetIO.Core.Attributes;
-using PlanetIO;
 using PlanetIO.Application;
 using PlanetIO.Infrastructure.Boot;
 using PlanetIO.Infrastructure.Audio;
@@ -39,21 +38,18 @@ namespace PlanetIO.Infrastructure
         {
             if (_networkManager == null)
             {
-                throw new MissingComponentException(
-                    $"{nameof(ApplicationLifetimeScope)} requires {nameof(NetworkManager)} on the same GameObject.");
+                throw new MissingComponentException($"{nameof(ApplicationLifetimeScope)} requires {nameof(NetworkManager)} on the same GameObject.");
             }
 
             builder.RegisterComponent(_networkManager);
-            builder.Register<PlayerProfileService>(Lifetime.Singleton)
-                .As<IPlayerProfileService>();
-            builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton)
-                .As<IRoomPreferences>();
-            builder.Register<AddressableContentService>(Lifetime.Singleton)
-                .As<IContentInitializationService>();
+            builder.Register<PlayerProfileService>(Lifetime.Singleton).As<IPlayerProfileService>();
+            builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
+            builder.Register<AddressableContentService>(Lifetime.Singleton).As<IContentInitializationService>();
             builder.RegisterEntryPoint<AddressableMusicService>();
-            builder.RegisterEntryPoint<NetworkSessionService>()
+			builder.RegisterEntryPoint<NetworkSessionService>()
                 .AsSelf()
                 .As<INetworkSessionService>();
+
             builder.RegisterEntryPoint<MobileRuntimeService>();
             builder.RegisterEntryPoint<ApplicationBootstrap>();
         }

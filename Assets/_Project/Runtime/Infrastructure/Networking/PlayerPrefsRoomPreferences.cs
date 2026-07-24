@@ -1,4 +1,3 @@
-using PlanetIO;
 using UnityEngine;
 
 namespace PlanetIO.Infrastructure.Networking
@@ -9,10 +8,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         public RoomConnectionSettings Load()
         {
-            return new RoomConnectionSettings(
-                PlayerPrefs.GetString(
-                    RoomCodeKey,
-                    RoomRules.DefaultRoomCode),
+            return new RoomConnectionSettings(PlayerPrefs.GetString(RoomCodeKey, RoomRules.DefaultRoomCode),
                 RoomRules.DefaultMaxPlayers);
         }
 

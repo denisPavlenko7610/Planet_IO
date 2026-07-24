@@ -17,15 +17,10 @@ namespace PlanetIO.Application
         private readonly NetworkManager _networkManager;
         private readonly NetworkObject _playerPrefab;
 
-        public NetworkPlayerSpawner(
-            NetworkManager networkManager,
-            NetworkObject playerPrefab)
+        public NetworkPlayerSpawner(NetworkManager networkManager, NetworkObject playerPrefab)
         {
-            _networkManager = networkManager
-                ?? throw new ArgumentNullException(nameof(networkManager));
-            _playerPrefab = playerPrefab
-                ? playerPrefab
-                : throw new ArgumentNullException(nameof(playerPrefab));
+            _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
+            _playerPrefab = playerPrefab ? playerPrefab : throw new ArgumentNullException(nameof(playerPrefab));
         }
 
         public void Start()
@@ -53,18 +48,15 @@ namespace PlanetIO.Application
 
         private void SpawnPlayer(ulong clientId)
         {
-            if (!_networkManager.IsServer ||
-                _playerPrefab == null ||
-                !_networkManager.ConnectedClients.TryGetValue(clientId, out NetworkClient client) ||
-                client.PlayerObject != null)
+            if (!_networkManager.IsServer
+				|| _playerPrefab == null
+				|| !_networkManager.ConnectedClients.TryGetValue(clientId, out NetworkClient client)
+				|| client.PlayerObject != null)
             {
                 return;
             }
 
-            NetworkObject player = Object.Instantiate(
-                _playerPrefab,
-                FindSafeSpawnPosition(clientId),
-                Quaternion.identity);
+            NetworkObject player = Object.Instantiate(_playerPrefab, FindSafeSpawnPosition(clientId), Quaternion.identity);
 
             player.SpawnAsPlayerObject(clientId, true);
         }
@@ -73,14 +65,10 @@ namespace PlanetIO.Application
         {
             Vector3 fallback = GetSpawnCandidate(clientId, 0);
 
-            for (int attempt = 0;
-                 attempt < MaximumSpawnAttempts;
-                 attempt++)
+            for (int attempt = 0; attempt < MaximumSpawnAttempts; attempt++)
             {
                 Vector3 candidate = GetSpawnCandidate(clientId, attempt);
-                if (Physics2D.OverlapCircle(
-                        candidate,
-                        SpawnClearance) == null)
+                if (Physics2D.OverlapCircle(candidate, SpawnClearance) == null)
                 {
                     return candidate;
                 }
@@ -89,22 +77,12 @@ namespace PlanetIO.Application
             return fallback;
         }
 
-        private static Vector3 GetSpawnCandidate(
-            ulong clientId,
-            int attempt)
+        private static Vector3 GetSpawnCandidate(ulong clientId, int attempt)
         {
-            float angle =
-                (clientId + (ulong)attempt) *
-                GoldenAngle *
-                Mathf.Deg2Rad;
-            float radius =
-                SpawnRadius +
-                attempt / 6 * SpawnRadiusStep;
+            float angle = (clientId + (ulong)attempt) * GoldenAngle * Mathf.Deg2Rad;
+            float radius = SpawnRadius + attempt / 6 * SpawnRadiusStep;
 
-            return new Vector3(
-                Mathf.Cos(angle) * radius,
-                Mathf.Sin(angle) * radius,
-                0f);
+            return new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
         }
     }
 }

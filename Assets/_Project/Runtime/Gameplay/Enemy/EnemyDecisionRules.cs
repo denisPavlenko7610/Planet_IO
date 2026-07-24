@@ -12,14 +12,9 @@ namespace PlanetIO
 
     public static class EnemyDecisionRules
     {
-        public static EnemyIntent ChooseIntent(
-            float ownCapacity,
-            float nearestPlayerCapacity,
-            bool hasVisibleFood,
-            bool hasImmediateHazard,
-            float huntSizeRatio,
-            float threatSizeRatio)
-        {
+        public static EnemyIntent ChooseIntent(float ownCapacity, float nearestPlayerCapacity, bool hasVisibleFood,
+            bool hasImmediateHazard, float huntSizeRatio, float threatSizeRatio)
+		{
             if (hasImmediateHazard)
             {
                 return EnemyIntent.Evade;
@@ -51,8 +46,7 @@ namespace PlanetIO
             float massPenalty,
             float minimumMultiplier)
         {
-            float sizeAboveMinimum =
-                Mathf.Max(0f, capacity - minimumCapacity);
+            float sizeAboveMinimum = Mathf.Max(0f, capacity - minimumCapacity);
             return Mathf.Clamp(
                 1f - sizeAboveMinimum * Mathf.Max(0f, massPenalty),
                 Mathf.Clamp01(minimumMultiplier),

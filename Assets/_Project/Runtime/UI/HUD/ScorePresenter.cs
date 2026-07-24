@@ -1,5 +1,4 @@
 using System;
-using PlanetIO;
 using PlanetIO.Utils;
 using VContainer.Unity;
 
@@ -11,14 +10,10 @@ namespace PlanetIO.UI.Hud
         private readonly ILocalPlayerProvider _localPlayerProvider;
         private Player _boundPlayer;
 
-        public ScorePresenter(
-            IScoreView scoreView,
-            ILocalPlayerProvider localPlayerProvider)
+        public ScorePresenter(IScoreView scoreView, ILocalPlayerProvider localPlayerProvider)
         {
-            _scoreView = scoreView
-                ?? throw new ArgumentNullException(nameof(scoreView));
-            _localPlayerProvider = localPlayerProvider
-                ?? throw new ArgumentNullException(nameof(localPlayerProvider));
+            _scoreView = scoreView ?? throw new ArgumentNullException(nameof(scoreView));
+            _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
         }
 
         public void Start()

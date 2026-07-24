@@ -10,14 +10,10 @@ namespace PlanetIO.Application
         private IGameStateService _gameStateService;
 
         [Inject]
-        public void Construct(
-            INetworkSessionService networkSessionService,
-            IGameStateService gameStateService)
+        public void Construct(INetworkSessionService networkSessionService, IGameStateService gameStateService)
         {
-            _networkSessionService = networkSessionService
-                ?? throw new ArgumentNullException(nameof(networkSessionService));
-            _gameStateService = gameStateService
-                ?? throw new ArgumentNullException(nameof(gameStateService));
+            _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
+            _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
         }
 
         public void Restart()
@@ -29,7 +25,7 @@ namespace PlanetIO.Application
         {
             if (_networkSessionService == null)
             {
-                Debug.LogError($"{nameof(RestartGame)} has no network session service.", this);
+                LoggerIO.LogError($"{nameof(RestartGame)} has no network session service.", this);
                 return;
             }
 
@@ -41,11 +37,11 @@ namespace PlanetIO.Application
             }
             catch (OperationCanceledException)
             {
-                // The application is closing.
+                LoggerIO.LogError("The application is closing");
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception, this);
+                LoggerIO.LogException(exception, this);
             }
         }
     }

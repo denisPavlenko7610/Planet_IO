@@ -11,6 +11,7 @@ namespace PlanetIO.Infrastructure
         {
             builder.RegisterComponentInHierarchy<LoadingView>()
                 .As<ILoadingView>();
+
             builder.RegisterEntryPoint<LoadingPresenter>();
             builder.RegisterEntryPoint<LoadingSceneController>();
         }
