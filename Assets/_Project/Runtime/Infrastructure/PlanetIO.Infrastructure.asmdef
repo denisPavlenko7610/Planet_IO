@@ -1,0 +1,28 @@
+{
+    "name": "PlanetIO.Infrastructure",
+    "rootNamespace": "PlanetIO",
+    "references": [
+        "PlanetIO.Core",
+        "PlanetIO.Gameplay",
+        "PlanetIO.Application",
+        "PlanetIO.UI",
+        "VContainer",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.InputSystem",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "Unity.Services.Multiplayer",
+        "Unity.Services.Authentication",
+        "Unity.Services.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
