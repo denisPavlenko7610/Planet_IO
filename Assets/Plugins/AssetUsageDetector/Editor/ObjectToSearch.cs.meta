@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 66d5a144a723fea40945afc069d4231d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112837
+  packageName: Asset Usage Detector
+  packageVersion: 2.6.2
+  assetPath: Assets/Plugins/AssetUsageDetector/Editor/ObjectToSearch.cs
+  uploadId: 894428

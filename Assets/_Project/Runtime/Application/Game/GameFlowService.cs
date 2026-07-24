@@ -1,11 +1,14 @@
 using System;
+using System.Threading;
+using PlanetIO.Core.Contracts.Loading;
 using PlanetIO.ObjectPool;
 using Unity.Netcode;
+using UnityEngine;
 using VContainer.Unity;
 
 namespace PlanetIO.Application
 {
-    public sealed class GameFlowService : IGameStateService, IStartable, ITickable, IDisposable
+    public sealed class GameFlowService : IGameStateService, IAsyncStartable, ITickable, IDisposable
     {
         private readonly PointSpawner _pointSpawner;
         private readonly CometSpawner _cometSpawner;
@@ -14,11 +17,19 @@ namespace PlanetIO.Application
         private readonly ObjectPool<Comet> _cometsPool;
         private readonly ObjectPool<Enemy> _enemyPool;
         private readonly NetworkManager _networkManager;
+        private readonly IGameLoadingView _loadingView;
         private bool _worldInitialized;
         private bool _disposed;
 
-        public GameFlowService(PointSpawner pointSpawner, CometSpawner cometSpawner, EnemySpawner enemySpawner, ObjectPool<Point> pointsPool,
-            ObjectPool<Comet> cometsPool, ObjectPool<Enemy> enemyPool, NetworkManager networkManager)
+        public GameFlowService(
+            PointSpawner pointSpawner,
+            CometSpawner cometSpawner,
+            EnemySpawner enemySpawner,
+            ObjectPool<Point> pointsPool,
+            ObjectPool<Comet> cometsPool,
+            ObjectPool<Enemy> enemyPool,
+            NetworkManager networkManager,
+            IGameLoadingView loadingView)
         {
             _pointSpawner = pointSpawner ?? throw new ArgumentNullException(nameof(pointSpawner));
             _cometSpawner = cometSpawner ?? throw new ArgumentNullException(nameof(cometSpawner));
@@ -27,6 +38,7 @@ namespace PlanetIO.Application
             _cometsPool = cometsPool ?? throw new ArgumentNullException(nameof(cometsPool));
             _enemyPool = enemyPool ?? throw new ArgumentNullException(nameof(enemyPool));
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
+            _loadingView = loadingView ?? throw new ArgumentNullException(nameof(loadingView));
         }
 
         public event Action<GameState, GameState> StateChanged;
@@ -34,10 +46,10 @@ namespace PlanetIO.Application
         public GameState State { get; private set; } = GameState.None;
         public bool IsGameplayActive => State == GameState.Playing;
 
-        public void Start()
+        public async Awaitable StartAsync(CancellationToken cancellation = new CancellationToken())
         {
             TransitionTo(GameState.Initializing);
-            InitializeWorld();
+            await InitializeWorldAsync();
             TransitionTo(GameState.WaitingForPlayers);
         }
 
@@ -96,6 +108,19 @@ namespace PlanetIO.Application
             _pointSpawner.Initialize(_pointsPool);
             _cometSpawner.Initialize(_cometsPool);
             _enemySpawner.Initialize(_enemyPool);
+            _worldInitialized = true;
+        }
+
+        private async Awaitable InitializeWorldAsync()
+        {
+            if (_worldInitialized || !_networkManager.IsServer)
+            {
+                return;
+            }
+
+            await _pointSpawner.InitializeAsync(_pointsPool);
+            await _cometSpawner.InitializeAsync(_cometsPool);
+            await _enemySpawner.InitializeAsync(_enemyPool);
             _worldInitialized = true;
         }
 

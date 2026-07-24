@@ -96,7 +96,9 @@ namespace PlanetIO
             }
 
             Vector2 normalizedDirection = Direction.normalized;
-            transform.rotation = Constants.DirectionToRotation(normalizedDirection);
+            Quaternion targetRotation = Constants.DirectionToRotation(normalizedDirection);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, targetRotation, _turnSpeed * Time.fixedDeltaTime);
             _rigidbody2D.linearVelocity = normalizedDirection * _currentSpeed;
         }
 

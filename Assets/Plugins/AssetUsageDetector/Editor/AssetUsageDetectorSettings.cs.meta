@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 13295073724765e45aa3b77486e515f4
+timeCreated: 1639982865
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112837
+  packageName: Asset Usage Detector
+  packageVersion: 2.6.2
+  assetPath: Assets/Plugins/AssetUsageDetector/Editor/AssetUsageDetectorSettings.cs
+  uploadId: 894428

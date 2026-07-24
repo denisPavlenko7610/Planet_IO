@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using PlanetIO.Core.Attributes;
 using PlanetIO.Application;
 using PlanetIO.Infrastructure.Boot;
@@ -20,6 +22,9 @@ namespace PlanetIO.Infrastructure
 
         [SerializeField, Assign] private NetworkManager _networkManager;
 
+        [SerializeField, Tooltip("All NetworkObject prefabs that must be registered before NetworkManager starts.")]
+        private List<GameObject> _networkPrefabs = new();
+
         protected override void Awake()
         {
             if (Instance != null && Instance != this)
@@ -30,8 +35,25 @@ namespace PlanetIO.Infrastructure
 
             Instance = this;
             _networkManager ??= GetComponent<NetworkManager>();
+            RegisterNetworkPrefabs();
             DontDestroyOnLoad(gameObject);
             base.Awake();
+        }
+
+        private void RegisterNetworkPrefabs()
+        {
+            if (_networkManager == null)
+            {
+                return;
+            }
+
+            foreach (GameObject prefab in _networkPrefabs)
+            {
+                if (prefab != null)
+                {
+                    _networkManager.AddNetworkPrefab(prefab);
+                }
+            }
         }
 
         protected override void Configure(IContainerBuilder builder)

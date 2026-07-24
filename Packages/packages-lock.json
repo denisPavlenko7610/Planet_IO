@@ -208,8 +208,27 @@
         "com.unity.modules.uielements": "1.0.0"
       }
     },
+    "com.unity.multiplayer.center.quickstart": {
+      "version": "1.1.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.multiplayer.center": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.multiplayer.playmode": {
+      "version": "2.0.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.2"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.netcode.gameobjects": {
-      "version": "2.13.0",
+      "version": "2.13.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -326,19 +345,19 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.multiplayer": {
-      "version": "2.2.4",
+      "version": "2.3.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.transport": "2.6.0",
-        "com.unity.collections": "2.2.1",
+        "com.unity.transport": "2.7.3",
+        "com.unity.collections": "2.6.7",
         "com.unity.services.qos": "1.4.1",
-        "com.unity.services.core": "1.16.0",
+        "com.unity.services.core": "1.18.0",
         "com.unity.services.wire": "1.4.4",
-        "com.unity.services.deployment": "1.7.1",
+        "com.unity.services.deployment": "1.7.2",
         "com.unity.nuget.newtonsoft-json": "3.2.2",
         "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.services.authentication": "3.6.0"
+        "com.unity.services.authentication": "3.7.0"
       },
       "url": "https://packages.unity.com"
     },

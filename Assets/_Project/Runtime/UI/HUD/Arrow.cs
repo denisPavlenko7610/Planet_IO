@@ -41,6 +41,12 @@ namespace PlanetIO.UI.Hud
 
         public void Show(Vector3 screenPosition, float angle, float scale)
         {
+            if (screenPosition.z < 0f)
+            {
+                Hide();
+                return;
+            }
+
             _arrowImage.enabled = true;
             _arrowImage.rectTransform.position = screenPosition;
             _arrowImage.rectTransform.rotation = Quaternion.Euler(0f, 0f, angle + _spriteAngleOffset);

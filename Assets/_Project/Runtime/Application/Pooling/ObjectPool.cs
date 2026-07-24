@@ -10,7 +10,7 @@ namespace PlanetIO.ObjectPool
 {
     public abstract class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
     {
-        [SerializeField, Min(1)] private int _capacity = 100;
+        [SerializeField, Min(1)] private int _capacity = 30;
         [SerializeField] private List<T> _prefabs = new();
 
         private IObjectResolver _objectResolver;

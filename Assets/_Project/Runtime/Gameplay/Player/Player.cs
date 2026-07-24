@@ -28,6 +28,7 @@ namespace PlanetIO
         private bool _servicesReady;
         private bool _borderEventSubscribed;
         private bool _isDefeated;
+        private float _invincibilityTimeRemaining;
 
         public bool CanBoost => Capacity > MinimumCapacity + _boostMassCost;
 
@@ -61,11 +62,13 @@ namespace PlanetIO
 
         private void OnEnable()
         {
+            PlayerRegistry.Register(this);
             SubscribeToBorderEvent();
         }
 
         private void OnDisable()
         {
+            PlayerRegistry.Unregister(this);
             UnsubscribeFromBorderEvent();
         }
 
@@ -147,9 +150,26 @@ namespace PlanetIO
 
         private void OnBorderHit(Player triggeringPlayer)
         {
-            if (IsServer && triggeringPlayer == this)
+            if (IsServer && triggeringPlayer == this && _invincibilityTimeRemaining <= 0f)
             {
                 Shrink(Mathf.Max(_boostMassCost, Capacity * _borderMassLoss));
+            }
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            if (IsServer)
+            {
+                _invincibilityTimeRemaining = 2f;
+            }
+        }
+
+        private void Update()
+        {
+            if (IsServer && _invincibilityTimeRemaining > 0f)
+            {
+                _invincibilityTimeRemaining -= Time.deltaTime;
             }
         }
 
@@ -159,7 +179,8 @@ namespace PlanetIO
                 !_servicesReady ||
                 !_gameStateService.IsGameplayActive ||
                 other == null ||
-                _isDefeated)
+                _isDefeated ||
+                _invincibilityTimeRemaining > 0f)
             {
                 return;
             }

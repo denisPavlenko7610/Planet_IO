@@ -43,10 +43,10 @@ GameObject:
   - component: {fileID: 8045643209477139673}
   - component: {fileID: 8045643209477139675}
   - component: {fileID: 8517843457492819217}
+  - component: {fileID: 6319454034253849638}
   - component: {fileID: 8517843457492819226}
   - component: {fileID: 8517843457492819222}
   - component: {fileID: 8045643209960618507}
-  - component: {fileID: 6319454034253849638}
   - component: {fileID: -5148852992218740070}
   - component: {fileID: -8062910053270479930}
   - component: {fileID: 7112992876354291134}
@@ -197,62 +197,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &8517843457492819226
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8045643209477139654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59c4c42fa62a4572baf18f5ad770809d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  ShowTopMostFoldoutHeaderGroup: 1
-  _minimumCapacity: 0.08
-  _maximumCapacity: 2
-  _foodGrowthMultiplier: 0.015
-  _cometDamageMultiplier: 0.02
-  _boostMassCost: 0.004
-  _borderMassLoss: 0.08
-  _eatEnemySizeRatio: 1.08
-  _pointSpawnTransform: {fileID: 82095068}
---- !u!114 &8517843457492819222
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8045643209477139654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e39014f46ffde44cb5478bc83ff5afa, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  ShowTopMostFoldoutHeaderGroup: 1
-  _player: {fileID: 8517843457492819226}
-  _rigidbody2D: {fileID: 8517843457492819217}
-  _boostMassConsumptionInterval: 0.15
-  _massSpeedPenalty: 0.35
-  _minimumSpeedMultiplier: 0.55
-  _turnSpeed: 540
-  _normalSpeed: 4
-  _boostSpeed: 8
---- !u!114 &8045643209960618507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8045643209477139654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79af618614919fa4cb54a0aad31b00f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  _playerMovement: {fileID: 0}
 --- !u!114 &6319454034253849638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,6 +223,62 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &8517843457492819226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59c4c42fa62a4572baf18f5ad770809d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _minimumCapacity: 0.08
+  _maximumCapacity: 2
+  _playerFoodGrowthMultiplier: 0.015
+  _playerCometDamageMultiplier: 0.02
+  _boostMassCost: 0.004
+  _borderMassLoss: 0.08
+  _eatEnemySizeRatio: 1.08
+  _pointSpawnTransform: {fileID: 82095068}
+--- !u!114 &8517843457492819222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e39014f46ffde44cb5478bc83ff5afa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _player: {fileID: 8517843457492819226}
+  _rigidbody2D: {fileID: 8517843457492819217}
+  _boostMassConsumptionInterval: 0.15
+  _massSpeedPenalty: 0.35
+  _minimumSpeedMultiplier: 0.55
+  _turnSpeed: 540
+  _normalSpeed: 4
+  _boostSpeed: 8
+--- !u!114 &8045643209960618507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79af618614919fa4cb54a0aad31b00f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _playerMovement: {fileID: 8517843457492819222}
 --- !u!114 &-5148852992218740070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,25 +335,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   NetworkRigidbodyBaseExpanded: 0
   UseRigidBodyForMotion: 1
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &3783145926087391521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8045643209477139654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c35be67349cb4bc3a0cb7b76ae5d9b5a, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
 --- !u!114 &7112992876354291134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,6 +352,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11e299ed76ccfa44084008b5a2c6314c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &3783145926087391521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c35be67349cb4bc3a0cb7b76ae5d9b5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1

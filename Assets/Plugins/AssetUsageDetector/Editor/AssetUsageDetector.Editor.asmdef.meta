@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8579ab42c9ab63d4bac5fb07bd390b46
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112837
+  packageName: Asset Usage Detector
+  packageVersion: 2.6.2
+  assetPath: Assets/Plugins/AssetUsageDetector/Editor/AssetUsageDetector.Editor.asmdef
+  uploadId: 894428

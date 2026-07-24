@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ac528f1751f33a647a45caeff6a9344b
+timeCreated: 1520032521
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112837
+  packageName: Asset Usage Detector
+  packageVersion: 2.6.2
+  assetPath: Assets/Plugins/AssetUsageDetector/README.txt
+  uploadId: 894428

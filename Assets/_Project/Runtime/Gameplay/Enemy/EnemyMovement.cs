@@ -20,8 +20,9 @@ namespace PlanetIO
             Evading
         }
 
-        private const int NearbyColliderCapacity = 48;
-        private const float MinimumThinkInterval = 0.05f;
+        private const int NearbyColliderCapacity = 24;
+        private const float MinimumThinkInterval = 0.5f;
+        private const float IdleCullDistance = 40f;
         private const float MinimumStateTime = 0.2f;
         private const float MinimumRoamTime = 0.1f;
 
@@ -55,12 +56,17 @@ namespace PlanetIO
         [SerializeField] private Rigidbody2D _rigidbody2D;
         [SerializeField] private Enemy _enemy;
 
+        private const float SeparationRadiusPerUnit = 2f;
+        private const float SeparationWeight = 0.8f;
+
         private readonly Collider2D[] _nearbyColliders =
             new Collider2D[NearbyColliderCapacity];
         private IGameStateService _gameStateService;
         private Vector2 _desiredDirection = Vector2.right;
+        private Vector2 _separationForce;
         private float _stateTimeRemaining;
         private float _thinkTimeRemaining;
+        private float _idleTimer;
 
         public Vector2 Direction { get; private set; } = Vector2.right;
         public MovementState State { get; private set; } =
@@ -85,8 +91,8 @@ namespace PlanetIO
 
             if (IsServer)
             {
-                EnterRoaming();
                 _thinkTimeRemaining = Random.Range(0f, _thinkInterval);
+                EnterRoaming();
             }
         }
 
@@ -119,7 +125,20 @@ namespace PlanetIO
 
             if (_thinkTimeRemaining <= 0f)
             {
-                Think();
+                if (IsPlayerNearby(IdleCullDistance))
+                {
+                    _idleTimer = 0f;
+                    Think();
+                }
+                else
+                {
+                    _idleTimer += _thinkInterval;
+                    if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
+                    {
+                        EnterRoaming();
+                    }
+                }
+
                 _thinkTimeRemaining = Mathf.Max(MinimumThinkInterval, _thinkInterval);
             }
 
@@ -178,9 +197,12 @@ namespace PlanetIO
             Player nearestPlayer = null;
             Point nearestFood = null;
             Vector2 hazardPosition = default;
+            Vector2 separationAccum = Vector2.zero;
             float playerDistanceSquared = float.PositiveInfinity;
             float foodDistanceSquared = float.PositiveInfinity;
             float hazardDistanceSquared = float.PositiveInfinity;
+            float separationRadiusSquared = (_enemy.Capacity * SeparationRadiusPerUnit) *
+                                            (_enemy.Capacity * SeparationRadiusPerUnit);
 
             for (int index = 0; index < hitCount; index++)
             {
@@ -193,7 +215,14 @@ namespace PlanetIO
                 Vector2 candidatePosition = candidate.transform.position;
                 float distanceSquared = (candidatePosition - position).sqrMagnitude;
 
-                if (candidate.TryGetComponent(out Player player) &&
+                if (candidate.TryGetComponent(out Enemy otherEnemy) &&
+                    distanceSquared < separationRadiusSquared &&
+                    distanceSquared > 0.001f)
+                {
+                    Vector2 push = position - candidatePosition;
+                    separationAccum += push.normalized / Mathf.Max(push.magnitude, 0.3f);
+                }
+                else if (candidate.TryGetComponent(out Player player) &&
                     distanceSquared < playerDistanceSquared)
                 {
                     nearestPlayer = player;
@@ -210,6 +239,8 @@ namespace PlanetIO
                     hazardDistanceSquared = distanceSquared;
                 }
             }
+
+            _separationForce = separationAccum;
 
             bool hasImmediateHazard = hazardDistanceSquared <= _hazardDistance * _hazardDistance;
             EnemyIntent intent = EnemyDecisionRules.ChooseIntent(_enemy.Capacity, nearestPlayer?.Capacity ?? 0f,
@@ -266,12 +297,21 @@ namespace PlanetIO
 
         private void UpdateDirection(float deltaTime)
         {
-            if (_desiredDirection.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
+            Vector2 target = _desiredDirection;
+
+            if (_separationForce.sqrMagnitude > 0.0001f)
+            {
+                target += _separationForce * SeparationWeight;
+            }
+
+            if (target.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
             {
                 return;
             }
 
-            Direction = Vector3.RotateTowards(Direction, _desiredDirection,
+            target.Normalize();
+
+            Direction = Vector3.RotateTowards(Direction, target,
 				_turnSpeed * Mathf.Deg2Rad * deltaTime, 0f).normalized;
         }
 
@@ -295,6 +335,11 @@ namespace PlanetIO
         }
 
         private static Vector2 GetRandomDirection() => Constants.GetRandomDirection();
+
+        private bool IsPlayerNearby(float maxDistance)
+        {
+            return PlayerRegistry.IsAnyPlayerWithinDistance(_enemyTransform.position, maxDistance);
+        }
 
 #if UNITY_EDITOR
         private void OnValidate()

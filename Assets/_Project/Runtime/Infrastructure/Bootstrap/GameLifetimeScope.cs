@@ -1,8 +1,11 @@
-﻿using PlanetIO.Core.Attributes;
+﻿using System;
+using PlanetIO.Core.Attributes;
+using PlanetIO.Core.Contracts.Loading;
 using PlanetIO.Application;
 using PlanetIO.ObjectPool;
 using PlanetIO.UI.Hud;
 using PlanetIO.Camera;
+using PlanetIO.UI.Loading;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -40,6 +43,10 @@ namespace PlanetIO.Infrastructure.DependencyInjection
         [SerializeField, Assign(AssignMode.Scene)]
         private RestartGame _restartGame;
 
+        [Header("UI")]
+        [SerializeField, Assign(AssignMode.Scene)]
+        private SessionHudView _sessionHudView;
+
         protected override void Awake()
         {
             if (Instance != null && Instance != this)
@@ -72,7 +79,15 @@ namespace PlanetIO.Infrastructure.DependencyInjection
                 .As<IRespawnService<Enemy>>();
 
             builder.RegisterComponent(_restartGame);
+
+            if (_playerPrefab == null)
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] _playerPrefab is not assigned in the Inspector. Assign a NetworkObject prefab.");
+            }
+
             builder.RegisterInstance(_playerPrefab);
+
             builder.RegisterComponentInHierarchy<BordersTrigger>();
 
             builder.RegisterComponentInHierarchy<AccelerationButton>()
@@ -87,17 +102,25 @@ namespace PlanetIO.Infrastructure.DependencyInjection
             builder.RegisterComponentInHierarchy<ScoreText>()
                 .As<IScoreView>();
 
-            builder.RegisterComponentInHierarchy<Arrow>()
-                .As<IDirectionArrowView>();
-
             builder.RegisterComponentInHierarchy<PlayerCamera>();
             builder.RegisterEntryPoint<LocalPlayerProvider>()
                 .As<ILocalPlayerProvider>();
 
             builder.RegisterEntryPoint<ScorePresenter>();
             builder.RegisterEntryPoint<DirectionArrowPresenter>();
-            builder.RegisterEntryPoint<PlayerNicknamePresenter>();
             builder.RegisterEntryPoint<GameSessionHudPresenter>();
+
+            builder.RegisterComponentInHierarchy<GameLoadingView>()
+                .As<IGameLoadingView>();
+
+            if (_sessionHudView == null)
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] _sessionHudView is not assigned. Add a SessionHudView component to a GameObject in the Game scene.");
+            }
+
+            builder.RegisterComponent(_sessionHudView)
+                .As<ISessionHudView>();
         }
 
         protected override LifetimeScope FindParent()
