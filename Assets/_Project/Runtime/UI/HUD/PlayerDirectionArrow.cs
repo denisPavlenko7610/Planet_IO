@@ -15,10 +15,6 @@ namespace PlanetIO.UI.Hud
         private void Awake()
         {
             _arrowTransform = _arrowRenderer != null ? _arrowRenderer.transform : transform;
-            if (_arrowRenderer != null)
-            {
-                _arrowRenderer.raycastTarget = false;
-            }
         }
 
         public void Bind(PlayerMovement playerMovement)

@@ -8,7 +8,7 @@ namespace PlanetIO
     {
         [Header("Capacity")]
         [SerializeField, Min(0.01f)] private float _minimumCapacity = 0.08f;
-        [SerializeField, Min(0.02f)] private float _maximumCapacity = 2f;
+        [SerializeField, Min(0.02f)] private float _maximumCapacity = 1f;
 
         private readonly NetworkVariable<float> _networkCapacity = new(
             0f,
@@ -29,7 +29,7 @@ namespace PlanetIO
 
         protected virtual void Awake()
         {
-            _localCapacity = ClampCapacity(transform.localScale.x);
+            _localCapacity = _minimumCapacity;
             ApplyCapacity(_localCapacity, false);
         }
 

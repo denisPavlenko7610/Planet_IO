@@ -14,7 +14,6 @@ namespace PlanetIO.Infrastructure.Networking
     public sealed class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
     {
         private const float ClientConnectionTimeoutSeconds = 8f;
-        private const float PostLoadDelaySeconds = 0.25f;
         private const float ProgressInitial = 0.02f;
         private const float ProgressSceneLoading = 0.04f;
         private const float ProgressSceneLoaded = 0.94f;
@@ -243,7 +242,7 @@ namespace PlanetIO.Infrastructure.Networking
                     await Awaitable.NextFrameAsync();
                 }
 
-                await Awaitable.WaitForSecondsAsync(PostLoadDelaySeconds);
+                await Awaitable.NextFrameAsync();
             }
             catch (OperationCanceledException)
             {

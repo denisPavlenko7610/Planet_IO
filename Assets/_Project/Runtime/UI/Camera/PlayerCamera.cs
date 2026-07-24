@@ -13,6 +13,7 @@ namespace PlanetIO.Camera
         [SerializeField, Min(0.01f)] private float _zoomSmoothTime = 0.2f;
         [SerializeField, Min(0f)] private float _zoomPerCapacityUnit = 5f;
         [SerializeField, Min(1f)] private float _maximumOrthographicSize = 30f;
+        [SerializeField, Min(0.1f)] private float _minimumOrthographicSize = 2f;
 
         private Player _player;
         private ILocalPlayerProvider _localPlayerProvider;
@@ -50,8 +51,14 @@ namespace PlanetIO.Camera
 
             Vector3 playerPosition = _player.transform.position;
             Vector3 targetPosition = new(playerPosition.x, playerPosition.y, _cameraDepth);
-            transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref _positionVelocity,
+            Vector3 smoothed = Vector3.SmoothDamp(transform.position, targetPosition, ref _positionVelocity,
                 _positionSmoothTime);
+
+            float unitsPerPixel = 1f / (Screen.height / (2f * Camera.orthographicSize));
+            transform.position = new Vector3(
+                Mathf.Round(smoothed.x / unitsPerPixel) * unitsPerPixel,
+                Mathf.Round(smoothed.y / unitsPerPixel) * unitsPerPixel,
+                _cameraDepth);
 
             Camera.orthographicSize = Mathf.SmoothDamp(Camera.orthographicSize, _targetOrthographicSize, ref _zoomVelocity,
                 _zoomSmoothTime);
@@ -96,9 +103,9 @@ namespace PlanetIO.Camera
 
         private void OnCapacityChanged(float capacity)
         {
-            float additionalZoom = Mathf.Max(0f, capacity - _baseCapacity) * _zoomPerCapacityUnit;
-            _targetOrthographicSize = Mathf.Clamp(_baseOrthographicSize + additionalZoom, _baseOrthographicSize,
-                _maximumOrthographicSize);
+            float additionalZoom = (capacity - _baseCapacity) * _zoomPerCapacityUnit;
+            _targetOrthographicSize = Mathf.Clamp(_baseOrthographicSize + additionalZoom,
+                _minimumOrthographicSize, _maximumOrthographicSize);
         }
     }
 }

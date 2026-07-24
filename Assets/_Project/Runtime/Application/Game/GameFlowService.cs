@@ -118,9 +118,39 @@ namespace PlanetIO.Application
                 return;
             }
 
-            await _pointSpawner.InitializeAsync(_pointsPool);
-            await _cometSpawner.InitializeAsync(_cometsPool);
-            await _enemySpawner.InitializeAsync(_enemyPool);
+            _pointSpawner.BindPool(_pointsPool);
+            _cometSpawner.BindPool(_cometsPool);
+            _enemySpawner.BindPool(_enemyPool);
+
+            const int spawnBatchSize = 5;
+            int pointsCount = _pointsPool.Capacity;
+            int cometsCount = _cometsPool.Capacity;
+            int enemiesCount = _enemyPool.Capacity;
+            int maxCount = Mathf.Max(pointsCount, cometsCount, enemiesCount);
+
+            for (int i = 0; i < maxCount; i++)
+            {
+                if (i < pointsCount)
+                {
+                    _pointSpawner.CreateObject();
+                }
+
+                if (i < cometsCount)
+                {
+                    _cometSpawner.CreateObject();
+                }
+
+                if (i < enemiesCount)
+                {
+                    _enemySpawner.CreateObject();
+                }
+
+                if (i % spawnBatchSize == spawnBatchSize - 1)
+                {
+                    await Awaitable.NextFrameAsync();
+                }
+            }
+
             _worldInitialized = true;
         }
 

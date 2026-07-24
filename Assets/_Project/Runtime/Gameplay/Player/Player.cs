@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using VContainer;
 
@@ -21,10 +22,17 @@ namespace PlanetIO
         [Header("Boost food")]
         [SerializeField] private Transform _pointSpawnTransform;
 
-        private IRespawnService<Enemy> _enemyRespawnService;
+        [Header("Respawn")]
+        [SerializeField] private float _respawnInvincibilityTime = 2f;
+		[SerializeField, Min(1f)] private float _minimumSpawnDistanceFromPlayers = 30f;
+		[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
+
+		private IRespawnService<Enemy> _enemyRespawnService;
         private ISpawnService<Point> _pointSpawnService;
         private INetworkSessionService _networkSessionService;
         private IGameStateService _gameStateService;
+        private NetworkTransform _networkTransform;
+
         private bool _servicesReady;
         private bool _borderEventSubscribed;
         private bool _isDefeated;
@@ -58,6 +66,8 @@ namespace PlanetIO
         {
             base.Awake();
             _rigidbody2D = GetComponent<Rigidbody2D>();
+            _networkTransform = GetComponent<NetworkTransform>();
+            Capacity = _initialCapacity;
         }
 
         private void OnEnable()
@@ -161,7 +171,8 @@ namespace PlanetIO
             base.OnNetworkSpawn();
             if (IsServer)
             {
-                _invincibilityTimeRemaining = 2f;
+                Capacity = _initialCapacity;
+                _invincibilityTimeRemaining = _respawnInvincibilityTime;
             }
         }
 
@@ -189,11 +200,8 @@ namespace PlanetIO
             {
                 if (Capacity >= enemy.Capacity * _eatEnemySizeRatio)
                 {
+                    Grow(enemy.Capacity);
                     _enemyRespawnService.Respawn(enemy);
-                }
-                else
-                {
-                    Defeat();
                 }
             }
             else
@@ -216,14 +224,84 @@ namespace PlanetIO
                 _rigidbody2D.linearVelocity = Vector2.zero;
             }
 
-            TriggerDefeatRpc();
+            Respawn();
+        }
+
+        public void Respawn()
+        {
+            if (!IsServer)
+            {
+                return;
+            }
+
+            _isDefeated = false;
+            _invincibilityTimeRemaining = _respawnInvincibilityTime;
+
+            if (_rigidbody2D != null)
+            {
+                _rigidbody2D.linearVelocity = Vector2.zero;
+            }
+
+            Vector3 newPosition = GetRespawnPosition();
+            Vector3 resetScale = new(_initialCapacity, _initialCapacity, 1f);
+
+            Capacity = _initialCapacity;
+            transform.localScale = resetScale;
+
+            if (IsSpawned)
+            {
+                if (IsOwner && _networkTransform != null)
+                {
+                    _networkTransform.Teleport(
+                        newPosition,
+                        transform.rotation,
+                        resetScale);
+                }
+                else
+                {
+                    TeleportOwnerRpc(newPosition, resetScale);
+                }
+            }
+            else
+            {
+                transform.position = newPosition;
+                transform.localScale = resetScale;
+            }
         }
 
         [Rpc(SendTo.Owner)]
-        private void TriggerDefeatRpc()
+        private void TeleportOwnerRpc(Vector3 position, Vector3 scale)
         {
-            _gameStateService?.FinishGame();
-            _ = ShutdownSessionAsync();
+            if (_networkTransform != null)
+            {
+                _networkTransform.Teleport(position, transform.rotation, scale);
+            }
+        }
+
+        private Vector3 GetRespawnPosition()
+        {
+            const float minX = -66f;
+            const float maxX = 56f;
+            const float minY = -36f;
+            const float maxY = 116f;
+            const int maxAttempts = 10;
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                Vector2 candidate = new Vector2(
+                    UnityEngine.Random.Range(minX, maxX),
+                    UnityEngine.Random.Range(minY, maxY));
+
+                if (PlayerRegistry.GetClosestPlayerDistance(candidate) >= _minimumSpawnDistanceFromPlayers)
+                {
+                    return candidate;
+                }
+            }
+
+            return new Vector3(
+                UnityEngine.Random.Range(minX, maxX),
+                UnityEngine.Random.Range(minY, maxY),
+                0f);
         }
 
         private async Awaitable ShutdownSessionAsync()

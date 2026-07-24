@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 163752541173436847}
   - component: {fileID: 2383583056927174934}
   - component: {fileID: 2383583056927174935}
+  - component: {fileID: 5385562654414929030}
   - component: {fileID: 2383583056927174932}
   - component: {fileID: 2383583056927174933}
   - component: {fileID: 1262657238371077527}
   - component: {fileID: -5667558191824504225}
-  - component: {fileID: 5385562654414929030}
   - component: {fileID: 7074555816000791592}
   m_Layer: 0
   m_Name: Enemy
@@ -163,6 +163,32 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: -0.57}
   m_Radius: 4
+--- !u!114 &5385562654414929030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2383583056927174931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3925560340
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &2383583056927174932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,8 +206,9 @@ MonoBehaviour:
   _maximumCapacity: 2
   _enemyConfig: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
   _spriteRenderer: {fileID: 163752541173436847}
-  _foodGrowthMultiplier: 0.01
-  _cometDamageMultiplier: 0.02
+  _enemyFoodGrowthMultiplier: 0.01
+  _enemyCometDamageMultiplier: 0.02
+  _eatSizeRatio: 1.08
 --- !u!114 &2383583056927174933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,11 +224,21 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _normalSpeed: 3
   _turnSpeed: 360
+  _massSpeedPenalty: 0.28
+  _minimumSpeedMultiplier: 0.58
+  _huntSpeedMultiplier: 1.12
+  _evadeSpeedMultiplier: 1.3
+  _awarenessRadius: 22
+  _thinkInterval: 0.5
+  _huntSizeRatio: 1.12
+  _threatSizeRatio: 1.05
+  _hazardDistance: 5
   _minimumTimeToChangeDirection: 10
   _maximumTimeToChangeDirection: 30
   _evasionDuration: 1.25
   _enemyTransform: {fileID: 2383583056927174930}
   _rigidbody2D: {fileID: 2383583056927174934}
+  _enemy: {fileID: 0}
 --- !u!114 &1262657238371077527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,32 +302,6 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &5385562654414929030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2383583056927174931}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3925560340
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  <InScenePlaced>k__BackingField: 0
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &7074555816000791592
 MonoBehaviour:
   m_ObjectHideFlags: 0

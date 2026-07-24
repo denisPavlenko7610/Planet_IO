@@ -11,14 +11,16 @@ namespace PlanetIO
 	{
         private const float SpawnDepth = 1f;
 
-        private const int SpawnBatchSize = 3;
+        private const int SpawnBatchSize = 1;
 
-        [SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.4f;
+        [SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.1f;
         [SerializeField, Min(0.01f)] private float _maximumObjectScale = 1f;
-        [SerializeField] private Vector2 _horizontalSpawnRange = new(-223f, 223f);
-        [SerializeField] private Vector2 _verticalSpawnRange = new(-139f, 161.9f);
+        [SerializeField] private Vector2 _horizontalSpawnRange = new(-66f, 56f);
+        [SerializeField] private Vector2 _verticalSpawnRange = new(-36f, 116f);
 
         private ObjectPool<T> _objectPool;
+
+        protected float MinimumObjectScale => _minimumObjectScale;
 
         public void Initialize(ObjectPool<T> objectPool)
         {
@@ -26,6 +28,12 @@ namespace PlanetIO
 
             _objectPool.Initialize();
             GenerateInitialObjects();
+        }
+
+        public void BindPool(ObjectPool<T> objectPool)
+        {
+            _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
+            _objectPool.Initialize();
         }
 
         public async Awaitable InitializeAsync(ObjectPool<T> objectPool)

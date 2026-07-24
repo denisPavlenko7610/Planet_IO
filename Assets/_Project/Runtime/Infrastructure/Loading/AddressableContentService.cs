@@ -26,41 +26,29 @@ namespace PlanetIO.Infrastructure.Loading
 
         private async Awaitable InitializeInternalAsync()
         {
-            AsyncOperationHandle initializationHandle = Addressables.InitializeAsync(false);
-
             try
             {
-                await WaitForCompletionAsync(initializationHandle);
+                AsyncOperationHandle initializationHandle = Addressables.InitializeAsync(false);
+                await initializationHandle.Task;
+
                 if (initializationHandle.Status != AsyncOperationStatus.Succeeded)
                 {
-                    throw initializationHandle.OperationException ?? new InvalidOperationException("Addressables initialization failed.");
+                    throw initializationHandle.OperationException
+                        ?? new InvalidOperationException("Addressables initialization failed.");
                 }
 
-                AsyncOperationHandle downloadHandle = Addressables.DownloadDependenciesAsync(PreloadLabel, false);
-                try
+                if (initializationHandle.IsValid())
                 {
-                    await WaitForCompletionAsync(downloadHandle);
-                    if (downloadHandle.Status != AsyncOperationStatus.Succeeded)
-                    {
-                        LoggerIO.LogWarning(
-                            $"Failed to warm up Addressables label " +
-                            $"'{PreloadLabel}': " +
-                            $"{downloadHandle.OperationException?.Message}");
-                    }
-                }
-                finally
-                {
-                    if (downloadHandle.IsValid())
-                    {
-                        Addressables.Release(downloadHandle);
-                    }
+                    Addressables.Release(initializationHandle);
                 }
 
                 IsReady = true;
+
+                _ = WarmUpPreloadAssetsAsync();
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
+                LoggerIO.LogError("Application is closing");
             }
             catch (Exception exception)
             {
@@ -69,26 +57,43 @@ namespace PlanetIO.Infrastructure.Loading
             }
             finally
             {
-                if (initializationHandle.IsValid())
+                _initializationComplete = true;
+            }
+        }
+
+        private static async Awaitable WarmUpPreloadAssetsAsync()
+        {
+            try
+            {
+                AsyncOperationHandle downloadHandle = Addressables.DownloadDependenciesAsync(PreloadLabel, false);
+                await downloadHandle.Task;
+
+                if (downloadHandle.Status != AsyncOperationStatus.Succeeded)
                 {
-                    Addressables.Release(initializationHandle);
+                    LoggerIO.LogWarning(
+                        $"Failed to warm up Addressables label " +
+                        $"'{PreloadLabel}': " +
+                        $"{downloadHandle.OperationException?.Message}");
                 }
 
-                _initializationComplete = true;
+                if (downloadHandle.IsValid())
+                {
+                    Addressables.Release(downloadHandle);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                LoggerIO.LogError("Application is closing");
+            }
+            catch (Exception exception)
+            {
+                LoggerIO.LogException(exception);
             }
         }
 
         private async Awaitable WaitForInitializationAsync()
         {
             while (!_initializationComplete)
-            {
-                await Awaitable.NextFrameAsync();
-            }
-        }
-
-        private static async Awaitable WaitForCompletionAsync(AsyncOperationHandle handle)
-        {
-            while (!handle.IsDone)
             {
                 await Awaitable.NextFrameAsync();
             }
