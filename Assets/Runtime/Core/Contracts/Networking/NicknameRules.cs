@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Planet_IO
 {
     public static class NicknameRules
@@ -7,7 +9,17 @@ namespace Planet_IO
 
         public static string Normalize(string nickname)
         {
-            string normalizedNickname = nickname?.Trim() ?? string.Empty;
+            string normalizedNickname = new string(
+                (nickname ?? string.Empty)
+                .Where(character => !char.IsControl(character))
+                .ToArray())
+                .Trim();
+
+            while (normalizedNickname.Contains("  "))
+            {
+                normalizedNickname = normalizedNickname.Replace("  ", " ");
+            }
+
             if (normalizedNickname.Length > MaximumLength)
             {
                 normalizedNickname =

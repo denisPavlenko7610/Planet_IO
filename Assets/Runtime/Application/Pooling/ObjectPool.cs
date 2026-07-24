@@ -15,7 +15,8 @@ namespace Planet_IO.ObjectPool
 
         private IObjectResolver _objectResolver;
 
-        public int Capacity => _capacity;
+        protected virtual int MinimumCapacity => 1;
+        public int Capacity => Mathf.Max(_capacity, MinimumCapacity);
         private IObjectPool<T> _pool;
 
         protected virtual int MaximumPoolSize => Capacity;
@@ -85,5 +86,12 @@ namespace Planet_IO.ObjectPool
         {
             Destroy(pooledObject.gameObject);
         }
+
+#if UNITY_EDITOR
+        protected virtual void OnValidate()
+        {
+            _capacity = Mathf.Max(MinimumCapacity, _capacity);
+        }
+#endif
     }
 }

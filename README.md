@@ -10,6 +10,7 @@ Players grow only by eating points, become slower as they get larger, and must t
 
 - Unity 6: core engine, scenes, physics, rendering, and gameplay loop.
 - Unity Netcode for GameObjects: multiplayer synchronization, player spawning, and networked gameplay state.
+- Addressables: local content catalog and preloaded audio bundle.
 - VContainer: lightweight dependency injection for scene scopes and service composition.
 - Awaitable: async scene flow and gameplay routines without UniTask.
 - Input System: keyboard, mouse, and touch input handling.

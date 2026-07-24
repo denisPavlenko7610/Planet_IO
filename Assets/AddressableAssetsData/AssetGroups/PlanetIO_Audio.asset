@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: PlanetIO_Audio
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: PlanetIO_Audio
+  m_GUID: dee7ba6311f9e3e43984c2b8b76d93c6
+  m_SerializeEntries:
+  - m_GUID: 05d9a414e7cc77f4aa1263997cd27e90
+    m_Address: audio/mercury
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 101e0b9c39659304a80998b25eaf6383
+    m_Address: audio/mars
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c694bba2ac8ccf4787839cc074efcc3
+    m_Address: audio/map-basic-version
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8f7a911471bcbbd41afdff6f14465435
+    m_Address: audio/bossmain
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b4aa1fc267102cd4fb3abf8a71df37b0
+    m_Address: audio/venus
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c921cc1ba52682d4db8c76334879ee11
+    m_Address: audio/bossintro
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d018a2b56c71fc443add02ef4e5251d2
+    m_Address: audio/map
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e471e823c380423488db3ab5d0cf038b
+    m_Address: audio/warp-jingle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e6c77533c4860a644b225a7fbc87e037
+    m_Address: audio/intro-jingle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5baa126bad6de142a7a88b4e63043c9
+    m_Address: audio/win-jingle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 0f474d9b0c96be34a9ab594e70143f92, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 3e90601f65b747944a982358647fb575, type: 2}
+    - {fileID: 11400000, guid: cc22b17ba6528f54cab56e2ebe752faf, type: 2}

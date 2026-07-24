@@ -3,6 +3,7 @@ using Planet_IO;
 using Planet_IO.Application;
 using PlanetIO.Infrastructure.Boot;
 using PlanetIO.Infrastructure.Networking;
+using PlanetIO.Infrastructure.Loading;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -43,6 +44,8 @@ namespace PlanetIO.Infrastructure
             builder.RegisterComponent(_networkManager);
             builder.Register<PlayerProfileService>(Lifetime.Singleton)
                 .As<IPlayerProfileService>();
+            builder.Register<AddressableContentService>(Lifetime.Singleton)
+                .As<IContentInitializationService>();
             builder.RegisterEntryPoint<NetworkSessionService>()
                 .AsSelf()
                 .As<INetworkSessionService>();

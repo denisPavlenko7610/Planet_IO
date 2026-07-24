@@ -1,6 +1,8 @@
 using System;
+using System.Text;
 using Planet_IO;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
@@ -12,26 +14,36 @@ namespace PlanetIO.Infrastructure.Networking
         IStartable,
         IDisposable
     {
-        private const float ClientConnectionTimeoutSeconds = 3f;
+        private const float ClientConnectionTimeoutSeconds = 8f;
+        private const string ListenOnAllInterfaces = "0.0.0.0";
 
         private readonly NetworkManager _networkManager;
+        private readonly IPlayerProfileService _playerProfileService;
         private NetworkSceneManager _networkSceneManager;
         private int _progressGeneration;
         private bool _subscribed;
         private bool _shutdownRequested;
-        private bool _switchingToSinglePlayer;
+        private bool _recoveringFromDisconnect;
 
-        public NetworkSessionService(NetworkManager networkManager)
+        public NetworkSessionService(
+            NetworkManager networkManager,
+            IPlayerProfileService playerProfileService)
         {
             _networkManager = networkManager
                 ?? throw new ArgumentNullException(nameof(networkManager));
+            _playerProfileService = playerProfileService
+                ?? throw new ArgumentNullException(nameof(playerProfileService));
         }
 
         public event Action<float> LoadingProgressChanged;
         public event Action<NetworkSessionState, string> StateChanged;
 
-        public NetworkSessionState State { get; private set; } = NetworkSessionState.Offline;
-        public NetworkSessionMode Mode { get; private set; } = NetworkSessionMode.None;
+        public NetworkSessionState State { get; private set; } =
+            NetworkSessionState.Offline;
+        public NetworkSessionMode Mode { get; private set; } =
+            NetworkSessionMode.None;
+        public RoomConnectionSettings CurrentRoom { get; private set; } =
+            RoomConnectionSettings.Default;
         public string Status { get; private set; } = "Готово к подключению";
         public float LoadingProgress { get; private set; }
         public bool IsServer => _networkManager != null && _networkManager.IsServer;
@@ -42,63 +54,63 @@ namespace PlanetIO.Infrastructure.Networking
             Subscribe();
         }
 
-        public async Awaitable<bool> StartHostAsync()
+        public async Awaitable<bool> StartHostAsync(RoomConnectionSettings room)
         {
-            if (!CanStartSession())
+            if (!CanStartSession() || !TryConfigureRoom(room, true))
             {
                 return false;
             }
 
             Mode = NetworkSessionMode.Host;
-            SetState(NetworkSessionState.StartingHost, "Запуск хоста");
-            _networkManager.ConnectionApprovalCallback = ApproveConnectionWithoutPlayer;
+            SetState(
+                NetworkSessionState.StartingHost,
+                $"Создание комнаты {CurrentRoom.RoomCode}");
+            _networkManager.ConnectionApprovalCallback = ApproveRoomConnection;
 
             if (!_networkManager.StartHost())
             {
-                Mode = NetworkSessionMode.None;
-                _networkManager.ConnectionApprovalCallback = null;
-                SetState(NetworkSessionState.Failed, "NetworkManager отклонил запуск хоста");
+                FailStart("NetworkManager отклонил запуск комнаты");
                 return false;
             }
 
             SubscribeSceneManager();
-
-            try
-            {
-                await Awaitable.NextFrameAsync(Application.exitCancellationToken);
-            }
-            catch (OperationCanceledException)
+            if (!await WaitOneFrameAsync())
             {
                 return false;
             }
 
             if (!_networkManager.IsListening || !_networkManager.IsServer)
             {
-                Mode = NetworkSessionMode.None;
-                SetState(NetworkSessionState.Failed, "Хост не перешёл в состояние Listening");
+                FailStart("Комната не перешла в состояние Listening");
                 return false;
             }
 
             return LoadNetworkScene(SceneNames.Loading);
         }
 
-        public async Awaitable<bool> StartClientOrSinglePlayerAsync()
+        public async Awaitable<bool> StartClientAsync(RoomConnectionSettings room)
         {
-            if (!CanStartSession())
+            if (!CanStartSession() || !TryConfigureRoom(room, false))
             {
                 return false;
             }
 
             Mode = NetworkSessionMode.Client;
-            SetState(NetworkSessionState.StartingClient, "Подключение к хосту");
+            _networkManager.ConnectionApprovalCallback = null;
+            SetState(
+                NetworkSessionState.StartingClient,
+                $"Подключение к {CurrentRoom.Address}:{CurrentRoom.Port}");
 
             if (!_networkManager.StartClient())
             {
-                return await StartSinglePlayerFallbackAsync();
+                FailStart("NetworkManager отклонил запуск клиента");
+                return false;
             }
 
             SubscribeSceneManager();
-            SetState(NetworkSessionState.Connecting, "Ожидание ответа хоста");
+            SetState(
+                NetworkSessionState.Connecting,
+                $"Вход в комнату {CurrentRoom.RoomCode}");
 
             try
             {
@@ -117,7 +129,8 @@ namespace PlanetIO.Infrastructure.Networking
                         break;
                     }
 
-                    await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+                    await Awaitable.NextFrameAsync(
+                        Application.exitCancellationToken);
                 }
             }
             catch (OperationCanceledException)
@@ -130,7 +143,57 @@ namespace PlanetIO.Infrastructure.Networking
                 return true;
             }
 
-            return await StartSinglePlayerFallbackAsync();
+            string failureReason = string.IsNullOrWhiteSpace(
+                _networkManager.DisconnectReason)
+                ? $"Комната не ответила за {ClientConnectionTimeoutSeconds:0} сек."
+                : _networkManager.DisconnectReason;
+
+            await StopNetworkManagerAsync();
+            FailStart(failureReason);
+            return false;
+        }
+
+        public async Awaitable<bool> StartSinglePlayerAsync()
+        {
+            RoomConnectionSettings singlePlayerRoom = new(
+                "SOLO",
+                RoomRules.DefaultAddress,
+                RoomRules.DefaultPort,
+                1);
+
+            if (!CanStartSession() ||
+                !TryConfigureRoom(singlePlayerRoom, true))
+            {
+                return false;
+            }
+
+            Mode = NetworkSessionMode.SinglePlayer;
+            SetState(
+                NetworkSessionState.StartingSinglePlayer,
+                "Запуск одиночной игры");
+            _networkManager.ConnectionApprovalCallback =
+                ApproveSinglePlayerConnection;
+
+            if (!_networkManager.StartHost())
+            {
+                FailStart("Не удалось запустить одиночную игру");
+                return false;
+            }
+
+            SubscribeSceneManager();
+            if (!await WaitOneFrameAsync())
+            {
+                return false;
+            }
+
+            if (!_networkManager.IsListening || !_networkManager.IsServer)
+            {
+                FailStart(
+                    "Одиночная игра не перешла в состояние Listening");
+                return false;
+            }
+
+            return LoadNetworkScene(SceneNames.Loading);
         }
 
         public async Awaitable ContinueToGameAsync()
@@ -144,7 +207,8 @@ namespace PlanetIO.Infrastructure.Networking
             {
                 while (IsSceneEventInProgress)
                 {
-                    await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+                    await Awaitable.NextFrameAsync(
+                        Application.exitCancellationToken);
                 }
 
                 await Awaitable.WaitForSecondsAsync(
@@ -167,35 +231,33 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             _shutdownRequested = true;
-            SetState(NetworkSessionState.ShuttingDown, "Завершение сетевой сессии");
+            SetState(
+                NetworkSessionState.ShuttingDown,
+                "Завершение сетевой сессии");
 
-            if (_networkManager.IsListening)
-            {
-                UnsubscribeSceneManager();
-                _networkManager.Shutdown();
-
-                try
-                {
-                    while (_networkManager.ShutdownInProgress)
-                    {
-                        await Awaitable.NextFrameAsync(
-                            Application.exitCancellationToken);
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-            }
-
+            await StopNetworkManagerAsync();
             _networkManager.ConnectionApprovalCallback = null;
 
             IsSceneEventInProgress = false;
             SetProgress(0f);
-            await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
+
+            try
+            {
+                await SceneManager.LoadSceneAsync(
+                    SceneNames.Menu,
+                    LoadSceneMode.Single);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
             _shutdownRequested = false;
             Mode = NetworkSessionMode.None;
-            SetState(NetworkSessionState.Offline, "Готово к подключению");
+            CurrentRoom = RoomConnectionSettings.Default;
+            SetState(
+                NetworkSessionState.Offline,
+                "Готово к подключению");
         }
 
         public void Dispose()
@@ -204,107 +266,230 @@ namespace PlanetIO.Infrastructure.Networking
             Unsubscribe();
         }
 
-        private static void ApproveConnectionWithoutPlayer(
+        private void ApproveRoomConnection(
             NetworkManager.ConnectionApprovalRequest request,
+            NetworkManager.ConnectionApprovalResponse response)
+        {
+            if (request.ClientNetworkId == NetworkManager.ServerClientId)
+            {
+                Approve(response);
+                return;
+            }
+
+            if (!TryDeserializePayload(
+                    request.Payload,
+                    out RoomConnectionPayload payload))
+            {
+                Reject(response, "Некорректные данные подключения.");
+                return;
+            }
+
+            if (!string.Equals(
+                    payload.Protocol,
+                    RoomRules.ProtocolVersion,
+                    StringComparison.Ordinal))
+            {
+                Reject(response, "Версия клиента не совпадает с версией комнаты.");
+                return;
+            }
+
+            if (!string.Equals(
+                    RoomRules.NormalizeRoomCode(payload.RoomCode),
+                    CurrentRoom.RoomCode,
+                    StringComparison.Ordinal))
+            {
+                Reject(response, "Неверный код комнаты.");
+                return;
+            }
+
+            if (_networkManager.ConnectedClientsIds.Count >=
+                CurrentRoom.MaxPlayers)
+            {
+                Reject(response, "Комната заполнена.");
+                return;
+            }
+
+            Approve(response);
+        }
+
+        private static void ApproveSinglePlayerConnection(
+            NetworkManager.ConnectionApprovalRequest request,
+            NetworkManager.ConnectionApprovalResponse response)
+        {
+            if (request.ClientNetworkId == NetworkManager.ServerClientId)
+            {
+                Approve(response);
+            }
+            else
+            {
+                Reject(response, "Эта сессия запущена в одиночном режиме.");
+            }
+        }
+
+        private static void Approve(
             NetworkManager.ConnectionApprovalResponse response)
         {
             response.Approved = true;
             response.CreatePlayerObject = false;
             response.Pending = false;
+            response.Reason = string.Empty;
         }
 
-        private static void ApproveLocalPlayerOnly(
-            NetworkManager.ConnectionApprovalRequest request,
-            NetworkManager.ConnectionApprovalResponse response)
+        private static void Reject(
+            NetworkManager.ConnectionApprovalResponse response,
+            string reason)
         {
-            bool isLocalPlayer = request.ClientNetworkId == NetworkManager.ServerClientId;
-            response.Approved = isLocalPlayer;
+            response.Approved = false;
             response.CreatePlayerObject = false;
             response.Pending = false;
-            response.Reason = isLocalPlayer
-                ? string.Empty
-                : "The session is running in single-player mode.";
+            response.Reason = reason;
         }
 
-        private async Awaitable<bool> StartSinglePlayerFallbackAsync()
+        private bool TryConfigureRoom(
+            RoomConnectionSettings room,
+            bool isHost)
         {
-            _switchingToSinglePlayer = true;
-            SetState(
-                NetworkSessionState.StartingSinglePlayer,
-                "Хост недоступен, запуск одиночной игры");
+            if (!RoomRules.IsValidRoomCode(room.RoomCode))
+            {
+                SetState(
+                    NetworkSessionState.Failed,
+                    $"Код комнаты: {RoomRules.MinimumRoomCodeLength}–" +
+                    $"{RoomRules.MaximumRoomCodeLength} букв или цифр");
+                return false;
+            }
+
+            if (_networkManager.NetworkConfig.NetworkTransport is not
+                UnityTransport transport)
+            {
+                SetState(
+                    NetworkSessionState.Failed,
+                    "Для комнат требуется Unity Transport");
+                return false;
+            }
+
+            CurrentRoom = new RoomConnectionSettings(
+                room.RoomCode,
+                room.Address,
+                room.Port,
+                room.MaxPlayers);
+
+            transport.SetConnectionData(
+                CurrentRoom.Address,
+                CurrentRoom.Port,
+                isHost ? ListenOnAllInterfaces : null);
+            _networkManager.NetworkConfig.ConnectionData =
+                SerializePayload(new RoomConnectionPayload
+                {
+                    Protocol = RoomRules.ProtocolVersion,
+                    RoomCode = CurrentRoom.RoomCode,
+                    Nickname = NicknameRules.Normalize(
+                        _playerProfileService.Nickname)
+                });
+
+            return true;
+        }
+
+        private bool CanStartSession()
+        {
+            if (_networkManager.IsListening ||
+                _networkManager.ShutdownInProgress)
+            {
+                SetState(
+                    NetworkSessionState.Failed,
+                    "Сетевая сессия уже запущена или завершается");
+                return false;
+            }
+
+            _shutdownRequested = false;
+            SetProgress(0f);
+            return true;
+        }
+
+        private void FailStart(string reason)
+        {
+            Mode = NetworkSessionMode.None;
+            _networkManager.ConnectionApprovalCallback = null;
+            SetState(NetworkSessionState.Failed, reason);
+        }
+
+        private async Awaitable StopNetworkManagerAsync()
+        {
+            if (_networkManager.IsListening)
+            {
+                UnsubscribeSceneManager();
+                _networkManager.Shutdown();
+            }
 
             try
             {
-                if (_networkManager.IsListening)
-                {
-                    UnsubscribeSceneManager();
-                    _networkManager.Shutdown();
-                }
-
                 while (_networkManager.ShutdownInProgress)
                 {
-                    await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+                    await Awaitable.NextFrameAsync(
+                        Application.exitCancellationToken);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // Application is closing.
+            }
+        }
 
-                Mode = NetworkSessionMode.SinglePlayer;
-                _networkManager.ConnectionApprovalCallback = ApproveLocalPlayerOnly;
+        private static byte[] SerializePayload(RoomConnectionPayload payload)
+        {
+            return Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload));
+        }
 
-                if (!_networkManager.StartHost())
-                {
-                    Mode = NetworkSessionMode.None;
-                    _networkManager.ConnectionApprovalCallback = null;
-                    SetState(
-                        NetworkSessionState.Failed,
-                        "Не удалось запустить одиночную игру");
-                    return false;
-                }
+        private static bool TryDeserializePayload(
+            byte[] bytes,
+            out RoomConnectionPayload payload)
+        {
+            payload = null;
+            if (bytes == null || bytes.Length == 0)
+            {
+                return false;
+            }
 
-                SubscribeSceneManager();
-                await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+            try
+            {
+                payload = JsonUtility.FromJson<RoomConnectionPayload>(
+                    Encoding.UTF8.GetString(bytes));
+                return payload != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
-                if (!_networkManager.IsListening || !_networkManager.IsServer)
-                {
-                    Mode = NetworkSessionMode.None;
-                    SetState(
-                        NetworkSessionState.Failed,
-                        "Одиночная игра не перешла в состояние Listening");
-                    return false;
-                }
-
-                return LoadNetworkScene(SceneNames.Loading);
+        private static async Awaitable<bool> WaitOneFrameAsync()
+        {
+            try
+            {
+                await Awaitable.NextFrameAsync(
+                    Application.exitCancellationToken);
+                return true;
             }
             catch (OperationCanceledException)
             {
                 return false;
             }
-            finally
-            {
-                _switchingToSinglePlayer = false;
-            }
-        }
-
-        private bool CanStartSession()
-        {
-            if (_networkManager.IsListening)
-            {
-                SetState(NetworkSessionState.Failed, "Сетевая сессия уже запущена");
-                return false;
-            }
-
-            return true;
         }
 
         private bool LoadNetworkScene(string sceneName)
         {
-            if (!_networkManager.IsServer || _networkManager.SceneManager == null)
+            if (!_networkManager.IsServer ||
+                _networkManager.SceneManager == null)
             {
-                SetState(NetworkSessionState.Failed, "NetworkSceneManager ещё не готов");
+                SetState(
+                    NetworkSessionState.Failed,
+                    "NetworkSceneManager ещё не готов");
                 return false;
             }
 
-            SceneEventProgressStatus result = _networkManager.SceneManager.LoadScene(
-                sceneName,
-                LoadSceneMode.Single);
+            SceneEventProgressStatus result =
+                _networkManager.SceneManager.LoadScene(
+                    sceneName,
+                    LoadSceneMode.Single);
 
             if (result != SceneEventProgressStatus.Started)
             {
@@ -316,7 +501,9 @@ namespace PlanetIO.Infrastructure.Networking
 
             IsSceneEventInProgress = true;
             SetProgress(0.02f);
-            SetState(NetworkSessionState.Loading, $"Загрузка сцены {sceneName}");
+            SetState(
+                NetworkSessionState.Loading,
+                $"Загрузка сцены {sceneName}");
             return true;
         }
 
@@ -349,7 +536,6 @@ namespace PlanetIO.Infrastructure.Networking
             _networkManager.OnServerStopped -= OnServerStopped;
 
             UnsubscribeSceneManager();
-
             _subscribed = false;
         }
 
@@ -383,25 +569,56 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void OnClientConnected(ulong clientId)
         {
-            if (clientId == _networkManager.LocalClientId && !_networkManager.IsServer)
+            if (clientId == _networkManager.LocalClientId &&
+                !_networkManager.IsServer)
             {
-                SetState(NetworkSessionState.Connecting, "Подключено, синхронизация сцены");
+                SetState(
+                    NetworkSessionState.Connecting,
+                    $"Комната {CurrentRoom.RoomCode} приняла подключение");
             }
         }
 
         private void OnClientDisconnected(ulong clientId)
         {
             if (clientId != _networkManager.LocalClientId ||
-                _shutdownRequested ||
-                _switchingToSinglePlayer)
+                _shutdownRequested)
             {
                 return;
             }
 
-            string reason = string.IsNullOrWhiteSpace(_networkManager.DisconnectReason)
-                ? "Соединение с хостом закрыто"
+            string reason = string.IsNullOrWhiteSpace(
+                _networkManager.DisconnectReason)
+                ? "Соединение с комнатой закрыто"
                 : _networkManager.DisconnectReason;
+            bool shouldReturnToMenu =
+                State is NetworkSessionState.Loading or
+                    NetworkSessionState.InGame;
             SetState(NetworkSessionState.Failed, reason);
+
+            if (shouldReturnToMenu && !_recoveringFromDisconnect)
+            {
+                _ = RecoverFromDisconnectAsync(reason);
+            }
+        }
+
+        private async Awaitable RecoverFromDisconnectAsync(string reason)
+        {
+            _recoveringFromDisconnect = true;
+            try
+            {
+                await ShutdownAndReturnToMenuAsync();
+                SetState(
+                    NetworkSessionState.Failed,
+                    $"Соединение потеряно: {reason}");
+            }
+            catch (OperationCanceledException)
+            {
+                // Application is closing.
+            }
+            finally
+            {
+                _recoveringFromDisconnect = false;
+            }
         }
 
         private void OnClientStopped(bool wasHost)
@@ -439,13 +656,14 @@ namespace PlanetIO.Infrastructure.Networking
                             ? NetworkSessionState.InGame
                             : NetworkSessionState.Loading,
                         sceneEvent.SceneName == SceneNames.Game
-                            ? "Игра загружена"
+                            ? $"Комната {CurrentRoom.RoomCode}: игра загружена"
                             : "Подготовка игрового мира");
                     break;
             }
         }
 
-        private async Awaitable TrackAsyncOperationAsync(AsyncOperation operation)
+        private async Awaitable TrackAsyncOperationAsync(
+            AsyncOperation operation)
         {
             if (operation == null)
             {
@@ -456,11 +674,15 @@ namespace PlanetIO.Infrastructure.Networking
 
             try
             {
-                while (!operation.isDone && generation == _progressGeneration)
+                while (!operation.isDone &&
+                       generation == _progressGeneration)
                 {
-                    float normalized = Mathf.Clamp01(operation.progress / 0.9f);
-                    SetProgress(Mathf.Lerp(0.04f, 0.9f, normalized));
-                    await Awaitable.NextFrameAsync(Application.exitCancellationToken);
+                    float normalized =
+                        Mathf.Clamp01(operation.progress / 0.9f);
+                    SetProgress(
+                        Mathf.Lerp(0.04f, 0.9f, normalized));
+                    await Awaitable.NextFrameAsync(
+                        Application.exitCancellationToken);
                 }
             }
             catch (OperationCanceledException)
@@ -475,11 +697,21 @@ namespace PlanetIO.Infrastructure.Networking
             LoadingProgressChanged?.Invoke(LoadingProgress);
         }
 
-        private void SetState(NetworkSessionState state, string status)
+        private void SetState(
+            NetworkSessionState state,
+            string status)
         {
             State = state;
             Status = status;
             StateChanged?.Invoke(state, status);
+        }
+
+        [Serializable]
+        private sealed class RoomConnectionPayload
+        {
+            public string Protocol;
+            public string RoomCode;
+            public string Nickname;
         }
     }
 }

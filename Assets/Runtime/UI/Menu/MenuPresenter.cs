@@ -32,38 +32,53 @@ namespace PlanetIO.UI.Menu
         public void Start()
         {
             _networkMenuView.HostRequested += OnHostRequested;
-            _networkMenuView.ClientRequested += OnClientRequested;
+            _networkMenuView.JoinRequested += OnJoinRequested;
+            _networkMenuView.SinglePlayerRequested += OnSinglePlayerRequested;
             _nicknameInputView.NicknameChanged += OnNicknameChanged;
             _nicknameInputView.RandomNicknameRequested +=
                 OnRandomNicknameRequested;
             _playerProfileService.NicknameChanged += OnProfileNicknameChanged;
+            _networkSessionService.StateChanged += OnSessionStateChanged;
 
             _nicknameInputView.ShowNickname(_playerProfileService.Nickname);
             _networkMenuView.SetInteractionEnabled(true);
+            _networkMenuView.ShowStatus(
+                _networkSessionService.Status,
+                false);
         }
 
         public void Dispose()
         {
             _networkMenuView.HostRequested -= OnHostRequested;
-            _networkMenuView.ClientRequested -= OnClientRequested;
+            _networkMenuView.JoinRequested -= OnJoinRequested;
+            _networkMenuView.SinglePlayerRequested -=
+                OnSinglePlayerRequested;
             _nicknameInputView.NicknameChanged -= OnNicknameChanged;
             _nicknameInputView.RandomNicknameRequested -=
                 OnRandomNicknameRequested;
             _playerProfileService.NicknameChanged -= OnProfileNicknameChanged;
+            _networkSessionService.StateChanged -= OnSessionStateChanged;
         }
 
-        private void OnHostRequested()
+        private void OnHostRequested(RoomConnectionSettings room)
         {
             _ = StartSessionAsync(
-                _networkSessionService.StartHostAsync,
+                () => _networkSessionService.StartHostAsync(room),
                 "Не удалось запустить хост");
         }
 
-        private void OnClientRequested()
+        private void OnJoinRequested(RoomConnectionSettings room)
         {
             _ = StartSessionAsync(
-                _networkSessionService.StartClientOrSinglePlayerAsync,
-                "Не удалось подключиться или запустить одиночную игру");
+                () => _networkSessionService.StartClientAsync(room),
+                "Не удалось подключиться к комнате");
+        }
+
+        private void OnSinglePlayerRequested()
+        {
+            _ = StartSessionAsync(
+                _networkSessionService.StartSinglePlayerAsync,
+                "Не удалось запустить одиночную игру");
         }
 
         private void OnNicknameChanged(string nickname)
@@ -79,6 +94,19 @@ namespace PlanetIO.UI.Menu
         private void OnProfileNicknameChanged(string nickname)
         {
             _nicknameInputView.ShowNickname(nickname);
+        }
+
+        private void OnSessionStateChanged(
+            NetworkSessionState state,
+            string status)
+        {
+            bool isError = state == NetworkSessionState.Failed;
+            _networkMenuView.ShowStatus(status, isError);
+
+            if (isError)
+            {
+                RestoreInteraction();
+            }
         }
 
         private async Awaitable StartSessionAsync(

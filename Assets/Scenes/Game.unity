@@ -880,7 +880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e38ce1407ef3402396ec080dbfec8b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _capacity: 12
+  _capacity: 16
   _prefabs:
   - {fileID: 2383583056927174932, guid: e2565227c00b8104e82c48b017fb0851, type: 3}
 --- !u!114 &549707340

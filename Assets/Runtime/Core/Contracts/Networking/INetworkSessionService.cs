@@ -10,13 +10,15 @@ namespace Planet_IO
 
         NetworkSessionState State { get; }
         NetworkSessionMode Mode { get; }
+        RoomConnectionSettings CurrentRoom { get; }
         string Status { get; }
         float LoadingProgress { get; }
         bool IsServer { get; }
         bool IsSceneEventInProgress { get; }
 
-        Awaitable<bool> StartHostAsync();
-        Awaitable<bool> StartClientOrSinglePlayerAsync();
+        Awaitable<bool> StartHostAsync(RoomConnectionSettings room);
+        Awaitable<bool> StartClientAsync(RoomConnectionSettings room);
+        Awaitable<bool> StartSinglePlayerAsync();
         Awaitable ContinueToGameAsync();
         Awaitable ShutdownAndReturnToMenuAsync();
     }

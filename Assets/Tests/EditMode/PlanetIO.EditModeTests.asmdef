@@ -1,0 +1,24 @@
+{
+    "name": "PlanetIO.EditModeTests",
+    "rootNamespace": "PlanetIO.Tests",
+    "references": [
+        "PlanetIO.Core",
+        "PlanetIO.Gameplay",
+        "PlanetIO.Application",
+        "Unity.Addressables.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}
