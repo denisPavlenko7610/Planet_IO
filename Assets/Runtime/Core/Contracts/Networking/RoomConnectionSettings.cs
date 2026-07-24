@@ -5,35 +5,21 @@ namespace Planet_IO
     [Serializable]
     public readonly struct RoomConnectionSettings : IEquatable<RoomConnectionSettings>
     {
-        public RoomConnectionSettings(
-            string roomCode,
-            string address,
-            ushort port,
-            int maxPlayers)
+        public RoomConnectionSettings(string roomCode, int maxPlayers)
         {
             RoomCode = RoomRules.NormalizeRoomCode(roomCode);
-            Address = RoomRules.NormalizeAddress(address);
-            Port = port == 0 ? RoomRules.DefaultPort : port;
             MaxPlayers = RoomRules.ClampMaxPlayers(maxPlayers);
         }
 
         public string RoomCode { get; }
-        public string Address { get; }
-        public ushort Port { get; }
         public int MaxPlayers { get; }
 
         public static RoomConnectionSettings Default =>
-            new(
-                RoomRules.DefaultRoomCode,
-                RoomRules.DefaultAddress,
-                RoomRules.DefaultPort,
-                RoomRules.DefaultMaxPlayers);
+            new(RoomRules.DefaultRoomCode, RoomRules.DefaultMaxPlayers);
 
         public bool Equals(RoomConnectionSettings other)
         {
             return string.Equals(RoomCode, other.RoomCode, StringComparison.Ordinal) &&
-                   string.Equals(Address, other.Address, StringComparison.OrdinalIgnoreCase) &&
-                   Port == other.Port &&
                    MaxPlayers == other.MaxPlayers;
         }
 
@@ -41,13 +27,9 @@ namespace Planet_IO
             obj is RoomConnectionSettings other && Equals(other);
 
         public override int GetHashCode() =>
-            HashCode.Combine(
-                RoomCode,
-                Address?.ToUpperInvariant(),
-                Port,
-                MaxPlayers);
+            HashCode.Combine(RoomCode, MaxPlayers);
 
         public override string ToString() =>
-            $"{RoomCode} @ {Address}:{Port} ({MaxPlayers})";
+            $"{RoomCode} ({MaxPlayers})";
     }
 }

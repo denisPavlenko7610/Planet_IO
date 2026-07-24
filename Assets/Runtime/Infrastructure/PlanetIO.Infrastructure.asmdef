@@ -8,9 +8,13 @@
         "PlanetIO.UI",
         "VContainer",
         "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.Services.Authentication",
         "Unity.InputSystem",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Unity.Services.Multiplayer",
+        "Unity.Services.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

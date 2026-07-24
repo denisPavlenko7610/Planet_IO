@@ -2,8 +2,10 @@ using PlanetIO.Core.Attributes;
 using Planet_IO;
 using Planet_IO.Application;
 using PlanetIO.Infrastructure.Boot;
+using PlanetIO.Infrastructure.Audio;
 using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
+using PlanetIO.Infrastructure.Mobile;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -44,11 +46,15 @@ namespace PlanetIO.Infrastructure
             builder.RegisterComponent(_networkManager);
             builder.Register<PlayerProfileService>(Lifetime.Singleton)
                 .As<IPlayerProfileService>();
+            builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton)
+                .As<IRoomPreferences>();
             builder.Register<AddressableContentService>(Lifetime.Singleton)
                 .As<IContentInitializationService>();
+            builder.RegisterEntryPoint<AddressableMusicService>();
             builder.RegisterEntryPoint<NetworkSessionService>()
                 .AsSelf()
                 .As<INetworkSessionService>();
+            builder.RegisterEntryPoint<MobileRuntimeService>();
             builder.RegisterEntryPoint<ApplicationBootstrap>();
         }
 

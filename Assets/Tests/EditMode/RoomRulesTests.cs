@@ -34,30 +34,49 @@ namespace PlanetIO.Tests
         {
             RoomConnectionSettings settings = new(
                 " room-1 ",
-                " 192.168.0.4 ",
-                0,
                 999);
 
             Assert.That(settings.RoomCode, Is.EqualTo("ROOM1"));
-            Assert.That(settings.Address, Is.EqualTo("192.168.0.4"));
-            Assert.That(settings.Port, Is.EqualTo(RoomRules.DefaultPort));
             Assert.That(
                 settings.MaxPlayers,
                 Is.EqualTo(RoomRules.MaximumPlayers));
         }
 
-        [TestCase("7777", true, 7777)]
-        [TestCase("0", false, RoomRules.DefaultPort)]
-        [TestCase("not-a-port", false, RoomRules.DefaultPort)]
-        public void TryParsePort_ValidatesRange(
-            string input,
-            bool expectedResult,
-            int expectedPort)
+        [Test]
+        public void TryCreateConnectionSettings_NormalizesCompleteForm()
         {
-            bool result = RoomRules.TryParsePort(input, out ushort port);
+            bool result = RoomRules.TryCreateConnectionSettings(
+                " planet-42 ",
+                out RoomConnectionSettings settings,
+                out string validationError);
 
-            Assert.That(result, Is.EqualTo(expectedResult));
-            Assert.That(port, Is.EqualTo((ushort)expectedPort));
+            Assert.That(result, Is.True);
+            Assert.That(validationError, Is.Empty);
+            Assert.That(settings.RoomCode, Is.EqualTo("PLANET42"));
+            Assert.That(
+                settings.MaxPlayers,
+                Is.EqualTo(RoomRules.DefaultMaxPlayers));
+        }
+
+        [Test]
+        public void TryCreateConnectionSettings_RejectsInvalidForm()
+        {
+            bool result = RoomRules.TryCreateConnectionSettings(
+                "abc",
+                out _,
+                out string validationError);
+
+            Assert.That(result, Is.False);
+            Assert.That(validationError, Is.Not.Empty);
+        }
+
+        [Test]
+        public void CreateRoomCode_AlwaysCreatesValidCode()
+        {
+            string roomCode = RoomRules.CreateRoomCode();
+
+            Assert.That(RoomRules.IsValidRoomCode(roomCode), Is.True);
+            Assert.That(roomCode, Has.Length.EqualTo(6));
         }
     }
 }

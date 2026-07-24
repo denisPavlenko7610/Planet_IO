@@ -60,25 +60,26 @@ namespace PlanetIO.UI.Menu
             _networkSessionService.StateChanged -= OnSessionStateChanged;
         }
 
-        private void OnHostRequested(RoomConnectionSettings room)
+        private void OnHostRequested()
         {
             _ = StartSessionAsync(
-                () => _networkSessionService.StartHostAsync(room),
-                "Не удалось запустить хост");
+                () => _networkSessionService.StartHostAsync(
+                    RoomRules.DefaultMaxPlayers),
+                "Failed to start host");
         }
 
-        private void OnJoinRequested(RoomConnectionSettings room)
+        private void OnJoinRequested(string relayJoinCode)
         {
             _ = StartSessionAsync(
-                () => _networkSessionService.StartClientAsync(room),
-                "Не удалось подключиться к комнате");
+                () => _networkSessionService.StartClientAsync(relayJoinCode),
+                "Failed to connect to room");
         }
 
         private void OnSinglePlayerRequested()
         {
             _ = StartSessionAsync(
                 _networkSessionService.StartSinglePlayerAsync,
-                "Не удалось запустить одиночную игру");
+                "Failed to start single player");
         }
 
         private void OnNicknameChanged(string nickname)

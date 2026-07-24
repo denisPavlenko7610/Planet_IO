@@ -16,8 +16,8 @@ namespace Planet_IO
         bool IsServer { get; }
         bool IsSceneEventInProgress { get; }
 
-        Awaitable<bool> StartHostAsync(RoomConnectionSettings room);
-        Awaitable<bool> StartClientAsync(RoomConnectionSettings room);
+        Awaitable<bool> StartHostAsync(int maxPlayers);
+        Awaitable<bool> StartClientAsync(string relayJoinCode);
         Awaitable<bool> StartSinglePlayerAsync();
         Awaitable ContinueToGameAsync();
         Awaitable ShutdownAndReturnToMenuAsync();

@@ -16,7 +16,7 @@ AudioImporter:
   preloadAudioData: 1
   loadInBackground: 1
   ambisonic: 0
-  3D: 1
+  3D: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

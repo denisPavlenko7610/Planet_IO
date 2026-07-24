@@ -9,11 +9,9 @@ namespace Planet_IO
         public const int MaximumRoomCodeLength = 12;
         public const int MinimumPlayers = 1;
         public const int MaximumPlayers = 16;
-        public const int DefaultMaxPlayers = 8;
-        public const ushort DefaultPort = 7777;
-        public const string DefaultAddress = "127.0.0.1";
+        public const int DefaultMaxPlayers = 4;
         public const string DefaultRoomCode = "PLANET";
-        public const string ProtocolVersion = "planet-io/2";
+        public const string ProtocolVersion = "planet-io/3";
 
         public static string NormalizeRoomCode(string roomCode)
         {
@@ -35,26 +33,36 @@ namespace Planet_IO
                    normalized.Length <= MaximumRoomCodeLength;
         }
 
-        public static string NormalizeAddress(string address)
-        {
-            string normalized = address?.Trim() ?? string.Empty;
-            return string.IsNullOrWhiteSpace(normalized)
-                ? DefaultAddress
-                : normalized;
-        }
-
         public static int ClampMaxPlayers(int maxPlayers) =>
             Math.Clamp(maxPlayers, MinimumPlayers, MaximumPlayers);
 
-        public static bool TryParsePort(string value, out ushort port)
+        public static bool TryCreateConnectionSettings(
+            string roomCode,
+            out RoomConnectionSettings settings,
+            out string validationError)
         {
-            if (ushort.TryParse(value?.Trim(), out port) && port > 0)
+            string normalizedRoomCode = NormalizeRoomCode(roomCode);
+            if (!IsValidRoomCode(normalizedRoomCode))
             {
-                return true;
+                settings = default;
+                validationError =
+                    $"Room code must contain " +
+                    $"{MinimumRoomCodeLength}–{MaximumRoomCodeLength} " +
+                    "letters or digits.";
+                return false;
             }
 
-            port = DefaultPort;
-            return false;
+            settings = new RoomConnectionSettings(
+                normalizedRoomCode,
+                DefaultMaxPlayers);
+            validationError = string.Empty;
+            return true;
         }
+
+        public static string CreateRoomCode() =>
+            Guid.NewGuid()
+                .ToString("N")
+                [..6]
+                .ToUpperInvariant();
     }
 }

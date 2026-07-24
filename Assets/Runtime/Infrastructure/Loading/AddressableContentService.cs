@@ -10,21 +10,20 @@ namespace PlanetIO.Infrastructure.Loading
         IContentInitializationService
     {
         private const string PreloadLabel = "preload";
-        private Awaitable _initialization;
         private bool _initializationStarted;
+        private bool _initializationComplete;
 
         public bool IsReady { get; private set; }
 
         public Awaitable InitializeAsync()
         {
-            if (_initializationStarted)
+            if (!_initializationStarted)
             {
-                return _initialization;
+                _initializationStarted = true;
+                _ = InitializeInternalAsync();
             }
 
-            _initializationStarted = true;
-            _initialization = InitializeInternalAsync();
-            return _initialization;
+            return WaitForInitializationAsync();
         }
 
         private async Awaitable InitializeInternalAsync()
@@ -54,7 +53,7 @@ namespace PlanetIO.Infrastructure.Loading
                         AsyncOperationStatus.Succeeded)
                     {
                         Debug.LogWarning(
-                            $"Не удалось прогреть Addressables label " +
+                            $"Failed to warm up Addressables label " +
                             $"'{PreloadLabel}': " +
                             $"{downloadHandle.OperationException?.Message}");
                     }
@@ -84,6 +83,17 @@ namespace PlanetIO.Infrastructure.Loading
                 {
                     Addressables.Release(initializationHandle);
                 }
+
+                _initializationComplete = true;
+            }
+        }
+
+        private async Awaitable WaitForInitializationAsync()
+        {
+            while (!_initializationComplete)
+            {
+                await Awaitable.NextFrameAsync(
+                    Application.exitCancellationToken);
             }
         }
 

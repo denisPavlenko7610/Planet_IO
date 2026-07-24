@@ -85,6 +85,7 @@ namespace PlanetIO.Infrastructure.DependencyInjection
             builder.RegisterEntryPoint<ScorePresenter>();
             builder.RegisterEntryPoint<DirectionArrowPresenter>();
             builder.RegisterEntryPoint<PlayerNicknamePresenter>();
+            builder.RegisterEntryPoint<GameSessionHudPresenter>();
         }
 
         protected override LifetimeScope FindParent()

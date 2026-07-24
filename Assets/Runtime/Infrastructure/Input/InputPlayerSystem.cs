@@ -63,22 +63,18 @@ namespace Planet_IO
             }
 
             _camera ??= UnityEngine.Camera.main;
-            if (_camera == null || Pointer.current == null)
+            if (_camera == null || Mouse.current == null)
             {
                 return;
             }
 
-            bool pointerMoved = Mouse.current != null &&
-                               Mouse.current.delta.ReadValue().sqrMagnitude > 0.01f;
-            bool touchHeld = Touchscreen.current != null &&
-                            Touchscreen.current.primaryTouch.press.isPressed;
-            if (!pointerMoved && !touchHeld)
+            if (Mouse.current.delta.ReadValue().sqrMagnitude <= 0.01f)
             {
                 return;
             }
 
             Vector3 playerPosition = _playerMovement.Player.transform.position;
-            Vector2 pointerPosition = Pointer.current.position.ReadValue();
+            Vector2 pointerPosition = Mouse.current.position.ReadValue();
             Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(
                 pointerPosition.x,
                 pointerPosition.y,

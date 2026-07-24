@@ -113,7 +113,7 @@ namespace Planet_IO
 
         protected override void DeathCheck(float capacity)
         {
-            if (capacity <= MinimumCapacity)
+            if (IsServer && capacity <= MinimumCapacity)
             {
                 Defeat();
             }

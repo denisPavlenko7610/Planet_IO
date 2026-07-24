@@ -179,9 +179,10 @@ namespace Planet_IO
         private void Think()
         {
             Vector2 position = _enemyTransform.position;
-            int hitCount = Physics2D.OverlapCircleNonAlloc(
+            int hitCount = Physics2D.OverlapCircle(
                 position,
                 _awarenessRadius,
+                ContactFilter2D.noFilter,
                 _nearbyColliders);
 
             Player nearestPlayer = null;

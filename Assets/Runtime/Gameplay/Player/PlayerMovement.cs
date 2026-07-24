@@ -28,6 +28,7 @@ namespace Planet_IO
         private IBoostInput _boostInput;
         private IGameStateService _gameStateService;
         private float _currentSpeed;
+        private int _boostGeneration;
         private bool _boostInputSubscribed;
         private bool _isBoosting;
 
@@ -62,6 +63,7 @@ namespace Planet_IO
         private void OnDisable()
         {
             _isBoosting = false;
+            _boostGeneration++;
             _currentSpeed = _normalSpeed;
             UnsubscribeBoostInput();
         }
@@ -164,6 +166,7 @@ namespace Planet_IO
             if (!isBoosting)
             {
                 _isBoosting = false;
+                _boostGeneration++;
                 _currentSpeed = _normalSpeed;
                 return;
             }
@@ -174,16 +177,19 @@ namespace Planet_IO
             }
 
             _isBoosting = true;
-            _ = ActivatePlayerBoostLogicAsync();
+            int generation = ++_boostGeneration;
+            _ = ActivatePlayerBoostLogicAsync(generation);
         }
 
-        private async Awaitable ActivatePlayerBoostLogicAsync()
+        private async Awaitable ActivatePlayerBoostLogicAsync(
+            int generation)
         {
             _currentSpeed = _boostSpeed;
 
             try
             {
-                while (_isBoosting)
+                while (_isBoosting &&
+                       generation == _boostGeneration)
                 {
                     if (!_player.CanBoost)
                     {

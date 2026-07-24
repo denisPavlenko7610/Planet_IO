@@ -1,15 +1,17 @@
 using System;
 using Planet_IO;
+using PlanetIO.UI.Mobile;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 
 namespace PlanetIO.UI.Menu
 {
     public interface INetworkMenuView
     {
-        event Action<RoomConnectionSettings> HostRequested;
-        event Action<RoomConnectionSettings> JoinRequested;
+        event Action HostRequested;
+        event Action<string> JoinRequested;
         event Action SinglePlayerRequested;
 
         void SetInteractionEnabled(bool interactionEnabled);
@@ -18,30 +20,33 @@ namespace PlanetIO.UI.Menu
 
     public sealed class NetworkUI : MonoBehaviour, INetworkMenuView
     {
-        private const string AddressPreference = "PlanetIO.Room.Address";
-        private const string PortPreference = "PlanetIO.Room.Port";
-        private const string RoomPreference = "PlanetIO.Room.Code";
-
         [Header("Existing menu")]
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
 
         [Header("Room controls (created automatically when empty)")]
-        [SerializeField] private TMP_InputField _roomCodeInput;
-        [SerializeField] private TMP_InputField _addressInput;
-        [SerializeField] private TMP_InputField _portInput;
-        [SerializeField] private TMP_InputField _maxPlayersInput;
+        [SerializeField] private TMP_InputField _joinCodeInput;
         [SerializeField] private Button _singlePlayerButton;
         [SerializeField] private TMP_Text _statusText;
 
-        public event Action<RoomConnectionSettings> HostRequested;
-        public event Action<RoomConnectionSettings> JoinRequested;
+        private IRoomPreferences _roomPreferences;
+
+        public event Action HostRequested;
+        public event Action<string> JoinRequested;
         public event Action SinglePlayerRequested;
 
         private void Awake()
         {
             EnsureRoomControls();
-            LoadPreferences();
+            SafeAreaFitter.AttachTo(transform.parent);
+        }
+
+        [Inject]
+        public void Construct(IRoomPreferences roomPreferences)
+        {
+            _roomPreferences = roomPreferences
+                ?? throw new ArgumentNullException(nameof(roomPreferences));
+            ShowRoomSettings(_roomPreferences.Load());
         }
 
         private void OnEnable()
@@ -66,10 +71,7 @@ namespace PlanetIO.UI.Menu
             SetInteractable(_hostButton, interactionEnabled);
             SetInteractable(_clientButton, interactionEnabled);
             SetInteractable(_singlePlayerButton, interactionEnabled);
-            SetInteractable(_roomCodeInput, interactionEnabled);
-            SetInteractable(_addressInput, interactionEnabled);
-            SetInteractable(_portInput, interactionEnabled);
-            SetInteractable(_maxPlayersInput, interactionEnabled);
+            SetInteractable(_joinCodeInput, interactionEnabled);
         }
 
         public void ShowStatus(string status, bool isError)
@@ -87,67 +89,24 @@ namespace PlanetIO.UI.Menu
 
         private void OnHostRequested()
         {
-            if (!TryReadSettings(out RoomConnectionSettings settings))
-            {
-                return;
-            }
-
-            SavePreferences(settings);
-            HostRequested?.Invoke(settings);
+            HostRequested?.Invoke();
         }
 
         private void OnJoinRequested()
         {
-            if (!TryReadSettings(out RoomConnectionSettings settings))
+            string joinCode = _joinCodeInput?.text;
+            if (string.IsNullOrWhiteSpace(joinCode))
             {
+                ShowStatus("Enter room code", true);
                 return;
             }
 
-            SavePreferences(settings);
-            JoinRequested?.Invoke(settings);
+            JoinRequested?.Invoke(joinCode.Trim());
         }
 
         private void OnSinglePlayerRequested()
         {
             SinglePlayerRequested?.Invoke();
-        }
-
-        private bool TryReadSettings(out RoomConnectionSettings settings)
-        {
-            settings = default;
-            string roomCode = RoomRules.NormalizeRoomCode(
-                _roomCodeInput?.text);
-
-            if (!RoomRules.IsValidRoomCode(roomCode))
-            {
-                ShowStatus(
-                    $"Код комнаты должен содержать " +
-                    $"{RoomRules.MinimumRoomCodeLength}–" +
-                    $"{RoomRules.MaximumRoomCodeLength} букв или цифр.",
-                    true);
-                _roomCodeInput?.Select();
-                return false;
-            }
-
-            if (!RoomRules.TryParsePort(_portInput?.text, out ushort port))
-            {
-                ShowStatus("Порт должен быть числом от 1 до 65535.", true);
-                _portInput?.Select();
-                return false;
-            }
-
-            int maxPlayers = RoomRules.DefaultMaxPlayers;
-            if (!int.TryParse(_maxPlayersInput?.text, out maxPlayers))
-            {
-                maxPlayers = RoomRules.DefaultMaxPlayers;
-            }
-
-            settings = new RoomConnectionSettings(
-                roomCode,
-                _addressInput?.text,
-                port,
-                maxPlayers);
-            return true;
         }
 
         private void EnsureRoomControls()
@@ -178,45 +137,18 @@ namespace PlanetIO.UI.Menu
             }
 
             int insertionIndex = _hostButton.transform.GetSiblingIndex();
-            _roomCodeInput ??= CreateInput(
+            _joinCodeInput ??= CreateInput(
                 inputTemplate,
                 controlsRoot,
-                "RoomCodeInput",
-                "Код комнаты (например PLANET)",
-                CreateRoomCode(),
+                "JoinCodeInput",
+                "Room code (from a friend)",
+                string.Empty,
                 TMP_InputField.ContentType.Alphanumeric,
                 RoomRules.MaximumRoomCodeLength,
-                insertionIndex++);
-            _addressInput ??= CreateInput(
-                inputTemplate,
-                controlsRoot,
-                "ServerAddressInput",
-                "Адрес хоста / IP",
-                RoomRules.DefaultAddress,
-                TMP_InputField.ContentType.Standard,
-                128,
-                insertionIndex++);
-            _portInput ??= CreateInput(
-                inputTemplate,
-                controlsRoot,
-                "ServerPortInput",
-                "Порт",
-                RoomRules.DefaultPort.ToString(),
-                TMP_InputField.ContentType.IntegerNumber,
-                5,
-                insertionIndex++);
-            _maxPlayersInput ??= CreateInput(
-                inputTemplate,
-                controlsRoot,
-                "MaxPlayersInput",
-                "Игроков в комнате (1–16)",
-                RoomRules.DefaultMaxPlayers.ToString(),
-                TMP_InputField.ContentType.IntegerNumber,
-                2,
                 insertionIndex);
 
-            SetButtonLabel(_hostButton, "Создать комнату");
-            SetButtonLabel(_clientButton, "Войти в комнату");
+            SetButtonLabel(_hostButton, "Create Room");
+            SetButtonLabel(_clientButton, "Join");
 
             if (_singlePlayerButton == null)
             {
@@ -226,7 +158,7 @@ namespace PlanetIO.UI.Menu
                 _singlePlayerButton.name = "SinglePlayerButton";
                 _singlePlayerButton.onClick =
                     new Button.ButtonClickedEvent();
-                SetButtonLabel(_singlePlayerButton, "Играть одному");
+                SetButtonLabel(_singlePlayerButton, "Single Player");
             }
 
             if (_statusText == null)
@@ -235,7 +167,7 @@ namespace PlanetIO.UI.Menu
                     _hostButton.GetComponentInChildren<TMP_Text>(true);
                 _statusText = Instantiate(labelTemplate, controlsRoot);
                 _statusText.name = "ConnectionStatus";
-                _statusText.text = "Введите код комнаты и адрес хоста";
+                _statusText.text = "Click \"Create Room\" or enter a code";
                 _statusText.alignment = TextAlignmentOptions.Center;
                 _statusText.textWrappingMode = TextWrappingModes.Normal;
                 _statusText.raycastTarget = false;
@@ -286,35 +218,10 @@ namespace PlanetIO.UI.Menu
             return input;
         }
 
-        private void LoadPreferences()
+        private void ShowRoomSettings(RoomConnectionSettings settings)
         {
-            SetText(
-                _addressInput,
-                PlayerPrefs.GetString(
-                    AddressPreference,
-                    RoomRules.DefaultAddress));
-            SetText(
-                _portInput,
-                PlayerPrefs.GetInt(
-                    PortPreference,
-                    RoomRules.DefaultPort).ToString());
-
-            string savedRoom = PlayerPrefs.GetString(
-                RoomPreference,
-                _roomCodeInput?.text ?? CreateRoomCode());
-            SetText(_roomCodeInput, savedRoom);
+            SetText(_joinCodeInput, string.Empty);
         }
-
-        private static void SavePreferences(RoomConnectionSettings settings)
-        {
-            PlayerPrefs.SetString(AddressPreference, settings.Address);
-            PlayerPrefs.SetInt(PortPreference, settings.Port);
-            PlayerPrefs.SetString(RoomPreference, settings.RoomCode);
-            PlayerPrefs.Save();
-        }
-
-        private static string CreateRoomCode() =>
-            Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
 
         private static void SetText(
             TMP_InputField inputField,

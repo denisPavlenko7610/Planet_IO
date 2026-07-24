@@ -1,0 +1,24 @@
+{
+    "name": "PlanetIO.PlayModeTests",
+    "rootNamespace": "PlanetIO.Tests",
+    "references": [
+        "PlanetIO.Core",
+        "PlanetIO.Gameplay",
+        "PlanetIO.Application",
+        "PlanetIO.Infrastructure",
+        "PlanetIO.UI",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

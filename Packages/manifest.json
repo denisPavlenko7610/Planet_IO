@@ -8,6 +8,8 @@
     "com.unity.multiplayer.center": "1.0.1",
     "com.unity.netcode.gameobjects": "2.13.0",
     "com.unity.render-pipelines.universal": "17.5.0",
+    "com.unity.services.authentication": "3.7.3",
+    "com.unity.services.multiplayer": "2.2.4",
     "com.unity.ugui": "2.5.0",
     "com.unity.ui": "2.0.0",
     "com.unity.vectorgraphics": "3.0.0-preview.7",
