@@ -23,11 +23,11 @@ namespace PlanetIO.UI.Mobile
         private void Awake()
         {
             _rectTransform = (RectTransform)transform;
-            Apply();
         }
 
         private void OnEnable()
         {
+            SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize);
             Apply();
         }
 

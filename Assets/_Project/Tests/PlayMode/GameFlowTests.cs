@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
-using PlanetIO;
+using PlanetIO.UI.Hud;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace PlanetIO.Tests
 {
-    public sealed class SoloGameFlowTests
+    public sealed class GameFlowTests
     {
         [UnityTest]
         [Timeout(45000)]
@@ -32,6 +32,13 @@ namespace PlanetIO.Tests
                 Object.FindObjectsByType<Enemy>(
                     FindObjectsInactive.Exclude).Length,
                 Is.GreaterThanOrEqualTo(10));
+
+            Player localPlayer = FindLocalPlayer();
+            Assert.That(localPlayer, Is.Not.Null);
+            localPlayer.Defeat();
+
+            yield return WaitForDefeatView(2f);
+            Assert.That(localPlayer.IsDefeated, Is.True);
 
             Button leaveButton = FindButton("LeaveButton");
             Assert.That(leaveButton, Is.Not.Null);
@@ -103,6 +110,31 @@ namespace PlanetIO.Tests
         private static int CountOpponents() =>
             Object.FindObjectsByType<Enemy>(
                 FindObjectsInactive.Exclude).Length;
+
+        private static Player FindLocalPlayer() =>
+            Object.FindObjectsByType<Player>(
+                    FindObjectsInactive.Exclude)
+                .FirstOrDefault(player => player.IsOwner);
+
+        private static IEnumerator WaitForDefeatView(
+            float timeoutSeconds)
+        {
+            float deadline = Time.realtimeSinceStartup + timeoutSeconds;
+            while (Time.realtimeSinceStartup < deadline)
+            {
+                SessionHudView view =
+                    Object.FindAnyObjectByType<SessionHudView>(
+                        FindObjectsInactive.Exclude);
+                if (view != null && view.IsDefeatVisible)
+                {
+                    yield break;
+                }
+
+                yield return null;
+            }
+
+            Assert.Fail("Defeat UI was not shown in time.");
+        }
 
         private static Button FindButton(string objectName) =>
             Object.FindObjectsByType<Button>(

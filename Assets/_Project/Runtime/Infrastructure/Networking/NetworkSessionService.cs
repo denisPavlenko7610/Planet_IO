@@ -60,6 +60,7 @@ namespace PlanetIO.Infrastructure.Networking
                 return false;
             }
 
+            int playerLimit = RoomRules.ClampMaxPlayers(maxPlayers);
             Mode = NetworkSessionMode.Host;
             SetState(NetworkSessionState.StartingHost, "Creating room...");
 
@@ -68,14 +69,14 @@ namespace PlanetIO.Infrastructure.Networking
                 await EnsureUgsInitializedAsync();
 
                 Allocation allocation = await RelayService.Instance
-                    .CreateAllocationAsync(maxPlayers - 1);
+                    .CreateAllocationAsync(playerLimit - 1);
 
                 string joinCode = await RelayService.Instance
                     .GetJoinCodeAsync(allocation.AllocationId);
 
                 ConfigureTransportForRelay(allocation);
 
-                CurrentRoom = new RoomConnectionSettings(joinCode, maxPlayers);
+                CurrentRoom = new RoomConnectionSettings(joinCode, playerLimit);
 
                 _networkManager.ConnectionApprovalCallback = (request, response) =>
                         _approvalHandler.ApproveRoomConnection(request, response, CurrentRoom);
@@ -89,23 +90,35 @@ namespace PlanetIO.Infrastructure.Networking
                 SubscribeSceneManager();
                 if (!await WaitOneFrameAsync())
                 {
+                    await AbortStartAsync("Room start was cancelled");
                     return false;
                 }
 
                 if (!_networkManager.IsListening || !_networkManager.IsServer)
                 {
-                    FailStart("Room did not transition to Listening state");
+                    await AbortStartAsync("Room did not transition to Listening state");
                     return false;
                 }
 
                 SetState(NetworkSessionState.StartingHost, $"Room created. Code: {joinCode}");
 
-                return LoadNetworkScene(SceneNames.Loading);
+                if (LoadNetworkScene(SceneNames.Loading))
+                {
+                    return true;
+                }
+
+                await AbortStartAsync(Status);
+                return false;
+            }
+            catch (OperationCanceledException)
+            {
+                await AbortStartAsync("Room start was cancelled");
+                return false;
             }
             catch (Exception exception)
             {
                 LoggerIO.LogException(exception);
-                FailStart($"Failed to create room: {exception.Message}");
+                await AbortStartAsync($"Failed to create room: {exception.Message}");
                 return false;
             }
         }
@@ -117,26 +130,29 @@ namespace PlanetIO.Infrastructure.Networking
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(relayJoinCode))
+            if (!RoomRules.TryCreateConnectionSettings(
+                    relayJoinCode,
+                    out RoomConnectionSettings room,
+                    out string validationError))
             {
-                FailStart("Room code cannot be empty");
+                FailStart(validationError);
                 return false;
             }
 
             Mode = NetworkSessionMode.Client;
             _networkManager.ConnectionApprovalCallback = null;
-            SetState(NetworkSessionState.StartingClient, $"Connecting to {relayJoinCode}...");
+            SetState(NetworkSessionState.StartingClient, $"Connecting to {room.RoomCode}...");
 
             try
             {
                 await EnsureUgsInitializedAsync();
 
                 JoinAllocation joinAllocation = await RelayService.Instance
-                    .JoinAllocationAsync(relayJoinCode.Trim());
+                    .JoinAllocationAsync(room.RoomCode);
 
                 ConfigureTransportForRelay(joinAllocation);
 
-                CurrentRoom = new RoomConnectionSettings(relayJoinCode.Trim(), RoomRules.DefaultMaxPlayers);
+                CurrentRoom = room;
 
 				ConnectionApprovalHandler.RoomConnectionPayload payload = new ConnectionApprovalHandler.RoomConnectionPayload
 				{
@@ -153,7 +169,7 @@ namespace PlanetIO.Infrastructure.Networking
                 }
 
                 SubscribeSceneManager();
-                SetState(NetworkSessionState.Connecting, $"Joining room {relayJoinCode}");
+                SetState(NetworkSessionState.Connecting, $"Joining room {room.RoomCode}");
 
                 float connectionDeadline = Time.realtimeSinceStartup + ClientConnectionTimeoutSeconds;
 
@@ -181,14 +197,18 @@ namespace PlanetIO.Infrastructure.Networking
                     ? $"Room did not respond within {ClientConnectionTimeoutSeconds:0}s."
                     : _networkManager.DisconnectReason;
 
-                await StopNetworkManagerAsync();
-                FailStart(failureReason);
+                await AbortStartAsync(failureReason);
+                return false;
+            }
+            catch (OperationCanceledException)
+            {
+                await AbortStartAsync("Connection was cancelled");
                 return false;
             }
             catch (Exception exception)
             {
                 LoggerIO.LogException(exception);
-                FailStart($"Connection error: {exception.Message}");
+                await AbortStartAsync($"Connection error: {exception.Message}");
                 return false;
             }
         }
@@ -216,16 +236,23 @@ namespace PlanetIO.Infrastructure.Networking
             SubscribeSceneManager();
             if (!await WaitOneFrameAsync())
             {
+                await AbortStartAsync("Single player start was cancelled");
                 return false;
             }
 
             if (!_networkManager.IsListening || !_networkManager.IsServer)
             {
-                FailStart("Single player did not transition to Listening state");
+                await AbortStartAsync("Single player did not transition to Listening state");
                 return false;
             }
 
-            return LoadNetworkScene(SceneNames.Loading);
+            if (LoadNetworkScene(SceneNames.Loading))
+            {
+                return true;
+            }
+
+            await AbortStartAsync(Status);
+            return false;
         }
 
         public async Awaitable ContinueToGameAsync()
@@ -239,6 +266,11 @@ namespace PlanetIO.Infrastructure.Networking
             {
                 while (IsSceneEventInProgress)
                 {
+                    if (_shutdownRequested || !_networkManager.IsListening || !IsServer)
+                    {
+                        return;
+                    }
+
                     await Awaitable.NextFrameAsync();
                 }
 
@@ -249,7 +281,10 @@ namespace PlanetIO.Infrastructure.Networking
                 return;
             }
 
-            LoadNetworkScene(SceneNames.Game);
+            if (!_shutdownRequested && _networkManager.IsListening && IsServer)
+            {
+                LoadNetworkScene(SceneNames.Game);
+            }
         }
 
         public async Awaitable ShutdownAndReturnToMenuAsync()
@@ -262,30 +297,30 @@ namespace PlanetIO.Infrastructure.Networking
             _shutdownRequested = true;
             SetState(NetworkSessionState.ShuttingDown, "Shutting down network session");
 
-            await StopNetworkManagerAsync();
-            _networkManager.ConnectionApprovalCallback = null;
-			_networkManager.NetworkConfig.ConnectionData = Array.Empty<byte>();
-
-            IsSceneEventInProgress = false;
-            SetProgress(0f);
-
             try
             {
+                await StopNetworkManagerAsync();
+                ResetConnectionConfiguration();
+                Mode = NetworkSessionMode.None;
+                CurrentRoom = RoomConnectionSettings.Default;
+                SetProgress(0f);
+
                 await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
+                SetState(NetworkSessionState.Offline, "Ready to connect");
             }
             catch (OperationCanceledException)
             {
-                return;
             }
-
-            _shutdownRequested = false;
-            Mode = NetworkSessionMode.None;
-            CurrentRoom = RoomConnectionSettings.Default;
-            SetState(NetworkSessionState.Offline, "Ready to connect");
+            finally
+            {
+                _shutdownRequested = false;
+            }
         }
 
         public void Dispose()
         {
+            _shutdownRequested = true;
+            _progressGeneration++;
             _networkManager.ConnectionApprovalCallback = null;
             Unsubscribe();
         }
@@ -297,22 +332,14 @@ namespace PlanetIO.Infrastructure.Networking
                 return;
             }
 
-            try
-            {
-                await UnityServices.InitializeAsync();
+            await UnityServices.InitializeAsync();
 
-                if (!AuthenticationService.Instance.IsSignedIn)
-                {
-                    await AuthenticationService.Instance.SignInAnonymouslyAsync();
-                }
-
-                _ugsInitialized = true;
-            }
-            catch (Exception exception)
+            if (!AuthenticationService.Instance.IsSignedIn)
             {
-                LoggerIO.LogException(exception);
-                throw;
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
             }
+
+            _ugsInitialized = true;
         }
 
         private UnityTransport GetRelayTransport()
@@ -351,17 +378,27 @@ namespace PlanetIO.Infrastructure.Networking
         private void FailStart(string reason)
         {
             Mode = NetworkSessionMode.None;
-            _networkManager.ConnectionApprovalCallback = null;
-			_networkManager.NetworkConfig.ConnectionData = Array.Empty<byte>();
-
+            CurrentRoom = RoomConnectionSettings.Default;
+            ResetConnectionConfiguration();
+            IsSceneEventInProgress = false;
+            SetProgress(0f);
             SetState(NetworkSessionState.Failed, reason);
+        }
+
+        private async Awaitable AbortStartAsync(string reason)
+        {
+            await StopNetworkManagerAsync();
+            FailStart(reason);
         }
 
         private async Awaitable StopNetworkManagerAsync()
         {
+            _progressGeneration++;
+            IsSceneEventInProgress = false;
+            UnsubscribeSceneManager();
+
             if (_networkManager.IsListening)
             {
-                UnsubscribeSceneManager();
                 _networkManager.Shutdown();
             }
 
@@ -374,8 +411,13 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
             }
+        }
+
+        private void ResetConnectionConfiguration()
+        {
+            _networkManager.ConnectionApprovalCallback = null;
+            _networkManager.NetworkConfig.ConnectionData = Array.Empty<byte>();
         }
 
         private static async Awaitable<bool> WaitOneFrameAsync()
@@ -519,8 +561,9 @@ namespace PlanetIO.Infrastructure.Networking
             }
         }
 
-        private void OnSessionStopped(bool wasHost)
+        private void OnSessionStopped(bool _)
         {
+            _progressGeneration++;
             IsSceneEventInProgress = false;
         }
 
@@ -575,7 +618,6 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
             }
         }
 

@@ -11,10 +11,12 @@ namespace PlanetIO.UI.Hud
 
         private PlayerMovement _playerMovement;
         private Transform _arrowTransform;
+        private bool _isVisible;
 
         private void Awake()
         {
             _arrowTransform = _arrowRenderer != null ? _arrowRenderer.transform : transform;
+            Hide();
         }
 
         public void Bind(PlayerMovement playerMovement)
@@ -24,6 +26,8 @@ namespace PlanetIO.UI.Hud
 
         public void Hide()
         {
+            _isVisible = false;
+
             if (_arrowRenderer != null)
             {
                 _arrowRenderer.enabled = false;
@@ -32,6 +36,8 @@ namespace PlanetIO.UI.Hud
 
         public void Show()
         {
+            _isVisible = true;
+
             if (_arrowRenderer != null)
             {
                 _arrowRenderer.enabled = true;
@@ -40,7 +46,9 @@ namespace PlanetIO.UI.Hud
 
         private void LateUpdate()
         {
-            if (_playerMovement == null || _arrowRenderer == null)
+            if (!_isVisible ||
+                _playerMovement == null ||
+                _arrowRenderer == null)
             {
                 return;
             }
@@ -55,8 +63,6 @@ namespace PlanetIO.UI.Hud
             _arrowTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
 
             _arrowTransform.localPosition = (Vector3)(direction * _distanceFromCenter);
-
-            _arrowRenderer.enabled = true;
         }
     }
 }

@@ -16,28 +16,42 @@ namespace PlanetIO.UI.Hud
         private readonly NetworkManager _networkManager;
         private readonly INetworkSessionService _networkSessionService;
         private readonly ISessionHudView _sessionHudView;
-        private readonly List<LeaderboardEntry> _entries = new();
+        private readonly ILocalPlayerProvider _localPlayerProvider;
+        private readonly List<(string Name, int Score)> _entries = new();
+        private readonly StringBuilder _leaderboardBuilder = new();
+        private Player _localPlayer;
         private float _refreshTimeRemaining;
         private bool _leaveInProgress;
+        private bool _isDefeated;
 
         public GameSessionHudPresenter(
             NetworkManager networkManager,
             INetworkSessionService networkSessionService,
-            ISessionHudView sessionHudView)
+            ISessionHudView sessionHudView,
+            ILocalPlayerProvider localPlayerProvider)
         {
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
             _sessionHudView = sessionHudView ?? throw new ArgumentNullException(nameof(sessionHudView));
+            _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
         }
 
         public void Start()
         {
             _sessionHudView.LeaveRequested += OnLeaveRequested;
+            _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
+            BindPlayer(_localPlayerProvider.LocalPlayer);
             Refresh();
+            _refreshTimeRemaining = RefreshIntervalSeconds;
         }
 
         public void Tick()
         {
+            if (_isDefeated)
+            {
+                return;
+            }
+
             _refreshTimeRemaining -= Time.unscaledDeltaTime;
             if (_refreshTimeRemaining > 0f)
             {
@@ -51,10 +65,17 @@ namespace PlanetIO.UI.Hud
         public void Dispose()
         {
             _sessionHudView.LeaveRequested -= OnLeaveRequested;
+            _localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
+            BindPlayer(null);
         }
 
         private void Refresh()
         {
+            if (_isDefeated)
+            {
+                return;
+            }
+
             RoomConnectionSettings room =
                 _networkSessionService.CurrentRoom;
             string roomLabel = _networkSessionService.Mode ==
@@ -70,29 +91,68 @@ namespace PlanetIO.UI.Hud
             _entries.Sort(static (left, right) =>
                 right.Score.CompareTo(left.Score));
 
-            StringBuilder builder = new();
-            builder.AppendLine("<b>LEADERS</b>");
+            _leaderboardBuilder.Clear();
+            _leaderboardBuilder.AppendLine("<b>LEADERS</b>");
             int visibleCount = Mathf.Min(
                 VisibleLeaderboardEntries,
                 _entries.Count);
 
             for (int index = 0; index < visibleCount; index++)
             {
-                LeaderboardEntry entry = _entries[index];
-                string line =
-                    $"{index + 1}. {EscapeRichText(entry.Name)}" +
-                    $"  {entry.Score:N0}";
-                builder.Append(entry.IsLocalPlayer
-                    ? $"<color=#5FE0FF>{line}</color>"
-                    : line);
+                (string Name, int Score) entry = _entries[index];
+                _leaderboardBuilder
+                    .Append(index + 1)
+                    .Append(". ")
+                    .Append(entry.Name)
+                    .Append("  ")
+                    .Append(entry.Score.ToString("N0"));
 
                 if (index < visibleCount - 1)
                 {
-                    builder.AppendLine();
+                    _leaderboardBuilder.AppendLine();
                 }
             }
 
-            _sessionHudView.ShowLeaderboardText(builder.ToString());
+            _sessionHudView.ShowLeaderboardText(
+                _leaderboardBuilder.ToString());
+        }
+
+        private void OnLocalPlayerChanged(Player player)
+        {
+            BindPlayer(player);
+        }
+
+        private void BindPlayer(Player player)
+        {
+            if (_localPlayer != null)
+            {
+                _localPlayer.Defeated -= OnPlayerDefeated;
+            }
+
+            _localPlayer = player;
+            if (_localPlayer == null)
+            {
+                return;
+            }
+
+            _localPlayer.Defeated += OnPlayerDefeated;
+            if (_localPlayer.IsDefeated)
+            {
+                OnPlayerDefeated();
+            }
+        }
+
+        private void OnPlayerDefeated()
+        {
+            if (_isDefeated || _localPlayer == null)
+            {
+                return;
+            }
+
+            _isDefeated = true;
+            _sessionHudView.ShowDefeat(
+                Constants.CapacityToScore(_localPlayer.Capacity));
+            _sessionHudView.SetLeaveButtonInteractable(true);
         }
 
         private void CollectEntries()
@@ -108,10 +168,9 @@ namespace PlanetIO.UI.Hud
             {
                 if (networkObject.TryGetComponent(out Enemy enemy))
                 {
-                    _entries.Add(new LeaderboardEntry(
+                    _entries.Add((
                         $"Bot {networkObject.NetworkObjectId % 100:00}",
-                        ToScore(enemy.Capacity),
-                        false));
+                        Constants.CapacityToScore(enemy.Capacity)));
                 }
             }
         }
@@ -148,29 +207,5 @@ namespace PlanetIO.UI.Hud
             }
         }
 
-        private static int ToScore(float capacity) =>
-            Constants.CapacityToScore(capacity);
-
-        private static string EscapeRichText(string value) =>
-            (value ?? NicknameRules.DefaultNickname)
-            .Replace("<", "‹")
-            .Replace(">", "›");
-
-        private readonly struct LeaderboardEntry
-        {
-            public LeaderboardEntry(
-                string name,
-                int score,
-                bool isLocalPlayer)
-            {
-                Name = name;
-                Score = score;
-                IsLocalPlayer = isLocalPlayer;
-            }
-
-            public string Name { get; }
-            public int Score { get; }
-            public bool IsLocalPlayer { get; }
-        }
     }
 }

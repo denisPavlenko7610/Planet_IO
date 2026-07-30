@@ -29,7 +29,6 @@ namespace PlanetIO.Infrastructure.Loading
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
             }
         }
     }

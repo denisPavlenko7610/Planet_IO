@@ -27,12 +27,12 @@ namespace PlanetIO.UI.Loading
             _networkSessionService.StateChanged -= OnSessionStateChanged;
         }
 
-        private void OnLoadingProgressChanged(float progress)
+        private void OnLoadingProgressChanged(float _)
         {
             Render();
         }
 
-        private void OnSessionStateChanged(NetworkSessionState state, string status)
+        private void OnSessionStateChanged(NetworkSessionState _, string __)
 		{
             Render();
         }

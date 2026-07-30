@@ -14,6 +14,7 @@ namespace PlanetIO.UI.Hud
     public sealed class LocalPlayerProvider : ILocalPlayerProvider, ITickable, IDisposable
     {
         private readonly NetworkManager _networkManager;
+        private NetworkObject _localPlayerObject;
 
         public LocalPlayerProvider(NetworkManager networkManager)
         {
@@ -26,7 +27,23 @@ namespace PlanetIO.UI.Hud
 
         public void Tick()
         {
-            Player currentPlayer = GetCurrentLocalPlayer();
+            NetworkObject playerObject =
+                _networkManager.LocalClient?.PlayerObject;
+            bool isAvailable = playerObject != null &&
+                               playerObject.IsSpawned;
+
+            if (playerObject == _localPlayerObject &&
+                isAvailable == (LocalPlayer != null))
+            {
+                return;
+            }
+
+            _localPlayerObject = playerObject;
+            Player currentPlayer = isAvailable &&
+                                   playerObject.TryGetComponent(out Player player)
+                ? player
+                : null;
+
             if (currentPlayer == LocalPlayer)
             {
                 return;
@@ -38,18 +55,9 @@ namespace PlanetIO.UI.Hud
 
         public void Dispose()
         {
+            _localPlayerObject = null;
             LocalPlayer = null;
             LocalPlayerChanged = null;
-        }
-
-        private Player GetCurrentLocalPlayer()
-        {
-            NetworkObject playerObject =
-                _networkManager.LocalClient?.PlayerObject;
-
-            return playerObject != null && playerObject.IsSpawned && playerObject.TryGetComponent(out Player player)
-                ? player
-                : null;
         }
     }
 }

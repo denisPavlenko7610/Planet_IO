@@ -26,9 +26,11 @@ namespace PlanetIO.Infrastructure.Loading
 
         private async Awaitable InitializeInternalAsync()
         {
+            AsyncOperationHandle initializationHandle = default;
+
             try
             {
-                AsyncOperationHandle initializationHandle = Addressables.InitializeAsync(false);
+                initializationHandle = Addressables.InitializeAsync(false);
                 await initializationHandle.Task;
 
                 if (initializationHandle.Status != AsyncOperationStatus.Succeeded)
@@ -37,18 +39,12 @@ namespace PlanetIO.Infrastructure.Loading
                         ?? new InvalidOperationException("Addressables initialization failed.");
                 }
 
-                if (initializationHandle.IsValid())
-                {
-                    Addressables.Release(initializationHandle);
-                }
-
                 IsReady = true;
-
                 _ = WarmUpPreloadAssetsAsync();
             }
             catch (OperationCanceledException)
             {
-                LoggerIO.LogError("Application is closing");
+                IsReady = false;
             }
             catch (Exception exception)
             {
@@ -57,15 +53,22 @@ namespace PlanetIO.Infrastructure.Loading
             }
             finally
             {
+                if (initializationHandle.IsValid())
+                {
+                    Addressables.Release(initializationHandle);
+                }
+
                 _initializationComplete = true;
             }
         }
 
         private static async Awaitable WarmUpPreloadAssetsAsync()
         {
+            AsyncOperationHandle downloadHandle = default;
+
             try
             {
-                AsyncOperationHandle downloadHandle = Addressables.DownloadDependenciesAsync(PreloadLabel, false);
+                downloadHandle = Addressables.DownloadDependenciesAsync(PreloadLabel, false);
                 await downloadHandle.Task;
 
                 if (downloadHandle.Status != AsyncOperationStatus.Succeeded)
@@ -75,19 +78,20 @@ namespace PlanetIO.Infrastructure.Loading
                         $"'{PreloadLabel}': " +
                         $"{downloadHandle.OperationException?.Message}");
                 }
-
-                if (downloadHandle.IsValid())
-                {
-                    Addressables.Release(downloadHandle);
-                }
             }
             catch (OperationCanceledException)
             {
-                LoggerIO.LogError("Application is closing");
             }
             catch (Exception exception)
             {
                 LoggerIO.LogException(exception);
+            }
+            finally
+            {
+                if (downloadHandle.IsValid())
+                {
+                    Addressables.Release(downloadHandle);
+                }
             }
         }
 

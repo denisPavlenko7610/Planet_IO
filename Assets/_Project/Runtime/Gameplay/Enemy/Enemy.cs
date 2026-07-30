@@ -25,6 +25,9 @@ namespace PlanetIO
         private IRespawnService<Enemy> _enemyRespawnService;
         private bool _servicesReady;
 
+        protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
+        protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
+
         [Inject]
         public void Construct(
             IRespawnService<Comet> cometRespawnService,
@@ -36,8 +39,6 @@ namespace PlanetIO
             PointRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
             _enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
-            FoodGrowthMultiplier = _enemyFoodGrowthMultiplier;
-            CometDamageMultiplier = _enemyCometDamageMultiplier;
             _servicesReady = true;
         }
 
@@ -45,16 +46,12 @@ namespace PlanetIO
         {
             base.Awake();
             _spriteRenderer ??= GetComponent<SpriteRenderer>();
+            Capacity = _initialCapacity;
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            if (IsServer)
-            {
-                Capacity = _initialCapacity;
-            }
-
             SetDeterministicSprite();
         }
 
@@ -83,10 +80,11 @@ namespace PlanetIO
             }
             else if (collider2D.TryGetComponent(out Player player))
             {
-                if (Capacity >= player.Capacity * _eatSizeRatio)
+                if (!player.IsDefeated &&
+                    Capacity >= player.Capacity * _eatSizeRatio)
                 {
                     Grow(player.Capacity);
-                    player.Respawn();
+                    player.Defeat();
                 }
             }
             else

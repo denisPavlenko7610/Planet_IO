@@ -483,7 +483,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentReference:
-    TypeName: 
+    TypeName: PlanetIO.Infrastructure.ApplicationLifetimeScope
   autoRun: 1
   autoInjectGameObjects: []
 --- !u!1001 &3152915756179711348
@@ -656,7 +656,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3979651569490045504, guid: eedba697b44f30e41bcbd8a7da2ce524, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4784340815134898038, guid: eedba697b44f30e41bcbd8a7da2ce524, type: 3}
       propertyPath: m_AnchorMax.y

@@ -45,30 +45,5 @@ namespace PlanetIO
             return false;
         }
 
-        public static float GetClosestPlayerDistance(Vector2 position)
-        {
-            if (Players.Count == 0)
-            {
-                return float.MaxValue;
-            }
-
-            float closest = float.MaxValue;
-
-            foreach (Player player in Players)
-            {
-                if (player == null)
-                {
-                    continue;
-                }
-
-                float dist = Vector2.Distance((Vector2)player.transform.position, position);
-                if (dist < closest)
-                {
-                    closest = dist;
-                }
-            }
-
-            return closest;
-        }
     }
 }

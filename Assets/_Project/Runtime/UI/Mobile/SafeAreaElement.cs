@@ -12,19 +12,16 @@ namespace PlanetIO.UI.Mobile
         private Rect _lastSafeArea;
         private Vector2Int _lastScreenSize;
 
-        public static void AttachTo(RectTransform target)
-        {
-            if (target != null && target.GetComponent<SafeAreaElement>() == null)
-            {
-                target.gameObject.AddComponent<SafeAreaElement>();
-            }
-        }
-
         private void Awake()
         {
             _rectTransform = (RectTransform)transform;
             _canvas = GetComponentInParent<Canvas>();
             _basePosition = _rectTransform.anchoredPosition;
+        }
+
+        private void OnEnable()
+        {
+            SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize);
             Apply();
         }
 

@@ -24,7 +24,7 @@ namespace PlanetIO.UI.Menu
         [Header("Menu controls")]
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
-        //[SerializeField] private Button _singlePlayerButton;
+        [SerializeField] private Button _singlePlayerButton;
         [SerializeField] private TMP_InputField _joinCodeInput;
         [SerializeField] private TMP_Text _statusText;
 
@@ -41,21 +41,21 @@ namespace PlanetIO.UI.Menu
         {
             _hostButton.onClick.AddListener(OnHostRequested);
             _clientButton.onClick.AddListener(OnJoinRequested);
-            //_singlePlayerButton.onClick.AddListener(OnSinglePlayerRequested);
+            _singlePlayerButton.onClick.AddListener(OnSinglePlayerRequested);
         }
 
         private void OnDisable()
         {
             _hostButton.onClick.RemoveListener(OnHostRequested);
             _clientButton.onClick.RemoveListener(OnJoinRequested);
-            //_singlePlayerButton.onClick.RemoveListener(OnSinglePlayerRequested);
+            _singlePlayerButton.onClick.RemoveListener(OnSinglePlayerRequested);
         }
 
         public void SetInteractionEnabled(bool interactionEnabled)
         {
             SetInteractable(_hostButton, interactionEnabled);
             SetInteractable(_clientButton, interactionEnabled);
-            //SetInteractable(_singlePlayerButton, interactionEnabled);
+            SetInteractable(_singlePlayerButton, interactionEnabled);
             SetInteractable(_joinCodeInput, interactionEnabled);
         }
 
@@ -77,7 +77,7 @@ namespace PlanetIO.UI.Menu
 
         private void OnJoinRequested()
         {
-            string joinCode = _joinCodeInput.text;
+            string joinCode = _joinCodeInput?.text;
             if (string.IsNullOrWhiteSpace(joinCode))
             {
                 ShowStatus("Enter room code", true);

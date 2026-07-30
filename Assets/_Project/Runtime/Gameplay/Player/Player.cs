@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VContainer;
 
 namespace PlanetIO
@@ -22,23 +22,31 @@ namespace PlanetIO
         [Header("Boost food")]
         [SerializeField] private Transform _pointSpawnTransform;
 
-        [Header("Respawn")]
-        [SerializeField] private float _respawnInvincibilityTime = 2f;
-		[SerializeField, Min(1f)] private float _minimumSpawnDistanceFromPlayers = 30f;
+        [Header("Spawn protection")]
+        [FormerlySerializedAs("_respawnInvincibilityTime")]
+        [SerializeField, Min(0f)] private float _spawnInvincibilityTime = 2f;
 		[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
+
+        private readonly NetworkVariable<bool> _networkDefeated = new(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
 
 		private IRespawnService<Enemy> _enemyRespawnService;
         private ISpawnService<Point> _pointSpawnService;
-        private INetworkSessionService _networkSessionService;
         private IGameStateService _gameStateService;
-        private NetworkTransform _networkTransform;
 
         private bool _servicesReady;
         private bool _borderEventSubscribed;
-        private bool _isDefeated;
         private float _invincibilityTimeRemaining;
 
-        public bool CanBoost => Capacity > MinimumCapacity + _boostMassCost;
+        public bool IsDefeated => IsSpawned && _networkDefeated.Value;
+        public bool CanBoost => !IsDefeated && Capacity > MinCapacity + _boostMassCost;
+
+        public event Action Defeated;
+
+        protected override float FoodGrowthMultiplier => _playerFoodGrowthMultiplier;
+        protected override float CometDamageMultiplier => _playerCometDamageMultiplier;
 
         [Inject]
         public void Construct(
@@ -46,7 +54,6 @@ namespace PlanetIO
             IRespawnService<Point> pointRespawnService,
             IRespawnService<Enemy> enemyRespawnService,
             ISpawnService<Point> pointSpawnService,
-            INetworkSessionService networkSessionService,
             IGameStateService gameStateService,
             BordersTrigger bordersTrigger)
         {
@@ -54,11 +61,8 @@ namespace PlanetIO
             PointRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
             _enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
             _pointSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
-            _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
             SetBordersTrigger(bordersTrigger ?? throw new ArgumentNullException(nameof(bordersTrigger)));
-            FoodGrowthMultiplier = _playerFoodGrowthMultiplier;
-            CometDamageMultiplier = _playerCometDamageMultiplier;
             _servicesReady = true;
         }
 
@@ -66,7 +70,6 @@ namespace PlanetIO
         {
             base.Awake();
             _rigidbody2D = GetComponent<Rigidbody2D>();
-            _networkTransform = GetComponent<NetworkTransform>();
             Capacity = _initialCapacity;
         }
 
@@ -84,7 +87,9 @@ namespace PlanetIO
 
         public void EnableBoost()
         {
-            if (!IsOwner || _gameStateService?.IsGameplayActive != true)
+            if (!IsOwner ||
+                IsDefeated ||
+                _gameStateService?.IsGameplayActive != true)
             {
                 return;
             }
@@ -96,8 +101,9 @@ namespace PlanetIO
         private void ApplyBoostRpc()
         {
             if (!_servicesReady ||
+                IsDefeated ||
                 !_gameStateService.IsGameplayActive ||
-                Capacity <= MinimumCapacity + _boostMassCost)
+                Capacity <= MinCapacity + _boostMassCost)
             {
                 return;
             }
@@ -118,7 +124,7 @@ namespace PlanetIO
 
         protected override void DeathCheck(float capacity)
         {
-            if (IsServer && capacity <= MinimumCapacity)
+            if (IsServer && capacity <= MinCapacity)
             {
                 Defeat();
             }
@@ -160,7 +166,10 @@ namespace PlanetIO
 
         private void OnBorderHit(Player triggeringPlayer)
         {
-            if (IsServer && triggeringPlayer == this && _invincibilityTimeRemaining <= 0f)
+            if (IsServer &&
+                !IsDefeated &&
+                triggeringPlayer == this &&
+                _invincibilityTimeRemaining <= 0f)
             {
                 Shrink(Mathf.Max(_boostMassCost, Capacity * _borderMassLoss));
             }
@@ -169,16 +178,32 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            _networkDefeated.OnValueChanged += OnDefeatedChanged;
+
             if (IsServer)
             {
+                _networkDefeated.Value = false;
                 Capacity = _initialCapacity;
-                _invincibilityTimeRemaining = _respawnInvincibilityTime;
+                _invincibilityTimeRemaining = _spawnInvincibilityTime;
             }
+
+            if (_networkDefeated.Value)
+            {
+                OnDefeatedChanged(false, true);
+            }
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            _networkDefeated.OnValueChanged -= OnDefeatedChanged;
+            base.OnNetworkDespawn();
         }
 
         private void Update()
         {
-            if (IsServer && _invincibilityTimeRemaining > 0f)
+            if (IsServer &&
+                !IsDefeated &&
+                _invincibilityTimeRemaining > 0f)
             {
                 _invincibilityTimeRemaining -= Time.deltaTime;
             }
@@ -189,8 +214,8 @@ namespace PlanetIO
             if (!IsServer ||
                 !_servicesReady ||
                 !_gameStateService.IsGameplayActive ||
+                IsDefeated ||
                 other == null ||
-                _isDefeated ||
                 _invincibilityTimeRemaining > 0f)
             {
                 return;
@@ -210,119 +235,38 @@ namespace PlanetIO
             }
         }
 
-        private void Defeat()
+        public void Defeat()
         {
-            if (_isDefeated)
+            if (!IsServer || IsDefeated)
             {
                 return;
             }
-
-            _isDefeated = true;
 
             if (_rigidbody2D != null)
             {
                 _rigidbody2D.linearVelocity = Vector2.zero;
             }
 
-            Respawn();
+            _networkDefeated.Value = true;
         }
 
-        public void Respawn()
+        private void OnDefeatedChanged(bool _, bool isDefeated)
         {
-            if (!IsServer)
+            if (!isDefeated)
             {
                 return;
             }
-
-            _isDefeated = false;
-            _invincibilityTimeRemaining = _respawnInvincibilityTime;
 
             if (_rigidbody2D != null)
             {
                 _rigidbody2D.linearVelocity = Vector2.zero;
             }
 
-            Vector3 newPosition = GetRespawnPosition();
-            Vector3 resetScale = new(_initialCapacity, _initialCapacity, 1f);
-
-            Capacity = _initialCapacity;
-            transform.localScale = resetScale;
-
-            if (IsSpawned)
+            if (IsOwner)
             {
-                if (IsOwner && _networkTransform != null)
-                {
-                    _networkTransform.Teleport(
-                        newPosition,
-                        transform.rotation,
-                        resetScale);
-                }
-                else
-                {
-                    TeleportOwnerRpc(newPosition, resetScale);
-                }
-            }
-            else
-            {
-                transform.position = newPosition;
-                transform.localScale = resetScale;
+                Defeated?.Invoke();
             }
         }
 
-        [Rpc(SendTo.Owner)]
-        private void TeleportOwnerRpc(Vector3 position, Vector3 scale)
-        {
-            if (_networkTransform != null)
-            {
-                _networkTransform.Teleport(position, transform.rotation, scale);
-            }
-        }
-
-        private Vector3 GetRespawnPosition()
-        {
-            const float minX = -66f;
-            const float maxX = 56f;
-            const float minY = -36f;
-            const float maxY = 116f;
-            const int maxAttempts = 10;
-
-            for (int i = 0; i < maxAttempts; i++)
-            {
-                Vector2 candidate = new Vector2(
-                    UnityEngine.Random.Range(minX, maxX),
-                    UnityEngine.Random.Range(minY, maxY));
-
-                if (PlayerRegistry.GetClosestPlayerDistance(candidate) >= _minimumSpawnDistanceFromPlayers)
-                {
-                    return candidate;
-                }
-            }
-
-            return new Vector3(
-                UnityEngine.Random.Range(minX, maxX),
-                UnityEngine.Random.Range(minY, maxY),
-                0f);
-        }
-
-        private async Awaitable ShutdownSessionAsync()
-        {
-            if (_networkSessionService == null)
-            {
-                return;
-            }
-
-            try
-            {
-                await _networkSessionService.ShutdownAndReturnToMenuAsync();
-            }
-            catch (OperationCanceledException)
-            {
-				LoggerIO.LogError("The player or application is shutting down");
-            }
-            catch (Exception exception)
-            {
-                LoggerIO.LogException(exception, this);
-            }
-        }
     }
 }

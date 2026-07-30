@@ -62,7 +62,6 @@ namespace PlanetIO
             }
 
             Move();
-            RotateTowardsDirection();
         }
 
         public void Move()
@@ -76,10 +75,6 @@ namespace PlanetIO
             float maximumSpeed = Mathf.Max(_minimumSpeed, _maximumSpeed);
             _normalSpeed = Random.Range(minimumSpeed, maximumSpeed);
             _direction = Constants.GetRandomDirection();
-        }
-
-        private void RotateTowardsDirection()
-        {
             _cometTransform.rotation = Constants.DirectionToRotation(_direction);
         }
 

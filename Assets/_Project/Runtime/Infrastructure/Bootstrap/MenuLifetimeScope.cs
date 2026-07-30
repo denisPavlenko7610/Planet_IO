@@ -16,10 +16,5 @@ namespace PlanetIO.Infrastructure
 
             builder.RegisterEntryPoint<MenuPresenter>();
         }
-
-        protected override LifetimeScope FindParent()
-        {
-            return ApplicationLifetimeScope.Instance;
-        }
     }
 }

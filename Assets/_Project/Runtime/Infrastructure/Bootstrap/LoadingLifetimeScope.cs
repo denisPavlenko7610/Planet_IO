@@ -15,10 +15,5 @@ namespace PlanetIO.Infrastructure
             builder.RegisterEntryPoint<LoadingPresenter>();
             builder.RegisterEntryPoint<LoadingSceneController>();
         }
-
-        protected override LifetimeScope FindParent()
-        {
-            return ApplicationLifetimeScope.Instance;
-        }
     }
 }

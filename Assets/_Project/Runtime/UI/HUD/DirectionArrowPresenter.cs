@@ -1,45 +1,56 @@
+using System;
 using UnityEngine;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud
 {
-    public sealed class DirectionArrowPresenter : ILateTickable
+    public sealed class DirectionArrowPresenter : IStartable, IDisposable
     {
         private readonly ILocalPlayerProvider _localPlayerProvider;
-        private Player _lastPlayer;
         private PlayerDirectionArrow _arrow;
 
         public DirectionArrowPresenter(
             ILocalPlayerProvider localPlayerProvider)
         {
-            _localPlayerProvider = localPlayerProvider ?? throw new System.ArgumentNullException(nameof(localPlayerProvider));
+            _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
         }
 
-        public void LateTick()
+        public void Start()
         {
-            Player player = _localPlayerProvider.LocalPlayer;
+            _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
+            OnLocalPlayerChanged(_localPlayerProvider.LocalPlayer);
+        }
 
-            if (player == null)
+        public void Dispose()
+        {
+            _localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
+            BindPlayer(null);
+        }
+
+        private void OnLocalPlayerChanged(Player player)
+        {
+            BindPlayer(player);
+        }
+
+        private void BindPlayer(Player player)
+        {
+            if (_arrow != null)
             {
-                if (_arrow != null) _arrow.Hide();
+                _arrow.Hide();
+            }
+
+            _arrow = player != null
+                ? player.GetComponentInChildren<PlayerDirectionArrow>()
+                : null;
+
+            if (_arrow == null ||
+                !player.TryGetComponent(out PlayerMovement movement))
+            {
                 return;
             }
 
-            if (_lastPlayer != player)
-            {
-                _lastPlayer = player;
-                _arrow = player.GetComponentInChildren<PlayerDirectionArrow>();
-                PlayerMovement movement = player.GetComponent<PlayerMovement>();
-                if (_arrow != null && movement != null)
-                {
-                    _arrow.Bind(movement);
-                }
-            }
-
-            if (_arrow != null)
-            {
-                _arrow.Show();
-            }
+            _arrow.Bind(movement);
+            _arrow.Show();
         }
     }
 }

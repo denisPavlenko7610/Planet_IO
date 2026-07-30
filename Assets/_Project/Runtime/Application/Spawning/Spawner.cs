@@ -9,9 +9,7 @@ namespace PlanetIO
 {
     public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ICapacity
 	{
-        private const float SpawnDepth = 1f;
-
-        private const int SpawnBatchSize = 1;
+        private const float ScaleDepth = 1f;
 
         [SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.1f;
         [SerializeField, Min(0.01f)] private float _maximumObjectScale = 1f;
@@ -25,28 +23,13 @@ namespace PlanetIO
         public void Initialize(ObjectPool<T> objectPool)
         {
             _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
-
             _objectPool.Initialize();
-            GenerateInitialObjects();
-        }
-
-        public void BindPool(ObjectPool<T> objectPool)
-        {
-            _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
-            _objectPool.Initialize();
-        }
-
-        public async Awaitable InitializeAsync(ObjectPool<T> objectPool)
-        {
-            _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
-
-            _objectPool.Initialize();
-            await GenerateInitialObjectsAsync();
         }
 
         public T CreateObject()
         {
-			return CreateSpawnedObject();
+            float scale = GetRandomScale();
+            return CreateSpawnedObject(GetRandomPosition(), scale);
         }
 
         public T CreateObject(Transform spawnTransform)
@@ -56,15 +39,13 @@ namespace PlanetIO
                 throw new ArgumentNullException(nameof(spawnTransform));
             }
 
-			T spawnedObject = CreateSpawnedObject();
-			SetTransform(spawnedObject, spawnTransform.position, _minimumObjectScale);
-			return spawnedObject;
+			return CreateSpawnedObject(spawnTransform.position, _minimumObjectScale);
 		}
 
-		private T CreateSpawnedObject()
+		private T CreateSpawnedObject(Vector2 position, float capacity)
 		{
 			T spawnedObject = _objectPool.Get();
-			spawnedObject.Capacity = _minimumObjectScale;
+            SetState(spawnedObject, position, capacity);
 			SpawnNetworkObject(spawnedObject);
 			return spawnedObject;
 		}
@@ -77,8 +58,7 @@ namespace PlanetIO
             }
 
             float randomScale = GetRandomScale();
-            objectToRespawn.Capacity = randomScale;
-            SetRandomTransform(objectToRespawn, randomScale);
+            SetState(objectToRespawn, GetRandomPosition(), randomScale);
             objectToRespawn.gameObject.SetActive(true);
 
             if (objectToRespawn.TryGetComponent(out NetworkObject networkObject) &&
@@ -114,37 +94,17 @@ namespace PlanetIO
                 Random.Range(_verticalSpawnRange.x, _verticalSpawnRange.y));
         }
 
-        private void GenerateInitialObjects()
+        private static void SetState(T spawnedObject, Vector2 position, float capacity)
         {
-            for (int objectIndex = 0; objectIndex < _objectPool.Capacity; objectIndex++)
-            {
-                CreateObject();
-            }
-        }
+            spawnedObject.Capacity = capacity;
 
-        private async Awaitable GenerateInitialObjectsAsync()
-        {
-            for (int objectIndex = 0; objectIndex < _objectPool.Capacity; objectIndex++)
-            {
-                CreateObject();
-
-                if (objectIndex % SpawnBatchSize == SpawnBatchSize - 1)
-                {
-                    await Awaitable.NextFrameAsync();
-                }
-            }
-        }
-
-        private void SetRandomTransform(T spawnedObject, float scale)
-        {
-            SetTransform(spawnedObject, GetRandomPosition(), scale);
-        }
-
-        private static void SetTransform(T spawnedObject, Vector2 position, float scale)
-        {
             Transform spawnedTransform = spawnedObject.transform;
             spawnedTransform.position = position;
-            spawnedTransform.localScale = new Vector3(scale, scale, SpawnDepth);
+            float actualCapacity = spawnedObject.Capacity;
+            spawnedTransform.localScale = new Vector3(
+                actualCapacity,
+                actualCapacity,
+                ScaleDepth);
         }
 
         private float GetRandomScale()
@@ -156,7 +116,9 @@ namespace PlanetIO
 
         private static void SpawnNetworkObject(T spawnedObject)
         {
-            if (spawnedObject.TryGetComponent(out NetworkObject networkObject) && !networkObject.IsSpawned)
+            if (spawnedObject.TryGetComponent(out NetworkObject networkObject) &&
+                !networkObject.IsSpawned &&
+                networkObject.NetworkManager is { IsListening: true, IsServer: true })
             {
                 networkObject.Spawn();
             }

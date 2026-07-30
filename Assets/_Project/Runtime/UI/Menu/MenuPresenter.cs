@@ -113,7 +113,6 @@ namespace PlanetIO.UI.Menu
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("The menu or application is closing");
             }
             catch (Exception exception)
             {

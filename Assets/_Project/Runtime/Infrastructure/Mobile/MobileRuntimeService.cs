@@ -1,10 +1,8 @@
 using System;
-using PlanetIO.UI.Mobile;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
-using Object = UnityEngine.Object;
 
 namespace PlanetIO.Infrastructure.Mobile
 {
@@ -63,7 +61,7 @@ namespace PlanetIO.Infrastructure.Mobile
             Screen.sleepTimeout = SleepTimeout.SystemSetting;
         }
 
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        private void OnSceneLoaded(Scene scene, LoadSceneMode _)
         {
             ApplySceneSettings(scene);
         }
@@ -73,17 +71,6 @@ namespace PlanetIO.Infrastructure.Mobile
             Screen.sleepTimeout = scene.name == SceneNames.Game
                 ? SleepTimeout.NeverSleep
                 : SleepTimeout.SystemSetting;
-
-            Canvas.ForceUpdateCanvases();
-            RectTransform[] rectTransforms = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include);
-
-            foreach (RectTransform rectTransform in rectTransforms)
-            {
-                if (rectTransform.name is "Score" or "Joystick " or "Joystick" or "AccelerationButton")
-                {
-                    SafeAreaElement.AttachTo(rectTransform);
-                }
-            }
         }
 
         private void OnLowMemory()
@@ -107,7 +94,6 @@ namespace PlanetIO.Infrastructure.Mobile
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
             }
             finally
             {
@@ -129,7 +115,6 @@ namespace PlanetIO.Infrastructure.Mobile
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
             }
             catch (Exception exception)
             {

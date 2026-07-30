@@ -40,9 +40,6 @@ namespace PlanetIO.Infrastructure.DependencyInjection
         [Header("Application")]
         [SerializeField] private NetworkObject _playerPrefab;
 
-        [SerializeField, Assign(AssignMode.Scene)]
-        private RestartGame _restartGame;
-
         [Header("UI")]
         [SerializeField, Assign(AssignMode.Scene)]
         private SessionHudView _sessionHudView;
@@ -77,8 +74,6 @@ namespace PlanetIO.Infrastructure.DependencyInjection
             builder.RegisterComponent(_enemySpawner)
                 .AsSelf()
                 .As<IRespawnService<Enemy>>();
-
-            builder.RegisterComponent(_restartGame);
 
             if (_playerPrefab == null)
             {
@@ -121,11 +116,6 @@ namespace PlanetIO.Infrastructure.DependencyInjection
 
             builder.RegisterComponent(_sessionHudView)
                 .As<ISessionHudView>();
-        }
-
-        protected override LifetimeScope FindParent()
-        {
-            return ApplicationLifetimeScope.Instance;
         }
 
         protected override void OnDestroy()

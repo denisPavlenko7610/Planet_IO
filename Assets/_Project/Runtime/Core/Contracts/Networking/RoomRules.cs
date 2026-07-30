@@ -41,7 +41,7 @@ namespace PlanetIO
             out string validationError)
         {
             string normalizedRoomCode = NormalizeRoomCode(roomCode);
-            if (!IsValidRoomCode(normalizedRoomCode))
+            if (normalizedRoomCode.Length < MinimumRoomCodeLength)
             {
                 settings = default;
                 validationError =

@@ -19,9 +19,8 @@ namespace PlanetIO
             float minimumScale = MinimumObjectScale;
             enemy.Capacity = minimumScale;
 
-            Vector3 newPosition = GetRespawnPosition();
+            Vector3 newPosition = GetRandomPosition();
             enemy.transform.position = newPosition;
-            enemy.transform.localScale = new Vector3(minimumScale, minimumScale, 1f);
             enemy.gameObject.SetActive(true);
 
             if (enemy.TryGetComponent(out NetworkObject networkObject) &&
@@ -45,27 +44,13 @@ namespace PlanetIO
             for (int i = 0; i < _maxPositionAttempts; i++)
             {
                 Vector2 candidate = base.GetRandomPosition();
-                if (PlayerRegistry.GetClosestPlayerDistance(candidate) >= _minimumDistanceFromPlayers)
+                if (!PlayerRegistry.IsAnyPlayerWithinDistance(candidate, _minimumDistanceFromPlayers))
                 {
                     return candidate;
                 }
             }
 
             return base.GetRandomPosition();
-        }
-
-        private Vector3 GetRespawnPosition()
-        {
-            for (int i = 0; i < _maxPositionAttempts; i++)
-            {
-                Vector2 candidate = GetRandomPosition();
-                if (PlayerRegistry.GetClosestPlayerDistance(candidate) >= _minimumDistanceFromPlayers)
-                {
-                    return candidate;
-                }
-            }
-
-            return (Vector3)GetRandomPosition();
         }
     }
 }

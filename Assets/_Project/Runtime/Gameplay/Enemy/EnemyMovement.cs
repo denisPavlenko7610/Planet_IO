@@ -66,7 +66,6 @@ namespace PlanetIO
         private Vector2 _separationForce;
         private float _stateTimeRemaining;
         private float _thinkTimeRemaining;
-        private float _idleTimer;
 
         public Vector2 Direction { get; private set; } = Vector2.right;
         public MovementState State { get; private set; } =
@@ -127,12 +126,10 @@ namespace PlanetIO
             {
                 if (IsPlayerNearby(IdleCullDistance))
                 {
-                    _idleTimer = 0f;
                     Think();
                 }
                 else
                 {
-                    _idleTimer += _thinkInterval;
                     if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
                     {
                         EnterRoaming();
@@ -159,7 +156,7 @@ namespace PlanetIO
         public void Move()
         {
             float speedMultiplier =
-                EnemyDecisionRules.GetCapacitySpeedMultiplier(_enemy.Capacity, _enemy.MinimumCapacity, _massSpeedPenalty,
+                EnemyDecisionRules.GetCapacitySpeedMultiplier(_enemy.Capacity, _enemy.MinCapacity, _massSpeedPenalty,
                     _minimumSpeedMultiplier);
 
             float stateMultiplier = State switch
@@ -215,25 +212,45 @@ namespace PlanetIO
                 Vector2 candidatePosition = candidate.transform.position;
                 float distanceSquared = (candidatePosition - position).sqrMagnitude;
 
-                if (candidate.TryGetComponent(out Enemy otherEnemy) &&
-                    distanceSquared < separationRadiusSquared &&
-                    distanceSquared > 0.001f)
+                if (candidate.TryGetComponent(out Enemy _))
                 {
-                    Vector2 push = position - candidatePosition;
-                    separationAccum += push.normalized / Mathf.Max(push.magnitude, 0.3f);
+                    if (distanceSquared < separationRadiusSquared &&
+                        distanceSquared > 0.001f)
+                    {
+                        Vector2 push = position - candidatePosition;
+                        float distance = Mathf.Sqrt(distanceSquared);
+                        separationAccum +=
+                            push / (distance * Mathf.Max(distance, 0.3f));
+                    }
+
+                    continue;
                 }
-                else if (candidate.TryGetComponent(out Player player) &&
-                    distanceSquared < playerDistanceSquared)
+
+                if (candidate.TryGetComponent(out Player player))
                 {
-                    nearestPlayer = player;
-                    playerDistanceSquared = distanceSquared;
+                    if (!player.IsDefeated &&
+                        distanceSquared < playerDistanceSquared)
+                    {
+                        nearestPlayer = player;
+                        playerDistanceSquared = distanceSquared;
+                    }
+
+                    continue;
                 }
-                else if (candidate.TryGetComponent(out Point point) && distanceSquared < foodDistanceSquared)
+
+                if (candidate.TryGetComponent(out Point point))
                 {
-                    nearestFood = point;
-                    foodDistanceSquared = distanceSquared;
+                    if (distanceSquared < foodDistanceSquared)
+                    {
+                        nearestFood = point;
+                        foodDistanceSquared = distanceSquared;
+                    }
+
+                    continue;
                 }
-                else if (candidate.TryGetComponent(out Comet _) && distanceSquared < hazardDistanceSquared)
+
+                if (candidate.TryGetComponent(out Comet _) &&
+                    distanceSquared < hazardDistanceSquared)
                 {
                     hazardPosition = candidatePosition;
                     hazardDistanceSquared = distanceSquared;
@@ -290,9 +307,9 @@ namespace PlanetIO
             State = MovementState.Roaming;
             _desiredDirection = GetRandomDirection();
 
-            float minimum = Mathf.Max(MinimumRoamTime, _minimumTimeToChangeDirection);
-            float maximum = Mathf.Max(minimum, _maximumTimeToChangeDirection);
-            _stateTimeRemaining = Random.Range(minimum, maximum);
+            float min = Mathf.Max(MinimumRoamTime, _minimumTimeToChangeDirection);
+            float max = Mathf.Max(min, _maximumTimeToChangeDirection);
+            _stateTimeRemaining = Random.Range(min, max);
         }
 
         private void UpdateDirection(float deltaTime)

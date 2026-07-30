@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentReference:
-    TypeName: 
+    TypeName: PlanetIO.Infrastructure.ApplicationLifetimeScope
   autoRun: 1
   autoInjectGameObjects: []
 --- !u!114 &1003

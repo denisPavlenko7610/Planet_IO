@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using PlanetIO;
@@ -16,12 +17,12 @@ namespace PlanetIO.Tests
     {
         private static readonly string[] StreamingMusicPaths =
         {
-            "Assets/Audio/BossMain.wav",
-            "Assets/Audio/Map (basic version).wav",
-            "Assets/Audio/Map.wav",
-            "Assets/Audio/Mars.wav",
-            "Assets/Audio/Mercury.wav",
-            "Assets/Audio/Venus.wav"
+            "Assets/_Project/Audio/BossMain.wav",
+            "Assets/_Project/Audio/Map (basic version).wav",
+            "Assets/_Project/Audio/Map.wav",
+            "Assets/_Project/Audio/Mars.wav",
+            "Assets/_Project/Audio/Mercury.wav",
+            "Assets/_Project/Audio/Venus.wav"
         };
 
         [Test]
@@ -44,6 +45,47 @@ namespace PlanetIO.Tests
             {
                 Object.DestroyImmediate(gameObject);
             }
+        }
+
+        [Test]
+        public void DefaultNetworkPrefabs_HasNoMissingReferences()
+        {
+            Object prefabsList = AssetDatabase.LoadMainAssetAtPath(
+                "Assets/DefaultNetworkPrefabs.asset");
+            Assert.That(prefabsList, Is.Not.Null);
+
+            SerializedProperty entries =
+                new SerializedObject(prefabsList).FindProperty("List");
+            Assert.That(entries, Is.Not.Null);
+            Assert.That(entries.arraySize, Is.GreaterThan(0));
+
+            for (int index = 0; index < entries.arraySize; index++)
+            {
+                Object prefab = entries
+                    .GetArrayElementAtIndex(index)
+                    .FindPropertyRelative("Prefab")
+                    .objectReferenceValue;
+
+                Assert.That(
+                    prefab,
+                    Is.Not.Null,
+                    $"Network prefab at index {index} is missing.");
+            }
+        }
+
+        [TestCase("Assets/_Project/Scenes/Game.unity")]
+        [TestCase("Assets/_Project/Scenes/Loading.unity")]
+        [TestCase("Assets/_Project/Scenes/MainMenu.unity")]
+        public void SceneLifetimeScope_UsesApplicationParent(
+            string scenePath)
+        {
+            Assert.That(File.Exists(scenePath), Is.True, scenePath);
+
+            string sceneYaml = File.ReadAllText(scenePath);
+            StringAssert.Contains(
+                "TypeName: PlanetIO.Infrastructure.ApplicationLifetimeScope",
+                sceneYaml,
+                scenePath);
         }
 
         [Test]
@@ -127,7 +169,7 @@ namespace PlanetIO.Tests
         public void MobileControlTexture_IsLimitedTo512Pixels()
         {
             const string assetPath =
-                "Assets/Sprites/Buttons/AccelerationButton/TriangleImg.png";
+                "Assets/_Project/Sprites/Buttons/AccelerationButton/TriangleImg.png";
             TextureImporter importer =
                 AssetImporter.GetAtPath(assetPath) as TextureImporter;
 
@@ -137,8 +179,8 @@ namespace PlanetIO.Tests
                 Is.LessThanOrEqualTo(512));
         }
 
-        [TestCase("Assets/Atlases/Gameplay.spriteatlas", 2048)]
-        [TestCase("Assets/Atlases/Controls.spriteatlas", 1024)]
+        [TestCase("Assets/_Project/Atlases/Gameplay.spriteatlas", 2048)]
+        [TestCase("Assets/_Project/Atlases/Controls.spriteatlas", 1024)]
         public void SpriteAtlas_IsPackedForAndroid(
             string assetPath,
             int maximumTextureSize)

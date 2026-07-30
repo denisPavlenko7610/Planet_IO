@@ -1,14 +1,20 @@
 ﻿using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace PlanetIO
 {
     public abstract class PlanetScale : NetworkBehaviour, ICapacity
     {
+        private const float MinAllowedCapacity = 0.01f;
+        private const float ScaleDepth = 1f;
+
         [Header("Capacity")]
-        [SerializeField, Min(0.01f)] private float _minimumCapacity = 0.08f;
-        [SerializeField, Min(0.02f)] private float _maximumCapacity = 1f;
+        [FormerlySerializedAs("_minimumCapacity")]
+        [SerializeField, Min(MinAllowedCapacity)] private float _minCapacity = 0.08f;
+        [FormerlySerializedAs("_maximumCapacity")]
+        [SerializeField, Min(MinAllowedCapacity)] private float _maxCapacity = 1f;
 
         private readonly NetworkVariable<float> _networkCapacity = new(
             0f,
@@ -17,44 +23,45 @@ namespace PlanetIO
 
         private float _localCapacity;
 
-        public float MinimumCapacity => _minimumCapacity;
+        public float MinCapacity => _minCapacity;
 
         public float Capacity
         {
             get => IsSpawned ? _networkCapacity.Value : _localCapacity;
-            set => SetCapacityAbsolute(value);
+            set => TrySetCapacity(value);
         }
 
         public event Action<float> CapacityChanged;
 
         protected virtual void Awake()
         {
-            _localCapacity = _minimumCapacity;
-            ApplyCapacity(_localCapacity, false);
+            NormalizeCapacityBounds();
+            ApplyCapacity(_minCapacity, false);
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            _networkCapacity.OnValueChanged += OnNetworkCapacityChanged;
 
             if (IsServer)
             {
                 _networkCapacity.Value = ClampCapacity(_localCapacity);
             }
 
+            _networkCapacity.OnValueChanged += OnNetworkCapacityChanged;
             ApplyCapacity(_networkCapacity.Value, true);
         }
 
         public override void OnNetworkDespawn()
         {
+            float lastCapacity = _networkCapacity.Value;
             _networkCapacity.OnValueChanged -= OnNetworkCapacityChanged;
-            _localCapacity = Capacity;
+            _localCapacity = ClampCapacity(lastCapacity);
             base.OnNetworkDespawn();
         }
 
-        protected float FoodGrowthMultiplier { get; set; } = 0.01f;
-        protected float CometDamageMultiplier { get; set; } = 0.02f;
+        protected abstract float FoodGrowthMultiplier { get; }
+        protected abstract float CometDamageMultiplier { get; }
         protected IRespawnService<Point> PointRespawnService { get; set; }
         protected IRespawnService<Comet> CometRespawnService { get; set; }
 
@@ -74,6 +81,11 @@ namespace PlanetIO
 
         protected void HandleEntityCollision(Collider2D other)
         {
+            if (other == null)
+            {
+                return;
+            }
+
             if (other.TryGetComponent(out Point point))
             {
                 Grow(point.Capacity * FoodGrowthMultiplier);
@@ -88,41 +100,35 @@ namespace PlanetIO
 
         private bool ChangeCapacity(float delta)
         {
-            if (IsSpawned && !IsServer)
+            return TrySetCapacity(Capacity + delta);
+        }
+
+        private bool TrySetCapacity(float value)
+        {
+            if (float.IsNaN(value) || IsSpawned && !IsServer)
             {
                 return false;
             }
 
-            float before = Capacity;
-            SetCapacityAbsolute(before + delta);
-            return !Mathf.Approximately(before, Capacity);
-        }
-
-        private void SetCapacityAbsolute(float value)
-        {
             float clamped = ClampCapacity(value);
+            if (Capacity == clamped)
+            {
+                return false;
+            }
 
             if (IsSpawned)
             {
-                if (!IsServer)
-                {
-                    return;
-                }
-
-                if (Mathf.Approximately(_networkCapacity.Value, clamped))
-                {
-                    return;
-                }
-
                 _networkCapacity.Value = clamped;
-                return;
+            }
+            else
+            {
+                ApplyCapacity(clamped, true);
             }
 
-            _localCapacity = clamped;
-            ApplyCapacity(clamped, true);
+            return true;
         }
 
-        private void OnNetworkCapacityChanged(float previous, float current)
+        private void OnNetworkCapacityChanged(float _, float current)
         {
             ApplyCapacity(current, true);
         }
@@ -130,7 +136,7 @@ namespace PlanetIO
         private void ApplyCapacity(float capacity, bool notify)
         {
             _localCapacity = capacity;
-            transform.localScale = new Vector3(capacity, capacity, 1f);
+            transform.localScale = new Vector3(capacity, capacity, ScaleDepth);
 
             if (notify)
             {
@@ -141,10 +147,29 @@ namespace PlanetIO
 
         private float ClampCapacity(float value)
         {
-            return Mathf.Clamp(
-                value,
-                _minimumCapacity,
-                Mathf.Max(_minimumCapacity, _maximumCapacity));
+            return Mathf.Clamp(value, _minCapacity, _maxCapacity);
         }
+
+        private void NormalizeCapacityBounds()
+        {
+            _minCapacity = IsFinite(_minCapacity)
+                ? Mathf.Max(MinAllowedCapacity, _minCapacity)
+                : MinAllowedCapacity;
+            _maxCapacity = IsFinite(_maxCapacity)
+                ? Mathf.Max(_minCapacity, _maxCapacity)
+                : _minCapacity;
+        }
+
+        private static bool IsFinite(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value);
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            NormalizeCapacityBounds();
+        }
+#endif
     }
 }

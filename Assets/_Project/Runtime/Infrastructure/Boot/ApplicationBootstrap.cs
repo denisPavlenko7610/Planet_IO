@@ -27,12 +27,20 @@ namespace PlanetIO.Infrastructure.Boot
             try
             {
                 await _contentInitializationService.InitializeAsync();
+                if (!_contentInitializationService.IsReady)
+                {
+                    return;
+                }
+
                 await Awaitable.NextFrameAsync();
                 await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
+            }
+            catch (Exception exception)
+            {
+                LoggerIO.LogException(exception);
             }
         }
     }

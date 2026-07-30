@@ -1,3 +1,4 @@
+using System;
 using PlanetIO.Utils;
 using UnityEngine;
 using PlanetIO.UI.Hud;
@@ -37,7 +38,8 @@ namespace PlanetIO.Camera
         [Inject]
         public void Construct(ILocalPlayerProvider localPlayerProvider)
         {
-            _localPlayerProvider = localPlayerProvider;
+            _localPlayerProvider = localPlayerProvider ??
+                throw new ArgumentNullException(nameof(localPlayerProvider));
             _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
             OnLocalPlayerChanged(_localPlayerProvider.LocalPlayer);
         }
@@ -54,7 +56,8 @@ namespace PlanetIO.Camera
             Vector3 smoothed = Vector3.SmoothDamp(transform.position, targetPosition, ref _positionVelocity,
                 _positionSmoothTime);
 
-            float unitsPerPixel = 1f / (Screen.height / (2f * Camera.orthographicSize));
+            float unitsPerPixel =
+                2f * Camera.orthographicSize / Mathf.Max(1, Screen.height);
             transform.position = new Vector3(
                 Mathf.Round(smoothed.x / unitsPerPixel) * unitsPerPixel,
                 Mathf.Round(smoothed.y / unitsPerPixel) * unitsPerPixel,

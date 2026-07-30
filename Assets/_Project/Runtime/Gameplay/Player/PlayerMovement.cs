@@ -72,7 +72,8 @@ namespace PlanetIO
                 return;
             }
 
-            if (_gameStateService?.IsGameplayActive != true)
+            if (_player.IsDefeated ||
+                _gameStateService?.IsGameplayActive != true)
             {
                 _rigidbody2D.linearVelocity = Vector2.zero;
                 return;
@@ -81,7 +82,7 @@ namespace PlanetIO
             UpdateDirection();
 
             float targetSpeed = _isBoosting ? _boostSpeed : _normalSpeed;
-            float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(_player.Capacity, _player.MinimumCapacity,
+            float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(_player.Capacity, _player.MinCapacity,
                 _massSpeedPenalty, _minimumSpeedMultiplier);
 
             _currentSpeed = targetSpeed * speedMultiplier;
@@ -90,16 +91,10 @@ namespace PlanetIO
 
         public void Move()
         {
-            if (Direction == default)
-            {
-                Direction = _player.transform.right;
-            }
-
-            Vector2 normalizedDirection = Direction.normalized;
-            Quaternion targetRotation = Constants.DirectionToRotation(normalizedDirection);
+            Quaternion targetRotation = Constants.DirectionToRotation(Direction);
             transform.rotation = Quaternion.RotateTowards(
                 transform.rotation, targetRotation, _turnSpeed * Time.fixedDeltaTime);
-            _rigidbody2D.linearVelocity = normalizedDirection * _currentSpeed;
+            _rigidbody2D.linearVelocity = Direction * _currentSpeed;
         }
 
         public void SetDirection(Vector2 moveInput)

@@ -46,10 +46,15 @@ namespace PlanetIO.Application
         public GameState State { get; private set; } = GameState.None;
         public bool IsGameplayActive => State == GameState.Playing;
 
-        public async Awaitable StartAsync(CancellationToken cancellation = new CancellationToken())
+        public async Awaitable StartAsync(CancellationToken cancellation = default)
         {
             TransitionTo(GameState.Initializing);
-            await InitializeWorldAsync();
+
+            if (!await InitializeWorldAsync(cancellation))
+            {
+                return;
+            }
+
             TransitionTo(GameState.WaitingForPlayers);
         }
 
@@ -98,29 +103,26 @@ namespace PlanetIO.Application
             }
         }
 
-        private void InitializeWorld()
+        private async Awaitable<bool> InitializeWorldAsync(CancellationToken cancellation)
         {
-            if (_worldInitialized || !_networkManager.IsServer)
+            if (_worldInitialized)
             {
-                return;
+                return true;
+            }
+
+            if (!_networkManager.IsServer)
+            {
+                return !_disposed && _networkManager.IsListening;
+            }
+
+            if (!CanInitializeWorld())
+            {
+                return false;
             }
 
             _pointSpawner.Initialize(_pointsPool);
             _cometSpawner.Initialize(_cometsPool);
             _enemySpawner.Initialize(_enemyPool);
-            _worldInitialized = true;
-        }
-
-        private async Awaitable InitializeWorldAsync()
-        {
-            if (_worldInitialized || !_networkManager.IsServer)
-            {
-                return;
-            }
-
-            _pointSpawner.BindPool(_pointsPool);
-            _cometSpawner.BindPool(_cometsPool);
-            _enemySpawner.BindPool(_enemyPool);
 
             const int spawnBatchSize = 5;
             int pointsCount = _pointsPool.Capacity;
@@ -130,6 +132,13 @@ namespace PlanetIO.Application
 
             for (int i = 0; i < maxCount; i++)
             {
+                cancellation.ThrowIfCancellationRequested();
+
+                if (!CanInitializeWorld())
+                {
+                    return false;
+                }
+
                 if (i < pointsCount)
                 {
                     _pointSpawner.CreateObject();
@@ -147,12 +156,18 @@ namespace PlanetIO.Application
 
                 if (i % spawnBatchSize == spawnBatchSize - 1)
                 {
-                    await Awaitable.NextFrameAsync();
+                    await Awaitable.NextFrameAsync(cancellation);
                 }
             }
 
             _worldInitialized = true;
+            return true;
         }
+
+        private bool CanInitializeWorld() =>
+            !_disposed &&
+            _networkManager.IsListening &&
+            _networkManager.IsServer;
 
         private bool IsSessionReady()
         {
