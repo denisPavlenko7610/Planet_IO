@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9cb55060f81459782d4c9d5af7cfa12, type: 3}
+  m_Name: SceneCatalog
+  m_EditorClassIdentifier: UnityTemplates.SceneFlow::UnityTemplates.SceneFlow.SceneCatalog
+  _scenes:
+  - _id: boot
+    _path: Assets/_Project/Scenes/Boot.unity
+  - _id: menu
+    _path: Assets/_Project/Scenes/MainMenu.unity
+  - _id: loading
+    _path: Assets/_Project/Scenes/Loading.unity
+  - _id: game
+    _path: Assets/_Project/Scenes/Game.unity

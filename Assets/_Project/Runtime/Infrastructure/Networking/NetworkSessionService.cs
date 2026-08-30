@@ -7,6 +7,7 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityTemplates.SceneFlow;
 using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Networking
@@ -21,6 +22,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         private readonly NetworkManager _networkManager;
         private readonly ConnectionApprovalHandler _approvalHandler;
+        private readonly ISceneFlow _sceneFlow;
         private NetworkSceneManager _networkSceneManager;
 		private readonly IPlayerProfileService _playerProfileService;
 
@@ -30,11 +32,15 @@ namespace PlanetIO.Infrastructure.Networking
         private bool _recoveringFromDisconnect;
         private bool _ugsInitialized;
 
-        public NetworkSessionService(NetworkManager networkManager, IPlayerProfileService playerProfileService)
+        public NetworkSessionService(
+            NetworkManager networkManager,
+            IPlayerProfileService playerProfileService,
+            ISceneFlow sceneFlow)
         {
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _approvalHandler = new ConnectionApprovalHandler(networkManager);
 			_playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
+            _sceneFlow = sceneFlow ?? throw new ArgumentNullException(nameof(sceneFlow));
         }
 
         public event Action<float> LoadingProgressChanged;
@@ -305,7 +311,7 @@ namespace PlanetIO.Infrastructure.Networking
                 CurrentRoom = RoomConnectionSettings.Default;
                 SetProgress(0f);
 
-                await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
+                await _sceneFlow.ChangeSceneAsync(SceneIds.Menu);
                 SetState(NetworkSessionState.Offline, "Ready to connect");
             }
             catch (OperationCanceledException)

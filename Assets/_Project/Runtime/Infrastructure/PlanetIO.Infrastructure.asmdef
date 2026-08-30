@@ -14,7 +14,8 @@
         "Unity.ResourceManager",
         "Unity.Services.Multiplayer",
         "Unity.Services.Authentication",
-        "Unity.Services.Core"
+        "Unity.Services.Core",
+        "UnityTemplates.SceneFlow"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,0 +1,10 @@
+{
+    "name": "UnityTemplates.SceneFlow.Editor",
+    "rootNamespace": "UnityTemplates.SceneFlow.Editor",
+    "references": [
+        "UnityTemplates.SceneFlow"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ]
+}

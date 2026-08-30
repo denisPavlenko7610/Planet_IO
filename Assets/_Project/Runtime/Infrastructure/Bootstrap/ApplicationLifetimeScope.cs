@@ -7,6 +7,7 @@ using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
 using PlanetIO.Infrastructure.Mobile;
 using Unity.Netcode;
+using UnityTemplates.SceneFlow;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -20,6 +21,7 @@ namespace PlanetIO.Infrastructure
         private static ApplicationLifetimeScope _activeScope;
 
         [SerializeField, Assign] private NetworkManager _networkManager;
+        [SerializeField, Assign] private SceneCatalog _sceneCatalog;
 
         protected override void Awake()
         {
@@ -42,7 +44,17 @@ namespace PlanetIO.Infrastructure
                 throw new MissingComponentException($"{nameof(ApplicationLifetimeScope)} requires {nameof(NetworkManager)} on the same GameObject.");
             }
 
+            if (_sceneCatalog == null)
+            {
+                throw new InvalidOperationException($"{nameof(ApplicationLifetimeScope)} requires a {nameof(SceneCatalog)}.");
+            }
+
             builder.RegisterComponent(_networkManager);
+            builder.RegisterInstance(_sceneCatalog);
+            builder.Register<SceneFlow>(resolver => new SceneFlow(
+                    resolver.Resolve<SceneCatalog>()),
+                Lifetime.Singleton)
+                .As<ISceneFlow>();
             builder.Register<PlayerProfileService>(Lifetime.Singleton).As<IPlayerProfileService>();
             builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
             builder.Register<AddressableContentService>(Lifetime.Singleton).As<IContentInitializationService>();

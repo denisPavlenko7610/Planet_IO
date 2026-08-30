@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityTemplates.SceneFlow;
 using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Boot
@@ -8,15 +8,19 @@ namespace PlanetIO.Infrastructure.Boot
     public sealed class ApplicationBootstrap : IStartable
     {
         private readonly IContentInitializationService _contentInitializationService;
+        private readonly ISceneFlow _sceneFlow;
 
-        public ApplicationBootstrap(IContentInitializationService contentInitializationService)
+        public ApplicationBootstrap(
+            IContentInitializationService contentInitializationService,
+            ISceneFlow sceneFlow)
         {
             _contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
+            _sceneFlow = sceneFlow ?? throw new ArgumentNullException(nameof(sceneFlow));
         }
 
         public void Start()
         {
-            if (SceneManager.GetActiveScene().name == SceneNames.Boot)
+            if (_sceneFlow.IsLoaded(SceneIds.Boot))
             {
                 _ = LoadMenuAsync();
             }
@@ -33,7 +37,7 @@ namespace PlanetIO.Infrastructure.Boot
                 }
 
                 await Awaitable.NextFrameAsync();
-                await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
+                await _sceneFlow.ChangeSceneAsync(SceneIds.Menu);
             }
             catch (OperationCanceledException)
             {

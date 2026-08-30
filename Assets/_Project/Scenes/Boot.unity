@@ -243,6 +243,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   _networkManager: {fileID: 103}
+  _sceneCatalog: {fileID: 11400000, guid: a0541fb3dc8b40fc9b77ef4cf1a59a5a, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
