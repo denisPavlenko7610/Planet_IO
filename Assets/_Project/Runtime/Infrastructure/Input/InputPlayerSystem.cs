@@ -11,7 +11,7 @@ namespace PlanetIO
 
         private PlayerControls _controls;
         private Camera _camera;
-        private bool _mouseSteeringActive;
+        private bool _pointerSteeringActive;
 
 		private void Awake()
         {
@@ -65,6 +65,13 @@ namespace PlanetIO
                 return;
             }
 
+            if (TryGetTouchScreenPosition(out Vector2 touchPosition))
+            {
+                _pointerSteeringActive = true;
+                SteerTo(touchPosition);
+                return;
+            }
+
             Mouse mouse = Mouse.current;
             if (mouse == null)
             {
@@ -73,14 +80,32 @@ namespace PlanetIO
 
             if (mouse.delta.ReadValue().sqrMagnitude > 0.01f)
             {
-                _mouseSteeringActive = true;
+                _pointerSteeringActive = true;
             }
 
-            if (!_mouseSteeringActive)
+            if (!_pointerSteeringActive)
             {
                 return;
             }
 
+            SteerTo(mouse.position.ReadValue());
+        }
+
+        private bool TryGetTouchScreenPosition(out Vector2 position)
+        {
+            Touchscreen touchscreen = Touchscreen.current;
+            if (touchscreen != null && touchscreen.primaryTouch.isInProgress)
+            {
+                position = touchscreen.primaryTouch.position.ReadValue();
+                return true;
+            }
+
+            position = default;
+            return false;
+        }
+
+        private void SteerTo(Vector2 screenPosition)
+        {
             _camera ??= UnityEngine.Camera.main;
             if (_camera == null)
             {
@@ -88,8 +113,7 @@ namespace PlanetIO
             }
 
             Vector3 playerPosition = _playerMovement.Player.transform.position;
-            Vector2 pointerPosition = mouse.position.ReadValue();
-            Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(pointerPosition.x, pointerPosition.y,
+            Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y,
                 -_camera.transform.position.z));
             _playerMovement.SetDirection(worldPosition - playerPosition);
         }
@@ -101,7 +125,7 @@ namespace PlanetIO
                 return;
             }
 
-            _mouseSteeringActive = false;
+            _pointerSteeringActive = false;
 
             Vector2 direction = _controls.Move.Movement.ReadValue<Vector2>();
             _playerMovement.SetDirection(direction);

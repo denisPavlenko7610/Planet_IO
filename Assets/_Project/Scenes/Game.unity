@@ -547,9 +547,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 2960, y: 1440}
-  m_ScreenMatchMode: 1
-  m_MatchWidthOrHeight: 0
+  m_ReferenceResolution: {x: 1920, y: 1080}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -722,8 +722,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _minimumObjectScale: 0.4
   _maximumObjectScale: 1
-  _horizontalSpawnRange: {x: -223, y: 223}
-  _verticalSpawnRange: {x: -139, y: 161.9}
+  _horizontalSpawnRange: {x: -210, y: 210}
+  _verticalSpawnRange: {x: -125, y: 150}
   _bordersTrigger: {fileID: 1064358237}
 --- !u!114 &470327858
 MonoBehaviour:
@@ -991,8 +991,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _minimumObjectScale: 0.4
   _maximumObjectScale: 1
-  _horizontalSpawnRange: {x: -223, y: 223}
-  _verticalSpawnRange: {x: -139, y: 161.9}
+  _horizontalSpawnRange: {x: -210, y: 210}
+  _verticalSpawnRange: {x: -125, y: 150}
   _minimumDistanceFromPlayers: 30
   _maxPositionAttempts: 10
 --- !u!1 &566410503
@@ -1435,7 +1435,7 @@ GameObject:
   - component: {fileID: 1064358232}
   - component: {fileID: 1064358231}
   - component: {fileID: 1064358237}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Borders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1700,8 +1700,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _minimumObjectScale: 0.4
   _maximumObjectScale: 1
-  _horizontalSpawnRange: {x: -223, y: 223}
-  _verticalSpawnRange: {x: -139, y: 161.9}
+  _horizontalSpawnRange: {x: -210, y: 210}
+  _verticalSpawnRange: {x: -125, y: 150}
   _droppedPointLifetime: 10
 --- !u!114 &1158107521
 MonoBehaviour:

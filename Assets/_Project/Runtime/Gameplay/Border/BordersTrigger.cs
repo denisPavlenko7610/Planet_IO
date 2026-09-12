@@ -14,11 +14,7 @@ namespace PlanetIO
             {
                 CometTriggered?.Invoke(comet);
             }
-        }
-
-        private void OnCollisionEnter2D(Collision2D collision)
-        {
-            if (collision.collider.TryGetComponent(out Player player))
+            else if (otherCollider.TryGetComponent(out Player player))
             {
                 PlayerTriggered?.Invoke(player);
             }

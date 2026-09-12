@@ -39,6 +39,14 @@ namespace PlanetIO.UI.Hud
             }
         }
 
+        public void Hide()
+        {
+            if (_canvasRectTransform != null)
+            {
+                _canvasRectTransform.gameObject.SetActive(false);
+            }
+        }
+
         private void Bind(string displayName)
         {
             if (_label != null)
@@ -51,6 +59,12 @@ namespace PlanetIO.UI.Hud
         {
             if (_canvasRectTransform == null)
             {
+                return;
+            }
+
+            if (_entity is Player { IsDefeated: true })
+            {
+                Hide();
                 return;
             }
 

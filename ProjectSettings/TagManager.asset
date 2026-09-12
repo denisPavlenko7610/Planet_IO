@@ -15,11 +15,11 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - Food
+  - Comet
+  - Border
   - 
   - 
   - 
@@ -46,7 +46,7 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Foregraund
+  - name: Foreground
     uniqueID: 3526905299
     locked: 0
   - name: Player

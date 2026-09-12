@@ -41,10 +41,28 @@ namespace PlanetIO
             UnsubscribeBoostInput();
             _boostInput = boostInput ?? throw new ArgumentNullException(nameof(boostInput));
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
+            _gameStateService.StateChanged -= OnGameStateChanged;
+            _gameStateService.StateChanged += OnGameStateChanged;
 
             if (isActiveAndEnabled)
             {
                 SubscribeBoostInput();
+            }
+        }
+
+        private void OnGameStateChanged(GameState _, GameState newState)
+        {
+            if (newState != GameState.Playing)
+            {
+                _isBoosting = false;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_gameStateService != null)
+            {
+                _gameStateService.StateChanged -= OnGameStateChanged;
             }
         }
 
@@ -81,6 +99,7 @@ namespace PlanetIO
 
             _currentSpeed = targetSpeed * speedMultiplier;
             Move();
+            transform.position = Constants.ClampToWorld(transform.position);
         }
 
         public void Move()

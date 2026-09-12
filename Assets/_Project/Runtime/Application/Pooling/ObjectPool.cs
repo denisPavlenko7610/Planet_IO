@@ -86,6 +86,7 @@ namespace PlanetIO.Pooling
             }
 
             T pooledObject = _objectResolver.Instantiate(prefab);
+            pooledObject.transform.SetParent(transform, false);
             pooledObject.gameObject.SetActive(false);
             return pooledObject;
         }

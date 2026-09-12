@@ -153,6 +153,7 @@ namespace PlanetIO
             UpdateDirection(deltaTime);
             Move();
             RotateTowardsDirection(deltaTime);
+            _enemyTransform.position = Constants.ClampToWorld(_enemyTransform.position);
         }
 
         public void Move()

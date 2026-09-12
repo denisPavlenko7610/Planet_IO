@@ -90,6 +90,7 @@ namespace PlanetIO
             else if (collider2D.TryGetComponent(out Player player))
             {
                 if (!player.IsDefeated &&
+                    !player.IsSpawnProtected &&
                     Capacity >= player.Capacity * _eatSizeRatio)
                 {
                     Grow(player.Capacity);

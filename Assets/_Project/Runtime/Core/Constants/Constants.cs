@@ -9,7 +9,16 @@ namespace PlanetIO
         public const float MinimumDirectionSquaredMagnitude = 0.0001f;
         public const float MinimumDisplayCapacity = 0.01f;
 
+        public static readonly Rect WorldBounds = new(-220f, -136f, 440f, 296f);
+
         public static int CapacityToScore(float capacity) => Mathf.RoundToInt(capacity * ScaleMultiplier);
+
+        public static Vector3 ClampToWorld(Vector3 position)
+        {
+            position.x = Mathf.Clamp(position.x, WorldBounds.xMin, WorldBounds.xMax);
+            position.y = Mathf.Clamp(position.y, WorldBounds.yMin, WorldBounds.yMax);
+            return position;
+        }
 
         public static Quaternion DirectionToRotation(Vector2 direction)
         {

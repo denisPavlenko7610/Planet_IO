@@ -46,6 +46,7 @@ namespace PlanetIO
         private float _invincibilityTimeRemaining;
 
         public bool IsDefeated => IsSpawned && _networkDefeated.Value;
+        public bool IsSpawnProtected => _invincibilityTimeRemaining > 0f;
         public bool CanBoost => !IsDefeated && Capacity > MinCapacity + _boostMassCost;
 
         public event Action Defeated;
@@ -110,7 +111,10 @@ namespace PlanetIO
 
         private void UpdateBoost(float deltaTime)
         {
-            if (!_serverBoosting || IsDefeated)
+            if (!_serverBoosting ||
+                IsDefeated ||
+                !_servicesReady ||
+                !_gameStateService.IsGameplayActive)
             {
                 _boostTimer = 0f;
                 return;
@@ -283,6 +287,7 @@ namespace PlanetIO
         {
             if (otherPlayer == this ||
                 otherPlayer.IsDefeated ||
+                otherPlayer.IsSpawnProtected ||
                 Capacity < otherPlayer.Capacity * _eatSizeRatio)
             {
                 return;
@@ -319,9 +324,24 @@ namespace PlanetIO
                 _rigidbody2D.linearVelocity = Vector2.zero;
             }
 
+            SetDefeatedVisuals();
+
             if (IsOwner)
             {
                 Defeated?.Invoke();
+            }
+        }
+
+        private void SetDefeatedVisuals()
+        {
+            if (TryGetComponent(out Collider2D bodyCollider))
+            {
+                bodyCollider.enabled = false;
+            }
+
+            foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                renderer.enabled = false;
             }
         }
 

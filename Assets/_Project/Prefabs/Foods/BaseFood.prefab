@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6461927670590852595}
   - component: {fileID: 7015685374489014147}
   - component: {fileID: 4398926527836390753}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BasePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
