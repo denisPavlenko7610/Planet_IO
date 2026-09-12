@@ -118,7 +118,7 @@ namespace PlanetIO.Infrastructure.Mobile
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
             }
             finally
             {

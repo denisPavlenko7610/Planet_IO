@@ -35,7 +35,7 @@ namespace PlanetIO
             NetworkVariableWritePermission.Server);
 
 		private IRespawnService<Enemy> _enemyRespawnService;
-        private ISpawnService<Point> _pointSpawnService;
+        private ISpawnService<Food> _foodSpawnService;
         private IGameStateService _gameStateService;
         private IPlayerProfileService _playerProfileService;
 
@@ -58,17 +58,17 @@ namespace PlanetIO
         [Inject]
         public void Construct(
             IRespawnService<Comet> cometRespawnService,
-            IRespawnService<Point> pointRespawnService,
+            IRespawnService<Food> pointRespawnService,
             IRespawnService<Enemy> enemyRespawnService,
-            ISpawnService<Point> pointSpawnService,
+            ISpawnService<Food> pointSpawnService,
             IGameStateService gameStateService,
             IPlayerProfileService playerProfileService,
             BordersTrigger bordersTrigger)
         {
             CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
-            PointRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
+            FoodRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
             _enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
-            _pointSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
+            _foodSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
             _playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
             SetBordersTrigger(bordersTrigger ?? throw new ArgumentNullException(nameof(bordersTrigger)));
@@ -132,15 +132,15 @@ namespace PlanetIO
 
             if (Shrink(_boostMassCost))
             {
-                CreatePointBehindPlayer();
+                CreateFoodBehindPlayer();
             }
         }
 
-        private void CreatePointBehindPlayer()
+        private void CreateFoodBehindPlayer()
         {
             if (_pointSpawnTransform != null)
             {
-                _pointSpawnService.SpawnAt(_pointSpawnTransform);
+                _foodSpawnService.SpawnAt(_pointSpawnTransform);
             }
         }
 

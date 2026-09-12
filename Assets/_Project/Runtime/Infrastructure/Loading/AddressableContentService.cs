@@ -48,7 +48,7 @@ namespace PlanetIO.Infrastructure.Loading
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
                 IsReady = false;
             }
             finally
@@ -73,7 +73,7 @@ namespace PlanetIO.Infrastructure.Loading
 
                 if (downloadHandle.Status != AsyncOperationStatus.Succeeded)
                 {
-                    LoggerIO.LogWarning(
+                    GameLogger.LogWarning(
                         $"Failed to warm up Addressables label " +
                         $"'{PreloadLabel}': " +
                         $"{downloadHandle.OperationException?.Message}");
@@ -84,7 +84,7 @@ namespace PlanetIO.Infrastructure.Loading
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
             }
             finally
             {

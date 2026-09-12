@@ -1,10 +1,9 @@
 using System;
-using PlanetIO.Utils;
 using UnityEngine;
 using PlanetIO.UI.Hud;
 using VContainer;
 
-namespace PlanetIO.Camera
+namespace PlanetIO.UI.Camera
 {
     [RequireComponent(typeof(UnityEngine.Camera))]
     [DefaultExecutionOrder(1000)]

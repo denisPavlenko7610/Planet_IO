@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using PlanetIO.Core.Contracts.Loading;
-using PlanetIO.ObjectPool;
+using PlanetIO.Pooling;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer.Unity;
@@ -10,10 +10,10 @@ namespace PlanetIO.Application
 {
     public sealed class GameFlowService : IGameStateService, IAsyncStartable, ITickable, IDisposable
     {
-        private readonly PointSpawner _pointSpawner;
+        private readonly FoodSpawner _foodSpawner;
         private readonly CometSpawner _cometSpawner;
         private readonly EnemySpawner _enemySpawner;
-        private readonly ObjectPool<Point> _pointsPool;
+        private readonly ObjectPool<Food> _foodsPool;
         private readonly ObjectPool<Comet> _cometsPool;
         private readonly ObjectPool<Enemy> _enemyPool;
         private readonly NetworkManager _networkManager;
@@ -23,20 +23,20 @@ namespace PlanetIO.Application
         private bool _disposed;
 
         public GameFlowService(
-            PointSpawner pointSpawner,
+            FoodSpawner pointSpawner,
             CometSpawner cometSpawner,
             EnemySpawner enemySpawner,
-            ObjectPool<Point> pointsPool,
+            ObjectPool<Food> pointsPool,
             ObjectPool<Comet> cometsPool,
             ObjectPool<Enemy> enemyPool,
             NetworkManager networkManager,
             NetworkWorldReadyState worldReadyState,
             IGameLoadingView loadingView)
         {
-            _pointSpawner = pointSpawner ?? throw new ArgumentNullException(nameof(pointSpawner));
+            _foodSpawner = pointSpawner ?? throw new ArgumentNullException(nameof(pointSpawner));
             _cometSpawner = cometSpawner ?? throw new ArgumentNullException(nameof(cometSpawner));
             _enemySpawner = enemySpawner ?? throw new ArgumentNullException(nameof(enemySpawner));
-            _pointsPool = pointsPool ?? throw new ArgumentNullException(nameof(pointsPool));
+            _foodsPool = pointsPool ?? throw new ArgumentNullException(nameof(pointsPool));
             _cometsPool = cometsPool ?? throw new ArgumentNullException(nameof(cometsPool));
             _enemyPool = enemyPool ?? throw new ArgumentNullException(nameof(enemyPool));
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
@@ -126,12 +126,12 @@ namespace PlanetIO.Application
                 return false;
             }
 
-            _pointSpawner.Initialize(_pointsPool);
+            _foodSpawner.Initialize(_foodsPool);
             _cometSpawner.Initialize(_cometsPool);
             _enemySpawner.Initialize(_enemyPool);
 
             const int spawnBatchSize = 5;
-            int pointsCount = _pointsPool.Capacity;
+            int pointsCount = _foodsPool.Capacity;
             int cometsCount = _cometsPool.Capacity;
             int enemiesCount = _enemyPool.Capacity;
             int maxCount = Mathf.Max(pointsCount, cometsCount, enemiesCount);
@@ -147,7 +147,7 @@ namespace PlanetIO.Application
 
                 if (i < pointsCount)
                 {
-                    _pointSpawner.CreateObject();
+                    _foodSpawner.CreateObject();
                 }
 
                 if (i < cometsCount)

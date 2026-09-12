@@ -9,8 +9,8 @@ namespace PlanetIO
     {
         [SerializeField, Assign] private PlayerMovement _playerMovement;
 
-        private PlayerInput _playerInput;
-        private UnityEngine.Camera _camera;
+        private PlayerControls _controls;
+        private Camera _camera;
         private bool _mouseSteeringActive;
 
 		private void Awake()
@@ -30,24 +30,24 @@ namespace PlanetIO
                 return;
             }
 
-            _playerInput = new PlayerInput();
-            _playerInput.Move.Movement
+            _controls = new PlayerControls();
+            _controls.Move.Movement
                 .AddCompositeBinding("2DVector")
                 .With("Up", "<Keyboard>/w")
                 .With("Down", "<Keyboard>/s")
                 .With("Left", "<Keyboard>/a")
                 .With("Right", "<Keyboard>/d");
 
-            _playerInput.Move.Movement
+            _controls.Move.Movement
                 .AddCompositeBinding("2DVector")
                 .With("Up", "<Keyboard>/upArrow")
                 .With("Down", "<Keyboard>/downArrow")
                 .With("Left", "<Keyboard>/leftArrow")
                 .With("Right", "<Keyboard>/rightArrow");
 
-            _playerInput.Enable();
-            _playerInput.Move.Movement.performed += UpdateInput;
-            _playerInput.Move.Movement.canceled += CanceledInput;
+            _controls.Enable();
+            _controls.Move.Movement.performed += UpdateInput;
+            _controls.Move.Movement.canceled += CanceledInput;
         }
 
         public override void OnNetworkDespawn()
@@ -103,7 +103,7 @@ namespace PlanetIO
 
             _mouseSteeringActive = false;
 
-            Vector2 direction = _playerInput.Move.Movement.ReadValue<Vector2>();
+            Vector2 direction = _controls.Move.Movement.ReadValue<Vector2>();
             _playerMovement.SetDirection(direction);
         }
 
@@ -114,16 +114,16 @@ namespace PlanetIO
 
         private void ReleaseInput()
         {
-            if (_playerInput == null)
+            if (_controls == null)
             {
                 return;
             }
 
-            _playerInput.Move.Movement.performed -= UpdateInput;
-            _playerInput.Move.Movement.canceled -= CanceledInput;
-            _playerInput.Disable();
-            _playerInput.Dispose();
-            _playerInput = null;
+            _controls.Move.Movement.performed -= UpdateInput;
+            _controls.Move.Movement.canceled -= CanceledInput;
+            _controls.Disable();
+            _controls.Dispose();
+            _controls = null;
         }
     }
 }

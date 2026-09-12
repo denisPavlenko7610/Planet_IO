@@ -1,12 +1,13 @@
+using PlanetIO.Pooling;
 namespace PlanetIO
 {
-    public sealed class PointPool : ObjectPool.ObjectPool<Point>
+    public sealed class FoodPool : ObjectPool<Food>
     {
         protected override int MinimumCapacity => 60;
 
         protected override int MaximumPoolSize => Capacity * 2;
 
-        protected override void ActivatePooledObject(Point pooledObject)
+        protected override void ActivatePooledObject(Food pooledObject)
         {
             pooledObject.ResetClaim();
             base.ActivatePooledObject(pooledObject);

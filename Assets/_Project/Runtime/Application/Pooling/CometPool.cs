@@ -1,6 +1,7 @@
+using PlanetIO.Pooling;
 namespace PlanetIO
 {
-    public sealed class CometPool : ObjectPool.ObjectPool<Comet>
+    public sealed class CometPool : ObjectPool<Comet>
     {
     }
 }

@@ -1,5 +1,5 @@
 using System;
-using PlanetIO.ObjectPool;
+using PlanetIO.Pooling;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;

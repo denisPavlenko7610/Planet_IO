@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace PlanetIO.Utils
+namespace PlanetIO
 {
     public static class Constants
     {

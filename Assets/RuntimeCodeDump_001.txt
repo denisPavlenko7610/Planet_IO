@@ -1,7 +1,7 @@
 ﻿// Source folder: Assets/_Project/Runtime
 // Supported extensions: .cs, .uxml, .uss, .ucss
 // Part: 1
-// Total source files: 77
+// Total source files: 80
 // Max estimated tokens per dump file: 900000
 // Estimated chars per token: 4
 // Compact output: True
@@ -10,16 +10,15 @@
 // File: Assets/_Project/Runtime/Application/Game/GameFlowService.cs
 // ============================================================================
 using System;
+using System.Threading;
+using PlanetIO.Core.Contracts.Loading;
 using PlanetIO.ObjectPool;
 using Unity.Netcode;
+using UnityEngine;
 using VContainer.Unity;
 namespace PlanetIO.Application
 {
-public sealed class GameFlowService :
-IGameStateService,
-IStartable,
-ITickable,
-IDisposable
+public sealed class GameFlowService : IGameStateService, IAsyncStartable, ITickable, IDisposable
 {
 private readonly PointSpawner _pointSpawner;
 private readonly CometSpawner _cometSpawner;
@@ -28,6 +27,7 @@ private readonly ObjectPool<Point> _pointsPool;
 private readonly ObjectPool<Comet> _cometsPool;
 private readonly ObjectPool<Enemy> _enemyPool;
 private readonly NetworkManager _networkManager;
+private readonly IGameLoadingView _loadingView;
 private bool _worldInitialized;
 private bool _disposed;
 public GameFlowService(
@@ -37,30 +37,28 @@ EnemySpawner enemySpawner,
 ObjectPool<Point> pointsPool,
 ObjectPool<Comet> cometsPool,
 ObjectPool<Enemy> enemyPool,
-NetworkManager networkManager)
+NetworkManager networkManager,
+IGameLoadingView loadingView)
 {
-_pointSpawner = pointSpawner
-?? throw new ArgumentNullException(nameof(pointSpawner));
-_cometSpawner = cometSpawner
-?? throw new ArgumentNullException(nameof(cometSpawner));
-_enemySpawner = enemySpawner
-?? throw new ArgumentNullException(nameof(enemySpawner));
-_pointsPool = pointsPool
-?? throw new ArgumentNullException(nameof(pointsPool));
-_cometsPool = cometsPool
-?? throw new ArgumentNullException(nameof(cometsPool));
-_enemyPool = enemyPool
-?? throw new ArgumentNullException(nameof(enemyPool));
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
+_pointSpawner = pointSpawner ?? throw new ArgumentNullException(nameof(pointSpawner));
+_cometSpawner = cometSpawner ?? throw new ArgumentNullException(nameof(cometSpawner));
+_enemySpawner = enemySpawner ?? throw new ArgumentNullException(nameof(enemySpawner));
+_pointsPool = pointsPool ?? throw new ArgumentNullException(nameof(pointsPool));
+_cometsPool = cometsPool ?? throw new ArgumentNullException(nameof(cometsPool));
+_enemyPool = enemyPool ?? throw new ArgumentNullException(nameof(enemyPool));
+_networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
+_loadingView = loadingView ?? throw new ArgumentNullException(nameof(loadingView));
 }
 public event Action<GameState, GameState> StateChanged;
 public GameState State { get; private set; } = GameState.None;
 public bool IsGameplayActive => State == GameState.Playing;
-public void Start()
+public async Awaitable StartAsync(CancellationToken cancellation = default)
 {
 TransitionTo(GameState.Initializing);
-InitializeWorld();
+if (!await InitializeWorldAsync(cancellation))
+{
+return;
+}
 TransitionTo(GameState.WaitingForPlayers);
 }
 public void Tick()
@@ -101,17 +99,59 @@ if (State != GameState.ShuttingDown)
 TransitionTo(GameState.ShuttingDown);
 }
 }
-private void InitializeWorld()
+private async Awaitable<bool> InitializeWorldAsync(CancellationToken cancellation)
 {
-if (_worldInitialized || !_networkManager.IsServer)
+if (_worldInitialized)
 {
-return;
+return true;
+}
+if (!_networkManager.IsServer)
+{
+return !_disposed && _networkManager.IsListening;
+}
+if (!CanInitializeWorld())
+{
+return false;
 }
 _pointSpawner.Initialize(_pointsPool);
 _cometSpawner.Initialize(_cometsPool);
 _enemySpawner.Initialize(_enemyPool);
-_worldInitialized = true;
+const int spawnBatchSize = 5;
+int pointsCount = _pointsPool.Capacity;
+int cometsCount = _cometsPool.Capacity;
+int enemiesCount = _enemyPool.Capacity;
+int maxCount = Mathf.Max(pointsCount, cometsCount, enemiesCount);
+for (int i = 0; i < maxCount; i++)
+{
+cancellation.ThrowIfCancellationRequested();
+if (!CanInitializeWorld())
+{
+return false;
 }
+if (i < pointsCount)
+{
+_pointSpawner.CreateObject();
+}
+if (i < cometsCount)
+{
+_cometSpawner.CreateObject();
+}
+if (i < enemiesCount)
+{
+_enemySpawner.CreateObject();
+}
+if (i % spawnBatchSize == spawnBatchSize - 1)
+{
+await Awaitable.NextFrameAsync(cancellation);
+}
+}
+_worldInitialized = true;
+return true;
+}
+private bool CanInitializeWorld() =>
+!_disposed &&
+_networkManager.IsListening &&
+_networkManager.IsServer;
 private bool IsSessionReady()
 {
 if (!IsSessionAlive())
@@ -180,15 +220,10 @@ private const float GoldenAngle = 137.50776f;
 private const int MaximumSpawnAttempts = 24;
 private readonly NetworkManager _networkManager;
 private readonly NetworkObject _playerPrefab;
-public NetworkPlayerSpawner(
-NetworkManager networkManager,
-NetworkObject playerPrefab)
+public NetworkPlayerSpawner(NetworkManager networkManager, NetworkObject playerPrefab)
 {
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
-_playerPrefab = playerPrefab
-? playerPrefab
-: throw new ArgumentNullException(nameof(playerPrefab));
+_networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
+_playerPrefab = playerPrefab ? playerPrefab : throw new ArgumentNullException(nameof(playerPrefab));
 }
 public void Start()
 {
@@ -211,51 +246,34 @@ _networkManager.OnClientConnectedCallback -= SpawnPlayer;
 }
 private void SpawnPlayer(ulong clientId)
 {
-if (!_networkManager.IsServer ||
-_playerPrefab == null ||
-!_networkManager.ConnectedClients.TryGetValue(clientId, out NetworkClient client) ||
-client.PlayerObject != null)
+if (!_networkManager.IsServer
+|| _playerPrefab == null
+|| !_networkManager.ConnectedClients.TryGetValue(clientId, out NetworkClient client)
+|| client.PlayerObject != null)
 {
 return;
 }
-NetworkObject player = Object.Instantiate(
-_playerPrefab,
-FindSafeSpawnPosition(clientId),
-Quaternion.identity);
+NetworkObject player = Object.Instantiate(_playerPrefab, FindSafeSpawnPosition(clientId), Quaternion.identity);
 player.SpawnAsPlayerObject(clientId, true);
 }
 private static Vector3 FindSafeSpawnPosition(ulong clientId)
 {
 Vector3 fallback = GetSpawnCandidate(clientId, 0);
-for (int attempt = 0;
-attempt < MaximumSpawnAttempts;
-attempt++)
+for (int attempt = 0; attempt < MaximumSpawnAttempts; attempt++)
 {
 Vector3 candidate = GetSpawnCandidate(clientId, attempt);
-if (Physics2D.OverlapCircle(
-candidate,
-SpawnClearance) == null)
+if (Physics2D.OverlapCircle(candidate, SpawnClearance) == null)
 {
 return candidate;
 }
 }
 return fallback;
 }
-private static Vector3 GetSpawnCandidate(
-ulong clientId,
-int attempt)
+private static Vector3 GetSpawnCandidate(ulong clientId, int attempt)
 {
-float angle =
-(clientId + (ulong)attempt) *
-GoldenAngle *
-Mathf.Deg2Rad;
-float radius =
-SpawnRadius +
-attempt / 6 * SpawnRadiusStep;
-return new Vector3(
-Mathf.Cos(angle) * radius,
-Mathf.Sin(angle) * radius,
-0f);
+float angle = (clientId + (ulong)attempt) * GoldenAngle * Mathf.Deg2Rad;
+float radius = SpawnRadius + attempt / 6 * SpawnRadiusStep;
+return new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
 }
 }
 }
@@ -304,57 +322,6 @@ SetNickname(AvailableNicknames[_random.Next(AvailableNicknames.Length)]);
 
 
 // ============================================================================
-// File: Assets/_Project/Runtime/Application/Game/RestartGame.cs
-// ============================================================================
-using System;
-using UnityEngine;
-using VContainer;
-namespace PlanetIO.Application
-{
-public sealed class RestartGame : MonoBehaviour
-{
-private INetworkSessionService _networkSessionService;
-private IGameStateService _gameStateService;
-[Inject]
-public void Construct(
-INetworkSessionService networkSessionService,
-IGameStateService gameStateService)
-{
-_networkSessionService = networkSessionService
-?? throw new ArgumentNullException(nameof(networkSessionService));
-_gameStateService = gameStateService
-?? throw new ArgumentNullException(nameof(gameStateService));
-}
-public void Restart()
-{
-_ = RestartAsync();
-}
-private async Awaitable RestartAsync()
-{
-if (_networkSessionService == null)
-{
-Debug.LogError($"{nameof(RestartGame)} has no network session service.", this);
-return;
-}
-_gameStateService?.BeginShutdown();
-try
-{
-await _networkSessionService.ShutdownAndReturnToMenuAsync();
-}
-catch (OperationCanceledException)
-{
-// The application is closing.
-}
-catch (Exception exception)
-{
-Debug.LogException(exception, this);
-}
-}
-}
-}
-
-
-// ============================================================================
 // File: Assets/_Project/Runtime/Application/Pooling/CometPool.cs
 // ============================================================================
 namespace PlanetIO
@@ -372,7 +339,7 @@ namespace PlanetIO
 {
 public sealed class EnemyPool : ObjectPool.ObjectPool<Enemy>
 {
-public const int MinimumOpponentCount = 10;
+public const int MinimumOpponentCount = 5;
 protected override int MinimumCapacity => MinimumOpponentCount;
 }
 }
@@ -392,7 +359,7 @@ namespace PlanetIO.ObjectPool
 {
 public abstract class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
 {
-[SerializeField, Min(1)] private int _capacity = 100;
+[SerializeField, Min(1)] private int _capacity = 30;
 [SerializeField] private List<T> _prefabs = new();
 private IObjectResolver _objectResolver;
 protected virtual int MinimumCapacity => 1;
@@ -412,7 +379,11 @@ CreatePooledObject,
 ActivatePooledObject,
 DeactivatePooledObject,
 DestroyPooledObject,
+#if UNITY_EDITOR
+true,
+#else
 false,
+#endif
 Capacity,
 MaximumPoolSize);
 }
@@ -420,10 +391,21 @@ public T Get()
 {
 if (_pool == null)
 {
-throw new InvalidOperationException(
-$"{GetType().Name} must be initialized before use.");
+throw new InvalidOperationException($"{GetType().Name} must be initialized before use.");
 }
 return _pool.Get();
+}
+public void Release(T pooledObject)
+{
+if (_pool == null)
+{
+throw new InvalidOperationException($"{GetType().Name} must be initialized before use.");
+}
+if (pooledObject == null)
+{
+return;
+}
+_pool.Release(pooledObject);
 }
 protected virtual T CreatePooledObject()
 {
@@ -472,6 +454,7 @@ namespace PlanetIO
 {
 public sealed class PointPool : ObjectPool.ObjectPool<Point>
 {
+protected override int MinimumCapacity => 60;
 protected override int MaximumPoolSize => Capacity * 2;
 }
 }
@@ -486,17 +469,14 @@ using UnityEngine;
 using VContainer;
 namespace PlanetIO
 {
-public sealed class CometSpawner :
-Spawner<Comet>,
-IRespawnService<Comet>
+public sealed class CometSpawner : Spawner<Comet>, IRespawnService<Comet>
 {
 [SerializeField] private BordersTrigger _bordersTrigger;
 private NetworkManager _networkManager;
 [Inject]
 public void Construct(NetworkManager networkManager)
 {
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
+_networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
 }
 private void OnEnable()
 {
@@ -520,11 +500,52 @@ RespawnObject(comet);
 // ============================================================================
 // File: Assets/_Project/Runtime/Application/Spawning/EnemySpawner.cs
 // ============================================================================
+using Unity.Netcode;
+using Unity.Netcode.Components;
+using UnityEngine;
 namespace PlanetIO
 {
 public sealed class EnemySpawner : Spawner<Enemy>, IRespawnService<Enemy>
 {
-public void Respawn(Enemy enemy) => RespawnObject(enemy);
+[SerializeField, Min(0f)] private float _minimumDistanceFromPlayers = 30f;
+[SerializeField, Min(1)] private int _maxPositionAttempts = 10;
+public void Respawn(Enemy enemy)
+{
+if (enemy == null)
+{
+return;
+}
+float minimumScale = MinimumObjectScale;
+enemy.Capacity = minimumScale;
+Vector3 newPosition = GetRandomPosition();
+enemy.transform.position = newPosition;
+enemy.gameObject.SetActive(true);
+if (enemy.TryGetComponent(out NetworkObject networkObject) &&
+networkObject.IsSpawned &&
+enemy.TryGetComponent(out NetworkTransform networkTransform))
+{
+networkTransform.Teleport(
+newPosition,
+enemy.transform.rotation,
+enemy.transform.localScale);
+}
+}
+protected override Vector2 GetRandomPosition()
+{
+if (PlayerRegistry.Count == 0)
+{
+return base.GetRandomPosition();
+}
+for (int i = 0; i < _maxPositionAttempts; i++)
+{
+Vector2 candidate = base.GetRandomPosition();
+if (!PlayerRegistry.IsAnyPlayerWithinDistance(candidate, _minimumDistanceFromPlayers))
+{
+return candidate;
+}
+}
+return base.GetRandomPosition();
+}
 }
 }
 
@@ -533,16 +554,55 @@ public void Respawn(Enemy enemy) => RespawnObject(enemy);
 // File: Assets/_Project/Runtime/Application/Spawning/PointSpawner.cs
 // ============================================================================
 using UnityEngine;
+using System;
 namespace PlanetIO
 {
-public sealed class PointSpawner :
-Spawner<Point>,
-IRespawnService<Point>,
-ISpawnService<Point>
+public sealed class PointSpawner : Spawner<Point>, IRespawnService<Point>, ISpawnService<Point>
 {
-public void Respawn(Point point) => RespawnObject(point);
-public void SpawnAt(Transform spawnTransform) =>
-CreateObject(spawnTransform);
+[SerializeField, Min(0.1f)]
+private float _droppedPointLifetime = 10f;
+public void SpawnAt(Transform spawnTransform)
+{
+Point point = CreateObject(spawnTransform);
+int lifecycleVersion = point.MarkAsDropped();
+_ = ReleaseAfterLifetimeAsync(point, lifecycleVersion);
+}
+public void Respawn(Point point)
+{
+if (point == null)
+{
+return;
+}
+if (point.IsDropped)
+{
+ReturnDroppedPoint(point);
+return;
+}
+RespawnObject(point);
+}
+private void ReturnDroppedPoint(Point point)
+{
+point.MarkAsStored();
+ReleaseObject(point);
+}
+private async Awaitable ReleaseAfterLifetimeAsync(Point point, int lifecycleVersion)
+{
+try
+{
+await Awaitable.WaitForSecondsAsync(_droppedPointLifetime, destroyCancellationToken);
+if (point == null ||
+!point.IsDropped ||
+point.LifecycleVersion != lifecycleVersion)
+{
+return;
+}
+ReturnDroppedPoint(point);
+}
+catch (OperationCanceledException)
+{
+LoggerIO.LogError("Scene or spawner was destroyed");
+}
+}
 }
 }
 
@@ -558,40 +618,39 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 namespace PlanetIO
 {
-public abstract class Spawner<T> : MonoBehaviour
-where T : MonoBehaviour, ICapacity
+public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ICapacity
 {
-private const float SpawnDepth = 1f;
-[SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.4f;
+private const float ScaleDepth = 1f;
+[SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.1f;
 [SerializeField, Min(0.01f)] private float _maximumObjectScale = 1f;
-[SerializeField] private Vector2 _horizontalSpawnRange = new(-223f, 223f);
-[SerializeField] private Vector2 _verticalSpawnRange = new(-139f, 161.9f);
+[SerializeField] private Vector2 _horizontalSpawnRange = new(-66f, 56f);
+[SerializeField] private Vector2 _verticalSpawnRange = new(-36f, 116f);
 private ObjectPool<T> _objectPool;
+protected float MinimumObjectScale => _minimumObjectScale;
 public void Initialize(ObjectPool<T> objectPool)
 {
-_objectPool = objectPool
-?? throw new ArgumentNullException(nameof(objectPool));
+_objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
 _objectPool.Initialize();
-GenerateInitialObjects();
 }
-public void CreateObject()
+public T CreateObject()
 {
-T spawnedObject = _objectPool.Get();
-float randomScale = GetRandomScale();
-spawnedObject.Capacity = randomScale;
-SetRandomTransform(spawnedObject, randomScale);
-SpawnNetworkObject(spawnedObject);
+float scale = GetRandomScale();
+return CreateSpawnedObject(GetRandomPosition(), scale);
 }
-public void CreateObject(Transform spawnTransform)
+public T CreateObject(Transform spawnTransform)
 {
 if (spawnTransform == null)
 {
 throw new ArgumentNullException(nameof(spawnTransform));
 }
+return CreateSpawnedObject(spawnTransform.position, _minimumObjectScale);
+}
+private T CreateSpawnedObject(Vector2 position, float capacity)
+{
 T spawnedObject = _objectPool.Get();
-spawnedObject.Capacity = _minimumObjectScale;
-SetTransform(spawnedObject, spawnTransform.position, _minimumObjectScale);
+SetState(spawnedObject, position, capacity);
 SpawnNetworkObject(spawnedObject);
+return spawnedObject;
 }
 protected void RespawnObject(T objectToRespawn)
 {
@@ -600,8 +659,7 @@ if (objectToRespawn == null)
 return;
 }
 float randomScale = GetRandomScale();
-objectToRespawn.Capacity = randomScale;
-SetRandomTransform(objectToRespawn, randomScale);
+SetState(objectToRespawn, GetRandomPosition(), randomScale);
 objectToRespawn.gameObject.SetActive(true);
 if (objectToRespawn.TryGetComponent(out NetworkObject networkObject) &&
 networkObject.IsSpawned &&
@@ -613,46 +671,46 @@ objectToRespawn.transform.rotation,
 objectToRespawn.transform.localScale);
 }
 }
+protected void ReleaseObject(T objectToRelease)
+{
+if (objectToRelease == null)
+{
+return;
+}
+if (objectToRelease.TryGetComponent(out NetworkObject networkObject) && networkObject.IsSpawned)
+{
+networkObject.Despawn(false);
+}
+_objectPool.Release(objectToRelease);
+}
 protected virtual Vector2 GetRandomPosition()
 {
 return new Vector2(
 Random.Range(_horizontalSpawnRange.x, _horizontalSpawnRange.y),
 Random.Range(_verticalSpawnRange.x, _verticalSpawnRange.y));
 }
-private void GenerateInitialObjects()
+private static void SetState(T spawnedObject, Vector2 position, float capacity)
 {
-for (int objectIndex = 0; objectIndex < _objectPool.Capacity; objectIndex++)
-{
-CreateObject();
-}
-}
-private void SetRandomTransform(T spawnedObject, float scale)
-{
-SetTransform(spawnedObject, GetRandomPosition(), scale);
-}
-private static void SetTransform(
-T spawnedObject,
-Vector2 position,
-float scale)
-{
+spawnedObject.Capacity = capacity;
 Transform spawnedTransform = spawnedObject.transform;
 spawnedTransform.position = position;
-spawnedTransform.localScale = new Vector3(scale, scale, SpawnDepth);
+float actualCapacity = spawnedObject.Capacity;
+spawnedTransform.localScale = new Vector3(
+actualCapacity,
+actualCapacity,
+ScaleDepth);
 }
 private float GetRandomScale()
 {
-float minimumScale = Mathf.Min(
-_minimumObjectScale,
-_maximumObjectScale);
-float maximumScale = Mathf.Max(
-_minimumObjectScale,
-_maximumObjectScale);
+float minimumScale = Mathf.Min(_minimumObjectScale, _maximumObjectScale);
+float maximumScale = Mathf.Max(_minimumObjectScale, _maximumObjectScale);
 return Random.Range(minimumScale, maximumScale);
 }
 private static void SpawnNetworkObject(T spawnedObject)
 {
 if (spawnedObject.TryGetComponent(out NetworkObject networkObject) &&
-!networkObject.IsSpawned)
+!networkObject.IsSpawned &&
+networkObject.NetworkManager is { IsListening: true, IsServer: true })
 {
 networkObject.Spawn();
 }
@@ -660,9 +718,7 @@ networkObject.Spawn();
 #if UNITY_EDITOR
 private void OnValidate()
 {
-_maximumObjectScale = Mathf.Max(
-_minimumObjectScale,
-_maximumObjectScale);
+_maximumObjectScale = Mathf.Max(_minimumObjectScale, _maximumObjectScale);
 NormalizeRange(ref _horizontalSpawnRange);
 NormalizeRange(ref _verticalSpawnRange);
 }
@@ -734,12 +790,10 @@ public static class Constants
 public const float ScaleMultiplier = 100f;
 public const float MinimumDirectionSquaredMagnitude = 0.0001f;
 public const float MinimumDisplayCapacity = 0.01f;
-public static int CapacityToScore(float capacity) =>
-Mathf.RoundToInt(capacity * ScaleMultiplier);
+public static int CapacityToScore(float capacity) => Mathf.RoundToInt(capacity * ScaleMultiplier);
 public static Quaternion DirectionToRotation(Vector2 direction)
 {
-float angle =
-Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 return Quaternion.Euler(0f, 0f, angle);
 }
 public static Vector2 GetRandomDirection()
@@ -764,6 +818,13 @@ public const string Boot = "Boot";
 public const string Menu = "MainMenu";
 public const string Loading = "Loading";
 public const string Game = "Game";
+}
+public static class SceneIds
+{
+public const string Boot = "boot";
+public const string Menu = "menu";
+public const string Loading = "loading";
+public const string Game = "game";
 }
 }
 
@@ -837,6 +898,19 @@ namespace PlanetIO
 public interface IBoostInput
 {
 event Action<bool> BoostChanged;
+}
+}
+
+
+// ============================================================================
+// File: Assets/_Project/Runtime/Core/Contracts/Loading/IGameLoadingView.cs
+// ============================================================================
+namespace PlanetIO.Core.Contracts.Loading
+{
+public interface IGameLoadingView
+{
+void Show();
+void Hide();
 }
 }
 
@@ -994,19 +1068,14 @@ MaxPlayers = RoomRules.ClampMaxPlayers(maxPlayers);
 }
 public string RoomCode { get; }
 public int MaxPlayers { get; }
-public static RoomConnectionSettings Default =>
-new(RoomRules.DefaultRoomCode, RoomRules.DefaultMaxPlayers);
+public static RoomConnectionSettings Default => new(RoomRules.DefaultRoomCode, RoomRules.DefaultMaxPlayers);
 public bool Equals(RoomConnectionSettings other)
 {
-return string.Equals(RoomCode, other.RoomCode, StringComparison.Ordinal) &&
-MaxPlayers == other.MaxPlayers;
+return string.Equals(RoomCode, other.RoomCode, StringComparison.Ordinal) && MaxPlayers == other.MaxPlayers;
 }
-public override bool Equals(object obj) =>
-obj is RoomConnectionSettings other && Equals(other);
-public override int GetHashCode() =>
-HashCode.Combine(RoomCode, MaxPlayers);
-public override string ToString() =>
-$"{RoomCode} ({MaxPlayers})";
+public override bool Equals(object obj) => obj is RoomConnectionSettings other && Equals(other);
+public override int GetHashCode() => HashCode.Combine(RoomCode, MaxPlayers);
+public override string ToString() => $"{RoomCode} ({MaxPlayers})";
 }
 }
 
@@ -1033,7 +1102,7 @@ string normalized = new(
 (roomCode ?? string.Empty)
 .Trim()
 .ToUpperInvariant()
-.Where(character => char.IsLetterOrDigit(character))
+.Where(char.IsLetterOrDigit)
 .Take(MaximumRoomCodeLength)
 .ToArray());
 return normalized;
@@ -1041,8 +1110,7 @@ return normalized;
 public static bool IsValidRoomCode(string roomCode)
 {
 string normalized = NormalizeRoomCode(roomCode);
-return normalized.Length >= MinimumRoomCodeLength &&
-normalized.Length <= MaximumRoomCodeLength;
+return normalized.Length >= MinimumRoomCodeLength && normalized.Length <= MaximumRoomCodeLength;
 }
 public static int ClampMaxPlayers(int maxPlayers) =>
 Math.Clamp(maxPlayers, MinimumPlayers, MaximumPlayers);
@@ -1052,7 +1120,7 @@ out RoomConnectionSettings settings,
 out string validationError)
 {
 string normalizedRoomCode = NormalizeRoomCode(roomCode);
-if (!IsValidRoomCode(normalizedRoomCode))
+if (normalizedRoomCode.Length < MinimumRoomCodeLength)
 {
 settings = default;
 validationError =
@@ -1061,9 +1129,7 @@ $"{MinimumRoomCodeLength}–{MaximumRoomCodeLength} " +
 "letters or digits.";
 return false;
 }
-settings = new RoomConnectionSettings(
-normalizedRoomCode,
-DefaultMaxPlayers);
+settings = new RoomConnectionSettings(normalizedRoomCode, DefaultMaxPlayers);
 validationError = string.Empty;
 return true;
 }
@@ -1097,6 +1163,83 @@ namespace PlanetIO
 public interface ISpawnService<T>
 {
 void SpawnAt(Transform position);
+}
+}
+
+
+// ============================================================================
+// File: Assets/_Project/Runtime/Core/LoggerIO.cs
+// ============================================================================
+using UnityEngine;
+namespace PlanetIO
+{
+public static class LoggerIO
+{
+public static bool Enabled { get; set; } = Application.isEditor;
+public static void Log(object message)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.Log(message);
+}
+public static void Log(object message, Object context)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.Log(message, context);
+}
+public static void LogWarning(object message)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.LogWarning(message);
+}
+public static void LogWarning(object message, Object context)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.LogWarning(message, context);
+}
+public static void LogError(object message)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.LogError(message);
+}
+public static void LogError(object message, Object context)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.LogError(message, context);
+}
+public static void LogException(System.Exception exception)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.LogException(exception);
+}
+public static void LogException(System.Exception exception, Object context)
+{
+if (!Enabled)
+{
+return;
+}
+Debug.LogException(exception, context);
+}
 }
 }
 
@@ -1173,8 +1316,7 @@ _cometTransform ??= transform;
 [Inject]
 public void Construct(IGameStateService gameStateService)
 {
-_gameStateService = gameStateService
-?? throw new ArgumentNullException(nameof(gameStateService));
+_gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
 }
 public override void OnNetworkSpawn()
 {
@@ -1201,7 +1343,6 @@ StopMovement();
 return;
 }
 Move();
-RotateTowardsDirection();
 }
 public void Move()
 {
@@ -1213,11 +1354,7 @@ float minimumSpeed = Mathf.Min(_minimumSpeed, _maximumSpeed);
 float maximumSpeed = Mathf.Max(_minimumSpeed, _maximumSpeed);
 _normalSpeed = Random.Range(minimumSpeed, maximumSpeed);
 _direction = Constants.GetRandomDirection();
-}
-private void RotateTowardsDirection()
-{
-_cometTransform.rotation =
-Constants.DirectionToRotation(_direction);
+_cometTransform.rotation = Constants.DirectionToRotation(_direction);
 }
 private void StopMovement()
 {
@@ -1255,28 +1392,32 @@ public sealed class Enemy : PlanetScale
 [Header("Balance")]
 [SerializeField, Min(0f)] private float _enemyFoodGrowthMultiplier = 0.01f;
 [SerializeField, Min(0f)] private float _enemyCometDamageMultiplier = 0.02f;
+[SerializeField, Min(1f)] private float _eatSizeRatio = 1.08f;
+[Header("Spawn")]
+[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
 private IGameStateService _gameStateService;
+private IRespawnService<Enemy> _enemyRespawnService;
 private bool _servicesReady;
+protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
+protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
 [Inject]
 public void Construct(
 IRespawnService<Comet> cometRespawnService,
 IRespawnService<Point> pointRespawnService,
+IRespawnService<Enemy> enemyRespawnService,
 IGameStateService gameStateService)
 {
-CometRespawnService = cometRespawnService
-?? throw new ArgumentNullException(nameof(cometRespawnService));
-PointRespawnService = pointRespawnService
-?? throw new ArgumentNullException(nameof(pointRespawnService));
-_gameStateService = gameStateService
-?? throw new ArgumentNullException(nameof(gameStateService));
-FoodGrowthMultiplier = _enemyFoodGrowthMultiplier;
-CometDamageMultiplier = _enemyCometDamageMultiplier;
+CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
+PointRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
+_enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
+_gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
 _servicesReady = true;
 }
 protected override void Awake()
 {
 base.Awake();
 _spriteRenderer ??= GetComponent<SpriteRenderer>();
+Capacity = _initialCapacity;
 }
 public override void OnNetworkSpawn()
 {
@@ -1292,7 +1433,31 @@ collider2D == null)
 {
 return;
 }
+if (collider2D.TryGetComponent(out Enemy otherEnemy))
+{
+if (otherEnemy == this)
+{
+return;
+}
+if (Capacity >= otherEnemy.Capacity * _eatSizeRatio)
+{
+Grow(otherEnemy.Capacity);
+_enemyRespawnService.Respawn(otherEnemy);
+}
+}
+else if (collider2D.TryGetComponent(out Player player))
+{
+if (!player.IsDefeated &&
+Capacity >= player.Capacity * _eatSizeRatio)
+{
+Grow(player.Capacity);
+player.Defeat();
+}
+}
+else
+{
 HandleEntityCollision(collider2D);
+}
 }
 private void SetDeterministicSprite()
 {
@@ -1355,13 +1520,8 @@ Evade
 }
 public static class EnemyDecisionRules
 {
-public static EnemyIntent ChooseIntent(
-float ownCapacity,
-float nearestPlayerCapacity,
-bool hasVisibleFood,
-bool hasImmediateHazard,
-float huntSizeRatio,
-float threatSizeRatio)
+public static EnemyIntent ChooseIntent(float ownCapacity, float nearestPlayerCapacity, bool hasVisibleFood,
+bool hasImmediateHazard, float huntSizeRatio, float threatSizeRatio)
 {
 if (hasImmediateHazard)
 {
@@ -1390,8 +1550,7 @@ float minimumCapacity,
 float massPenalty,
 float minimumMultiplier)
 {
-float sizeAboveMinimum =
-Mathf.Max(0f, capacity - minimumCapacity);
+float sizeAboveMinimum = Mathf.Max(0f, capacity - minimumCapacity);
 return Mathf.Clamp(
 1f - sizeAboveMinimum * Mathf.Max(0f, massPenalty),
 Mathf.Clamp01(minimumMultiplier),
@@ -1424,8 +1583,9 @@ Foraging,
 Hunting,
 Evading
 }
-private const int NearbyColliderCapacity = 48;
-private const float MinimumThinkInterval = 0.05f;
+private const int NearbyColliderCapacity = 24;
+private const float MinimumThinkInterval = 0.5f;
+private const float IdleCullDistance = 40f;
 private const float MinimumStateTime = 0.2f;
 private const float MinimumRoamTime = 0.1f;
 [Header("Movement")]
@@ -1453,10 +1613,13 @@ private float _maximumTimeToChangeDirection = 6f;
 [SerializeField] private Transform _enemyTransform;
 [SerializeField] private Rigidbody2D _rigidbody2D;
 [SerializeField] private Enemy _enemy;
+private const float SeparationRadiusPerUnit = 2f;
+private const float SeparationWeight = 0.8f;
 private readonly Collider2D[] _nearbyColliders =
 new Collider2D[NearbyColliderCapacity];
 private IGameStateService _gameStateService;
 private Vector2 _desiredDirection = Vector2.right;
+private Vector2 _separationForce;
 private float _stateTimeRemaining;
 private float _thinkTimeRemaining;
 public Vector2 Direction { get; private set; } = Vector2.right;
@@ -1471,16 +1634,15 @@ _enemy ??= GetComponent<Enemy>();
 [Inject]
 public void Construct(IGameStateService gameStateService)
 {
-_gameStateService = gameStateService
-?? throw new ArgumentNullException(nameof(gameStateService));
+_gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
 }
 public override void OnNetworkSpawn()
 {
 base.OnNetworkSpawn();
 if (IsServer)
 {
-EnterRoaming();
 _thinkTimeRemaining = Random.Range(0f, _thinkInterval);
+EnterRoaming();
 }
 }
 public override void OnNetworkDespawn()
@@ -1508,16 +1670,24 @@ _stateTimeRemaining -= deltaTime;
 _thinkTimeRemaining -= deltaTime;
 if (_thinkTimeRemaining <= 0f)
 {
+if (IsPlayerNearby(IdleCullDistance))
+{
 Think();
-_thinkTimeRemaining = Mathf.Max(MinimumThinkInterval, _thinkInterval);
 }
-if (State == MovementState.Roaming &&
-_stateTimeRemaining <= 0f)
+else
+{
+if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
 {
 EnterRoaming();
 }
-else if (State == MovementState.Evading &&
-_stateTimeRemaining <= 0f)
+}
+_thinkTimeRemaining = Mathf.Max(MinimumThinkInterval, _thinkInterval);
+}
+if (State == MovementState.Roaming && _stateTimeRemaining <= 0f)
+{
+EnterRoaming();
+}
+else if (State == MovementState.Evading && _stateTimeRemaining <= 0f)
 {
 Think();
 }
@@ -1528,10 +1698,7 @@ RotateTowardsDirection(deltaTime);
 public void Move()
 {
 float speedMultiplier =
-EnemyDecisionRules.GetCapacitySpeedMultiplier(
-_enemy.Capacity,
-_enemy.MinimumCapacity,
-_massSpeedPenalty,
+EnemyDecisionRules.GetCapacitySpeedMultiplier(_enemy.Capacity, _enemy.MinCapacity, _massSpeedPenalty,
 _minimumSpeedMultiplier);
 float stateMultiplier = State switch
 {
@@ -1548,11 +1715,8 @@ if (!IsSpawned || !IsServer)
 {
 return;
 }
-Vector2 directionAway =
-(Vector2)_enemyTransform.position - threatPosition;
-_desiredDirection =
-directionAway.sqrMagnitude >
-Constants.MinimumDirectionSquaredMagnitude
+Vector2 directionAway = (Vector2)_enemyTransform.position - threatPosition;
+_desiredDirection = directionAway.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
 ? directionAway.normalized
 : GetRandomDirection();
 State = MovementState.Evading;
@@ -1561,91 +1725,93 @@ _stateTimeRemaining = _evasionDuration;
 private void Think()
 {
 Vector2 position = _enemyTransform.position;
-int hitCount = Physics2D.OverlapCircle(
-position,
-_awarenessRadius,
-ContactFilter2D.noFilter,
-_nearbyColliders);
+int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, ContactFilter2D.noFilter, _nearbyColliders);
 Player nearestPlayer = null;
 Point nearestFood = null;
 Vector2 hazardPosition = default;
+Vector2 separationAccum = Vector2.zero;
 float playerDistanceSquared = float.PositiveInfinity;
 float foodDistanceSquared = float.PositiveInfinity;
 float hazardDistanceSquared = float.PositiveInfinity;
+float separationRadiusSquared = (_enemy.Capacity * SeparationRadiusPerUnit) *
+(_enemy.Capacity * SeparationRadiusPerUnit);
 for (int index = 0; index < hitCount; index++)
 {
 Collider2D candidate = _nearbyColliders[index];
-if (candidate == null ||
-candidate.transform == _enemyTransform)
+if (candidate == null || candidate.transform == _enemyTransform)
 {
 continue;
 }
 Vector2 candidatePosition = candidate.transform.position;
-float distanceSquared =
-(candidatePosition - position).sqrMagnitude;
-if (candidate.TryGetComponent(out Player player) &&
+float distanceSquared = (candidatePosition - position).sqrMagnitude;
+if (candidate.TryGetComponent(out Enemy _))
+{
+if (distanceSquared < separationRadiusSquared &&
+distanceSquared > 0.001f)
+{
+Vector2 push = position - candidatePosition;
+float distance = Mathf.Sqrt(distanceSquared);
+separationAccum +=
+push / (distance * Mathf.Max(distance, 0.3f));
+}
+continue;
+}
+if (candidate.TryGetComponent(out Player player))
+{
+if (!player.IsDefeated &&
 distanceSquared < playerDistanceSquared)
 {
 nearestPlayer = player;
 playerDistanceSquared = distanceSquared;
 }
-else if (candidate.TryGetComponent(out Point point) &&
-distanceSquared < foodDistanceSquared)
+continue;
+}
+if (candidate.TryGetComponent(out Point point))
+{
+if (distanceSquared < foodDistanceSquared)
 {
 nearestFood = point;
 foodDistanceSquared = distanceSquared;
 }
-else if (candidate.TryGetComponent(out Comet _) &&
+continue;
+}
+if (candidate.TryGetComponent(out Comet _) &&
 distanceSquared < hazardDistanceSquared)
 {
 hazardPosition = candidatePosition;
 hazardDistanceSquared = distanceSquared;
 }
 }
-bool hasImmediateHazard =
-hazardDistanceSquared <= _hazardDistance * _hazardDistance;
-EnemyIntent intent = EnemyDecisionRules.ChooseIntent(
-_enemy.Capacity,
-nearestPlayer?.Capacity ?? 0f,
-nearestFood != null,
-hasImmediateHazard,
-_huntSizeRatio,
-_threatSizeRatio);
+_separationForce = separationAccum;
+bool hasImmediateHazard = hazardDistanceSquared <= _hazardDistance * _hazardDistance;
+EnemyIntent intent = EnemyDecisionRules.ChooseIntent(_enemy.Capacity, nearestPlayer?.Capacity ?? 0f,
+nearestFood != null, hasImmediateHazard, _huntSizeRatio, _threatSizeRatio);
 switch (intent)
 {
 case EnemyIntent.Evade:
 Vector2 dangerPosition = hasImmediateHazard
 ? hazardPosition
-: (Vector2)nearestPlayer.transform.position;
+: nearestPlayer.transform.position;
 EvadeFrom(dangerPosition);
 break;
 case EnemyIntent.Hunt:
-SetTarget(
-nearestPlayer.transform.position,
-MovementState.Hunting);
+SetTarget(nearestPlayer.transform.position, MovementState.Hunting);
 break;
 case EnemyIntent.Forage:
-SetTarget(
-nearestFood.transform.position,
-MovementState.Foraging);
+SetTarget(nearestFood.transform.position, MovementState.Foraging);
 break;
 default:
-if (State != MovementState.Roaming ||
-_stateTimeRemaining <= 0f)
+if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
 {
 EnterRoaming();
 }
 break;
 }
 }
-private void SetTarget(
-Vector2 targetPosition,
-MovementState state)
+private void SetTarget(Vector2 targetPosition, MovementState state)
 {
-Vector2 targetDirection =
-targetPosition - (Vector2)_enemyTransform.position;
-if (targetDirection.sqrMagnitude <=
-Constants.MinimumDirectionSquaredMagnitude)
+Vector2 targetDirection = targetPosition - (Vector2)_enemyTransform.position;
+if (targetDirection.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
 {
 return;
 }
@@ -1657,40 +1823,33 @@ private void EnterRoaming()
 {
 State = MovementState.Roaming;
 _desiredDirection = GetRandomDirection();
-float minimum = Mathf.Max(
-MinimumRoamTime,
-_minimumTimeToChangeDirection);
-float maximum = Mathf.Max(
-minimum,
-_maximumTimeToChangeDirection);
-_stateTimeRemaining = Random.Range(minimum, maximum);
+float min = Mathf.Max(MinimumRoamTime, _minimumTimeToChangeDirection);
+float max = Mathf.Max(min, _maximumTimeToChangeDirection);
+_stateTimeRemaining = Random.Range(min, max);
 }
 private void UpdateDirection(float deltaTime)
 {
-if (_desiredDirection.sqrMagnitude <=
-Constants.MinimumDirectionSquaredMagnitude)
+Vector2 target = _desiredDirection;
+if (_separationForce.sqrMagnitude > 0.0001f)
+{
+target += _separationForce * SeparationWeight;
+}
+if (target.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
 {
 return;
 }
-Direction = Vector3.RotateTowards(
-Direction,
-_desiredDirection,
-_turnSpeed * Mathf.Deg2Rad * deltaTime,
-0f).normalized;
+target.Normalize();
+Direction = Vector3.RotateTowards(Direction, target,
+_turnSpeed * Mathf.Deg2Rad * deltaTime, 0f).normalized;
 }
 private void RotateTowardsDirection(float deltaTime)
 {
-if (Direction.sqrMagnitude <=
-Constants.MinimumDirectionSquaredMagnitude)
+if (Direction.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
 {
 return;
 }
-Quaternion targetRotation =
-Constants.DirectionToRotation(Direction);
-_enemyTransform.rotation = Quaternion.RotateTowards(
-_enemyTransform.rotation,
-targetRotation,
-_turnSpeed * deltaTime);
+Quaternion targetRotation = Constants.DirectionToRotation(Direction);
+_enemyTransform.rotation = Quaternion.RotateTowards(_enemyTransform.rotation, targetRotation, _turnSpeed * deltaTime);
 }
 private void StopMovement()
 {
@@ -1699,18 +1858,17 @@ if (_rigidbody2D != null)
 _rigidbody2D.linearVelocity = Vector2.zero;
 }
 }
-private static Vector2 GetRandomDirection() =>
-Constants.GetRandomDirection();
+private static Vector2 GetRandomDirection() => Constants.GetRandomDirection();
+private bool IsPlayerNearby(float maxDistance)
+{
+return PlayerRegistry.IsAnyPlayerWithinDistance(_enemyTransform.position, maxDistance);
+}
 #if UNITY_EDITOR
 private void OnValidate()
 {
-_maximumTimeToChangeDirection = Mathf.Max(
-_minimumTimeToChangeDirection,
-_maximumTimeToChangeDirection);
+_maximumTimeToChangeDirection = Mathf.Max(_minimumTimeToChangeDirection, _maximumTimeToChangeDirection);
 _thinkInterval = Mathf.Max(MinimumThinkInterval, _thinkInterval);
-_awarenessRadius = Mathf.Max(
-_hazardDistance,
-_awarenessRadius);
+_awarenessRadius = Mathf.Max(_hazardDistance, _awarenessRadius);
 }
 #endif
 }
@@ -1757,48 +1915,54 @@ _enemyMovement.EvadeFrom(comet.transform.position);
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 namespace PlanetIO
 {
 public abstract class PlanetScale : NetworkBehaviour, ICapacity
 {
+private const float MinAllowedCapacity = 0.01f;
+private const float ScaleDepth = 1f;
 [Header("Capacity")]
-[SerializeField, Min(0.01f)] private float _minimumCapacity = 0.08f;
-[SerializeField, Min(0.02f)] private float _maximumCapacity = 2f;
+[FormerlySerializedAs("_minimumCapacity")]
+[SerializeField, Min(MinAllowedCapacity)] private float _minCapacity = 0.08f;
+[FormerlySerializedAs("_maximumCapacity")]
+[SerializeField, Min(MinAllowedCapacity)] private float _maxCapacity = 1f;
 private readonly NetworkVariable<float> _networkCapacity = new(
 0f,
 NetworkVariableReadPermission.Everyone,
 NetworkVariableWritePermission.Server);
 private float _localCapacity;
-public float MinimumCapacity => _minimumCapacity;
+public float MinCapacity => _minCapacity;
 public float Capacity
 {
 get => IsSpawned ? _networkCapacity.Value : _localCapacity;
-set => SetCapacityAbsolute(value);
+set => TrySetCapacity(value);
 }
 public event Action<float> CapacityChanged;
 protected virtual void Awake()
 {
-_localCapacity = ClampCapacity(transform.localScale.x);
-ApplyCapacity(_localCapacity, false);
+NormalizeCapacityBounds();
+ApplyCapacity(_minCapacity, false);
 }
 public override void OnNetworkSpawn()
 {
 base.OnNetworkSpawn();
-_networkCapacity.OnValueChanged += OnNetworkCapacityChanged;
 if (IsServer)
 {
 _networkCapacity.Value = ClampCapacity(_localCapacity);
 }
+_networkCapacity.OnValueChanged += OnNetworkCapacityChanged;
 ApplyCapacity(_networkCapacity.Value, true);
 }
 public override void OnNetworkDespawn()
 {
+float lastCapacity = _networkCapacity.Value;
 _networkCapacity.OnValueChanged -= OnNetworkCapacityChanged;
-_localCapacity = Capacity;
+_localCapacity = ClampCapacity(lastCapacity);
 base.OnNetworkDespawn();
 }
-protected float FoodGrowthMultiplier { get; set; } = 0.01f;
-protected float CometDamageMultiplier { get; set; } = 0.02f;
+protected abstract float FoodGrowthMultiplier { get; }
+protected abstract float CometDamageMultiplier { get; }
 protected IRespawnService<Point> PointRespawnService { get; set; }
 protected IRespawnService<Comet> CometRespawnService { get; set; }
 protected bool Grow(float amount)
@@ -1814,6 +1978,10 @@ protected virtual void DeathCheck(float capacity)
 }
 protected void HandleEntityCollision(Collider2D other)
 {
+if (other == null)
+{
+return;
+}
 if (other.TryGetComponent(out Point point))
 {
 Grow(point.Capacity * FoodGrowthMultiplier);
@@ -1827,41 +1995,37 @@ CometRespawnService?.Respawn(comet);
 }
 private bool ChangeCapacity(float delta)
 {
-if (IsSpawned && !IsServer)
+return TrySetCapacity(Capacity + delta);
+}
+private bool TrySetCapacity(float value)
+{
+if (float.IsNaN(value) || IsSpawned && !IsServer)
 {
 return false;
 }
-float before = Capacity;
-SetCapacityAbsolute(before + delta);
-return !Mathf.Approximately(before, Capacity);
-}
-private void SetCapacityAbsolute(float value)
-{
 float clamped = ClampCapacity(value);
+if (Capacity == clamped)
+{
+return false;
+}
 if (IsSpawned)
 {
-if (!IsServer)
-{
-return;
-}
-if (Mathf.Approximately(_networkCapacity.Value, clamped))
-{
-return;
-}
 _networkCapacity.Value = clamped;
-return;
 }
-_localCapacity = clamped;
+else
+{
 ApplyCapacity(clamped, true);
 }
-private void OnNetworkCapacityChanged(float previous, float current)
+return true;
+}
+private void OnNetworkCapacityChanged(float _, float current)
 {
 ApplyCapacity(current, true);
 }
 private void ApplyCapacity(float capacity, bool notify)
 {
 _localCapacity = capacity;
-transform.localScale = new Vector3(capacity, capacity, 1f);
+transform.localScale = new Vector3(capacity, capacity, ScaleDepth);
 if (notify)
 {
 CapacityChanged?.Invoke(capacity);
@@ -1870,11 +2034,27 @@ DeathCheck(capacity);
 }
 private float ClampCapacity(float value)
 {
-return Mathf.Clamp(
-value,
-_minimumCapacity,
-Mathf.Max(_minimumCapacity, _maximumCapacity));
+return Mathf.Clamp(value, _minCapacity, _maxCapacity);
 }
+private void NormalizeCapacityBounds()
+{
+_minCapacity = IsFinite(_minCapacity)
+? Mathf.Max(MinAllowedCapacity, _minCapacity)
+: MinAllowedCapacity;
+_maxCapacity = IsFinite(_maxCapacity)
+? Mathf.Max(_minCapacity, _maxCapacity)
+: _minCapacity;
+}
+private static bool IsFinite(float value)
+{
+return !float.IsNaN(value) && !float.IsInfinity(value);
+}
+#if UNITY_EDITOR
+private void OnValidate()
+{
+NormalizeCapacityBounds();
+}
+#endif
 }
 }
 
@@ -1885,6 +2065,7 @@ Mathf.Max(_minimumCapacity, _maximumCapacity));
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VContainer;
 namespace PlanetIO
 {
@@ -1901,59 +2082,63 @@ private Rigidbody2D _rigidbody2D;
 [SerializeField, Min(1f)] private float _eatEnemySizeRatio = 1.08f;
 [Header("Boost food")]
 [SerializeField] private Transform _pointSpawnTransform;
+[Header("Spawn protection")]
+[FormerlySerializedAs("_respawnInvincibilityTime")]
+[SerializeField, Min(0f)] private float _spawnInvincibilityTime = 2f;
+[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
+private readonly NetworkVariable<bool> _networkDefeated = new(
+false,
+NetworkVariableReadPermission.Everyone,
+NetworkVariableWritePermission.Server);
 private IRespawnService<Enemy> _enemyRespawnService;
 private ISpawnService<Point> _pointSpawnService;
-private INetworkSessionService _networkSessionService;
 private IGameStateService _gameStateService;
 private bool _servicesReady;
 private bool _borderEventSubscribed;
-private bool _isDefeated;
-public bool CanBoost => Capacity > MinimumCapacity + _boostMassCost;
+private float _invincibilityTimeRemaining;
+public bool IsDefeated => IsSpawned && _networkDefeated.Value;
+public bool CanBoost => !IsDefeated && Capacity > MinCapacity + _boostMassCost;
+public event Action Defeated;
+protected override float FoodGrowthMultiplier => _playerFoodGrowthMultiplier;
+protected override float CometDamageMultiplier => _playerCometDamageMultiplier;
 [Inject]
 public void Construct(
 IRespawnService<Comet> cometRespawnService,
 IRespawnService<Point> pointRespawnService,
 IRespawnService<Enemy> enemyRespawnService,
 ISpawnService<Point> pointSpawnService,
-INetworkSessionService networkSessionService,
 IGameStateService gameStateService,
 BordersTrigger bordersTrigger)
 {
-CometRespawnService = cometRespawnService
-?? throw new ArgumentNullException(nameof(cometRespawnService));
-PointRespawnService = pointRespawnService
-?? throw new ArgumentNullException(nameof(pointRespawnService));
-_enemyRespawnService = enemyRespawnService
-?? throw new ArgumentNullException(nameof(enemyRespawnService));
-_pointSpawnService = pointSpawnService
-?? throw new ArgumentNullException(nameof(pointSpawnService));
-_networkSessionService = networkSessionService
-?? throw new ArgumentNullException(nameof(networkSessionService));
-_gameStateService = gameStateService
-?? throw new ArgumentNullException(nameof(gameStateService));
-SetBordersTrigger(
-bordersTrigger
-?? throw new ArgumentNullException(nameof(bordersTrigger)));
-FoodGrowthMultiplier = _playerFoodGrowthMultiplier;
-CometDamageMultiplier = _playerCometDamageMultiplier;
+CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
+PointRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
+_enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
+_pointSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
+_gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
+SetBordersTrigger(bordersTrigger ?? throw new ArgumentNullException(nameof(bordersTrigger)));
 _servicesReady = true;
 }
 protected override void Awake()
 {
 base.Awake();
 _rigidbody2D = GetComponent<Rigidbody2D>();
+Capacity = _initialCapacity;
 }
 private void OnEnable()
 {
+PlayerRegistry.Register(this);
 SubscribeToBorderEvent();
 }
 private void OnDisable()
 {
+PlayerRegistry.Unregister(this);
 UnsubscribeFromBorderEvent();
 }
 public void EnableBoost()
 {
-if (!IsOwner || _gameStateService?.IsGameplayActive != true)
+if (!IsOwner ||
+IsDefeated ||
+_gameStateService?.IsGameplayActive != true)
 {
 return;
 }
@@ -1963,8 +2148,9 @@ ApplyBoostRpc();
 private void ApplyBoostRpc()
 {
 if (!_servicesReady ||
+IsDefeated ||
 !_gameStateService.IsGameplayActive ||
-Capacity <= MinimumCapacity + _boostMassCost)
+Capacity <= MinCapacity + _boostMassCost)
 {
 return;
 }
@@ -1982,7 +2168,7 @@ _pointSpawnService.SpawnAt(_pointSpawnTransform);
 }
 protected override void DeathCheck(float capacity)
 {
-if (IsServer && capacity <= MinimumCapacity)
+if (IsServer && capacity <= MinCapacity)
 {
 Defeat();
 }
@@ -2017,12 +2203,41 @@ _borderEventSubscribed = false;
 }
 private void OnBorderHit(Player triggeringPlayer)
 {
-if (IsServer && triggeringPlayer == this)
+if (IsServer &&
+!IsDefeated &&
+triggeringPlayer == this &&
+_invincibilityTimeRemaining <= 0f)
 {
-Shrink(
-Mathf.Max(
-_boostMassCost,
-Capacity * _borderMassLoss));
+Shrink(Mathf.Max(_boostMassCost, Capacity * _borderMassLoss));
+}
+}
+public override void OnNetworkSpawn()
+{
+base.OnNetworkSpawn();
+_networkDefeated.OnValueChanged += OnDefeatedChanged;
+if (IsServer)
+{
+_networkDefeated.Value = false;
+Capacity = _initialCapacity;
+_invincibilityTimeRemaining = _spawnInvincibilityTime;
+}
+if (_networkDefeated.Value)
+{
+OnDefeatedChanged(false, true);
+}
+}
+public override void OnNetworkDespawn()
+{
+_networkDefeated.OnValueChanged -= OnDefeatedChanged;
+base.OnNetworkDespawn();
+}
+private void Update()
+{
+if (IsServer &&
+!IsDefeated &&
+_invincibilityTimeRemaining > 0f)
+{
+_invincibilityTimeRemaining -= Time.deltaTime;
 }
 }
 private void OnTriggerEnter2D(Collider2D other)
@@ -2030,8 +2245,9 @@ private void OnTriggerEnter2D(Collider2D other)
 if (!IsServer ||
 !_servicesReady ||
 !_gameStateService.IsGameplayActive ||
+IsDefeated ||
 other == null ||
-_isDefeated)
+_invincibilityTimeRemaining > 0f)
 {
 return;
 }
@@ -2039,11 +2255,8 @@ if (other.TryGetComponent(out Enemy enemy))
 {
 if (Capacity >= enemy.Capacity * _eatEnemySizeRatio)
 {
+Grow(enemy.Capacity);
 _enemyRespawnService.Respawn(enemy);
-}
-else
-{
-Defeat();
 }
 }
 else
@@ -2051,42 +2264,31 @@ else
 HandleEntityCollision(other);
 }
 }
-private void Defeat()
+public void Defeat()
 {
-if (_isDefeated)
+if (!IsServer || IsDefeated)
 {
 return;
 }
-_isDefeated = true;
 if (_rigidbody2D != null)
 {
 _rigidbody2D.linearVelocity = Vector2.zero;
 }
-TriggerDefeatRpc();
+_networkDefeated.Value = true;
 }
-[Rpc(SendTo.Owner)]
-private void TriggerDefeatRpc()
+private void OnDefeatedChanged(bool _, bool isDefeated)
 {
-_gameStateService?.FinishGame();
-_ = ShutdownSessionAsync();
-}
-private async Awaitable ShutdownSessionAsync()
-{
-if (_networkSessionService == null)
+if (!isDefeated)
 {
 return;
 }
-try
+if (_rigidbody2D != null)
 {
-await _networkSessionService.ShutdownAndReturnToMenuAsync();
+_rigidbody2D.linearVelocity = Vector2.zero;
 }
-catch (OperationCanceledException)
+if (IsOwner)
 {
-// The player or application is shutting down.
-}
-catch (Exception exception)
-{
-Debug.LogException(exception, this);
+Defeated?.Invoke();
 }
 }
 }
@@ -2132,15 +2334,11 @@ _player ??= GetComponent<Player>();
 _rigidbody2D ??= GetComponent<Rigidbody2D>();
 }
 [Inject]
-public void Construct(
-IBoostInput boostInput,
-IGameStateService gameStateService)
+public void Construct(IBoostInput boostInput, IGameStateService gameStateService)
 {
 UnsubscribeBoostInput();
-_boostInput = boostInput
-?? throw new ArgumentNullException(nameof(boostInput));
-_gameStateService = gameStateService
-?? throw new ArgumentNullException(nameof(gameStateService));
+_boostInput = boostInput ?? throw new ArgumentNullException(nameof(boostInput));
+_gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
 if (isActiveAndEnabled)
 {
 SubscribeBoostInput();
@@ -2163,31 +2361,25 @@ if (!IsOwner || _player == null || _rigidbody2D == null)
 {
 return;
 }
-if (_gameStateService?.IsGameplayActive != true)
+if (_player.IsDefeated ||
+_gameStateService?.IsGameplayActive != true)
 {
 _rigidbody2D.linearVelocity = Vector2.zero;
 return;
 }
 UpdateDirection();
 float targetSpeed = _isBoosting ? _boostSpeed : _normalSpeed;
-float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(
-_player.Capacity,
-_player.MinimumCapacity,
-_massSpeedPenalty,
-_minimumSpeedMultiplier);
+float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(_player.Capacity, _player.MinCapacity,
+_massSpeedPenalty, _minimumSpeedMultiplier);
 _currentSpeed = targetSpeed * speedMultiplier;
 Move();
 }
 public void Move()
 {
-if (Direction == default)
-{
-Direction = _player.transform.right;
-}
-Vector2 normalizedDirection = Direction.normalized;
-transform.rotation =
-Constants.DirectionToRotation(normalizedDirection);
-_rigidbody2D.linearVelocity = normalizedDirection * _currentSpeed;
+Quaternion targetRotation = Constants.DirectionToRotation(Direction);
+transform.rotation = Quaternion.RotateTowards(
+transform.rotation, targetRotation, _turnSpeed * Time.fixedDeltaTime);
+_rigidbody2D.linearVelocity = Direction * _currentSpeed;
 }
 public void SetDirection(Vector2 moveInput)
 {
@@ -2203,11 +2395,8 @@ if (Vector2.Angle(Direction, _desiredDirection) < 0.1f)
 Direction = _desiredDirection;
 return;
 }
-Direction = Vector3.RotateTowards(
-Direction,
-_desiredDirection,
-_turnSpeed * Mathf.Deg2Rad * Time.fixedDeltaTime,
-0f).normalized;
+Direction = Vector3.RotateTowards(Direction, _desiredDirection,
+_turnSpeed * Mathf.Deg2Rad * Time.fixedDeltaTime, 0f).normalized;
 }
 private void SubscribeBoostInput()
 {
@@ -2254,8 +2443,7 @@ int generation)
 _currentSpeed = _boostSpeed;
 try
 {
-while (_isBoosting &&
-generation == _boostGeneration)
+while (_isBoosting && generation == _boostGeneration)
 {
 if (!_player.CanBoost)
 {
@@ -2270,7 +2458,7 @@ destroyCancellationToken);
 }
 catch (OperationCanceledException)
 {
-// The player was destroyed while the boost loop was awaiting its next tick.
+LoggerIO.LogError("The player was destroyed while the boost loop was awaiting its next tick");
 }
 }
 }
@@ -2278,72 +2466,44 @@ catch (OperationCanceledException)
 
 
 // ============================================================================
-// File: Assets/_Project/Runtime/Gameplay/Player/PlayerNickname.cs
+// File: Assets/_Project/Runtime/Gameplay/Player/PlayerRegistry.cs
 // ============================================================================
-using System;
-using Unity.Collections;
-using Unity.Netcode;
-using VContainer;
+using System.Collections.Generic;
+using UnityEngine;
 namespace PlanetIO
 {
-public sealed class PlayerNickname : NetworkBehaviour
+public static class PlayerRegistry
 {
-private readonly NetworkVariable<FixedString64Bytes> _networkNickname =
-new(
-new FixedString64Bytes(NicknameRules.DefaultNickname),
-NetworkVariableReadPermission.Everyone,
-NetworkVariableWritePermission.Server);
-private IPlayerProfileService _playerProfileService;
-public event Action<string> NicknameChanged;
-public string Nickname =>
-NicknameRules.Normalize(_networkNickname.Value.ToString());
-[Inject]
-public void Construct(IPlayerProfileService playerProfileService)
+private static readonly HashSet<Player> Players = new();
+public static int Count => Players.Count;
+public static void Register(Player player)
 {
-_playerProfileService = playerProfileService
-?? throw new ArgumentNullException(nameof(playerProfileService));
+Players.Add(player);
 }
-public override void OnNetworkSpawn()
+public static void Unregister(Player player)
 {
-base.OnNetworkSpawn();
-_networkNickname.OnValueChanged += OnNetworkNicknameChanged;
-if (IsOwner)
-{
-PublishLocalNickname();
+Players.Remove(player);
 }
-NicknameChanged?.Invoke(Nickname);
+public static bool IsAnyPlayerWithinDistance(Vector2 position, float maxDistance)
+{
+if (Players.Count == 0)
+{
+return false;
 }
-public override void OnNetworkDespawn()
+float sqrMax = maxDistance * maxDistance;
+foreach (Player player in Players)
 {
-_networkNickname.OnValueChanged -= OnNetworkNicknameChanged;
-base.OnNetworkDespawn();
+if (player == null)
+{
+continue;
 }
-private void PublishLocalNickname()
+float sqrDist = ((Vector2)player.transform.position - position).sqrMagnitude;
+if (sqrDist <= sqrMax)
 {
-string nickname = NicknameRules.Normalize(
-_playerProfileService?.Nickname);
-FixedString64Bytes serializedNickname = new(nickname);
-if (IsServer)
-{
-_networkNickname.Value = serializedNickname;
-}
-else
-{
-SubmitNicknameRpc(serializedNickname);
+return true;
 }
 }
-[Rpc(SendTo.Server)]
-private void SubmitNicknameRpc(FixedString64Bytes nickname)
-{
-_networkNickname.Value = new FixedString64Bytes(
-NicknameRules.Normalize(nickname.ToString()));
-}
-private void OnNetworkNicknameChanged(
-FixedString64Bytes previousNickname,
-FixedString64Bytes currentNickname)
-{
-NicknameChanged?.Invoke(
-NicknameRules.Normalize(currentNickname.ToString()));
+return false;
 }
 }
 }
@@ -2358,6 +2518,18 @@ namespace PlanetIO
 public sealed class Point : NetworkBehaviour, ICapacity
 {
 public float Capacity { get; set; }
+public bool IsDropped { get; private set; }
+public int LifecycleVersion { get; private set; }
+public int MarkAsDropped()
+{
+IsDropped = true;
+return ++LifecycleVersion;
+}
+public void MarkAsStored()
+{
+IsDropped = false;
+LifecycleVersion++;
+}
 }
 }
 
@@ -2366,7 +2538,6 @@ public float Capacity { get; set; }
 // File: Assets/_Project/Runtime/Infrastructure/Audio/AddressableMusicService.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -2375,30 +2546,29 @@ using VContainer.Unity;
 using Object = UnityEngine.Object;
 namespace PlanetIO.Infrastructure.Audio
 {
-public sealed class AddressableMusicService :
-IStartable,
-IDisposable
+public sealed class AddressableMusicService : IStartable, IDisposable
 {
 private const string MenuMusicAddress = "audio/mars";
 private const string GameMusicAddress = "audio/map";
 private const float MusicVolume = 0.35f;
 private const float FadeDurationSeconds = 0.25f;
-private readonly IContentInitializationService
-_contentInitializationService;
+private readonly IContentInitializationService _contentInitializationService;
 private AudioSource _audioSource;
 private AsyncOperationHandle<AudioClip> _clipHandle;
 private string _currentAddress = string.Empty;
 private string _requestedAddress = string.Empty;
 private int _playGeneration;
-public AddressableMusicService(
-IContentInitializationService contentInitializationService)
+private bool _disposed;
+public AddressableMusicService(IContentInitializationService contentInitializationService)
 {
-_contentInitializationService = contentInitializationService
-?? throw new ArgumentNullException(
-nameof(contentInitializationService));
+_contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
 }
 public void Start()
 {
+if (_disposed || _audioSource != null)
+{
+return;
+}
 GameObject audioObject = new("Addressable Music");
 Object.DontDestroyOnLoad(audioObject);
 _audioSource = audioObject.AddComponent<AudioSource>();
@@ -2411,15 +2581,21 @@ PlayForScene(SceneManager.GetActiveScene());
 }
 public void Dispose()
 {
+if (_disposed)
+{
+return;
+}
+_disposed = true;
 SceneManager.sceneLoaded -= OnSceneLoaded;
 _playGeneration++;
 ReleaseClip();
 if (_audioSource != null)
 {
 Object.Destroy(_audioSource.gameObject);
+_audioSource = null;
 }
 }
-private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+private void OnSceneLoaded(Scene scene, LoadSceneMode _)
 {
 PlayForScene(scene);
 }
@@ -2431,36 +2607,37 @@ SceneNames.Menu => MenuMusicAddress,
 SceneNames.Game => GameMusicAddress,
 _ => string.Empty
 };
-if (string.IsNullOrEmpty(address))
+if (_disposed || string.IsNullOrEmpty(address))
 {
 return;
 }
-if (string.Equals(
-address,
-_requestedAddress,
-StringComparison.Ordinal))
+if (string.Equals(address, _requestedAddress, StringComparison.Ordinal))
 {
-if (_audioSource != null &&
-_audioSource.clip != null &&
-!_audioSource.isPlaying)
-{
-_audioSource.UnPause();
+ResumeIfNeeded();
+return;
 }
+if (string.Equals(address, _currentAddress, StringComparison.Ordinal) &&
+_audioSource != null &&
+_audioSource.clip != null)
+{
+int generation = ++_playGeneration;
+_requestedAddress = address;
+ResumeIfNeeded();
+_ = FadeToAsync(MusicVolume, generation);
 return;
 }
 _requestedAddress = address;
 _ = LoadAndPlayAsync(address, ++_playGeneration);
 }
-private async Awaitable LoadAndPlayAsync(
-string address,
-int generation)
+private async Awaitable LoadAndPlayAsync(string address, int generation)
 {
 AsyncOperationHandle<AudioClip> handle = default;
 bool ownershipTransferred = false;
 try
 {
 await _contentInitializationService.InitializeAsync();
-if (generation != _playGeneration)
+if (!_contentInitializationService.IsReady ||
+!IsCurrentRequest(generation))
 {
 return;
 }
@@ -2469,20 +2646,19 @@ while (!handle.IsDone)
 {
 await Awaitable.NextFrameAsync();
 }
-if (generation != _playGeneration)
+if (!IsCurrentRequest(generation))
 {
 return;
 }
-if (handle.Status != AsyncOperationStatus.Succeeded ||
-handle.Result == null)
+if (handle.Status != AsyncOperationStatus.Succeeded || handle.Result == null)
 {
-Debug.LogWarning(
+LoggerIO.LogWarning(
 $"Failed to load music '{address}': " +
 $"{handle.OperationException?.Message}");
 return;
 }
 await FadeToAsync(0f, generation);
-if (generation != _playGeneration)
+if (!IsCurrentRequest(generation))
 {
 return;
 }
@@ -2498,11 +2674,10 @@ await FadeToAsync(MusicVolume, generation);
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
 }
 catch (Exception exception)
 {
-Debug.LogException(exception);
+LoggerIO.LogException(exception);
 }
 finally
 {
@@ -2510,37 +2685,42 @@ if (!ownershipTransferred && handle.IsValid())
 {
 Addressables.Release(handle);
 }
-if (!ownershipTransferred &&
-generation == _playGeneration)
+if (!ownershipTransferred && generation == _playGeneration)
 {
 _requestedAddress = _currentAddress;
 }
 }
 }
-private async Awaitable FadeToAsync(
-float targetVolume,
-int generation)
+private async Awaitable FadeToAsync(float targetVolume, int generation)
 {
-if (_audioSource == null)
+if (!IsCurrentRequest(generation) || _audioSource == null)
 {
 return;
 }
 float initialVolume = _audioSource.volume;
 float elapsed = 0f;
-while (elapsed < FadeDurationSeconds &&
-generation == _playGeneration)
+while (elapsed < FadeDurationSeconds && IsCurrentRequest(generation))
 {
 elapsed += Time.unscaledDeltaTime;
-_audioSource.volume = Mathf.Lerp(
-initialVolume,
-targetVolume,
-Mathf.Clamp01(elapsed / FadeDurationSeconds));
+_audioSource.volume = Mathf.Lerp(initialVolume, targetVolume, Mathf.Clamp01(elapsed / FadeDurationSeconds));
 await Awaitable.NextFrameAsync();
 }
-if (generation == _playGeneration &&
-_audioSource != null)
+if (IsCurrentRequest(generation) && _audioSource != null)
 {
 _audioSource.volume = targetVolume;
+}
+}
+private bool IsCurrentRequest(int generation)
+{
+return !_disposed && generation == _playGeneration;
+}
+private void ResumeIfNeeded()
+{
+if (_audioSource != null &&
+_audioSource.clip != null &&
+!_audioSource.isPlaying)
+{
+_audioSource.UnPause();
 }
 }
 private void ReleaseClip()
@@ -2565,26 +2745,25 @@ _currentAddress = string.Empty;
 // File: Assets/_Project/Runtime/Infrastructure/Boot/ApplicationBootstrap.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityTemplates.SceneFlow;
 using VContainer.Unity;
 namespace PlanetIO.Infrastructure.Boot
 {
 public sealed class ApplicationBootstrap : IStartable
 {
-private readonly IContentInitializationService
-_contentInitializationService;
+private readonly IContentInitializationService _contentInitializationService;
+private readonly ISceneFlow _sceneFlow;
 public ApplicationBootstrap(
-IContentInitializationService contentInitializationService)
+IContentInitializationService contentInitializationService,
+ISceneFlow sceneFlow)
 {
-_contentInitializationService = contentInitializationService
-?? throw new ArgumentNullException(
-nameof(contentInitializationService));
+_contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
+_sceneFlow = sceneFlow ?? throw new ArgumentNullException(nameof(sceneFlow));
 }
 public void Start()
 {
-if (SceneManager.GetActiveScene().name == SceneNames.Boot)
+if (_sceneFlow.IsLoaded(SceneIds.Boot))
 {
 _ = LoadMenuAsync();
 }
@@ -2594,12 +2773,19 @@ private async Awaitable LoadMenuAsync()
 try
 {
 await _contentInitializationService.InitializeAsync();
+if (!_contentInitializationService.IsReady)
+{
+return;
+}
 await Awaitable.NextFrameAsync();
-await SceneManager.LoadSceneAsync(SceneNames.Menu, LoadSceneMode.Single);
+await _sceneFlow.ChangeSceneAsync(SceneIds.Menu);
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
+}
+catch (Exception exception)
+{
+LoggerIO.LogException(exception);
 }
 }
 }
@@ -2609,8 +2795,8 @@ catch (OperationCanceledException)
 // ============================================================================
 // File: Assets/_Project/Runtime/Infrastructure/Bootstrap/ApplicationLifetimeScope.cs
 // ============================================================================
+using System;
 using PlanetIO.Core.Attributes;
-using PlanetIO;
 using PlanetIO.Application;
 using PlanetIO.Infrastructure.Boot;
 using PlanetIO.Infrastructure.Audio;
@@ -2618,6 +2804,7 @@ using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
 using PlanetIO.Infrastructure.Mobile;
 using Unity.Netcode;
+using UnityTemplates.SceneFlow;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -2627,16 +2814,17 @@ namespace PlanetIO.Infrastructure
 [DisallowMultipleComponent]
 public sealed class ApplicationLifetimeScope : LifetimeScope
 {
-public static ApplicationLifetimeScope Instance { get; private set; }
+private static ApplicationLifetimeScope _activeScope;
 [SerializeField, Assign] private NetworkManager _networkManager;
+[SerializeField, Assign] private SceneCatalog _sceneCatalog;
 protected override void Awake()
 {
-if (Instance != null && Instance != this)
+if (_activeScope != null && _activeScope != this)
 {
 Destroy(gameObject);
 return;
 }
-Instance = this;
+_activeScope = this;
 _networkManager ??= GetComponent<NetworkManager>();
 DontDestroyOnLoad(gameObject);
 base.Awake();
@@ -2645,16 +2833,21 @@ protected override void Configure(IContainerBuilder builder)
 {
 if (_networkManager == null)
 {
-throw new MissingComponentException(
-$"{nameof(ApplicationLifetimeScope)} requires {nameof(NetworkManager)} on the same GameObject.");
+throw new MissingComponentException($"{nameof(ApplicationLifetimeScope)} requires {nameof(NetworkManager)} on the same GameObject.");
+}
+if (_sceneCatalog == null)
+{
+throw new InvalidOperationException($"{nameof(ApplicationLifetimeScope)} requires a {nameof(SceneCatalog)}.");
 }
 builder.RegisterComponent(_networkManager);
-builder.Register<PlayerProfileService>(Lifetime.Singleton)
-.As<IPlayerProfileService>();
-builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton)
-.As<IRoomPreferences>();
-builder.Register<AddressableContentService>(Lifetime.Singleton)
-.As<IContentInitializationService>();
+builder.RegisterInstance(_sceneCatalog);
+builder.Register<SceneFlow>(resolver => new SceneFlow(
+resolver.Resolve<SceneCatalog>()),
+Lifetime.Singleton)
+.As<ISceneFlow>();
+builder.Register<PlayerProfileService>(Lifetime.Singleton).As<IPlayerProfileService>();
+builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
+builder.Register<AddressableContentService>(Lifetime.Singleton).As<IContentInitializationService>();
 builder.RegisterEntryPoint<AddressableMusicService>();
 builder.RegisterEntryPoint<NetworkSessionService>()
 .AsSelf()
@@ -2664,9 +2857,9 @@ builder.RegisterEntryPoint<ApplicationBootstrap>();
 }
 protected override void OnDestroy()
 {
-if (Instance == this)
+if (_activeScope == this)
 {
-Instance = null;
+_activeScope = null;
 }
 base.OnDestroy();
 }
@@ -2677,12 +2870,14 @@ base.OnDestroy();
 // ============================================================================
 // File: Assets/_Project/Runtime/Infrastructure/Bootstrap/GameLifetimeScope.cs
 // ============================================================================
+using System;
 using PlanetIO.Core.Attributes;
-using PlanetIO;
+using PlanetIO.Core.Contracts.Loading;
 using PlanetIO.Application;
 using PlanetIO.ObjectPool;
 using PlanetIO.UI.Hud;
 using PlanetIO.Camera;
+using PlanetIO.UI.Loading;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -2708,8 +2903,9 @@ private CometSpawner _cometSpawner;
 private EnemySpawner _enemySpawner;
 [Header("Application")]
 [SerializeField] private NetworkObject _playerPrefab;
+[Header("UI")]
 [SerializeField, Assign(AssignMode.Scene)]
-private RestartGame _restartGame;
+private SessionHudView _sessionHudView;
 protected override void Awake()
 {
 if (Instance != null && Instance != this)
@@ -2735,7 +2931,11 @@ builder.RegisterComponent(_cometSpawner)
 builder.RegisterComponent(_enemySpawner)
 .AsSelf()
 .As<IRespawnService<Enemy>>();
-builder.RegisterComponent(_restartGame);
+if (_playerPrefab == null)
+{
+throw new InvalidOperationException(
+"[GameLifetimeScope] _playerPrefab is not assigned in the Inspector. Assign a NetworkObject prefab.");
+}
 builder.RegisterInstance(_playerPrefab);
 builder.RegisterComponentInHierarchy<BordersTrigger>();
 builder.RegisterComponentInHierarchy<AccelerationButton>()
@@ -2746,19 +2946,21 @@ builder.RegisterEntryPoint<GameFlowService>()
 builder.RegisterEntryPoint<NetworkPlayerSpawner>();
 builder.RegisterComponentInHierarchy<ScoreText>()
 .As<IScoreView>();
-builder.RegisterComponentInHierarchy<Arrow>()
-.As<IDirectionArrowView>();
 builder.RegisterComponentInHierarchy<PlayerCamera>();
 builder.RegisterEntryPoint<LocalPlayerProvider>()
 .As<ILocalPlayerProvider>();
 builder.RegisterEntryPoint<ScorePresenter>();
 builder.RegisterEntryPoint<DirectionArrowPresenter>();
-builder.RegisterEntryPoint<PlayerNicknamePresenter>();
 builder.RegisterEntryPoint<GameSessionHudPresenter>();
-}
-protected override LifetimeScope FindParent()
+builder.RegisterComponentInHierarchy<GameLoadingView>()
+.As<IGameLoadingView>();
+if (_sessionHudView == null)
 {
-return ApplicationLifetimeScope.Instance;
+throw new InvalidOperationException(
+"[GameLifetimeScope] _sessionHudView is not assigned. Add a SessionHudView component to a GameObject in the Game scene.");
+}
+builder.RegisterComponent(_sessionHudView)
+.As<ISessionHudView>();
 }
 protected override void OnDestroy()
 {
@@ -2790,10 +2992,6 @@ builder.RegisterComponentInHierarchy<LoadingView>()
 builder.RegisterEntryPoint<LoadingPresenter>();
 builder.RegisterEntryPoint<LoadingSceneController>();
 }
-protected override LifetimeScope FindParent()
-{
-return ApplicationLifetimeScope.Instance;
-}
 }
 }
 
@@ -2815,10 +3013,6 @@ builder.RegisterComponentInHierarchy<NetworkUI>()
 builder.RegisterComponentInHierarchy<NicknameInputView>()
 .As<INicknameInputView>();
 builder.RegisterEntryPoint<MenuPresenter>();
-}
-protected override LifetimeScope FindParent()
-{
-return ApplicationLifetimeScope.Instance;
 }
 }
 }
@@ -2918,20 +3112,19 @@ if (!IsSpawned || !IsOwner || _playerMovement == null)
 {
 return;
 }
-_camera ??= UnityEngine.Camera.main;
-if (_camera == null || Mouse.current == null)
+Mouse mouse = Mouse.current;
+if (mouse == null || mouse.delta.ReadValue().sqrMagnitude <= 0.01f)
 {
 return;
 }
-if (Mouse.current.delta.ReadValue().sqrMagnitude <= 0.01f)
+_camera ??= UnityEngine.Camera.main;
+if (_camera == null)
 {
 return;
 }
 Vector3 playerPosition = _playerMovement.Player.transform.position;
-Vector2 pointerPosition = Mouse.current.position.ReadValue();
-Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(
-pointerPosition.x,
-pointerPosition.y,
+Vector2 pointerPosition = mouse.position.ReadValue();
+Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(pointerPosition.x, pointerPosition.y,
 -_camera.transform.position.z));
 _playerMovement.SetDirection(worldPosition - playerPosition);
 }
@@ -2970,8 +3163,8 @@ _playerInput = null;
 //------------------------------------------------------------------------------
 // <auto-generated>
 //     This code was auto-generated by com.unity.inputsystem:InputActionCodeGenerator
-//     version 1.19.0
-//     from Assets/Runtime/Infrastructure/Input/PlayerInput.inputactions
+//     version 1.20.0
+//     from Assets/_Project/Runtime/Infrastructure/Input/PlayerInput.inputactions
 //
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
@@ -2985,7 +3178,7 @@ using UnityEngine.InputSystem.Utilities;
 namespace PlanetIO
 {
 /// <summary>
-/// Provides programmatic access to <see cref="InputActionAsset" />, <see cref="InputActionMap" />, <see cref="InputAction" /> and <see cref="InputControlScheme" /> instances defined in asset "Assets/Runtime/Infrastructure/Input/PlayerInput.inputactions".
+/// Provides programmatic access to <see cref="InputActionAsset" />, <see cref="InputActionMap" />, <see cref="InputAction" /> and <see cref="InputControlScheme" /> instances defined in asset "Assets/_Project/Runtime/Infrastructure/Input/PlayerInput.inputactions".
 /// </summary>
 /// <remarks>
 /// This class is source generated and any manual edits will be discarded if the associated asset is reimported or modified.
@@ -3067,7 +3260,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Vector2"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": true
+""initialStateCheck"": true,
+""priority"": 0
 }
 ],
 ""bindings"": [
@@ -3095,7 +3289,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Vector2"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 },
 {
 ""name"": ""Submit"",
@@ -3104,7 +3299,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Button"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 },
 {
 ""name"": ""Cancel"",
@@ -3113,7 +3309,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Button"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 },
 {
 ""name"": ""Point"",
@@ -3122,7 +3319,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Vector2"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": true
+""initialStateCheck"": true,
+""priority"": 0
 },
 {
 ""name"": ""Click"",
@@ -3131,7 +3329,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Button"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": true
+""initialStateCheck"": true,
+""priority"": 0
 },
 {
 ""name"": ""ScrollWheel"",
@@ -3140,7 +3339,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Vector2"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 },
 {
 ""name"": ""MiddleClick"",
@@ -3149,7 +3349,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Button"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 },
 {
 ""name"": ""RightClick"",
@@ -3158,7 +3359,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Button"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 },
 {
 ""name"": ""TrackedDevicePosition"",
@@ -3167,7 +3369,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Vector3"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 },
 {
 ""name"": ""TrackedDeviceOrientation"",
@@ -3176,7 +3379,8 @@ asset = InputActionAsset.FromJson(@"{
 ""expectedControlType"": ""Quaternion"",
 ""processors"": """",
 ""interactions"": """",
-""initialStateCheck"": false
+""initialStateCheck"": false,
+""priority"": 0
 }
 ],
 ""bindings"": [
@@ -4064,14 +4268,12 @@ void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
 // File: Assets/_Project/Runtime/Infrastructure/Loading/AddressableContentService.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 namespace PlanetIO.Infrastructure.Loading
 {
-public sealed class AddressableContentService :
-IContentInitializationService
+public sealed class AddressableContentService : IContentInitializationService
 {
 private const string PreloadLabel = "preload";
 private bool _initializationStarted;
@@ -4088,50 +4290,26 @@ return WaitForInitializationAsync();
 }
 private async Awaitable InitializeInternalAsync()
 {
-AsyncOperationHandle initializationHandle =
-Addressables.InitializeAsync(false);
+AsyncOperationHandle initializationHandle = default;
 try
 {
-await WaitForCompletionAsync(initializationHandle);
-if (initializationHandle.Status !=
-AsyncOperationStatus.Succeeded)
+initializationHandle = Addressables.InitializeAsync(false);
+await initializationHandle.Task;
+if (initializationHandle.Status != AsyncOperationStatus.Succeeded)
 {
-throw initializationHandle.OperationException ??
-new InvalidOperationException(
-"Addressables initialization failed.");
-}
-AsyncOperationHandle downloadHandle =
-Addressables.DownloadDependenciesAsync(
-PreloadLabel,
-false);
-try
-{
-await WaitForCompletionAsync(downloadHandle);
-if (downloadHandle.Status !=
-AsyncOperationStatus.Succeeded)
-{
-Debug.LogWarning(
-$"Failed to warm up Addressables label " +
-$"'{PreloadLabel}': " +
-$"{downloadHandle.OperationException?.Message}");
-}
-}
-finally
-{
-if (downloadHandle.IsValid())
-{
-Addressables.Release(downloadHandle);
-}
+throw initializationHandle.OperationException
+?? new InvalidOperationException("Addressables initialization failed.");
 }
 IsReady = true;
+_ = WarmUpPreloadAssetsAsync();
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
+IsReady = false;
 }
 catch (Exception exception)
 {
-Debug.LogException(exception);
+LoggerIO.LogException(exception);
 IsReady = false;
 }
 finally
@@ -4143,17 +4321,39 @@ Addressables.Release(initializationHandle);
 _initializationComplete = true;
 }
 }
+private static async Awaitable WarmUpPreloadAssetsAsync()
+{
+AsyncOperationHandle downloadHandle = default;
+try
+{
+downloadHandle = Addressables.DownloadDependenciesAsync(PreloadLabel, false);
+await downloadHandle.Task;
+if (downloadHandle.Status != AsyncOperationStatus.Succeeded)
+{
+LoggerIO.LogWarning(
+$"Failed to warm up Addressables label " +
+$"'{PreloadLabel}': " +
+$"{downloadHandle.OperationException?.Message}");
+}
+}
+catch (OperationCanceledException)
+{
+}
+catch (Exception exception)
+{
+LoggerIO.LogException(exception);
+}
+finally
+{
+if (downloadHandle.IsValid())
+{
+Addressables.Release(downloadHandle);
+}
+}
+}
 private async Awaitable WaitForInitializationAsync()
 {
 while (!_initializationComplete)
-{
-await Awaitable.NextFrameAsync();
-}
-}
-private static async Awaitable WaitForCompletionAsync(
-AsyncOperationHandle handle)
-{
-while (!handle.IsDone)
 {
 await Awaitable.NextFrameAsync();
 }
@@ -4166,7 +4366,6 @@ await Awaitable.NextFrameAsync();
 // File: Assets/_Project/Runtime/Infrastructure/Loading/LoadingSceneController.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using UnityEngine;
 using VContainer.Unity;
 namespace PlanetIO.Infrastructure.Loading
@@ -4176,8 +4375,7 @@ public sealed class LoadingSceneController : IStartable
 private readonly INetworkSessionService _networkSessionService;
 public LoadingSceneController(INetworkSessionService networkSessionService)
 {
-_networkSessionService = networkSessionService
-?? throw new ArgumentNullException(nameof(networkSessionService));
+_networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
 }
 public void Start()
 {
@@ -4194,7 +4392,6 @@ await _networkSessionService.ContinueToGameAsync();
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
 }
 }
 }
@@ -4205,35 +4402,25 @@ catch (OperationCanceledException)
 // File: Assets/_Project/Runtime/Infrastructure/Mobile/MobileRuntimeService.cs
 // ============================================================================
 using System;
-using PlanetIO;
-using PlanetIO.UI.Mobile;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
-using Object = UnityEngine.Object;
 namespace PlanetIO.Infrastructure.Mobile
 {
-public sealed class MobileRuntimeService :
-IStartable,
-ITickable,
-IDisposable
+public sealed class MobileRuntimeService : IStartable, ITickable, IDisposable
 {
 private const int TargetFrameRate = 60;
 private readonly INetworkSessionService _networkSessionService;
 private bool _returnToMenuInProgress;
 private bool _memoryCleanupInProgress;
-public MobileRuntimeService(
-INetworkSessionService networkSessionService)
+public MobileRuntimeService(INetworkSessionService networkSessionService)
 {
-_networkSessionService = networkSessionService
-?? throw new ArgumentNullException(
-nameof(networkSessionService));
+_networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
 }
 public void Start()
 {
-if (UnityEngine.Application.isMobilePlatform &&
-QualitySettings.names.Length > 1)
+if (UnityEngine.Application.isMobilePlatform && QualitySettings.names.Length > 1)
 {
 QualitySettings.SetQualityLevel(1, true);
 }
@@ -4245,14 +4432,12 @@ ApplySceneSettings(SceneManager.GetActiveScene());
 }
 public void Tick()
 {
-if (!UnityEngine.Application.isMobilePlatform ||
-Keyboard.current?.escapeKey.wasPressedThisFrame != true)
+if (!UnityEngine.Application.isMobilePlatform || Keyboard.current?.escapeKey.wasPressedThisFrame != true)
 {
 return;
 }
 Scene activeScene = SceneManager.GetActiveScene();
-if (activeScene.name == SceneNames.Game ||
-activeScene.name == SceneNames.Loading)
+if (activeScene.name is SceneNames.Game or SceneNames.Loading)
 {
 _ = ReturnToMenuAsync();
 return;
@@ -4268,7 +4453,7 @@ UnityEngine.Application.lowMemory -= OnLowMemory;
 SceneManager.sceneLoaded -= OnSceneLoaded;
 Screen.sleepTimeout = SleepTimeout.SystemSetting;
 }
-private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+private void OnSceneLoaded(Scene scene, LoadSceneMode _)
 {
 ApplySceneSettings(scene);
 }
@@ -4277,20 +4462,6 @@ private static void ApplySceneSettings(Scene scene)
 Screen.sleepTimeout = scene.name == SceneNames.Game
 ? SleepTimeout.NeverSleep
 : SleepTimeout.SystemSetting;
-Canvas.ForceUpdateCanvases();
-RectTransform[] rectTransforms =
-Object.FindObjectsByType<RectTransform>(
-FindObjectsInactive.Include);
-foreach (RectTransform rectTransform in rectTransforms)
-{
-if (rectTransform.name is "Score" or
-"Joystick " or
-"Joystick" or
-"AccelerationButton")
-{
-SafeAreaElement.AttachTo(rectTransform);
-}
-}
 }
 private void OnLowMemory()
 {
@@ -4312,7 +4483,6 @@ await Awaitable.NextFrameAsync();
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
 }
 finally
 {
@@ -4328,16 +4498,14 @@ return;
 _returnToMenuInProgress = true;
 try
 {
-await _networkSessionService
-.ShutdownAndReturnToMenuAsync();
+await _networkSessionService.ShutdownAndReturnToMenuAsync();
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
 }
 catch (Exception exception)
 {
-Debug.LogException(exception);
+LoggerIO.LogException(exception);
 }
 finally
 {
@@ -4353,7 +4521,6 @@ _returnToMenuInProgress = false;
 // ============================================================================
 using System;
 using System.Text;
-using PlanetIO;
 using Unity.Netcode;
 using UnityEngine;
 namespace PlanetIO.Infrastructure.Networking
@@ -4363,8 +4530,7 @@ public sealed class ConnectionApprovalHandler
 private readonly NetworkManager _networkManager;
 public ConnectionApprovalHandler(NetworkManager networkManager)
 {
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
+_networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
 }
 public void ApproveRoomConnection(
 NetworkManager.ConnectionApprovalRequest request,
@@ -4376,31 +4542,24 @@ if (request.ClientNetworkId == NetworkManager.ServerClientId)
 Approve(response);
 return;
 }
-if (!TryDeserializePayload(
-request.Payload,
-out RoomConnectionPayload payload))
+if (!TryDeserializePayload(request.Payload, out RoomConnectionPayload payload))
 {
 Reject(response, "Invalid connection payload.");
 return;
 }
-if (!string.Equals(
-payload.Protocol,
-RoomRules.ProtocolVersion,
-StringComparison.Ordinal))
+if (!string.Equals(payload.Protocol, RoomRules.ProtocolVersion, StringComparison.Ordinal))
 {
 Reject(response, "Client version does not match room version.");
 return;
 }
-if (_networkManager.ConnectedClientsIds.Count >=
-currentRoom.MaxPlayers)
+if (_networkManager.ConnectedClientsIds.Count >= currentRoom.MaxPlayers)
 {
 Reject(response, "Room is full.");
 return;
 }
 Approve(response);
 }
-public static void ApproveSinglePlayerConnection(
-NetworkManager.ConnectionApprovalRequest request,
+public static void ApproveSinglePlayerConnection(NetworkManager.ConnectionApprovalRequest request,
 NetworkManager.ConnectionApprovalResponse response)
 {
 if (request.ClientNetworkId == NetworkManager.ServerClientId)
@@ -4412,17 +4571,14 @@ else
 Reject(response, "This session is running in single player mode.");
 }
 }
-public static void Approve(
-NetworkManager.ConnectionApprovalResponse response)
+public static void Approve(NetworkManager.ConnectionApprovalResponse response)
 {
 response.Approved = true;
 response.CreatePlayerObject = false;
 response.Pending = false;
 response.Reason = string.Empty;
 }
-public static void Reject(
-NetworkManager.ConnectionApprovalResponse response,
-string reason)
+public static void Reject(NetworkManager.ConnectionApprovalResponse response, string reason)
 {
 response.Approved = false;
 response.CreatePlayerObject = false;
@@ -4433,9 +4589,7 @@ public static byte[] SerializePayload(RoomConnectionPayload payload)
 {
 return Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload));
 }
-public static bool TryDeserializePayload(
-byte[] bytes,
-out RoomConnectionPayload payload)
+public static bool TryDeserializePayload(byte[] bytes, out RoomConnectionPayload payload)
 {
 payload = null;
 if (bytes == null || bytes.Length == 0)
@@ -4444,8 +4598,7 @@ return false;
 }
 try
 {
-payload = JsonUtility.FromJson<RoomConnectionPayload>(
-Encoding.UTF8.GetString(bytes));
+payload = JsonUtility.FromJson<RoomConnectionPayload>(Encoding.UTF8.GetString(bytes));
 return payload != null;
 }
 catch (Exception)
@@ -4467,7 +4620,6 @@ public string Nickname;
 // File: Assets/_Project/Runtime/Infrastructure/Networking/NetworkSessionService.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
@@ -4476,43 +4628,42 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityTemplates.SceneFlow;
 using VContainer.Unity;
 namespace PlanetIO.Infrastructure.Networking
 {
-public sealed class NetworkSessionService :
-INetworkSessionService,
-IStartable,
-IDisposable
+public sealed class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
 {
 private const float ClientConnectionTimeoutSeconds = 8f;
-private const float PostLoadDelaySeconds = 0.25f;
 private const float ProgressInitial = 0.02f;
 private const float ProgressSceneLoading = 0.04f;
 private const float ProgressSceneLoaded = 0.94f;
 private const float ProgressTrackMax = 0.9f;
 private readonly NetworkManager _networkManager;
 private readonly ConnectionApprovalHandler _approvalHandler;
+private readonly ISceneFlow _sceneFlow;
 private NetworkSceneManager _networkSceneManager;
+private readonly IPlayerProfileService _playerProfileService;
 private int _progressGeneration;
 private bool _subscribed;
 private bool _shutdownRequested;
 private bool _recoveringFromDisconnect;
 private bool _ugsInitialized;
 public NetworkSessionService(
-NetworkManager networkManager)
+NetworkManager networkManager,
+IPlayerProfileService playerProfileService,
+ISceneFlow sceneFlow)
 {
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
+_networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
 _approvalHandler = new ConnectionApprovalHandler(networkManager);
+_playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
+_sceneFlow = sceneFlow ?? throw new ArgumentNullException(nameof(sceneFlow));
 }
 public event Action<float> LoadingProgressChanged;
 public event Action<NetworkSessionState, string> StateChanged;
-public NetworkSessionState State { get; private set; } =
-NetworkSessionState.Offline;
-public NetworkSessionMode Mode { get; private set; } =
-NetworkSessionMode.None;
-public RoomConnectionSettings CurrentRoom { get; private set; } =
-RoomConnectionSettings.Default;
+public NetworkSessionState State { get; private set; } = NetworkSessionState.Offline;
+public NetworkSessionMode Mode { get; private set; } = NetworkSessionMode.None;
+public RoomConnectionSettings CurrentRoom { get; private set; } = RoomConnectionSettings.Default;
 public string Status { get; private set; } = "Ready to connect";
 public float LoadingProgress { get; private set; }
 public bool IsServer => _networkManager != null && _networkManager.IsServer;
@@ -4527,25 +4678,20 @@ if (!CanStartSession())
 {
 return false;
 }
+int playerLimit = RoomRules.ClampMaxPlayers(maxPlayers);
 Mode = NetworkSessionMode.Host;
-SetState(
-NetworkSessionState.StartingHost,
-"Creating room...");
+SetState(NetworkSessionState.StartingHost, "Creating room...");
 try
 {
 await EnsureUgsInitializedAsync();
 Allocation allocation = await RelayService.Instance
-.CreateAllocationAsync(maxPlayers - 1);
+.CreateAllocationAsync(playerLimit - 1);
 string joinCode = await RelayService.Instance
 .GetJoinCodeAsync(allocation.AllocationId);
 ConfigureTransportForRelay(allocation);
-CurrentRoom = new RoomConnectionSettings(
-joinCode,
-maxPlayers);
-_networkManager.ConnectionApprovalCallback =
-(request, response) =>
-_approvalHandler.ApproveRoomConnection(
-request, response, CurrentRoom);
+CurrentRoom = new RoomConnectionSettings(joinCode, playerLimit);
+_networkManager.ConnectionApprovalCallback = (request, response) =>
+_approvalHandler.ApproveRoomConnection(request, response, CurrentRoom);
 if (!_networkManager.StartHost())
 {
 FailStart("NetworkManager rejected room start");
@@ -4554,22 +4700,31 @@ return false;
 SubscribeSceneManager();
 if (!await WaitOneFrameAsync())
 {
+await AbortStartAsync("Room start was cancelled");
 return false;
 }
 if (!_networkManager.IsListening || !_networkManager.IsServer)
 {
-FailStart("Room did not transition to Listening state");
+await AbortStartAsync("Room did not transition to Listening state");
 return false;
 }
-SetState(
-NetworkSessionState.StartingHost,
-$"Room created. Code: {joinCode}");
-return LoadNetworkScene(SceneNames.Loading);
+SetState(NetworkSessionState.StartingHost, $"Room created. Code: {joinCode}");
+if (LoadNetworkScene(SceneNames.Loading))
+{
+return true;
+}
+await AbortStartAsync(Status);
+return false;
+}
+catch (OperationCanceledException)
+{
+await AbortStartAsync("Room start was cancelled");
+return false;
 }
 catch (Exception exception)
 {
-Debug.LogException(exception);
-FailStart($"Failed to create room: {exception.Message}");
+LoggerIO.LogException(exception);
+await AbortStartAsync($"Failed to create room: {exception.Message}");
 return false;
 }
 }
@@ -4579,36 +4734,38 @@ if (!CanStartSession())
 {
 return false;
 }
-if (string.IsNullOrWhiteSpace(relayJoinCode))
+if (!RoomRules.TryCreateConnectionSettings(
+relayJoinCode,
+out RoomConnectionSettings room,
+out string validationError))
 {
-FailStart("Room code cannot be empty");
+FailStart(validationError);
 return false;
 }
 Mode = NetworkSessionMode.Client;
 _networkManager.ConnectionApprovalCallback = null;
-SetState(
-NetworkSessionState.StartingClient,
-$"Connecting to {relayJoinCode}...");
+SetState(NetworkSessionState.StartingClient, $"Connecting to {room.RoomCode}...");
 try
 {
 await EnsureUgsInitializedAsync();
 JoinAllocation joinAllocation = await RelayService.Instance
-.JoinAllocationAsync(relayJoinCode.Trim());
+.JoinAllocationAsync(room.RoomCode);
 ConfigureTransportForRelay(joinAllocation);
-CurrentRoom = new RoomConnectionSettings(
-relayJoinCode.Trim(),
-RoomRules.DefaultMaxPlayers);
+CurrentRoom = room;
+ConnectionApprovalHandler.RoomConnectionPayload payload = new ConnectionApprovalHandler.RoomConnectionPayload
+{
+Protocol = RoomRules.ProtocolVersion,
+Nickname = _playerProfileService.Nickname
+};
+_networkManager.NetworkConfig.ConnectionData = ConnectionApprovalHandler.SerializePayload(payload);
 if (!_networkManager.StartClient())
 {
 FailStart("NetworkManager rejected client start");
 return false;
 }
 SubscribeSceneManager();
-SetState(
-NetworkSessionState.Connecting,
-$"Joining room {relayJoinCode}");
-float connectionDeadline =
-Time.realtimeSinceStartup + ClientConnectionTimeoutSeconds;
+SetState(NetworkSessionState.Connecting, $"Joining room {room.RoomCode}");
+float connectionDeadline = Time.realtimeSinceStartup + ClientConnectionTimeoutSeconds;
 while (Time.realtimeSinceStartup < connectionDeadline)
 {
 if (_networkManager.IsConnectedClient)
@@ -4625,37 +4782,35 @@ if (_networkManager.IsConnectedClient)
 {
 return true;
 }
-string failureReason = string.IsNullOrWhiteSpace(
-_networkManager.DisconnectReason)
+string failureReason = string.IsNullOrWhiteSpace(_networkManager.DisconnectReason)
 ? $"Room did not respond within {ClientConnectionTimeoutSeconds:0}s."
 : _networkManager.DisconnectReason;
-await StopNetworkManagerAsync();
-FailStart(failureReason);
+await AbortStartAsync(failureReason);
+return false;
+}
+catch (OperationCanceledException)
+{
+await AbortStartAsync("Connection was cancelled");
 return false;
 }
 catch (Exception exception)
 {
-Debug.LogException(exception);
-FailStart($"Connection error: {exception.Message}");
+LoggerIO.LogException(exception);
+await AbortStartAsync($"Connection error: {exception.Message}");
 return false;
 }
 }
 public async Awaitable<bool> StartSinglePlayerAsync()
 {
-RoomConnectionSettings singlePlayerRoom = new(
-"SOLO",
-1);
+RoomConnectionSettings singlePlayerRoom = new("SOLO", 1);
 if (!CanStartSession())
 {
 return false;
 }
 CurrentRoom = singlePlayerRoom;
 Mode = NetworkSessionMode.SinglePlayer;
-SetState(
-NetworkSessionState.StartingSinglePlayer,
-"Starting single player");
-_networkManager.ConnectionApprovalCallback =
-ConnectionApprovalHandler.ApproveSinglePlayerConnection;
+SetState(NetworkSessionState.StartingSinglePlayer, "Starting single player");
+_networkManager.ConnectionApprovalCallback = ConnectionApprovalHandler.ApproveSinglePlayerConnection;
 if (!_networkManager.StartHost())
 {
 FailStart("Failed to start single player");
@@ -4664,15 +4819,20 @@ return false;
 SubscribeSceneManager();
 if (!await WaitOneFrameAsync())
 {
+await AbortStartAsync("Single player start was cancelled");
 return false;
 }
 if (!_networkManager.IsListening || !_networkManager.IsServer)
 {
-FailStart(
-"Single player did not transition to Listening state");
+await AbortStartAsync("Single player did not transition to Listening state");
 return false;
 }
-return LoadNetworkScene(SceneNames.Loading);
+if (LoadNetworkScene(SceneNames.Loading))
+{
+return true;
+}
+await AbortStartAsync(Status);
+return false;
 }
 public async Awaitable ContinueToGameAsync()
 {
@@ -4684,16 +4844,22 @@ try
 {
 while (IsSceneEventInProgress)
 {
+if (_shutdownRequested || !_networkManager.IsListening || !IsServer)
+{
+return;
+}
 await Awaitable.NextFrameAsync();
 }
-await Awaitable.WaitForSecondsAsync(
-PostLoadDelaySeconds);
+await Awaitable.NextFrameAsync();
 }
 catch (OperationCanceledException)
 {
 return;
 }
+if (!_shutdownRequested && _networkManager.IsListening && IsServer)
+{
 LoadNetworkScene(SceneNames.Game);
+}
 }
 public async Awaitable ShutdownAndReturnToMenuAsync()
 {
@@ -4702,32 +4868,29 @@ if (_shutdownRequested)
 return;
 }
 _shutdownRequested = true;
-SetState(
-NetworkSessionState.ShuttingDown,
-"Shutting down network session");
-await StopNetworkManagerAsync();
-_networkManager.ConnectionApprovalCallback = null;
-IsSceneEventInProgress = false;
-SetProgress(0f);
+SetState(NetworkSessionState.ShuttingDown, "Shutting down network session");
 try
 {
-await SceneManager.LoadSceneAsync(
-SceneNames.Menu,
-LoadSceneMode.Single);
+await StopNetworkManagerAsync();
+ResetConnectionConfiguration();
+Mode = NetworkSessionMode.None;
+CurrentRoom = RoomConnectionSettings.Default;
+SetProgress(0f);
+await _sceneFlow.ChangeSceneAsync(SceneIds.Menu);
+SetState(NetworkSessionState.Offline, "Ready to connect");
 }
 catch (OperationCanceledException)
 {
-return;
 }
+finally
+{
 _shutdownRequested = false;
-Mode = NetworkSessionMode.None;
-CurrentRoom = RoomConnectionSettings.Default;
-SetState(
-NetworkSessionState.Offline,
-"Ready to connect");
+}
 }
 public void Dispose()
 {
+_shutdownRequested = true;
+_progressGeneration++;
 _networkManager.ConnectionApprovalCallback = null;
 Unsubscribe();
 }
@@ -4737,8 +4900,6 @@ if (_ugsInitialized)
 {
 return;
 }
-try
-{
 await UnityServices.InitializeAsync();
 if (!AuthenticationService.Instance.IsSignedIn)
 {
@@ -4746,40 +4907,27 @@ await AuthenticationService.Instance.SignInAnonymouslyAsync();
 }
 _ugsInitialized = true;
 }
-catch (Exception exception)
-{
-Debug.LogException(exception);
-throw;
-}
-}
 private UnityTransport GetRelayTransport()
 {
-if (_networkManager.NetworkConfig.NetworkTransport is not
-UnityTransport transport)
+if (_networkManager.NetworkConfig.NetworkTransport is not UnityTransport transport)
 {
-throw new InvalidOperationException(
-"Relay requires Unity Transport");
+throw new InvalidOperationException("Relay requires Unity Transport");
 }
 return transport;
 }
 private void ConfigureTransportForRelay(Allocation allocation)
 {
-GetRelayTransport().SetRelayServerData(
-AllocationUtils.ToRelayServerData(allocation, "dtls"));
+GetRelayTransport().SetRelayServerData(allocation.ToRelayServerData("dtls"));
 }
 private void ConfigureTransportForRelay(JoinAllocation joinAllocation)
 {
-GetRelayTransport().SetRelayServerData(
-AllocationUtils.ToRelayServerData(joinAllocation, "dtls"));
+GetRelayTransport().SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
 }
 private bool CanStartSession()
 {
-if (_networkManager.IsListening ||
-_networkManager.ShutdownInProgress)
+if (_networkManager.IsListening || _networkManager.ShutdownInProgress)
 {
-SetState(
-NetworkSessionState.Failed,
-"Network session is already running or shutting down");
+SetState(NetworkSessionState.Failed, "Network session is already running or shutting down");
 return false;
 }
 _shutdownRequested = false;
@@ -4789,14 +4937,24 @@ return true;
 private void FailStart(string reason)
 {
 Mode = NetworkSessionMode.None;
-_networkManager.ConnectionApprovalCallback = null;
+CurrentRoom = RoomConnectionSettings.Default;
+ResetConnectionConfiguration();
+IsSceneEventInProgress = false;
+SetProgress(0f);
 SetState(NetworkSessionState.Failed, reason);
+}
+private async Awaitable AbortStartAsync(string reason)
+{
+await StopNetworkManagerAsync();
+FailStart(reason);
 }
 private async Awaitable StopNetworkManagerAsync()
 {
+_progressGeneration++;
+IsSceneEventInProgress = false;
+UnsubscribeSceneManager();
 if (_networkManager.IsListening)
 {
-UnsubscribeSceneManager();
 _networkManager.Shutdown();
 }
 try
@@ -4808,8 +4966,12 @@ await Awaitable.NextFrameAsync();
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
 }
+}
+private void ResetConnectionConfiguration()
+{
+_networkManager.ConnectionApprovalCallback = null;
+_networkManager.NetworkConfig.ConnectionData = Array.Empty<byte>();
 }
 private static async Awaitable<bool> WaitOneFrameAsync()
 {
@@ -4825,30 +4987,20 @@ return false;
 }
 private bool LoadNetworkScene(string sceneName)
 {
-if (!_networkManager.IsServer ||
-_networkManager.SceneManager == null)
+if (!_networkManager.IsServer || _networkManager.SceneManager == null)
 {
-SetState(
-NetworkSessionState.Failed,
-"NetworkSceneManager is not ready yet");
+SetState(NetworkSessionState.Failed, "NetworkSceneManager is not ready yet");
 return false;
 }
-SceneEventProgressStatus result =
-_networkManager.SceneManager.LoadScene(
-sceneName,
-LoadSceneMode.Single);
+SceneEventProgressStatus result = _networkManager.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
 if (result != SceneEventProgressStatus.Started)
 {
-SetState(
-NetworkSessionState.Failed,
-$"Failed to load scene {sceneName}: {result}");
+SetState(NetworkSessionState.Failed, $"Failed to load scene {sceneName}: {result}");
 return false;
 }
 IsSceneEventInProgress = true;
 SetProgress(ProgressInitial);
-SetState(
-NetworkSessionState.Loading,
-$"Loading scene {sceneName}");
+SetState(NetworkSessionState.Loading, $"Loading scene {sceneName}");
 return true;
 }
 private void Subscribe()
@@ -4902,28 +5054,21 @@ _networkSceneManager = null;
 }
 private void OnClientConnected(ulong clientId)
 {
-if (clientId == _networkManager.LocalClientId &&
-!_networkManager.IsServer)
+if (clientId == _networkManager.LocalClientId && !_networkManager.IsServer)
 {
-SetState(
-NetworkSessionState.Connecting,
-$"Room {CurrentRoom.RoomCode} accepted connection");
+SetState(NetworkSessionState.Connecting, $"Room {CurrentRoom.RoomCode} accepted connection");
 }
 }
 private void OnClientDisconnected(ulong clientId)
 {
-if (clientId != _networkManager.LocalClientId ||
-_shutdownRequested)
+if (clientId != _networkManager.LocalClientId || _shutdownRequested)
 {
 return;
 }
-string reason = string.IsNullOrWhiteSpace(
-_networkManager.DisconnectReason)
+string reason = string.IsNullOrWhiteSpace(_networkManager.DisconnectReason)
 ? "Connection to room closed"
 : _networkManager.DisconnectReason;
-bool shouldReturnToMenu =
-State is NetworkSessionState.Loading or
-NetworkSessionState.InGame;
+bool shouldReturnToMenu = State is NetworkSessionState.Loading or NetworkSessionState.InGame;
 SetState(NetworkSessionState.Failed, reason);
 if (shouldReturnToMenu && !_recoveringFromDisconnect)
 {
@@ -4936,21 +5081,20 @@ _recoveringFromDisconnect = true;
 try
 {
 await ShutdownAndReturnToMenuAsync();
-SetState(
-NetworkSessionState.Failed,
-$"Connection lost: {reason}");
+SetState(NetworkSessionState.Failed, $"Connection lost: {reason}");
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
+LoggerIO.LogError("Application is closing");
 }
 finally
 {
 _recoveringFromDisconnect = false;
 }
 }
-private void OnSessionStopped(bool wasHost)
+private void OnSessionStopped(bool _)
 {
+_progressGeneration++;
 IsSceneEventInProgress = false;
 }
 private void OnSceneEvent(SceneEvent sceneEvent)
@@ -4971,8 +5115,7 @@ break;
 case SceneEventType.LoadEventCompleted:
 IsSceneEventInProgress = false;
 SetProgress(1f);
-SetState(
-sceneEvent.SceneName == SceneNames.Game
+SetState(sceneEvent.SceneName == SceneNames.Game
 ? NetworkSessionState.InGame
 : NetworkSessionState.Loading,
 sceneEvent.SceneName == SceneNames.Game
@@ -4981,8 +5124,7 @@ sceneEvent.SceneName == SceneNames.Game
 break;
 }
 }
-private async Awaitable TrackAsyncOperationAsync(
-AsyncOperation operation)
+private async Awaitable TrackAsyncOperationAsync(AsyncOperation operation)
 {
 if (operation == null)
 {
@@ -4991,19 +5133,15 @@ return;
 int generation = ++_progressGeneration;
 try
 {
-while (!operation.isDone &&
-generation == _progressGeneration)
+while (!operation.isDone && generation == _progressGeneration)
 {
-float normalized =
-Mathf.Clamp01(operation.progress / ProgressTrackMax);
-SetProgress(
-Mathf.Lerp(ProgressSceneLoading, ProgressTrackMax, normalized));
+float normalized = Mathf.Clamp01(operation.progress / ProgressTrackMax);
+SetProgress(Mathf.Lerp(ProgressSceneLoading, ProgressTrackMax, normalized));
 await Awaitable.NextFrameAsync();
 }
 }
 catch (OperationCanceledException)
 {
-// Application is closing.
 }
 }
 private void SetProgress(float progress)
@@ -5011,9 +5149,7 @@ private void SetProgress(float progress)
 LoadingProgress = Mathf.Clamp01(progress);
 LoadingProgressChanged?.Invoke(LoadingProgress);
 }
-private void SetState(
-NetworkSessionState state,
-string status)
+private void SetState(NetworkSessionState state, string status)
 {
 State = state;
 Status = status;
@@ -5026,7 +5162,6 @@ StateChanged?.Invoke(state, status);
 // ============================================================================
 // File: Assets/_Project/Runtime/Infrastructure/Networking/PlayerPrefsRoomPreferences.cs
 // ============================================================================
-using PlanetIO;
 using UnityEngine;
 namespace PlanetIO.Infrastructure.Networking
 {
@@ -5035,10 +5170,7 @@ public sealed class PlayerPrefsRoomPreferences : IRoomPreferences
 private const string RoomCodeKey = "PlanetIO.Room.Code";
 public RoomConnectionSettings Load()
 {
-return new RoomConnectionSettings(
-PlayerPrefs.GetString(
-RoomCodeKey,
-RoomRules.DefaultRoomCode),
+return new RoomConnectionSettings(PlayerPrefs.GetString(RoomCodeKey, RoomRules.DefaultRoomCode),
 RoomRules.DefaultMaxPlayers);
 }
 public void Save(RoomConnectionSettings settings)
@@ -5053,6 +5185,7 @@ PlayerPrefs.Save();
 // ============================================================================
 // File: Assets/_Project/Runtime/UI/Camera/PlayerCamera.cs
 // ============================================================================
+using System;
 using PlanetIO.Utils;
 using UnityEngine;
 using PlanetIO.UI.Hud;
@@ -5067,6 +5200,7 @@ public sealed class PlayerCamera : MonoBehaviour
 [SerializeField, Min(0.01f)] private float _zoomSmoothTime = 0.2f;
 [SerializeField, Min(0f)] private float _zoomPerCapacityUnit = 5f;
 [SerializeField, Min(1f)] private float _maximumOrthographicSize = 30f;
+[SerializeField, Min(0.1f)] private float _minimumOrthographicSize = 2f;
 private Player _player;
 private ILocalPlayerProvider _localPlayerProvider;
 private Vector3 _positionVelocity;
@@ -5086,7 +5220,8 @@ _targetOrthographicSize = _baseOrthographicSize;
 [Inject]
 public void Construct(ILocalPlayerProvider localPlayerProvider)
 {
-_localPlayerProvider = localPlayerProvider;
+_localPlayerProvider = localPlayerProvider ??
+throw new ArgumentNullException(nameof(localPlayerProvider));
 _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
 OnLocalPlayerChanged(_localPlayerProvider.LocalPlayer);
 }
@@ -5097,19 +5232,16 @@ if (_player == null || !_player.IsSpawned)
 return;
 }
 Vector3 playerPosition = _player.transform.position;
-Vector3 targetPosition = new(
-playerPosition.x,
-playerPosition.y,
-_cameraDepth);
-transform.position = Vector3.SmoothDamp(
-transform.position,
-targetPosition,
-ref _positionVelocity,
+Vector3 targetPosition = new(playerPosition.x, playerPosition.y, _cameraDepth);
+Vector3 smoothed = Vector3.SmoothDamp(transform.position, targetPosition, ref _positionVelocity,
 _positionSmoothTime);
-Camera.orthographicSize = Mathf.SmoothDamp(
-Camera.orthographicSize,
-_targetOrthographicSize,
-ref _zoomVelocity,
+float unitsPerPixel =
+2f * Camera.orthographicSize / Mathf.Max(1, Screen.height);
+transform.position = new Vector3(
+Mathf.Round(smoothed.x / unitsPerPixel) * unitsPerPixel,
+Mathf.Round(smoothed.y / unitsPerPixel) * unitsPerPixel,
+_cameraDepth);
+Camera.orthographicSize = Mathf.SmoothDamp(Camera.orthographicSize, _targetOrthographicSize, ref _zoomVelocity,
 _zoomSmoothTime);
 }
 private void OnDestroy()
@@ -5129,8 +5261,7 @@ if (_player == null)
 {
 return;
 }
-_baseCapacity = Mathf.Max(
-_player.Capacity, Constants.MinimumDisplayCapacity);
+_baseCapacity = Mathf.Max(_player.Capacity, Constants.MinimumDisplayCapacity);
 _player.CapacityChanged += OnCapacityChanged;
 OnCapacityChanged(_player.Capacity);
 }
@@ -5145,13 +5276,9 @@ _player = null;
 }
 private void OnCapacityChanged(float capacity)
 {
-float additionalZoom =
-Mathf.Max(0f, capacity - _baseCapacity) *
-_zoomPerCapacityUnit;
-_targetOrthographicSize = Mathf.Clamp(
-_baseOrthographicSize + additionalZoom,
-_baseOrthographicSize,
-_maximumOrthographicSize);
+float additionalZoom = (capacity - _baseCapacity) * _zoomPerCapacityUnit;
+_targetOrthographicSize = Mathf.Clamp(_baseOrthographicSize + additionalZoom,
+_minimumOrthographicSize, _maximumOrthographicSize);
 }
 }
 }
@@ -5196,10 +5323,14 @@ _arrowImage.enabled = false;
 }
 public void Show(Vector3 screenPosition, float angle, float scale)
 {
+if (screenPosition.z < 0f)
+{
+Hide();
+return;
+}
 _arrowImage.enabled = true;
 _arrowImage.rectTransform.position = screenPosition;
-_arrowImage.rectTransform.rotation =
-Quaternion.Euler(0f, 0f, angle + _spriteAngleOffset);
+_arrowImage.rectTransform.rotation = Quaternion.Euler(0f, 0f, angle + _spriteAngleOffset);
 _arrowImage.rectTransform.localScale = Vector3.one * scale;
 }
 }
@@ -5209,79 +5340,50 @@ _arrowImage.rectTransform.localScale = Vector3.one * scale;
 // ============================================================================
 // File: Assets/_Project/Runtime/UI/HUD/DirectionArrowPresenter.cs
 // ============================================================================
-using PlanetIO;
-using PlanetIO.Utils;
+using System;
 using UnityEngine;
 using VContainer.Unity;
 namespace PlanetIO.UI.Hud
 {
-public sealed class DirectionArrowPresenter : ILateTickable
+public sealed class DirectionArrowPresenter : IStartable, IDisposable
 {
-private readonly IDirectionArrowView _directionArrowView;
 private readonly ILocalPlayerProvider _localPlayerProvider;
-private UnityEngine.Camera _camera;
-private Player _lastPlayer;
-private PlayerMovement _playerMovement;
-private float _initialCapacity;
+private PlayerDirectionArrow _arrow;
 public DirectionArrowPresenter(
-IDirectionArrowView directionArrowView,
 ILocalPlayerProvider localPlayerProvider)
 {
-_directionArrowView = directionArrowView
-?? throw new System.ArgumentNullException(nameof(directionArrowView));
-_localPlayerProvider = localPlayerProvider
-?? throw new System.ArgumentNullException(nameof(localPlayerProvider));
+_localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
 }
-public void LateTick()
+public void Start()
 {
-Player player = _localPlayerProvider.LocalPlayer;
-_camera ??= UnityEngine.Camera.main;
-if (player == null || _camera == null)
-{
-_directionArrowView.Hide();
-return;
+_localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
+OnLocalPlayerChanged(_localPlayerProvider.LocalPlayer);
 }
-BindMovement(player);
-if (_playerMovement == null)
+public void Dispose()
 {
-_directionArrowView.Hide();
-return;
+_localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
+BindPlayer(null);
 }
-Vector2 direction = _playerMovement.Direction.normalized;
-if (direction == Vector2.zero)
+private void OnLocalPlayerChanged(Player player)
 {
-direction = player.transform.right;
+BindPlayer(player);
 }
-float playerRadius =
-player.Capacity * _directionArrowView.PlayerVisualRadius;
-Vector3 worldPosition =
-player.transform.position +
-(Vector3)(
-direction *
-(playerRadius + _directionArrowView.DistanceFromPlayer));
-float angle =
-Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-float screenScale =
-Mathf.Clamp(Screen.height / 1080f, 0.75f, 1.5f);
-float capacityScale = Mathf.Clamp(
-Mathf.Sqrt(player.Capacity / _initialCapacity),
-0.8f,
-_directionArrowView.MaximumScale);
-_directionArrowView.Show(
-_camera.WorldToScreenPoint(worldPosition),
-angle,
-screenScale * capacityScale);
-}
-private void BindMovement(Player player)
+private void BindPlayer(Player player)
 {
-if (_lastPlayer == player)
+if (_arrow != null)
+{
+_arrow.Hide();
+}
+_arrow = player != null
+? player.GetComponentInChildren<PlayerDirectionArrow>()
+: null;
+if (_arrow == null ||
+!player.TryGetComponent(out PlayerMovement movement))
 {
 return;
 }
-_lastPlayer = player;
-_playerMovement = player.GetComponent<PlayerMovement>();
-_initialCapacity = Mathf.Max(
-player.Capacity, Constants.MinimumDisplayCapacity);
+_arrow.Bind(movement);
+_arrow.Show();
 }
 }
 }
@@ -5293,50 +5395,51 @@ player.Capacity, Constants.MinimumDisplayCapacity);
 using System;
 using System.Collections.Generic;
 using System.Text;
-using PlanetIO;
 using PlanetIO.Utils;
-using PlanetIO.UI.Mobile;
-using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
 using VContainer.Unity;
-using Object = UnityEngine.Object;
 namespace PlanetIO.UI.Hud
 {
-public sealed class GameSessionHudPresenter :
-IStartable,
-ITickable,
-IDisposable
+public sealed class GameSessionHudPresenter : IStartable, ITickable, IDisposable
 {
 private const float RefreshIntervalSeconds = 0.5f;
 private const int VisibleLeaderboardEntries = 6;
 private readonly NetworkManager _networkManager;
 private readonly INetworkSessionService _networkSessionService;
-private readonly List<LeaderboardEntry> _entries = new();
-private GameObject _viewRoot;
-private TMP_Text _sessionText;
-private TMP_Text _leaderboardText;
-private Button _leaveButton;
+private readonly ISessionHudView _sessionHudView;
+private readonly ILocalPlayerProvider _localPlayerProvider;
+private readonly List<(string Name, int Score)> _entries = new();
+private readonly StringBuilder _leaderboardBuilder = new();
+private Player _localPlayer;
 private float _refreshTimeRemaining;
 private bool _leaveInProgress;
+private bool _isDefeated;
 public GameSessionHudPresenter(
 NetworkManager networkManager,
-INetworkSessionService networkSessionService)
+INetworkSessionService networkSessionService,
+ISessionHudView sessionHudView,
+ILocalPlayerProvider localPlayerProvider)
 {
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
-_networkSessionService = networkSessionService
-?? throw new ArgumentNullException(
-nameof(networkSessionService));
+_networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
+_networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
+_sessionHudView = sessionHudView ?? throw new ArgumentNullException(nameof(sessionHudView));
+_localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
 }
 public void Start()
 {
-BuildView();
+_sessionHudView.LeaveRequested += OnLeaveRequested;
+_localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
+BindPlayer(_localPlayerProvider.LocalPlayer);
 Refresh();
+_refreshTimeRemaining = RefreshIntervalSeconds;
 }
 public void Tick()
 {
+if (_isDefeated)
+{
+return;
+}
 _refreshTimeRemaining -= Time.unscaledDeltaTime;
 if (_refreshTimeRemaining > 0f)
 {
@@ -5347,64 +5450,13 @@ Refresh();
 }
 public void Dispose()
 {
-if (_leaveButton != null)
-{
-_leaveButton.onClick.RemoveListener(OnLeaveRequested);
-}
-if (_viewRoot != null)
-{
-Object.Destroy(_viewRoot);
-}
-}
-private void BuildView()
-{
-Canvas canvas = Object.FindAnyObjectByType<Canvas>();
-if (canvas == null)
-{
-Debug.LogWarning("Game HUD canvas was not found.");
-return;
-}
-_viewRoot = new GameObject(
-"SessionHud",
-typeof(RectTransform),
-typeof(CanvasRenderer),
-typeof(Image));
-RectTransform panel = _viewRoot.GetComponent<RectTransform>();
-panel.SetParent(canvas.transform, false);
-panel.anchorMin = Vector2.one;
-panel.anchorMax = Vector2.one;
-panel.pivot = Vector2.one;
-panel.anchoredPosition = new Vector2(-28f, -28f);
-panel.sizeDelta = new Vector2(470f, 390f);
-_viewRoot.GetComponent<Image>().color =
-new Color(0.025f, 0.055f, 0.12f, 0.82f);
-SafeAreaElement.AttachTo(panel);
-_sessionText = CreateText(
-"Session",
-panel,
-new Vector2(0f, 1f),
-new Vector2(1f, 1f),
-new Vector2(22f, -18f),
-new Vector2(-22f, -78f),
-28f,
-FontStyles.Bold);
-_leaderboardText = CreateText(
-"Leaderboard",
-panel,
-new Vector2(0f, 0f),
-new Vector2(1f, 1f),
-new Vector2(24f, 82f),
-new Vector2(-24f, -88f),
-25f,
-FontStyles.Normal);
-_leaderboardText.alignment =
-TextAlignmentOptions.TopLeft;
-_leaveButton = CreateButton(panel);
-_leaveButton.onClick.AddListener(OnLeaveRequested);
+_sessionHudView.LeaveRequested -= OnLeaveRequested;
+_localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
+BindPlayer(null);
 }
 private void Refresh()
 {
-if (_sessionText == null || _leaderboardText == null)
+if (_isDefeated)
 {
 return;
 }
@@ -5416,31 +5468,64 @@ NetworkSessionMode.SinglePlayer
 : $"ROOM {room.RoomCode}";
 int playerCount =
 _networkManager.ConnectedClientsList?.Count ?? 0;
-_sessionText.text =
-$"{roomLabel}\nPlayers: {playerCount}/{room.MaxPlayers}";
+_sessionHudView.ShowSessionText(
+$"{roomLabel}\nPlayers: {playerCount}/{room.MaxPlayers}");
 CollectEntries();
 _entries.Sort(static (left, right) =>
 right.Score.CompareTo(left.Score));
-StringBuilder builder = new();
-builder.AppendLine("<b>LEADERS</b>");
+_leaderboardBuilder.Clear();
+_leaderboardBuilder.AppendLine("<b>LEADERS</b>");
 int visibleCount = Mathf.Min(
 VisibleLeaderboardEntries,
 _entries.Count);
 for (int index = 0; index < visibleCount; index++)
 {
-LeaderboardEntry entry = _entries[index];
-string line =
-$"{index + 1}. {EscapeRichText(entry.Name)}" +
-$"  {entry.Score:N0}";
-builder.Append(entry.IsLocalPlayer
-? $"<color=#5FE0FF>{line}</color>"
-: line);
+(string Name, int Score) entry = _entries[index];
+_leaderboardBuilder
+.Append(index + 1)
+.Append(". ")
+.Append(entry.Name)
+.Append("  ")
+.Append(entry.Score.ToString("N0"));
 if (index < visibleCount - 1)
 {
-builder.AppendLine();
+_leaderboardBuilder.AppendLine();
 }
 }
-_leaderboardText.text = builder.ToString();
+_sessionHudView.ShowLeaderboardText(
+_leaderboardBuilder.ToString());
+}
+private void OnLocalPlayerChanged(Player player)
+{
+BindPlayer(player);
+}
+private void BindPlayer(Player player)
+{
+if (_localPlayer != null)
+{
+_localPlayer.Defeated -= OnPlayerDefeated;
+}
+_localPlayer = player;
+if (_localPlayer == null)
+{
+return;
+}
+_localPlayer.Defeated += OnPlayerDefeated;
+if (_localPlayer.IsDefeated)
+{
+OnPlayerDefeated();
+}
+}
+private void OnPlayerDefeated()
+{
+if (_isDefeated || _localPlayer == null)
+{
+return;
+}
+_isDefeated = true;
+_sessionHudView.ShowDefeat(
+Constants.CapacityToScore(_localPlayer.Capacity));
+_sessionHudView.SetLeaveButtonInteractable(true);
 }
 private void CollectEntries()
 {
@@ -5452,24 +5537,11 @@ return;
 foreach (NetworkObject networkObject in
 _networkManager.SpawnManager.SpawnedObjectsList)
 {
-if (networkObject.TryGetComponent(out Player player))
+if (networkObject.TryGetComponent(out Enemy enemy))
 {
-string nickname =
-networkObject.TryGetComponent(
-out PlayerNickname playerNickname)
-? playerNickname.Nickname
-: $"Player {networkObject.OwnerClientId}";
-_entries.Add(new LeaderboardEntry(
-nickname,
-ToScore(player.Capacity),
-networkObject.IsOwner));
-}
-else if (networkObject.TryGetComponent(out Enemy enemy))
-{
-_entries.Add(new LeaderboardEntry(
+_entries.Add((
 $"Bot {networkObject.NetworkObjectId % 100:00}",
-ToScore(enemy.Capacity),
-false));
+Constants.CapacityToScore(enemy.Capacity)));
 }
 }
 }
@@ -5484,10 +5556,7 @@ if (_leaveInProgress)
 return;
 }
 _leaveInProgress = true;
-if (_leaveButton != null)
-{
-_leaveButton.interactable = false;
-}
+_sessionHudView.SetLeaveButtonInteractable(false);
 try
 {
 await _networkSessionService
@@ -5499,100 +5568,10 @@ catch (OperationCanceledException)
 }
 catch (Exception exception)
 {
-Debug.LogException(exception);
+LoggerIO.LogException(exception);
 _leaveInProgress = false;
-if (_leaveButton != null)
-{
-_leaveButton.interactable = true;
+_sessionHudView.SetLeaveButtonInteractable(true);
 }
-}
-}
-private static int ToScore(float capacity) =>
-Constants.CapacityToScore(capacity);
-private static string EscapeRichText(string value) =>
-(value ?? NicknameRules.DefaultNickname)
-.Replace("<", "‹")
-.Replace(">", "›");
-private static TMP_Text CreateText(
-string name,
-Transform parent,
-Vector2 anchorMin,
-Vector2 anchorMax,
-Vector2 offsetMin,
-Vector2 offsetMax,
-float fontSize,
-FontStyles fontStyle)
-{
-GameObject gameObject = new(
-name,
-typeof(RectTransform),
-typeof(CanvasRenderer),
-typeof(TextMeshProUGUI));
-RectTransform rectTransform =
-gameObject.GetComponent<RectTransform>();
-rectTransform.SetParent(parent, false);
-rectTransform.anchorMin = anchorMin;
-rectTransform.anchorMax = anchorMax;
-rectTransform.offsetMin = offsetMin;
-rectTransform.offsetMax = offsetMax;
-TMP_Text text = gameObject.GetComponent<TMP_Text>();
-text.color = Color.white;
-text.fontSize = fontSize;
-text.fontStyle = fontStyle;
-text.textWrappingMode = TextWrappingModes.NoWrap;
-text.enableAutoSizing = true;
-text.fontSizeMin = 16f;
-text.fontSizeMax = fontSize;
-text.raycastTarget = false;
-return text;
-}
-private static Button CreateButton(Transform parent)
-{
-GameObject buttonObject = new(
-"LeaveButton",
-typeof(RectTransform),
-typeof(CanvasRenderer),
-typeof(Image),
-typeof(Button));
-RectTransform rectTransform =
-buttonObject.GetComponent<RectTransform>();
-rectTransform.SetParent(parent, false);
-rectTransform.anchorMin = new Vector2(0f, 0f);
-rectTransform.anchorMax = new Vector2(1f, 0f);
-rectTransform.pivot = new Vector2(0.5f, 0f);
-rectTransform.offsetMin = new Vector2(22f, 18f);
-rectTransform.offsetMax = new Vector2(-22f, 72f);
-Image image = buttonObject.GetComponent<Image>();
-image.color = new Color(0.11f, 0.48f, 0.72f, 1f);
-Button button = buttonObject.GetComponent<Button>();
-button.targetGraphic = image;
-TMP_Text label = CreateText(
-"Label",
-rectTransform,
-Vector2.zero,
-Vector2.one,
-Vector2.zero,
-Vector2.zero,
-24f,
-FontStyles.Bold);
-label.alignment = TextAlignmentOptions.Center;
-label.text = "MENU";
-return button;
-}
-private readonly struct LeaderboardEntry
-{
-public LeaderboardEntry(
-string name,
-int score,
-bool isLocalPlayer)
-{
-Name = name;
-Score = score;
-IsLocalPlayer = isLocalPlayer;
-}
-public string Name { get; }
-public int Score { get; }
-public bool IsLocalPlayer { get; }
 }
 }
 }
@@ -5602,7 +5581,6 @@ public bool IsLocalPlayer { get; }
 // File: Assets/_Project/Runtime/UI/HUD/LocalPlayerProvider.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using Unity.Netcode;
 using VContainer.Unity;
 namespace PlanetIO.UI.Hud
@@ -5612,22 +5590,32 @@ public interface ILocalPlayerProvider
 event Action<Player> LocalPlayerChanged;
 Player LocalPlayer { get; }
 }
-public sealed class LocalPlayerProvider :
-ILocalPlayerProvider,
-ITickable,
-IDisposable
+public sealed class LocalPlayerProvider : ILocalPlayerProvider, ITickable, IDisposable
 {
 private readonly NetworkManager _networkManager;
+private NetworkObject _localPlayerObject;
 public LocalPlayerProvider(NetworkManager networkManager)
 {
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
+_networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
 }
 public event Action<Player> LocalPlayerChanged;
 public Player LocalPlayer { get; private set; }
 public void Tick()
 {
-Player currentPlayer = GetCurrentLocalPlayer();
+NetworkObject playerObject =
+_networkManager.LocalClient?.PlayerObject;
+bool isAvailable = playerObject != null &&
+playerObject.IsSpawned;
+if (playerObject == _localPlayerObject &&
+isAvailable == (LocalPlayer != null))
+{
+return;
+}
+_localPlayerObject = playerObject;
+Player currentPlayer = isAvailable &&
+playerObject.TryGetComponent(out Player player)
+? player
+: null;
 if (currentPlayer == LocalPlayer)
 {
 return;
@@ -5637,195 +5625,70 @@ LocalPlayerChanged?.Invoke(LocalPlayer);
 }
 public void Dispose()
 {
+_localPlayerObject = null;
 LocalPlayer = null;
 LocalPlayerChanged = null;
 }
-private Player GetCurrentLocalPlayer()
-{
-NetworkObject playerObject =
-_networkManager.LocalClient?.PlayerObject;
-return playerObject != null &&
-playerObject.IsSpawned &&
-playerObject.TryGetComponent(out Player player)
-? player
-: null;
-}
 }
 }
 
 
 // ============================================================================
-// File: Assets/_Project/Runtime/UI/HUD/PlayerNicknamePresentation.cs
+// File: Assets/_Project/Runtime/UI/HUD/PlayerDirectionArrow.cs
 // ============================================================================
-using System;
-using System.Collections.Generic;
-using PlanetIO;
-using TMPro;
-using Unity.Netcode;
 using UnityEngine;
-using VContainer.Unity;
 namespace PlanetIO.UI.Hud
 {
-public interface IPlayerNicknameView
+[DisallowMultipleComponent]
+public sealed class PlayerDirectionArrow : MonoBehaviour
 {
-void ShowNickname(string nickname);
-void Dispose();
+[SerializeField] private SpriteRenderer _arrowRenderer;
+[SerializeField] private float _angleOffset = 90f;
+[SerializeField] private float _distanceFromCenter = 1.4f;
+private PlayerMovement _playerMovement;
+private Transform _arrowTransform;
+private bool _isVisible;
+private void Awake()
+{
+_arrowTransform = _arrowRenderer != null ? _arrowRenderer.transform : transform;
+Hide();
 }
-public sealed class PlayerNicknameView :
-MonoBehaviour,
-IPlayerNicknameView
+public void Bind(PlayerMovement playerMovement)
 {
-private const float VerticalOffset = 0.35f;
-private const float PlayerVisualRadius = 3.55f;
-private Player _player;
-private TextMeshPro _nicknameText;
-public static PlayerNicknameView Create(Player player)
-{
-GameObject viewObject = new(
-$"Nickname View ({player.OwnerClientId})");
-PlayerNicknameView view =
-viewObject.AddComponent<PlayerNicknameView>();
-view.Initialize(player);
-return view;
+_playerMovement = playerMovement;
 }
-public void ShowNickname(string nickname)
+public void Hide()
 {
-_nicknameText.text = NicknameRules.Normalize(nickname);
+_isVisible = false;
+if (_arrowRenderer != null)
+{
+_arrowRenderer.enabled = false;
 }
-public void Dispose()
+}
+public void Show()
 {
-if (this != null)
+_isVisible = true;
+if (_arrowRenderer != null)
 {
-Destroy(gameObject);
+_arrowRenderer.enabled = true;
 }
 }
 private void LateUpdate()
 {
-if (_player == null || !_player.IsSpawned)
+if (!_isVisible ||
+_playerMovement == null ||
+_arrowRenderer == null)
 {
 return;
 }
-float height =
-_player.Capacity * PlayerVisualRadius + VerticalOffset;
-transform.position =
-_player.transform.position + Vector3.up * height;
-}
-private void Initialize(Player player)
+Vector2 direction = _playerMovement.Direction.normalized;
+if (direction == Vector2.zero)
 {
-_player = player
-? player
-: throw new ArgumentNullException(nameof(player));
-_nicknameText = gameObject.AddComponent<TextMeshPro>();
-_nicknameText.alignment = TextAlignmentOptions.Center;
-_nicknameText.textWrappingMode = TextWrappingModes.NoWrap;
-_nicknameText.fontSize = 2.2f;
-_nicknameText.color = Color.white;
-_nicknameText.rectTransform.sizeDelta = new Vector2(8f, 1.2f);
-_nicknameText.renderer.sortingOrder = 100;
-transform.localScale = Vector3.one * 0.28f;
+direction = transform.parent != null ? transform.parent.right : Vector2.right;
 }
-}
-public sealed class PlayerNicknamePresenter : ITickable, IDisposable
-{
-private const float RefreshIntervalSeconds = 0.25f;
-private readonly NetworkManager _networkManager;
-private readonly Dictionary<PlayerNickname, NicknameBinding>
-_viewsByNickname = new();
-private readonly List<PlayerNickname> _nicknamesToRemove = new();
-private float _refreshTimeRemaining;
-public PlayerNicknamePresenter(NetworkManager networkManager)
-{
-_networkManager = networkManager
-?? throw new ArgumentNullException(nameof(networkManager));
-}
-public void Tick()
-{
-_refreshTimeRemaining -= Time.unscaledDeltaTime;
-if (_refreshTimeRemaining > 0f)
-{
-return;
-}
-_refreshTimeRemaining = RefreshIntervalSeconds;
-BindSpawnedPlayers();
-RemoveDespawnedPlayers();
-}
-public void Dispose()
-{
-foreach (KeyValuePair<PlayerNickname, NicknameBinding> binding
-in _viewsByNickname)
-{
-if (binding.Key != null)
-{
-binding.Key.NicknameChanged -= binding.Value.Handler;
-}
-binding.Value.View.Dispose();
-}
-_viewsByNickname.Clear();
-_nicknamesToRemove.Clear();
-}
-private void BindSpawnedPlayers()
-{
-if (_networkManager.SpawnManager == null)
-{
-return;
-}
-foreach (NetworkObject networkObject in
-_networkManager.SpawnManager.SpawnedObjectsList)
-{
-if (!networkObject.IsPlayerObject ||
-!networkObject.TryGetComponent(
-out PlayerNickname playerNickname) ||
-_viewsByNickname.ContainsKey(playerNickname) ||
-!networkObject.TryGetComponent(out Player player))
-{
-continue;
-}
-IPlayerNicknameView nicknameView =
-PlayerNicknameView.Create(player);
-Action<string> nicknameChangedHandler =
-nicknameView.ShowNickname;
-_viewsByNickname.Add(
-playerNickname,
-new NicknameBinding(
-nicknameView,
-nicknameChangedHandler));
-playerNickname.NicknameChanged += nicknameChangedHandler;
-nicknameView.ShowNickname(playerNickname.Nickname);
-}
-}
-private void RemoveDespawnedPlayers()
-{
-_nicknamesToRemove.Clear();
-foreach (PlayerNickname playerNickname in _viewsByNickname.Keys)
-{
-if (playerNickname == null || !playerNickname.IsSpawned)
-{
-_nicknamesToRemove.Add(playerNickname);
-}
-}
-foreach (PlayerNickname playerNickname in _nicknamesToRemove)
-{
-NicknameBinding binding =
-_viewsByNickname[playerNickname];
-if (playerNickname != null)
-{
-playerNickname.NicknameChanged -= binding.Handler;
-}
-binding.View.Dispose();
-_viewsByNickname.Remove(playerNickname);
-}
-}
-private sealed class NicknameBinding
-{
-public NicknameBinding(
-IPlayerNicknameView view,
-Action<string> handler)
-{
-View = view;
-Handler = handler;
-}
-public IPlayerNicknameView View { get; }
-public Action<string> Handler { get; }
+float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + _angleOffset;
+_arrowTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
+_arrowTransform.localPosition = (Vector3)(direction * _distanceFromCenter);
 }
 }
 }
@@ -5835,7 +5698,6 @@ public Action<string> Handler { get; }
 // File: Assets/_Project/Runtime/UI/HUD/ScorePresenter.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using PlanetIO.Utils;
 using VContainer.Unity;
 namespace PlanetIO.UI.Hud
@@ -5845,14 +5707,10 @@ public sealed class ScorePresenter : IStartable, IDisposable
 private readonly IScoreView _scoreView;
 private readonly ILocalPlayerProvider _localPlayerProvider;
 private Player _boundPlayer;
-public ScorePresenter(
-IScoreView scoreView,
-ILocalPlayerProvider localPlayerProvider)
+public ScorePresenter(IScoreView scoreView, ILocalPlayerProvider localPlayerProvider)
 {
-_scoreView = scoreView
-?? throw new ArgumentNullException(nameof(scoreView));
-_localPlayerProvider = localPlayerProvider
-?? throw new ArgumentNullException(nameof(localPlayerProvider));
+_scoreView = scoreView ?? throw new ArgumentNullException(nameof(scoreView));
+_localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
 }
 public void Start()
 {
@@ -5915,6 +5773,75 @@ _scoreText.text = score.ToString();
 
 
 // ============================================================================
+// File: Assets/_Project/Runtime/UI/HUD/SessionHudView.cs
+// ============================================================================
+using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+namespace PlanetIO.UI.Hud
+{
+public interface ISessionHudView
+{
+event Action LeaveRequested;
+void ShowSessionText(string text);
+void ShowLeaderboardText(string text);
+void ShowDefeat(int finalScore);
+void SetLeaveButtonInteractable(bool interactable);
+}
+public sealed class SessionHudView : MonoBehaviour, ISessionHudView
+{
+private const string DefeatTitle = "YOU LOST";
+[SerializeField] private TMP_Text _sessionText;
+[SerializeField] private TMP_Text _leaderboardText;
+[SerializeField] private Button _leaveButton;
+public event Action LeaveRequested;
+public bool IsDefeatVisible =>
+_sessionText != null &&
+_sessionText.text == DefeatTitle;
+private void OnEnable()
+{
+_leaveButton?.onClick.AddListener(OnLeaveClicked);
+}
+private void OnDisable()
+{
+_leaveButton?.onClick.RemoveListener(OnLeaveClicked);
+}
+public void ShowSessionText(string text)
+{
+if (_sessionText != null)
+{
+_sessionText.text = text;
+}
+}
+public void ShowLeaderboardText(string text)
+{
+if (_leaderboardText != null)
+{
+_leaderboardText.text = text;
+}
+}
+public void ShowDefeat(int finalScore)
+{
+ShowSessionText(DefeatTitle);
+ShowLeaderboardText($"FINAL SCORE\n{finalScore:N0}");
+}
+public void SetLeaveButtonInteractable(bool interactable)
+{
+if (_leaveButton != null)
+{
+_leaveButton.interactable = interactable;
+}
+}
+private void OnLeaveClicked()
+{
+LeaveRequested?.Invoke();
+}
+}
+}
+
+
+// ============================================================================
 // File: Assets/_Project/Runtime/UI/Input/AccelerationButton.cs
 // ============================================================================
 using System;
@@ -5922,11 +5849,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 namespace PlanetIO
 {
-public sealed class AccelerationButton :
-MonoBehaviour,
-IPointerDownHandler,
-IPointerUpHandler,
-IPointerExitHandler,
+public sealed class AccelerationButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
 IBoostInput
 {
 private bool _isPressed;
@@ -5961,10 +5884,37 @@ BoostChanged?.Invoke(_isPressed);
 
 
 // ============================================================================
+// File: Assets/_Project/Runtime/UI/Loading/GameLoadingView.cs
+// ============================================================================
+using PlanetIO.Core.Contracts.Loading;
+using UnityEngine;
+namespace PlanetIO.UI.Loading
+{
+public sealed class GameLoadingView : MonoBehaviour, IGameLoadingView
+{
+[SerializeField] private GameObject _overlayRoot;
+public void Show()
+{
+if (_overlayRoot != null)
+{
+_overlayRoot.SetActive(true);
+}
+}
+public void Hide()
+{
+if (_overlayRoot != null)
+{
+_overlayRoot.SetActive(false);
+}
+}
+}
+}
+
+
+// ============================================================================
 // File: Assets/_Project/Runtime/UI/Loading/LoadingPresenter.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using VContainer.Unity;
 namespace PlanetIO.UI.Loading
 {
@@ -5972,43 +5922,33 @@ public sealed class LoadingPresenter : IStartable, IDisposable
 {
 private readonly ILoadingView _loadingView;
 private readonly INetworkSessionService _networkSessionService;
-public LoadingPresenter(
-ILoadingView loadingView,
-INetworkSessionService networkSessionService)
+public LoadingPresenter(ILoadingView loadingView, INetworkSessionService networkSessionService)
 {
-_loadingView = loadingView
-?? throw new ArgumentNullException(nameof(loadingView));
-_networkSessionService = networkSessionService
-?? throw new ArgumentNullException(nameof(networkSessionService));
+_loadingView = loadingView ?? throw new ArgumentNullException(nameof(loadingView));
+_networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
 }
 public void Start()
 {
-_networkSessionService.LoadingProgressChanged +=
-OnLoadingProgressChanged;
+_networkSessionService.LoadingProgressChanged += OnLoadingProgressChanged;
 _networkSessionService.StateChanged += OnSessionStateChanged;
 Render();
 }
 public void Dispose()
 {
-_networkSessionService.LoadingProgressChanged -=
-OnLoadingProgressChanged;
+_networkSessionService.LoadingProgressChanged -= OnLoadingProgressChanged;
 _networkSessionService.StateChanged -= OnSessionStateChanged;
 }
-private void OnLoadingProgressChanged(float progress)
+private void OnLoadingProgressChanged(float _)
 {
 Render();
 }
-private void OnSessionStateChanged(
-NetworkSessionState state,
-string status)
+private void OnSessionStateChanged(NetworkSessionState _, string __)
 {
 Render();
 }
 private void Render()
 {
-_loadingView.Render(
-_networkSessionService.LoadingProgress,
-_networkSessionService.Status);
+_loadingView.Render(_networkSessionService.LoadingProgress, _networkSessionService.Status);
 }
 }
 }
@@ -6017,7 +5957,6 @@ _networkSessionService.Status);
 // ============================================================================
 // File: Assets/_Project/Runtime/UI/Loading/LoadingView.cs
 // ============================================================================
-using PlanetIO.UI.Mobile;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6029,14 +5968,8 @@ void Render(float progress, string status);
 }
 public sealed class LoadingView : MonoBehaviour, ILoadingView
 {
-private const float ReferenceWidth = 1920f;
-private const float ReferenceHeight = 1080f;
-private Image _progressFill;
-private TMP_Text _statusText;
-private void Awake()
-{
-BuildResponsiveView();
-}
+[SerializeField] private Image _progressFill;
+[SerializeField] private TMP_Text _statusText;
 public void Render(float progress, string status)
 {
 float normalizedProgress = Mathf.Clamp01(progress);
@@ -6046,127 +5979,8 @@ _progressFill.fillAmount = normalizedProgress;
 }
 if (_statusText != null)
 {
-_statusText.text =
-$"{status ?? string.Empty}  {normalizedProgress:P0}";
+_statusText.text = $"{status ?? string.Empty}  {normalizedProgress:P0}";
 }
-}
-private void BuildResponsiveView()
-{
-if (_progressFill != null)
-{
-return;
-}
-GameObject canvasObject = new("LoadingCanvas");
-canvasObject.transform.SetParent(transform, false);
-Canvas canvas = canvasObject.AddComponent<Canvas>();
-canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-canvas.sortingOrder = 1000;
-CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
-scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-scaler.referenceResolution =
-new Vector2(ReferenceWidth, ReferenceHeight);
-scaler.screenMatchMode =
-CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-scaler.matchWidthOrHeight = 0.5f;
-RectTransform background = CreateRect(
-"Background",
-canvasObject.transform,
-Vector2.zero,
-Vector2.one);
-Image backgroundImage = background.gameObject.AddComponent<Image>();
-backgroundImage.color = new Color(0.025f, 0.035f, 0.08f, 1f);
-RectTransform content = CreateRect(
-"SafeArea",
-canvasObject.transform,
-Vector2.zero,
-Vector2.one);
-SafeAreaFitter.AttachTo(content);
-TMP_Text title = CreateText(
-"Title",
-content,
-new Vector2(0.5f, 0.59f),
-new Vector2(960f, 90f),
-48f,
-FontStyles.Bold);
-title.text = "Loading Session";
-title.color = new Color(0.88f, 0.94f, 1f);
-RectTransform progressBackground = CreateRect(
-"ProgressBackground",
-content,
-new Vector2(0.5f, 0.5f),
-new Vector2(0.5f, 0.5f),
-new Vector2(960f, 38f));
-Image progressBackgroundImage =
-progressBackground.gameObject.AddComponent<Image>();
-progressBackgroundImage.color =
-new Color(0.12f, 0.17f, 0.28f, 1f);
-RectTransform fillRect = CreateRect(
-"ProgressFill",
-progressBackground,
-Vector2.zero,
-Vector2.one);
-fillRect.offsetMin = new Vector2(4f, 4f);
-fillRect.offsetMax = new Vector2(-4f, -4f);
-_progressFill = fillRect.gameObject.AddComponent<Image>();
-_progressFill.color = new Color(0.16f, 0.72f, 1f, 1f);
-_progressFill.type = Image.Type.Filled;
-_progressFill.fillMethod = Image.FillMethod.Horizontal;
-_progressFill.fillOrigin = 0;
-_progressFill.fillAmount = 0f;
-_statusText = CreateText(
-"Status",
-content,
-new Vector2(0.5f, 0.42f),
-new Vector2(1200f, 80f),
-30f,
-FontStyles.Normal);
-_statusText.color = new Color(0.72f, 0.82f, 0.94f);
-}
-private static TMP_Text CreateText(
-string name,
-Transform parent,
-Vector2 anchor,
-Vector2 size,
-float fontSize,
-FontStyles fontStyle)
-{
-RectTransform rectTransform = CreateRect(
-name,
-parent,
-anchor,
-anchor,
-size);
-TMP_Text text = rectTransform.gameObject
-.AddComponent<TextMeshProUGUI>();
-text.alignment = TextAlignmentOptions.Center;
-text.fontSize = fontSize;
-text.fontStyle = fontStyle;
-text.textWrappingMode = TextWrappingModes.NoWrap;
-text.raycastTarget = false;
-text.enableAutoSizing = true;
-text.fontSizeMin = Mathf.Max(16f, fontSize * 0.55f);
-text.fontSizeMax = fontSize;
-return text;
-}
-private static RectTransform CreateRect(
-string name,
-Transform parent,
-Vector2 anchorMin,
-Vector2 anchorMax,
-Vector2? size = null)
-{
-GameObject gameObject = new(
-name,
-typeof(RectTransform));
-RectTransform rectTransform =
-gameObject.GetComponent<RectTransform>();
-rectTransform.SetParent(parent, false);
-rectTransform.anchorMin = anchorMin;
-rectTransform.anchorMax = anchorMax;
-rectTransform.pivot = new Vector2(0.5f, 0.5f);
-rectTransform.anchoredPosition = Vector2.zero;
-rectTransform.sizeDelta = size ?? Vector2.zero;
-return rectTransform;
 }
 }
 }
@@ -6176,7 +5990,6 @@ return rectTransform;
 // File: Assets/_Project/Runtime/UI/Menu/MenuPresenter.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using UnityEngine;
 using VContainer.Unity;
 namespace PlanetIO.UI.Menu
@@ -6188,20 +6001,13 @@ private readonly INicknameInputView _nicknameInputView;
 private readonly INetworkSessionService _networkSessionService;
 private readonly IPlayerProfileService _playerProfileService;
 private bool _sessionRequestInProgress;
-public MenuPresenter(
-INetworkMenuView networkMenuView,
-INicknameInputView nicknameInputView,
-INetworkSessionService networkSessionService,
+public MenuPresenter(INetworkMenuView networkMenuView, INicknameInputView nicknameInputView, INetworkSessionService networkSessionService,
 IPlayerProfileService playerProfileService)
 {
-_networkMenuView = networkMenuView
-?? throw new ArgumentNullException(nameof(networkMenuView));
-_nicknameInputView = nicknameInputView
-?? throw new ArgumentNullException(nameof(nicknameInputView));
-_networkSessionService = networkSessionService
-?? throw new ArgumentNullException(nameof(networkSessionService));
-_playerProfileService = playerProfileService
-?? throw new ArgumentNullException(nameof(playerProfileService));
+_networkMenuView = networkMenuView ?? throw new ArgumentNullException(nameof(networkMenuView));
+_nicknameInputView = nicknameInputView ?? throw new ArgumentNullException(nameof(nicknameInputView));
+_networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
+_playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
 }
 public void Start()
 {
@@ -6209,46 +6015,36 @@ _networkMenuView.HostRequested += OnHostRequested;
 _networkMenuView.JoinRequested += OnJoinRequested;
 _networkMenuView.SinglePlayerRequested += OnSinglePlayerRequested;
 _nicknameInputView.NicknameChanged += OnNicknameChanged;
-_nicknameInputView.RandomNicknameRequested +=
-OnRandomNicknameRequested;
+_nicknameInputView.RandomNicknameRequested += OnRandomNicknameRequested;
 _playerProfileService.NicknameChanged += OnProfileNicknameChanged;
 _networkSessionService.StateChanged += OnSessionStateChanged;
 _nicknameInputView.ShowNickname(_playerProfileService.Nickname);
 _networkMenuView.SetInteractionEnabled(true);
-_networkMenuView.ShowStatus(
-_networkSessionService.Status,
-false);
+_networkMenuView.ShowStatus(_networkSessionService.Status, false);
 }
 public void Dispose()
 {
 _networkMenuView.HostRequested -= OnHostRequested;
 _networkMenuView.JoinRequested -= OnJoinRequested;
-_networkMenuView.SinglePlayerRequested -=
-OnSinglePlayerRequested;
+_networkMenuView.SinglePlayerRequested -= OnSinglePlayerRequested;
 _nicknameInputView.NicknameChanged -= OnNicknameChanged;
-_nicknameInputView.RandomNicknameRequested -=
-OnRandomNicknameRequested;
+_nicknameInputView.RandomNicknameRequested -= OnRandomNicknameRequested;
 _playerProfileService.NicknameChanged -= OnProfileNicknameChanged;
 _networkSessionService.StateChanged -= OnSessionStateChanged;
 }
 private void OnHostRequested()
 {
 _ = StartSessionAsync(
-() => _networkSessionService.StartHostAsync(
-RoomRules.DefaultMaxPlayers),
-"Failed to start host");
+() => _networkSessionService.StartHostAsync(RoomRules.DefaultMaxPlayers), "Failed to start host");
 }
 private void OnJoinRequested(string relayJoinCode)
 {
 _ = StartSessionAsync(
-() => _networkSessionService.StartClientAsync(relayJoinCode),
-"Failed to connect to room");
+() => _networkSessionService.StartClientAsync(relayJoinCode), "Failed to connect to room");
 }
 private void OnSinglePlayerRequested()
 {
-_ = StartSessionAsync(
-_networkSessionService.StartSinglePlayerAsync,
-"Failed to start single player");
+_ = StartSessionAsync(_networkSessionService.StartSinglePlayerAsync, "Failed to start single player");
 }
 private void OnNicknameChanged(string nickname)
 {
@@ -6262,9 +6058,7 @@ private void OnProfileNicknameChanged(string nickname)
 {
 _nicknameInputView.ShowNickname(nickname);
 }
-private void OnSessionStateChanged(
-NetworkSessionState state,
-string status)
+private void OnSessionStateChanged(NetworkSessionState state, string status)
 {
 bool isError = state == NetworkSessionState.Failed;
 _networkMenuView.ShowStatus(status, isError);
@@ -6273,9 +6067,7 @@ if (isError)
 RestoreInteraction();
 }
 }
-private async Awaitable StartSessionAsync(
-Func<Awaitable<bool>> startSession,
-string failureMessage)
+private async Awaitable StartSessionAsync(Func<Awaitable<bool>> startSession, string failureMessage)
 {
 if (_sessionRequestInProgress)
 {
@@ -6291,17 +6083,15 @@ if (sessionStarted)
 return;
 }
 RestoreInteraction();
-Debug.LogError(
-$"{failureMessage}: {_networkSessionService.Status}");
+LoggerIO.LogError($"{failureMessage}: {_networkSessionService.Status}");
 }
 catch (OperationCanceledException)
 {
-// The menu or application is closing.
 }
 catch (Exception exception)
 {
 RestoreInteraction();
-Debug.LogException(exception);
+LoggerIO.LogException(exception);
 }
 }
 private void RestoreInteraction()
@@ -6317,7 +6107,6 @@ _networkMenuView.SetInteractionEnabled(true);
 // File: Assets/_Project/Runtime/UI/Menu/NetworkUI.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using PlanetIO.UI.Mobile;
 using TMPro;
 using UnityEngine;
@@ -6336,35 +6125,30 @@ public sealed class NetworkUI : MonoBehaviour, INetworkMenuView
 {
 private static readonly Color ErrorColor = new(1f, 0.38f, 0.38f);
 private static readonly Color InfoColor = new(0.75f, 0.9f, 1f);
-[Header("Existing menu")]
+[Header("Menu controls")]
 [SerializeField] private Button _hostButton;
 [SerializeField] private Button _clientButton;
-[Header("Room controls (created automatically when empty)")]
-[SerializeField] private TMP_InputField _joinCodeInput;
 [SerializeField] private Button _singlePlayerButton;
+[SerializeField] private TMP_InputField _joinCodeInput;
 [SerializeField] private TMP_Text _statusText;
 public event Action HostRequested;
 public event Action<string> JoinRequested;
 public event Action SinglePlayerRequested;
 private void Awake()
 {
-EnsureRoomControls();
 SafeAreaFitter.AttachTo(transform.parent);
 }
 private void OnEnable()
 {
-EnsureRoomControls();
-_hostButton?.onClick.AddListener(OnHostRequested);
-_clientButton?.onClick.AddListener(OnJoinRequested);
-_singlePlayerButton?.onClick.AddListener(
-OnSinglePlayerRequested);
+_hostButton.onClick.AddListener(OnHostRequested);
+_clientButton.onClick.AddListener(OnJoinRequested);
+_singlePlayerButton.onClick.AddListener(OnSinglePlayerRequested);
 }
 private void OnDisable()
 {
-_hostButton?.onClick.RemoveListener(OnHostRequested);
-_clientButton?.onClick.RemoveListener(OnJoinRequested);
-_singlePlayerButton?.onClick.RemoveListener(
-OnSinglePlayerRequested);
+_hostButton.onClick.RemoveListener(OnHostRequested);
+_clientButton.onClick.RemoveListener(OnJoinRequested);
+_singlePlayerButton.onClick.RemoveListener(OnSinglePlayerRequested);
 }
 public void SetInteractionEnabled(bool interactionEnabled)
 {
@@ -6400,128 +6184,6 @@ private void OnSinglePlayerRequested()
 {
 SinglePlayerRequested?.Invoke();
 }
-private void EnsureRoomControls()
-{
-if (_hostButton == null || _clientButton == null)
-{
-return;
-}
-Transform controlsRoot = _hostButton.transform.parent;
-TMP_InputField inputTemplate =
-controlsRoot.GetComponentInChildren<TMP_InputField>(true);
-if (inputTemplate == null)
-{
-Debug.LogError(
-$"{nameof(NetworkUI)} needs a TMP input template.",
-this);
-return;
-}
-ConfigureLayout(controlsRoot);
-int insertionIndex = _hostButton.transform.GetSiblingIndex();
-_joinCodeInput ??= CreateInput(
-inputTemplate,
-controlsRoot,
-"JoinCodeInput",
-"Room code (from a friend)",
-string.Empty,
-TMP_InputField.ContentType.Alphanumeric,
-RoomRules.MaximumRoomCodeLength,
-insertionIndex);
-SetButtonLabels();
-EnsureSinglePlayerButton(controlsRoot);
-EnsureStatusText(controlsRoot);
-ApplyCompactLayout(controlsRoot);
-}
-private void SetButtonLabels()
-{
-SetButtonLabel(_hostButton, "Create Room");
-SetButtonLabel(_clientButton, "Join");
-}
-private void EnsureSinglePlayerButton(Transform controlsRoot)
-{
-if (_singlePlayerButton != null)
-{
-return;
-}
-_singlePlayerButton = Instantiate(_hostButton, controlsRoot);
-_singlePlayerButton.name = "SinglePlayerButton";
-_singlePlayerButton.onClick = new Button.ButtonClickedEvent();
-SetButtonLabel(_singlePlayerButton, "Single Player");
-}
-private void EnsureStatusText(Transform controlsRoot)
-{
-if (_statusText != null)
-{
-return;
-}
-TMP_Text labelTemplate =
-_hostButton.GetComponentInChildren<TMP_Text>(true);
-_statusText = Instantiate(labelTemplate, controlsRoot);
-_statusText.name = "ConnectionStatus";
-_statusText.text = "Click \"Create Room\" or enter a code";
-_statusText.alignment = TextAlignmentOptions.Center;
-_statusText.textWrappingMode = TextWrappingModes.Normal;
-_statusText.raycastTarget = false;
-_statusText.fontSize = 22f;
-_statusText.overflowMode = TextOverflowModes.Ellipsis;
-_statusText.color = InfoColor;
-_statusText.gameObject.SetActive(true);
-_statusText.rectTransform.localScale = Vector3.one;
-_statusText.rectTransform.sizeDelta = new Vector2(500f, 44f);
-}
-private static void ConfigureLayout(Transform controlsRoot)
-{
-if (controlsRoot.TryGetComponent(out VerticalLayoutGroup layout))
-{
-layout.spacing = 9f;
-layout.childControlWidth = true;
-layout.childControlHeight = true;
-layout.childForceExpandWidth = true;
-layout.childForceExpandHeight = false;
-}
-}
-private static TMP_InputField CreateInput(
-TMP_InputField template,
-Transform parent,
-string objectName,
-string placeholder,
-string initialValue,
-TMP_InputField.ContentType contentType,
-int characterLimit,
-int siblingIndex)
-{
-TMP_InputField input = Instantiate(template, parent);
-input.name = objectName;
-input.onEndEdit = new TMP_InputField.SubmitEvent();
-input.onValueChanged = new TMP_InputField.OnChangeEvent();
-input.contentType = contentType;
-input.characterLimit = characterLimit;
-input.SetTextWithoutNotify(initialValue);
-input.transform.SetSiblingIndex(siblingIndex);
-input.textComponent.fontSize = 28f;
-input.textComponent.enableAutoSizing = true;
-input.textComponent.fontSizeMin = 18f;
-input.textComponent.fontSizeMax = 28f;
-if (input.placeholder is TMP_Text placeholderText)
-{
-placeholderText.text = placeholder;
-placeholderText.fontSize = 20f;
-placeholderText.enableAutoSizing = true;
-placeholderText.fontSizeMin = 14f;
-placeholderText.fontSizeMax = 20f;
-}
-return input;
-}
-private void ShowRoomSettings()
-{
-SetText(_joinCodeInput, string.Empty);
-}
-private static void SetText(
-TMP_InputField inputField,
-string value)
-{
-inputField?.SetTextWithoutNotify(value);
-}
 private static void SetInteractable(
 Selectable selectable,
 bool interactable)
@@ -6529,65 +6191,6 @@ bool interactable)
 if (selectable != null)
 {
 selectable.interactable = interactable;
-}
-}
-private static void SetButtonLabel(Button button, string text)
-{
-TMP_Text label = button?.GetComponentInChildren<TMP_Text>(true);
-if (label != null)
-{
-label.text = text;
-label.enableAutoSizing = true;
-label.fontSizeMin = 16f;
-label.fontSizeMax = 28f;
-label.textWrappingMode = TextWrappingModes.NoWrap;
-label.overflowMode = TextOverflowModes.Ellipsis;
-}
-}
-private void ApplyCompactLayout(Transform controlsRoot)
-{
-foreach (Transform child in controlsRoot)
-{
-LayoutElement layoutElement =
-child.GetComponent<LayoutElement>() ??
-child.gameObject.AddComponent<LayoutElement>();
-layoutElement.flexibleHeight = 0f;
-if (child.TryGetComponent(out TMP_InputField input))
-{
-layoutElement.minHeight = 48f;
-layoutElement.preferredHeight = 54f;
-input.textComponent.enableAutoSizing = true;
-input.textComponent.fontSizeMin = 18f;
-input.textComponent.fontSizeMax = 36f;
-if (input.placeholder is TMP_Text placeholder)
-{
-placeholder.enableAutoSizing = true;
-placeholder.fontSizeMin = 14f;
-placeholder.fontSizeMax = 20f;
-}
-}
-else if (child.TryGetComponent(out Button button))
-{
-layoutElement.minHeight = 52f;
-layoutElement.preferredHeight = 60f;
-if (button == _hostButton ||
-button == _clientButton ||
-button == _singlePlayerButton)
-{
-TMP_Text label =
-button.GetComponentInChildren<TMP_Text>(true);
-if (label != null)
-{
-label.fontSizeMax = 28f;
-}
-}
-}
-else if (child.TryGetComponent(out TMP_Text text))
-{
-layoutElement.minHeight = 32f;
-layoutElement.preferredHeight =
-text == _statusText ? 44f : 38f;
-}
 }
 }
 }
@@ -6598,7 +6201,6 @@ text == _statusText ? 44f : 38f;
 // File: Assets/_Project/Runtime/UI/Menu/NicknameInputView.cs
 // ============================================================================
 using System;
-using PlanetIO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6620,16 +6222,13 @@ private void OnEnable()
 {
 if (_inputField == null || _setRandomNicknameButton == null)
 {
-Debug.LogError(
-$"{nameof(NicknameInputView)} is not configured.",
-this);
+LoggerIO.LogError($"{nameof(NicknameInputView)} is not configured.", this);
 enabled = false;
 return;
 }
 _inputField.characterLimit = NicknameRules.MaximumLength;
 _inputField.onEndEdit.AddListener(OnNicknameChanged);
-_setRandomNicknameButton.onClick.AddListener(
-OnRandomNicknameRequested);
+_setRandomNicknameButton.onClick.AddListener(OnRandomNicknameRequested);
 }
 private void OnDisable()
 {
@@ -6638,13 +6237,11 @@ if (_inputField == null || _setRandomNicknameButton == null)
 return;
 }
 _inputField.onEndEdit.RemoveListener(OnNicknameChanged);
-_setRandomNicknameButton.onClick.RemoveListener(
-OnRandomNicknameRequested);
+_setRandomNicknameButton.onClick.RemoveListener(OnRandomNicknameRequested);
 }
 public void ShowNickname(string nickname)
 {
-_inputField?.SetTextWithoutNotify(
-NicknameRules.Normalize(nickname));
+_inputField?.SetTextWithoutNotify(NicknameRules.Normalize(nickname));
 }
 private void OnNicknameChanged(string nickname)
 {
@@ -6675,25 +6272,20 @@ private Canvas _canvas;
 private Vector2 _basePosition;
 private Rect _lastSafeArea;
 private Vector2Int _lastScreenSize;
-public static void AttachTo(RectTransform target)
-{
-if (target != null &&
-target.GetComponent<SafeAreaElement>() == null)
-{
-target.gameObject.AddComponent<SafeAreaElement>();
-}
-}
 private void Awake()
 {
 _rectTransform = (RectTransform)transform;
 _canvas = GetComponentInParent<Canvas>();
 _basePosition = _rectTransform.anchoredPosition;
+}
+private void OnEnable()
+{
+SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize);
 Apply();
 }
 private void Update()
 {
-if (SafeAreaHelper.HasScreenChanged(
-ref _lastSafeArea, ref _lastScreenSize))
+if (SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize))
 {
 Apply();
 }
@@ -6707,9 +6299,7 @@ Screen.height <= 0)
 return;
 }
 Rect safeArea = Screen.safeArea;
-float scaleFactor = Mathf.Max(
-_canvas != null ? _canvas.scaleFactor : 1f,
-0.01f);
+float scaleFactor = Mathf.Max(_canvas != null ? _canvas.scaleFactor : 1f, 0.01f);
 float left = safeArea.xMin / scaleFactor;
 float right = (Screen.width - safeArea.xMax) / scaleFactor;
 float bottom = safeArea.yMin / scaleFactor;
@@ -6752,8 +6342,7 @@ private Rect _lastSafeArea;
 private Vector2Int _lastScreenSize;
 public static void AttachTo(Transform target)
 {
-if (target is not RectTransform rectTransform ||
-rectTransform.GetComponent<SafeAreaFitter>() != null)
+if (target is not RectTransform rectTransform || rectTransform.GetComponent<SafeAreaFitter>() != null)
 {
 return;
 }
@@ -6762,16 +6351,15 @@ rectTransform.gameObject.AddComponent<SafeAreaFitter>();
 private void Awake()
 {
 _rectTransform = (RectTransform)transform;
-Apply();
 }
 private void OnEnable()
 {
+SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize);
 Apply();
 }
 private void Update()
 {
-if (SafeAreaHelper.HasScreenChanged(
-ref _lastSafeArea, ref _lastScreenSize))
+if (SafeAreaHelper.HasScreenChanged(ref _lastSafeArea, ref _lastScreenSize))
 {
 Apply();
 }
@@ -6808,9 +6396,7 @@ namespace PlanetIO.UI.Mobile
 {
 public static class SafeAreaHelper
 {
-public static bool HasScreenChanged(
-ref Rect lastSafeArea,
-ref Vector2Int lastScreenSize)
+public static bool HasScreenChanged(ref Rect lastSafeArea, ref Vector2Int lastScreenSize)
 {
 Rect current = Screen.safeArea;
 Vector2Int screenSize = new(Screen.width, Screen.height);

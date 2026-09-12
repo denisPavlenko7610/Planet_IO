@@ -25,7 +25,7 @@ namespace PlanetIO.UI.Menu
         {
             if (_inputField == null || _setRandomNicknameButton == null)
             {
-                LoggerIO.LogError($"{nameof(NicknameInputView)} is not configured.", this);
+                GameLogger.LogError($"{nameof(NicknameInputView)} is not configured.", this);
                 enabled = false;
                 return;
             }

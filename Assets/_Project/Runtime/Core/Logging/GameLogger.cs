@@ -2,32 +2,32 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-    public static class LoggerIO
+    public static class GameLogger
     {
         public static void Log(object message)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             Debug.Log(message);
 #endif
         }
 
         public static void Log(object message, Object context)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             Debug.Log(message, context);
 #endif
         }
 
         public static void LogWarning(object message)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             Debug.LogWarning(message);
 #endif
         }
 
         public static void LogWarning(object message, Object context)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             Debug.LogWarning(message, context);
 #endif
         }

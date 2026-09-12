@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityTemplates.SceneFlow;
 using VContainer.Unity;
 
-namespace PlanetIO.Infrastructure.Boot
+namespace PlanetIO.Infrastructure.Bootstrap
 {
     public sealed class ApplicationBootstrap : IStartable
     {
@@ -44,7 +44,7 @@ namespace PlanetIO.Infrastructure.Boot
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
             }
         }
     }

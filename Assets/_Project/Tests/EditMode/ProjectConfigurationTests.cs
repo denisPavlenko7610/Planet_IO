@@ -83,7 +83,7 @@ namespace PlanetIO.Tests
 
             string sceneYaml = File.ReadAllText(scenePath);
             StringAssert.Contains(
-                "TypeName: PlanetIO.Infrastructure.ApplicationLifetimeScope",
+                "TypeName: PlanetIO.Infrastructure.Bootstrap.ApplicationLifetimeScope",
                 sceneYaml,
                 scenePath);
         }

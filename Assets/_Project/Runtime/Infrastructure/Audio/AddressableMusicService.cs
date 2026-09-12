@@ -134,7 +134,7 @@ namespace PlanetIO.Infrastructure.Audio
 
                 if (handle.Status != AsyncOperationStatus.Succeeded || handle.Result == null)
                 {
-                    LoggerIO.LogWarning(
+                    GameLogger.LogWarning(
                         $"Failed to load music '{address}': " +
                         $"{handle.OperationException?.Message}");
                     return;
@@ -161,7 +161,7 @@ namespace PlanetIO.Infrastructure.Audio
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
             }
             finally
             {

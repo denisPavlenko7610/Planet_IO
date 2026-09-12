@@ -1,5 +1,4 @@
 using System;
-using PlanetIO.Utils;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -210,7 +209,7 @@ namespace PlanetIO
             int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, ContactFilter2D.noFilter, _nearbyColliders);
 
             Player nearestPlayer = null;
-            Point nearestFood = null;
+            Food nearestFood = null;
             Vector2 hazardPosition = default;
             Vector2 separationAccum = Vector2.zero;
             float playerDistanceSquared = float.PositiveInfinity;
@@ -256,7 +255,7 @@ namespace PlanetIO
                     continue;
                 }
 
-                if (candidate.TryGetComponent(out Point point))
+                if (candidate.TryGetComponent(out Food point))
                 {
                     if (distanceSquared < foodDistanceSquared)
                     {

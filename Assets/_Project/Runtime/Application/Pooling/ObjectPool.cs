@@ -6,7 +6,7 @@ using VContainer;
 using VContainer.Unity;
 using Random = UnityEngine.Random;
 
-namespace PlanetIO.ObjectPool
+namespace PlanetIO.Pooling
 {
     public abstract class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
     {

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using PlanetIO.Utils;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer.Unity;
@@ -213,7 +212,7 @@ namespace PlanetIO.UI.Hud
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
                 _leaveInProgress = false;
                 _sessionHudView.SetLeaveButtonInteractable(true);
             }

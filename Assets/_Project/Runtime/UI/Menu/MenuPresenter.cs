@@ -109,7 +109,7 @@ namespace PlanetIO.UI.Menu
                 }
 
                 RestoreInteraction();
-                LoggerIO.LogError($"{failureMessage}: {_networkSessionService.Status}");
+                GameLogger.LogError($"{failureMessage}: {_networkSessionService.Status}");
             }
             catch (OperationCanceledException)
             {
@@ -117,7 +117,7 @@ namespace PlanetIO.UI.Menu
             catch (Exception exception)
             {
                 RestoreInteraction();
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
             }
         }
 

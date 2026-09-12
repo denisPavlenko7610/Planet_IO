@@ -2,16 +2,16 @@
 using PlanetIO.Core.Attributes;
 using PlanetIO.Core.Contracts.Loading;
 using PlanetIO.Application;
-using PlanetIO.ObjectPool;
+using PlanetIO.Pooling;
 using PlanetIO.UI.Hud;
-using PlanetIO.Camera;
+using PlanetIO.UI.Camera;
 using PlanetIO.UI.Loading;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace PlanetIO.Infrastructure.DependencyInjection
+namespace PlanetIO.Infrastructure.Bootstrap
 {
     public sealed class GameLifetimeScope : LifetimeScope
     {
@@ -19,7 +19,7 @@ namespace PlanetIO.Infrastructure.DependencyInjection
 
         [Header("Pools")]
         [SerializeField, Assign(AssignMode.Scene)]
-        private ObjectPool<Point> _pointsPool;
+        private ObjectPool<Food> _foodsPool;
 
         [SerializeField, Assign(AssignMode.Scene)]
         private ObjectPool<Enemy> _enemyPool;
@@ -29,7 +29,7 @@ namespace PlanetIO.Infrastructure.DependencyInjection
 
         [Header("Spawner services")]
         [SerializeField, Assign(AssignMode.Scene)]
-        private PointSpawner _pointSpawner;
+        private FoodSpawner _foodSpawner;
 
         [SerializeField, Assign(AssignMode.Scene)]
         private CometSpawner _cometSpawner;
@@ -61,14 +61,14 @@ namespace PlanetIO.Infrastructure.DependencyInjection
 
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponent(_pointsPool).As<ObjectPool<Point>>();
+            builder.RegisterComponent(_foodsPool).As<ObjectPool<Food>>();
             builder.RegisterComponent(_cometsPool).As<ObjectPool<Comet>>();
             builder.RegisterComponent(_enemyPool).As<ObjectPool<Enemy>>();
 
-            builder.RegisterComponent(_pointSpawner)
+            builder.RegisterComponent(_foodSpawner)
                 .AsSelf()
-                .As<IRespawnService<Point>>()
-                .As<ISpawnService<Point>>();
+                .As<IRespawnService<Food>>()
+                .As<ISpawnService<Food>>();
 
             builder.RegisterComponent(_cometSpawner)
                 .AsSelf()
@@ -88,7 +88,7 @@ namespace PlanetIO.Infrastructure.DependencyInjection
 
             builder.RegisterComponentInHierarchy<BordersTrigger>();
 
-            builder.RegisterComponentInHierarchy<AccelerationButton>()
+            builder.RegisterComponentInHierarchy<BoostButton>()
                 .As<IBoostInput>();
 
             builder.RegisterComponentInHierarchy<NetworkWorldReadyState>();

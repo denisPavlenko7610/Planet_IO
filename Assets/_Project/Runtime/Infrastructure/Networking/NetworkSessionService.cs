@@ -123,7 +123,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
                 await AbortStartAsync($"Failed to create room: {exception.Message}");
                 return false;
             }
@@ -213,7 +213,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (Exception exception)
             {
-                LoggerIO.LogException(exception);
+                GameLogger.LogException(exception);
                 await AbortStartAsync($"Connection error: {exception.Message}");
                 return false;
             }

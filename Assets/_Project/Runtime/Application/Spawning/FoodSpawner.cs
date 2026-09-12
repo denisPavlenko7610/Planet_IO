@@ -3,21 +3,21 @@ using System;
 
 namespace PlanetIO
 {
-    public sealed class PointSpawner : Spawner<Point>, IRespawnService<Point>, ISpawnService<Point>
+    public sealed class FoodSpawner : Spawner<Food>, IRespawnService<Food>, ISpawnService<Food>
 	{
 		[SerializeField, Min(0.1f)]
 		private float _droppedPointLifetime = 10f;
 
 		public void SpawnAt(Transform spawnTransform)
 		{
-			Point point = CreateObject(spawnTransform);
+			Food point = CreateObject(spawnTransform);
 
 			int lifecycleVersion = point.MarkAsDropped();
 
 			_ = ReleaseAfterLifetimeAsync(point, lifecycleVersion);
 		}
 
-		public void Respawn(Point point)
+		public void Respawn(Food point)
 		{
 			if (point == null)
 			{
@@ -34,13 +34,13 @@ namespace PlanetIO
 			point.ResetClaim();
 		}
 
-		private void ReturnDroppedPoint(Point point)
+		private void ReturnDroppedPoint(Food point)
 		{
 			point.MarkAsStored();
 			ReleaseObject(point);
 		}
 
-		private async Awaitable ReleaseAfterLifetimeAsync(Point point, int lifecycleVersion)
+		private async Awaitable ReleaseAfterLifetimeAsync(Food point, int lifecycleVersion)
 		{
 			try
 			{
@@ -57,7 +57,7 @@ namespace PlanetIO
 			}
 			catch (OperationCanceledException)
 			{
-				LoggerIO.Log("Dropped point lifetime cancelled.");
+				GameLogger.Log("Dropped point lifetime cancelled.");
 			}
 		}
     }

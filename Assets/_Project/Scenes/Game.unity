@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 25410596}
   - component: {fileID: 25410597}
   m_Layer: 5
-  m_Name: 'Joystick '
+  m_Name: Joystick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -351,13 +351,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentReference:
-    TypeName: PlanetIO.Infrastructure.ApplicationLifetimeScope
+    TypeName: PlanetIO.Infrastructure.Bootstrap.ApplicationLifetimeScope
   autoRun: 1
   autoInjectGameObjects: []
-  _pointsPool: {fileID: 1158107521}
+  _foodsPool: {fileID: 0}
   _enemyPool: {fileID: 549707339}
   _cometsPool: {fileID: 470327858}
-  _pointSpawner: {fileID: 1158107520}
+  _foodSpawner: {fileID: 0}
   _cometSpawner: {fileID: 470327857}
   _enemySpawner: {fileID: 549707340}
   _playerPrefab: {fileID: 6319454034253849638, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
@@ -390,7 +390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 186097636}
   m_Layer: 0
-  m_Name: --------Cameras---------
+  m_Name: --- Cameras ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -471,7 +471,7 @@ GameObject:
   m_Component:
   - component: {fileID: 415794971}
   m_Layer: 0
-  m_Name: --------Background--------
+  m_Name: --- Background ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -687,7 +687,7 @@ GameObject:
   - component: {fileID: 470327857}
   - component: {fileID: 470327858}
   m_Layer: 0
-  m_Name: CometsSpawner
+  m_Name: CometSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -750,7 +750,7 @@ GameObject:
   m_Component:
   - component: {fileID: 504850297}
   m_Layer: 0
-  m_Name: ---------Spawners------------
+  m_Name: --- Spawners ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1010,7 +1010,7 @@ GameObject:
   - component: {fileID: 566410509}
   - component: {fileID: 566410510}
   m_Layer: 5
-  m_Name: AccelerationButton
+  m_Name: BoostButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1152,7 +1152,7 @@ GameObject:
   m_Component:
   - component: {fileID: 715272878}
   m_Layer: 0
-  m_Name: ------------UI-------------
+  m_Name: --- UI ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1665,7 +1665,7 @@ GameObject:
   - component: {fileID: 1158107520}
   - component: {fileID: 1158107521}
   m_Layer: 0
-  m_Name: PointsSpawner
+  m_Name: FoodSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -1806,7 +1806,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1664946614}
   m_Layer: 0
-  m_Name: ---------Borders------------
+  m_Name: --- Borders ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1884,7 +1884,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1691944480}
   m_Layer: 0
-  m_Name: ---------Game------------
+  m_Name: --- Game ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2079,7 +2079,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2106409112}
   m_Layer: 0
-  m_Name: ---------Core-------------
+  m_Name: --- Core ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

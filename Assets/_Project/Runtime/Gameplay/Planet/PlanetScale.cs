@@ -78,7 +78,7 @@ namespace PlanetIO
         protected abstract float FoodGrowthMultiplier { get; }
         protected abstract float CometDamageMultiplier { get; }
         protected abstract string GetFallbackDisplayName();
-        protected IRespawnService<Point> PointRespawnService { get; set; }
+        protected IRespawnService<Food> FoodRespawnService { get; set; }
         protected IRespawnService<Comet> CometRespawnService { get; set; }
 
         protected void SetDisplayName(string value)
@@ -118,7 +118,7 @@ namespace PlanetIO
                 return;
             }
 
-            if (other.TryGetComponent(out Point point))
+            if (other.TryGetComponent(out Food point))
             {
                 if (!point.TryClaim())
                 {
@@ -126,7 +126,7 @@ namespace PlanetIO
                 }
 
                 Grow(point.Capacity * FoodGrowthMultiplier);
-                PointRespawnService?.Respawn(point);
+                FoodRespawnService?.Respawn(point);
             }
             else if (other.TryGetComponent(out Comet comet))
             {

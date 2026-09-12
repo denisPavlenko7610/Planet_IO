@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using VContainer.Unity;
 
-namespace PlanetIO.Infrastructure.DependencyInjection
+namespace PlanetIO.Infrastructure.Bootstrap
 {
     public sealed class NetworkObjectDependencyInjector : NetworkBehaviour
     {

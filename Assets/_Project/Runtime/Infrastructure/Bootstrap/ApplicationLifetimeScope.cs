@@ -1,7 +1,7 @@
 using System;
 using PlanetIO.Core.Attributes;
 using PlanetIO.Application;
-using PlanetIO.Infrastructure.Boot;
+using PlanetIO.Infrastructure.Bootstrap;
 using PlanetIO.Infrastructure.Audio;
 using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
@@ -12,7 +12,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace PlanetIO.Infrastructure
+namespace PlanetIO.Infrastructure.Bootstrap
 {
     [DefaultExecutionOrder(-6000)]
     [DisallowMultipleComponent]

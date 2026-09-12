@@ -2,7 +2,7 @@ using Unity.Netcode;
 
 namespace PlanetIO
 {
-    public sealed class Point : NetworkBehaviour, ICapacity
+    public sealed class Food : NetworkBehaviour, ICapacity
     {
         public float Capacity { get; set; }
         public bool IsDropped { get; private set; }
