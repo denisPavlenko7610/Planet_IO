@@ -17,6 +17,7 @@ namespace PlanetIO.UI.Hud
         private readonly INetworkSessionService _networkSessionService;
         private readonly ISessionHudView _sessionHudView;
         private readonly ILocalPlayerProvider _localPlayerProvider;
+        private readonly IRewardedAdsService _rewardedAdsService;
         private readonly List<(string Name, int Score)> _entries = new();
         private readonly StringBuilder _leaderboardBuilder = new();
         private Player _localPlayer;
@@ -24,6 +25,7 @@ namespace PlanetIO.UI.Hud
         private float _lastCapacity;
         private bool _leaveInProgress;
         private bool _restartInProgress;
+        private bool _continueInProgress;
         private bool _isDefeated;
         private bool _hintShown;
         private AudioClip _eatClip;
@@ -35,12 +37,14 @@ namespace PlanetIO.UI.Hud
             NetworkManager networkManager,
             INetworkSessionService networkSessionService,
             ISessionHudView sessionHudView,
-            ILocalPlayerProvider localPlayerProvider)
+            ILocalPlayerProvider localPlayerProvider,
+            IRewardedAdsService rewardedAdsService)
         {
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
             _sessionHudView = sessionHudView ?? throw new ArgumentNullException(nameof(sessionHudView));
             _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
+            _rewardedAdsService = rewardedAdsService ?? throw new ArgumentNullException(nameof(rewardedAdsService));
         }
 
         public void Start()
@@ -52,6 +56,7 @@ namespace PlanetIO.UI.Hud
 
             _sessionHudView.LeaveRequested += OnLeaveRequested;
             _sessionHudView.PlayAgainRequested += OnPlayAgainRequested;
+            _sessionHudView.ContinueRequested += OnContinueRequested;
             _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
             BindPlayer(_localPlayerProvider.LocalPlayer);
             Refresh();
@@ -79,6 +84,7 @@ namespace PlanetIO.UI.Hud
         {
             _sessionHudView.LeaveRequested -= OnLeaveRequested;
             _sessionHudView.PlayAgainRequested -= OnPlayAgainRequested;
+            _sessionHudView.ContinueRequested -= OnContinueRequested;
             _localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
             BindPlayer(null);
         }
@@ -240,6 +246,7 @@ namespace PlanetIO.UI.Hud
             bool canPlayAgain =
                 _networkSessionService.Mode == NetworkSessionMode.SinglePlayer;
             _sessionHudView.ShowDefeat(finalScore, bestScore, canPlayAgain);
+            _sessionHudView.SetContinueVisible(_rewardedAdsService.CanShowAd);
             _sessionHudView.SetLeaveButtonInteractable(true);
         }
 
@@ -293,6 +300,30 @@ namespace PlanetIO.UI.Hud
             _ = RestartSinglePlayerAsync();
         }
 
+        private void OnContinueRequested()
+        {
+            if (_continueInProgress || _localPlayer == null)
+            {
+                return;
+            }
+
+            _continueInProgress = true;
+            _rewardedAdsService.Show(granted =>
+            {
+                _continueInProgress = false;
+                if (!granted || !_isDefeated || _localPlayer == null)
+                {
+                    return;
+                }
+
+                _isDefeated = false;
+                _lastCapacity = _localPlayer.Capacity;
+                _sessionHudView.SetContinueVisible(false);
+                _sessionHudView.SetPlayAgainVisible(false);
+                _localPlayer.ContinueRpc();
+            });
+        }
+
         private async Awaitable RestartSinglePlayerAsync()
         {
             try
@@ -319,6 +350,7 @@ namespace PlanetIO.UI.Hud
             _leaveInProgress = true;
             _sessionHudView.SetLeaveButtonInteractable(false);
             _sessionHudView.SetPlayAgainVisible(false);
+            _sessionHudView.SetContinueVisible(false);
 
             try
             {

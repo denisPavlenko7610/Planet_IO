@@ -64,6 +64,11 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
+            if (!_canvasRectTransform.gameObject.activeSelf)
+            {
+                _canvasRectTransform.gameObject.SetActive(true);
+            }
+
             Transform entityTransform = transform;
             float parentScale = entityTransform.lossyScale.x;
 

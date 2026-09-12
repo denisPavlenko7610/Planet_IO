@@ -27,6 +27,7 @@ namespace PlanetIO
         [Header("Spawn protection")]
         [FormerlySerializedAs("_respawnInvincibilityTime")]
         [SerializeField, Min(0f)] private float _spawnInvincibilityTime = 2f;
+        [SerializeField, Min(0f)] private float _continueProtectionTime = 5f;
 		[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
 
         [Header("Food magnet")]
@@ -64,6 +65,7 @@ namespace PlanetIO
         private bool _servicesReady;
         private bool _borderEventSubscribed;
         private bool _serverBoosting;
+        private bool _continueUsedThisLife;
         private float _boostTimer;
         private float _invincibilityTimeRemaining;
         private PlayerVisualEffects _visualEffects;
@@ -248,6 +250,7 @@ namespace PlanetIO
                 _invincibilityTimeRemaining = _spawnInvincibilityTime;
                 SetServerBoosting(false);
                 _networkSpawnProtected.Value = true;
+                _continueUsedThisLife = false;
                 _boostTimer = 0f;
             }
 
@@ -441,35 +444,62 @@ namespace PlanetIO
 
         private void OnDefeatedChanged(bool _, bool isDefeated)
         {
-            if (!isDefeated)
+            SetBodyActive(!isDefeated);
+
+            if (isDefeated)
             {
+                if (_rigidbody2D != null)
+                {
+                    _rigidbody2D.linearVelocity = Vector2.zero;
+                }
+
+                if (IsOwner)
+                {
+                    Defeated?.Invoke();
+                }
+
                 return;
             }
 
-            if (_rigidbody2D != null)
-            {
-                _rigidbody2D.linearVelocity = Vector2.zero;
-            }
-
-            SetDefeatedVisuals();
-
             if (IsOwner)
             {
-                Defeated?.Invoke();
+                transform.position = Constants.RandomWorldPosition();
+                if (_rigidbody2D != null)
+                {
+                    _rigidbody2D.linearVelocity = Vector2.zero;
+                }
             }
         }
 
-        private void SetDefeatedVisuals()
+        private void SetBodyActive(bool active)
         {
             if (TryGetComponent(out Collider2D bodyCollider))
             {
-                bodyCollider.enabled = false;
+                bodyCollider.enabled = active;
             }
 
             foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>(true))
             {
-                renderer.enabled = false;
+                renderer.enabled = active;
             }
+        }
+
+        [Rpc(SendTo.Server)]
+        public void ContinueRpc()
+        {
+            if (!IsServer ||
+                !IsDefeated ||
+                _continueUsedThisLife ||
+                !_servicesReady)
+            {
+                return;
+            }
+
+            _continueUsedThisLife = true;
+            SetServerBoosting(false);
+            _boostTimer = 0f;
+            _invincibilityTimeRemaining = _continueProtectionTime;
+            _networkDefeated.Value = false;
         }
 
     }

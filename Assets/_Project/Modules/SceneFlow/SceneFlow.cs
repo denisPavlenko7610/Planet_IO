@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -216,8 +217,28 @@ namespace UnityTemplates.SceneFlow
 
 			if (setActive)
 			{
-				SetActiveScene(loadedScene);
+				await SetActiveSceneWhenReady(loadedScene);
 			}
+		}
+
+		private static async Awaitable SetActiveSceneWhenReady(Scene scene)
+		{
+			if (SceneManager.GetActiveScene() == scene)
+			{
+				return;
+			}
+
+			for (int attempt = 0; attempt < 5; attempt++)
+			{
+				if (SceneManager.SetActiveScene(scene))
+				{
+					return;
+				}
+
+				await Awaitable.NextFrameAsync();
+			}
+
+			SetActiveScene(scene);
 		}
 
 		private async Awaitable TrackSceneLoadProgressAsync(AsyncOperation operation)
@@ -269,7 +290,15 @@ namespace UnityTemplates.SceneFlow
 		{
 			if (!SceneManager.SetActiveScene(scene))
 			{
-				throw new InvalidOperationException($"Failed to set scene '{scene.path}' as active.");
+				string loadedScenes = string.Join("; ", Enumerable
+					.Range(0, UnityEngine.SceneManagement.SceneManager.sceneCount)
+					.Select(i => UnityEngine.SceneManagement.SceneManager.GetSceneAt(i))
+					.Select(s => $"{s.path} loaded={s.isLoaded} handle={s.handle}"));
+
+				throw new InvalidOperationException(
+					$"Failed to set scene '{scene.path}' as active. " +
+					$"target: valid={scene.IsValid()} loaded={scene.isLoaded} handle={scene.handle}. " +
+					$"scenes: {loadedScenes}.");
 			}
 		}
 

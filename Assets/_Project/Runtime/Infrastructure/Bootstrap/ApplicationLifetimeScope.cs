@@ -1,6 +1,7 @@
 using System;
 using PlanetIO.Core.Attributes;
 using PlanetIO.Application;
+using PlanetIO.Infrastructure.Ads;
 using PlanetIO.Infrastructure.Bootstrap;
 using PlanetIO.Infrastructure.Audio;
 using PlanetIO.Infrastructure.Networking;
@@ -58,6 +59,7 @@ namespace PlanetIO.Infrastructure.Bootstrap
             builder.Register<PlayerProfileService>(Lifetime.Singleton).As<IPlayerProfileService>();
             builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
             builder.Register<AddressableContentService>(Lifetime.Singleton).As<IContentInitializationService>();
+            builder.Register<AdMobRewardedService>(Lifetime.Singleton).As<IRewardedAdsService>();
             builder.RegisterEntryPoint<AddressableMusicService>();
 			builder.RegisterEntryPoint<NetworkSessionService>()
                 .AsSelf()

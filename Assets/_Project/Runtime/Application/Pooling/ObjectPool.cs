@@ -85,8 +85,7 @@ namespace PlanetIO.Pooling
                     $"{GetType().Name} contains a missing prefab reference.");
             }
 
-            T pooledObject = _objectResolver.Instantiate(prefab);
-            pooledObject.transform.SetParent(transform, false);
+            T pooledObject = _objectResolver.Instantiate(prefab, transform);
             pooledObject.gameObject.SetActive(false);
             return pooledObject;
         }

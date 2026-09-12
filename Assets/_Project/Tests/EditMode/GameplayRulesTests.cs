@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using PlanetIO;
 using PlanetIO.Application;
+using PlanetIO.Infrastructure.Ads;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -273,6 +274,25 @@ namespace PlanetIO.Tests
             {
                 Object.DestroyImmediate(state.gameObject);
             }
+        }
+
+        [Test]
+        public void RewardedAdsService_CanShowInEditor()
+        {
+            var service = new AdMobRewardedService();
+
+            Assert.That(service.CanShowAd, Is.True);
+        }
+
+        [Test]
+        public void RewardedAdsService_ShowGrantsRewardInEditor()
+        {
+            var service = new AdMobRewardedService();
+            bool granted = false;
+
+            service.Show(result => granted = result);
+
+            Assert.That(granted, Is.True);
         }
     }
 }

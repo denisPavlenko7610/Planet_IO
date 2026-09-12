@@ -9,12 +9,14 @@ namespace PlanetIO.UI.Hud
     {
         event Action LeaveRequested;
         event Action PlayAgainRequested;
+        event Action ContinueRequested;
 
         void ShowSessionText(string text);
         void ShowLeaderboardText(string text);
         void ShowDefeat(int finalScore, int bestScore, bool canPlayAgain);
         void SetLeaveButtonInteractable(bool interactable);
         void SetPlayAgainVisible(bool visible);
+        void SetContinueVisible(bool visible);
         void ShowKillFeed(string message);
         void ShowScorePopup(Vector2 screenPosition, int score);
         void ShowHint(string message);
@@ -34,12 +36,14 @@ namespace PlanetIO.UI.Hud
 
         public event Action LeaveRequested;
         public event Action PlayAgainRequested;
+        public event Action ContinueRequested;
 
         public bool IsDefeatVisible =>
             _sessionText != null &&
             _sessionText.text == DefeatTitle;
 
         private Button _playAgainButton;
+        private Button _continueButton;
         private TMP_Text _killFeedText;
         private TMP_Text _scorePopupText;
         private TMP_Text _hintText;
@@ -49,7 +53,7 @@ namespace PlanetIO.UI.Hud
 
         private void Awake()
         {
-            CreatePlayAgainButton();
+            CreateDefeatButtons();
             CreateKillFeedText();
             CreateScorePopupText();
             CreateHintText();
@@ -62,6 +66,11 @@ namespace PlanetIO.UI.Hud
             {
                 _playAgainButton.onClick.AddListener(OnPlayAgainClicked);
             }
+
+            if (_continueButton != null)
+            {
+                _continueButton.onClick.AddListener(OnContinueClicked);
+            }
         }
 
         private void OnDisable()
@@ -70,6 +79,11 @@ namespace PlanetIO.UI.Hud
             if (_playAgainButton != null)
             {
                 _playAgainButton.onClick.RemoveListener(OnPlayAgainClicked);
+            }
+
+            if (_continueButton != null)
+            {
+                _continueButton.onClick.RemoveListener(OnContinueClicked);
             }
         }
 
@@ -142,6 +156,14 @@ namespace PlanetIO.UI.Hud
             }
         }
 
+        public void SetContinueVisible(bool visible)
+        {
+            if (_continueButton != null)
+            {
+                _continueButton.gameObject.SetActive(visible);
+            }
+        }
+
         public void ShowKillFeed(string message)
         {
             if (_killFeedText == null)
@@ -185,31 +207,39 @@ namespace PlanetIO.UI.Hud
             _hintTimeRemaining = HintFadeSeconds;
         }
 
-        private void CreatePlayAgainButton()
+        private void CreateDefeatButtons()
         {
             if (_leaveButton == null)
             {
                 return;
             }
 
+            _playAgainButton = CreateDefeatButton("PlayAgainButton", "PLAY AGAIN", 1);
+            _continueButton = CreateDefeatButton("ContinueButton", "WATCH AD", 2);
+            _continueButton.gameObject.SetActive(false);
+        }
+
+        private Button CreateDefeatButton(string buttonName, string buttonText, int slotIndex)
+        {
             GameObject buttonObject = Instantiate(_leaveButton.gameObject, _leaveButton.transform.parent);
-            buttonObject.name = "PlayAgainButton";
-            _playAgainButton = buttonObject.GetComponent<Button>();
+            buttonObject.name = buttonName;
+            Button button = buttonObject.GetComponent<Button>();
 
             RectTransform leaveRect = _leaveButton.GetComponent<RectTransform>();
             RectTransform rect = buttonObject.GetComponent<RectTransform>();
             if (leaveRect.parent.GetComponent<LayoutGroup>() == null)
             {
-                rect.anchoredPosition = leaveRect.anchoredPosition + new Vector2(0f, -leaveRect.rect.height - 12f);
+                rect.anchoredPosition =
+                    leaveRect.anchoredPosition + new Vector2(0f, -slotIndex * (leaveRect.rect.height + 12f));
             }
 
-            TMP_Text label = buttonObject.GetComponentInChildren<TMP_Text>(true);
-            if (label != null)
+            TMP_Text buttonTextElement = buttonObject.GetComponentInChildren<TMP_Text>(true);
+            if (buttonTextElement != null)
             {
-                label.text = "PLAY AGAIN";
+                buttonTextElement.text = buttonText;
             }
 
-            buttonObject.SetActive(false);
+            return button;
         }
 
         private void CreateKillFeedText()
@@ -300,6 +330,11 @@ namespace PlanetIO.UI.Hud
         private void OnPlayAgainClicked()
         {
             PlayAgainRequested?.Invoke();
+        }
+
+        private void OnContinueClicked()
+        {
+            ContinueRequested?.Invoke();
         }
     }
 }

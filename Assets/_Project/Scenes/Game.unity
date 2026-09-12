@@ -363,7 +363,7 @@ MonoBehaviour:
   _playerPrefab: {fileID: 6319454034253849638, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}
   _spawnBlockingLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2816
   _sessionHudView: {fileID: 885859680}
 --- !u!4 &123435268
 Transform:
@@ -1703,6 +1703,8 @@ MonoBehaviour:
   _horizontalSpawnRange: {x: -210, y: 210}
   _verticalSpawnRange: {x: -125, y: 150}
   _droppedPointLifetime: 10
+  _lootLifetime: 20
+  _goldenChance: 0.04
 --- !u!114 &1158107521
 MonoBehaviour:
   m_ObjectHideFlags: 0

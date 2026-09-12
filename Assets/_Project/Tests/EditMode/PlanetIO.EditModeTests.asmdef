@@ -2,9 +2,10 @@
   "name": "PlanetIO.EditModeTests",
   "rootNamespace": "PlanetIO.Tests",
   "references": [
+    "PlanetIO.Application",
     "PlanetIO.Core",
     "PlanetIO.Gameplay",
-    "PlanetIO.Application",
+    "PlanetIO.Infrastructure",
     "Unity.Addressables.Editor",
     "Unity.Netcode.Runtime"
   ],

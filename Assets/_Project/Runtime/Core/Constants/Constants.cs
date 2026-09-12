@@ -20,6 +20,13 @@ namespace PlanetIO
             return position;
         }
 
+        public static Vector2 RandomWorldPosition(float margin = 5f)
+        {
+            return new Vector2(
+                Random.Range(WorldBounds.xMin + margin, WorldBounds.xMax - margin),
+                Random.Range(WorldBounds.yMin + margin, WorldBounds.yMax - margin));
+        }
+
         public static Quaternion DirectionToRotation(Vector2 direction)
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;

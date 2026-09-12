@@ -9,17 +9,22 @@ namespace PlanetIO.Infrastructure.Bootstrap
     {
         private readonly IContentInitializationService _contentInitializationService;
         private readonly ISceneFlow _sceneFlow;
+        private readonly IRewardedAdsService _rewardedAdsService;
 
         public ApplicationBootstrap(
             IContentInitializationService contentInitializationService,
-            ISceneFlow sceneFlow)
+            ISceneFlow sceneFlow,
+            IRewardedAdsService rewardedAdsService)
         {
             _contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
             _sceneFlow = sceneFlow ?? throw new ArgumentNullException(nameof(sceneFlow));
+            _rewardedAdsService = rewardedAdsService ?? throw new ArgumentNullException(nameof(rewardedAdsService));
         }
 
         public void Start()
         {
+            _rewardedAdsService.Initialize();
+
             if (_sceneFlow.IsLoaded(SceneIds.Boot))
             {
                 _ = LoadMenuAsync();
@@ -33,6 +38,7 @@ namespace PlanetIO.Infrastructure.Bootstrap
                 await _contentInitializationService.InitializeAsync();
                 if (!_contentInitializationService.IsReady)
                 {
+                    GameLogger.LogError("Content initialization failed. Menu will not load.");
                     return;
                 }
 
