@@ -29,6 +29,7 @@ namespace PlanetIO
 
         protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
         protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
+        protected override string GetFallbackDisplayName() => $"Bot {NetworkObjectId % 100:00}";
 
         [Inject]
         public void Construct(
@@ -54,6 +55,12 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
+            if (IsServer)
+            {
+                SetDisplayName($"Bot {NetworkObjectId % 100:00}");
+            }
+
             SetDeterministicSprite();
         }
 

@@ -142,6 +142,7 @@ GameObject:
   - component: {fileID: -5148852992218740070}
   - component: {fileID: -8062910053270479930}
   - component: {fileID: 7112992876354291134}
+  - component: {fileID: 8188025366137381373}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -303,6 +304,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1859849639
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -328,14 +330,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _minimumCapacity: 0.08
-  _maximumCapacity: 2
+  _minCapacity: 0.08
+  _maxCapacity: 2
   _playerFoodGrowthMultiplier: 0.015
   _playerCometDamageMultiplier: 0.02
   _boostMassCost: 0.004
+  _boostMassConsumptionInterval: 0.15
   _borderMassLoss: 0.08
-  _eatEnemySizeRatio: 1.08
+  _eatSizeRatio: 1.08
   _pointSpawnTransform: {fileID: 82095068}
+  _spawnInvincibilityTime: 2
+  _initialCapacity: 0.1
 --- !u!114 &8517843457492819222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,7 +356,6 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _player: {fileID: 8517843457492819226}
   _rigidbody2D: {fileID: 8517843457492819217}
-  _boostMassConsumptionInterval: 0.15
   _massSpeedPenalty: 0.35
   _minimumSpeedMultiplier: 0.55
   _turnSpeed: 540
@@ -447,3 +451,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &8188025366137381373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db96233bc839a5642a623193c56dc074, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PlanetIO.UI::PlanetIO.UI.Hud.EntityNameplate
+  _edgePadding: 0.35
+  _textColor: {r: 1, g: 1, b: 1, a: 0.92}
+  _outlineColor: {r: 0, g: 0, b: 0, a: 0.85}

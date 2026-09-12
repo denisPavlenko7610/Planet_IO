@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -36,6 +37,7 @@ namespace PlanetIO
 		private IRespawnService<Enemy> _enemyRespawnService;
         private ISpawnService<Point> _pointSpawnService;
         private IGameStateService _gameStateService;
+        private IPlayerProfileService _playerProfileService;
 
         private bool _servicesReady;
         private bool _borderEventSubscribed;
@@ -50,6 +52,8 @@ namespace PlanetIO
 
         protected override float FoodGrowthMultiplier => _playerFoodGrowthMultiplier;
         protected override float CometDamageMultiplier => _playerCometDamageMultiplier;
+        protected override string GetFallbackDisplayName() =>
+            IsSpawned ? $"Player {OwnerClientId}" : NicknameRules.DefaultNickname;
 
         [Inject]
         public void Construct(
@@ -58,6 +62,7 @@ namespace PlanetIO
             IRespawnService<Enemy> enemyRespawnService,
             ISpawnService<Point> pointSpawnService,
             IGameStateService gameStateService,
+            IPlayerProfileService playerProfileService,
             BordersTrigger bordersTrigger)
         {
             CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
@@ -65,6 +70,7 @@ namespace PlanetIO
             _enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
             _pointSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
+            _playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
             SetBordersTrigger(bordersTrigger ?? throw new ArgumentNullException(nameof(bordersTrigger)));
             _servicesReady = true;
         }
@@ -205,10 +211,21 @@ namespace PlanetIO
                 _boostTimer = 0f;
             }
 
+            if (IsOwner && _playerProfileService != null)
+            {
+                SubmitNicknameRpc(_playerProfileService.Nickname);
+            }
+
             if (_networkDefeated.Value)
             {
                 OnDefeatedChanged(false, true);
             }
+        }
+
+        [Rpc(SendTo.Server)]
+        private void SubmitNicknameRpc(FixedString64Bytes nickname)
+        {
+            SetDisplayName(nickname.ToString());
         }
 
         public override void OnNetworkDespawn()

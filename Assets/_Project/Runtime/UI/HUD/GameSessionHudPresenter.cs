@@ -171,7 +171,7 @@ namespace PlanetIO.UI.Hud
                     if (!player.IsDefeated)
                     {
                         _entries.Add((
-                            $"Player {networkObject.OwnerClientId}",
+                            player.DisplayName,
                             Constants.CapacityToScore(player.Capacity)));
                     }
 
@@ -181,7 +181,7 @@ namespace PlanetIO.UI.Hud
                 if (networkObject.TryGetComponent(out Enemy enemy))
                 {
                     _entries.Add((
-                        $"Bot {networkObject.NetworkObjectId % 100:00}",
+                        enemy.DisplayName,
                         Constants.CapacityToScore(enemy.Capacity)));
                 }
             }

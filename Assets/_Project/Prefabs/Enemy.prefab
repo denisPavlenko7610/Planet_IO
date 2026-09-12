@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 1262657238371077527}
   - component: {fileID: -5667558191824504225}
   - component: {fileID: 7074555816000791592}
+  - component: {fileID: 6426490367474428385}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -175,8 +176,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3925560340
+  GlobalObjectIdHash: 1807551579
   InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -202,13 +204,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _minimumCapacity: 0.08
-  _maximumCapacity: 2
+  _minCapacity: 0.08
+  _maxCapacity: 2
   _enemyConfig: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
   _spriteRenderer: {fileID: 163752541173436847}
   _enemyFoodGrowthMultiplier: 0.01
   _enemyCometDamageMultiplier: 0.02
   _eatSizeRatio: 1.08
+  _initialCapacity: 0.1
 --- !u!114 &2383583056927174933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,3 +318,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyMovement: {fileID: 2383583056927174933}
+--- !u!114 &6426490367474428385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2383583056927174931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db96233bc839a5642a623193c56dc074, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PlanetIO.UI::PlanetIO.UI.Hud.EntityNameplate
+  _edgePadding: 0.35
+  _textColor: {r: 1, g: 1, b: 1, a: 0.92}
+  _outlineColor: {r: 0, g: 0, b: 0, a: 0.85}

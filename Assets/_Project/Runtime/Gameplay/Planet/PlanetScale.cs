@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -9,6 +10,7 @@ namespace PlanetIO
     {
         private const float MinAllowedCapacity = 0.01f;
         private const float ScaleDepth = 1f;
+        private const int DisplayNameMaximumLength = 32;
 
         [Header("Capacity")]
         [FormerlySerializedAs("_minimumCapacity")]
@@ -18,6 +20,11 @@ namespace PlanetIO
 
         private readonly NetworkVariable<float> _networkCapacity = new(
             0f,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        private readonly NetworkVariable<FixedString64Bytes> _networkDisplayName = new(
+            default,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
@@ -31,7 +38,13 @@ namespace PlanetIO
             set => TrySetCapacity(value);
         }
 
+        public string DisplayName =>
+            _networkDisplayName.Value.Length > 0
+                ? _networkDisplayName.Value.ToString()
+                : GetFallbackDisplayName();
+
         public event Action<float> CapacityChanged;
+        public event Action<string> DisplayNameChanged;
 
         protected virtual void Awake()
         {
@@ -49,6 +62,7 @@ namespace PlanetIO
             }
 
             _networkCapacity.OnValueChanged += OnNetworkCapacityChanged;
+            _networkDisplayName.OnValueChanged += OnDisplayNameValueChanged;
             ApplyCapacity(_networkCapacity.Value, true);
         }
 
@@ -56,14 +70,32 @@ namespace PlanetIO
         {
             float lastCapacity = _networkCapacity.Value;
             _networkCapacity.OnValueChanged -= OnNetworkCapacityChanged;
+            _networkDisplayName.OnValueChanged -= OnDisplayNameValueChanged;
             _localCapacity = ClampCapacity(lastCapacity);
             base.OnNetworkDespawn();
         }
 
         protected abstract float FoodGrowthMultiplier { get; }
         protected abstract float CometDamageMultiplier { get; }
+        protected abstract string GetFallbackDisplayName();
         protected IRespawnService<Point> PointRespawnService { get; set; }
         protected IRespawnService<Comet> CometRespawnService { get; set; }
+
+        protected void SetDisplayName(string value)
+        {
+            if (!IsServer)
+            {
+                return;
+            }
+
+            string normalized = (value ?? string.Empty).Trim();
+            if (normalized.Length > DisplayNameMaximumLength)
+            {
+                normalized = normalized[..DisplayNameMaximumLength];
+            }
+
+            _networkDisplayName.Value = normalized;
+        }
 
         protected bool Grow(float amount)
         {
@@ -136,6 +168,11 @@ namespace PlanetIO
         private void OnNetworkCapacityChanged(float _, float current)
         {
             ApplyCapacity(current, true);
+        }
+
+        private void OnDisplayNameValueChanged(FixedString64Bytes _, FixedString64Bytes value)
+        {
+            DisplayNameChanged?.Invoke(value.ToString());
         }
 
         private void ApplyCapacity(float capacity, bool notify)
