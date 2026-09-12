@@ -2,10 +2,6 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-    /// <summary>
-    /// Local visual feedback on the player body: boost pulse with a looped whoosh
-    /// and blinking tint while spawn protection is active.
-    /// </summary>
     [RequireComponent(typeof(SpriteRenderer))]
     public sealed class PlayerVisualEffects : MonoBehaviour
     {
@@ -34,6 +30,15 @@ namespace PlanetIO
             _boostSource.playOnAwake = false;
             _boostSource.volume = _boostVolume;
             _boostSource.clip = GameAudio.Load("boost_loop");
+        }
+
+        public void SetBaseColor(Color color)
+        {
+            _baseColor = color;
+            if (!_boosting && !_protected)
+            {
+                RestoreColor();
+            }
         }
 
         public void SetBoosting(bool boosting)

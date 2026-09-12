@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-    /// <summary>
-    /// Fire-and-forget 2D sound playback with Resources-backed clip caching.
-    /// </summary>
     public static class GameAudio
     {
         private const string ClipsFolder = "SFX/";

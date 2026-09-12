@@ -50,6 +50,11 @@ namespace PlanetIO
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        private readonly NetworkVariable<Color32> _networkColor = new(
+            new Color32(255, 255, 255, 255),
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
 		private IRespawnService<Enemy> _enemyRespawnService;
         private ISpawnService<Food> _foodSpawnService;
         private IGameStateService _gameStateService;
@@ -252,6 +257,7 @@ namespace PlanetIO
             if (IsOwner && _playerProfileService != null)
             {
                 SubmitNicknameRpc(_playerProfileService.Nickname);
+                SetColorRpc(_playerProfileService.PreferredColor);
             }
 
             if (_networkDefeated.Value)
@@ -265,7 +271,19 @@ namespace PlanetIO
             _networkDefeated.OnValueChanged -= OnDefeatedChanged;
             _networkBoosting.OnValueChanged -= OnBoostingChanged;
             _networkSpawnProtected.OnValueChanged -= OnSpawnProtectionChanged;
+            _networkColor.OnValueChanged -= OnColorChanged;
             base.OnNetworkDespawn();
+        }
+
+        private void OnColorChanged(Color32 _, Color32 color)
+        {
+            _visualEffects?.SetBaseColor(color);
+        }
+
+        [Rpc(SendTo.Server)]
+        private void SetColorRpc(Color32 color)
+        {
+            _networkColor.Value = color;
         }
 
         private void OnBoostingChanged(bool _, bool boosting)

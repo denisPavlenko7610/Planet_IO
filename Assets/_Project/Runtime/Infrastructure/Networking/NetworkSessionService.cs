@@ -559,7 +559,6 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (OperationCanceledException)
             {
-                // Scene or application is closing while recovering from a disconnect.
             }
             finally
             {

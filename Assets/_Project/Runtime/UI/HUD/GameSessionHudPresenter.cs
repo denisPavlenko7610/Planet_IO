@@ -25,6 +25,7 @@ namespace PlanetIO.UI.Hud
         private bool _leaveInProgress;
         private bool _restartInProgress;
         private bool _isDefeated;
+        private bool _hintShown;
         private AudioClip _eatClip;
         private AudioClip _hitClip;
         private AudioClip _killClip;
@@ -174,6 +175,15 @@ namespace PlanetIO.UI.Hud
             _localPlayer.Killed += OnLocalPlayerKill;
             _localPlayer.CapacityChanged += OnLocalCapacityChanged;
             _lastCapacity = _localPlayer.Capacity;
+
+            if (!_hintShown)
+            {
+                _hintShown = true;
+                _sessionHudView.ShowHint(Application.isMobilePlatform
+                    ? "Drag to steer \u2022 Hold the button to boost"
+                    : "Steer with mouse or WASD \u2022 Hold the boost button");
+            }
+
             if (_localPlayer.IsDefeated)
             {
                 OnPlayerDefeated();
@@ -292,7 +302,6 @@ namespace PlanetIO.UI.Hud
             }
             catch (OperationCanceledException)
             {
-                // Scene or application is closing.
             }
             catch (Exception exception)
             {
@@ -318,7 +327,6 @@ namespace PlanetIO.UI.Hud
             }
             catch (OperationCanceledException)
             {
-                // Scene or application is closing.
             }
             catch (Exception exception)
             {

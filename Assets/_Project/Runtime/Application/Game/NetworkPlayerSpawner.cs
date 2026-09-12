@@ -84,7 +84,6 @@ namespace PlanetIO.Application
 
         private bool IsPositionBlocked(Vector2 candidate)
         {
-            // Zero mask keeps the legacy "any collider blocks" behaviour until layers are configured.
             return _spawnBlockingLayers.value == 0
                 ? Physics2D.OverlapCircle(candidate, SpawnClearance) != null
                 : Physics2D.OverlapCircle(candidate, SpawnClearance, _spawnBlockingLayers) != null;

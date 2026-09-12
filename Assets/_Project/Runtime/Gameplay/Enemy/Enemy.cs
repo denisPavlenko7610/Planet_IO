@@ -62,6 +62,15 @@ namespace PlanetIO
             }
 
             SetDeterministicSprite();
+            ApplyDeterministicTint();
+        }
+
+        private void ApplyDeterministicTint()
+        {
+            if (_spriteRenderer != null)
+            {
+                _spriteRenderer.color = PlayerPalette.GetColor((int)NetworkObjectId);
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D collider2D)

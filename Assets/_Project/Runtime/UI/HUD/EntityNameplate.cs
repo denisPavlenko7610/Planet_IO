@@ -3,10 +3,6 @@ using UnityEngine.UI;
 
 namespace PlanetIO.UI.Hud
 {
-    /// <summary>
-    /// World-space name label above an entity, slither.io style: constant world size,
-    /// never rotates or scales with the entity body, floats just above its edge.
-    /// </summary>
     [RequireComponent(typeof(PlanetScale))]
     public sealed class EntityNameplate : MonoBehaviour
     {
@@ -71,8 +67,6 @@ namespace PlanetIO.UI.Hud
             Transform entityTransform = transform;
             float parentScale = entityTransform.lossyScale.x;
 
-            // World-space placement: the canvas is a child of a rotating/scaling body,
-            // so position, rotation and scale are re-asserted every frame.
             _canvasRectTransform.position =
                 entityTransform.position + Vector3.up * (_entity.Capacity + _edgePadding);
             _canvasRectTransform.rotation = Quaternion.identity;

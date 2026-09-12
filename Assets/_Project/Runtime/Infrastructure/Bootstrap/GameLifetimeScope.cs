@@ -111,6 +111,7 @@ namespace PlanetIO.Infrastructure.Bootstrap
             builder.RegisterEntryPoint<ScorePresenter>();
             builder.RegisterEntryPoint<DirectionArrowPresenter>();
             builder.RegisterEntryPoint<GameSessionHudPresenter>();
+            builder.RegisterEntryPoint<MinimapPresenter>();
 
             builder.RegisterComponentInHierarchy<GameLoadingView>()
                 .As<IGameLoadingView>();

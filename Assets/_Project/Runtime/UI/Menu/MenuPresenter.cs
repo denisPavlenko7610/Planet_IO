@@ -28,10 +28,13 @@ namespace PlanetIO.UI.Menu
             _networkMenuView.SinglePlayerRequested += OnSinglePlayerRequested;
             _nicknameInputView.NicknameChanged += OnNicknameChanged;
             _nicknameInputView.RandomNicknameRequested += OnRandomNicknameRequested;
+            _nicknameInputView.ColorSelected += OnColorSelected;
             _playerProfileService.NicknameChanged += OnProfileNicknameChanged;
+            _playerProfileService.PreferredColorChanged += OnProfileColorChanged;
             _networkSessionService.StateChanged += OnSessionStateChanged;
 
             _nicknameInputView.ShowNickname(_playerProfileService.Nickname);
+            _nicknameInputView.ShowSelectedColor(_playerProfileService.PreferredColor);
             _networkMenuView.SetInteractionEnabled(true);
             _networkMenuView.ShowStatus(_networkSessionService.Status, false);
         }
@@ -43,7 +46,9 @@ namespace PlanetIO.UI.Menu
             _networkMenuView.SinglePlayerRequested -= OnSinglePlayerRequested;
             _nicknameInputView.NicknameChanged -= OnNicknameChanged;
             _nicknameInputView.RandomNicknameRequested -= OnRandomNicknameRequested;
+            _nicknameInputView.ColorSelected -= OnColorSelected;
             _playerProfileService.NicknameChanged -= OnProfileNicknameChanged;
+            _playerProfileService.PreferredColorChanged -= OnProfileColorChanged;
             _networkSessionService.StateChanged -= OnSessionStateChanged;
         }
 
@@ -72,6 +77,16 @@ namespace PlanetIO.UI.Menu
         private void OnRandomNicknameRequested()
         {
             _playerProfileService.SetRandomNickname();
+        }
+
+        private void OnColorSelected(Color32 color)
+        {
+            _playerProfileService.SetPreferredColor(color);
+        }
+
+        private void OnProfileColorChanged(Color32 color)
+        {
+            _nicknameInputView.ShowSelectedColor(color);
         }
 
         private void OnProfileNicknameChanged(string nickname)

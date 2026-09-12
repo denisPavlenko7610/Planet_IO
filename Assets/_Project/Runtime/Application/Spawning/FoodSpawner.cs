@@ -9,6 +9,7 @@ namespace PlanetIO
 		private const float LootMassFraction = 0.6f;
 		private const int LootItemCount = 6;
 		private const float GoldenValueMultiplier = 8f;
+		private const float ClusterJitter = 7f;
 
 		[SerializeField, Min(0.1f)]
 		private float _droppedPointLifetime = 10f;
@@ -16,6 +17,9 @@ namespace PlanetIO
 		private float _lootLifetime = 20f;
 		[SerializeField, Range(0f, 1f)]
 		private float _goldenChance = 0.04f;
+
+		private Vector2 _clusterCenter;
+		private int _clusterRemaining;
 
 		public void SpawnAt(Transform spawnTransform)
 		{
@@ -44,6 +48,18 @@ namespace PlanetIO
 
 				_ = ReleaseAfterLifetimeAsync(loot, lifecycleVersion, _lootLifetime);
 			}
+		}
+
+		protected override Vector2 GetRandomPosition()
+		{
+			if (_clusterRemaining <= 0)
+			{
+				_clusterCenter = base.GetRandomPosition();
+				_clusterRemaining = Random.Range(3, 6);
+			}
+
+			_clusterRemaining--;
+			return Constants.ClampToWorld(_clusterCenter + Random.insideUnitCircle * ClusterJitter);
 		}
 
 		public void Respawn(Food point)

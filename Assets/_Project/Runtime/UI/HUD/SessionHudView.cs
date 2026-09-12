@@ -17,6 +17,7 @@ namespace PlanetIO.UI.Hud
         void SetPlayAgainVisible(bool visible);
         void ShowKillFeed(string message);
         void ShowScorePopup(Vector2 screenPosition, int score);
+        void ShowHint(string message);
     }
 
     public sealed class SessionHudView : MonoBehaviour, ISessionHudView
@@ -25,6 +26,7 @@ namespace PlanetIO.UI.Hud
         private const float KillFeedFadeSeconds = 3f;
         private const float ScorePopupSeconds = 0.9f;
         private const float ScorePopupRiseSpeed = 80f;
+        private const float HintFadeSeconds = 4f;
 
         [SerializeField] private TMP_Text _sessionText;
         [SerializeField] private TMP_Text _leaderboardText;
@@ -40,14 +42,17 @@ namespace PlanetIO.UI.Hud
         private Button _playAgainButton;
         private TMP_Text _killFeedText;
         private TMP_Text _scorePopupText;
+        private TMP_Text _hintText;
         private float _killFeedTimeRemaining;
         private float _scorePopupTimeRemaining;
+        private float _hintTimeRemaining;
 
         private void Awake()
         {
             CreatePlayAgainButton();
             CreateKillFeedText();
             CreateScorePopupText();
+            CreateHintText();
         }
 
         private void OnEnable()
@@ -83,6 +88,13 @@ namespace PlanetIO.UI.Hud
                 _scorePopupText.alpha = fade;
                 _scorePopupText.rectTransform.anchoredPosition +=
                     Vector2.up * (ScorePopupRiseSpeed * Time.unscaledDeltaTime);
+            }
+
+            if (_hintTimeRemaining > 0f)
+            {
+                _hintTimeRemaining -= Time.unscaledDeltaTime;
+                float hintFade = Mathf.Clamp01(_hintTimeRemaining / (HintFadeSeconds * 0.4f));
+                _hintText.alpha = hintFade;
             }
         }
 
@@ -159,6 +171,18 @@ namespace PlanetIO.UI.Hud
             _scorePopupText.text = $"+{score:N0}";
             _scorePopupText.alpha = 1f;
             _scorePopupTimeRemaining = ScorePopupSeconds;
+        }
+
+        public void ShowHint(string message)
+        {
+            if (_hintText == null)
+            {
+                return;
+            }
+
+            _hintText.text = message;
+            _hintText.alpha = 1f;
+            _hintTimeRemaining = HintFadeSeconds;
         }
 
         private void CreatePlayAgainButton()
@@ -239,6 +263,33 @@ namespace PlanetIO.UI.Hud
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(300f, 60f);
+        }
+
+        private void CreateHintText()
+        {
+            Canvas canvas = _sessionText != null ? _sessionText.GetComponentInParent<Canvas>() : null;
+            if (canvas == null)
+            {
+                return;
+            }
+
+            GameObject textObject = new GameObject("HintText", typeof(RectTransform));
+            textObject.transform.SetParent(canvas.transform, false);
+
+            _hintText = textObject.AddComponent<TextMeshProUGUI>();
+            _hintText.font = _sessionText.font;
+            _hintText.fontSize = _sessionText.fontSize * 0.9f;
+            _hintText.alignment = TextAlignmentOptions.Center;
+            _hintText.color = new Color(1f, 1f, 1f, 0.85f);
+            _hintText.raycastTarget = false;
+            _hintText.alpha = 0f;
+
+            RectTransform rect = _hintText.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(900f, 60f);
+            rect.anchoredPosition = new Vector2(0f, 140f);
         }
 
         private void OnLeaveClicked()

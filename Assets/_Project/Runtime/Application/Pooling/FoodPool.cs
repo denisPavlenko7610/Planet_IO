@@ -3,7 +3,7 @@ namespace PlanetIO
 {
     public sealed class FoodPool : ObjectPool<Food>
     {
-        protected override int MinimumCapacity => 60;
+        protected override int MinimumCapacity => 90;
 
         protected override int MaximumPoolSize => Capacity * 2;
 
