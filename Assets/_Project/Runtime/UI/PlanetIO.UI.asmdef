@@ -1,20 +1,21 @@
 {
-    "name": "PlanetIO.UI",
-    "rootNamespace": "PlanetIO",
-    "references": [
-        "PlanetIO.Core",
-        "PlanetIO.Gameplay",
-        "Unity.Netcode.Runtime",
-        "Unity.TextMeshPro",
-        "VContainer"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "PlanetIO.UI",
+  "rootNamespace": "PlanetIO",
+  "references": [
+    "PlanetIO.Core",
+    "PlanetIO.Gameplay",
+    "Unity.InputSystem",
+    "Unity.Netcode.Runtime",
+    "Unity.TextMeshPro",
+    "VContainer"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }

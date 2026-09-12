@@ -252,6 +252,7 @@ namespace PlanetIO
             }
 
             _visualEffects = GetComponent<PlayerVisualEffects>();
+            _visualEffects?.SetLocalAudio(IsOwner);
             ApplyVisualState();
 
             if (IsOwner && _playerProfileService != null)

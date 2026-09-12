@@ -354,10 +354,10 @@ MonoBehaviour:
     TypeName: PlanetIO.Infrastructure.Bootstrap.ApplicationLifetimeScope
   autoRun: 1
   autoInjectGameObjects: []
-  _foodsPool: {fileID: 0}
+  _foodsPool: {fileID: 1158107521}
   _enemyPool: {fileID: 549707339}
   _cometsPool: {fileID: 470327858}
-  _foodSpawner: {fileID: 0}
+  _foodSpawner: {fileID: 1158107520}
   _cometSpawner: {fileID: 470327857}
   _enemySpawner: {fileID: 549707340}
   _playerPrefab: {fileID: 6319454034253849638, guid: 1ef35447ae40c8a4ca884f0d21ef5d63, type: 3}

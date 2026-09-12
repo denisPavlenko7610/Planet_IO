@@ -17,6 +17,7 @@ namespace PlanetIO
         private SpriteRenderer _spriteRenderer;
         private Color _baseColor;
         private AudioSource _boostSource;
+        private bool _localAudio;
         private bool _boosting;
         private bool _protected;
 
@@ -41,6 +42,15 @@ namespace PlanetIO
             }
         }
 
+        public void SetLocalAudio(bool local)
+        {
+            _localAudio = local;
+            if (!local && _boostSource != null && _boostSource.isPlaying)
+            {
+                _boostSource.Stop();
+            }
+        }
+
         public void SetBoosting(bool boosting)
         {
             if (_boosting == boosting)
@@ -49,7 +59,7 @@ namespace PlanetIO
             }
 
             _boosting = boosting;
-            if (_boostSource != null && _boostSource.clip != null)
+            if (_localAudio && _boostSource != null && _boostSource.clip != null)
             {
                 if (boosting)
                 {

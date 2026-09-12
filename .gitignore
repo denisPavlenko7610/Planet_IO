@@ -65,3 +65,6 @@ crashlytics-build.properties
 .DS_Store
 Thumbs.db
 Assets/RuntimeCodeDump_001.txt
+
+# ZCode client workspace config
+.zcode/

@@ -1,45 +1,62 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace PlanetIO
 {
     public sealed class BoostButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
         IBoostInput
     {
-        private bool _isPressed;
+        private bool _pointerPressed;
+        private bool _keyboardPressed;
 
         public event Action<bool> BoostChanged;
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            SetPressed(true);
+            SetPointerPressed(true);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            SetPressed(false);
+            SetPointerPressed(false);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            SetPressed(false);
+            SetPointerPressed(false);
         }
 
-        private void OnDisable()
+        private void Update()
         {
-            SetPressed(false);
-        }
-
-        private void SetPressed(bool isPressed)
-        {
-            if (_isPressed == isPressed)
+            Keyboard keyboard = Keyboard.current;
+            bool keyboardPressed = keyboard != null && keyboard.spaceKey.isPressed;
+            if (_keyboardPressed == keyboardPressed)
             {
                 return;
             }
 
-            _isPressed = isPressed;
-            BoostChanged?.Invoke(_isPressed);
+            _keyboardPressed = keyboardPressed;
+            SetPressed(_pointerPressed || _keyboardPressed);
+        }
+
+        private void OnDisable()
+        {
+            _pointerPressed = false;
+            _keyboardPressed = false;
+            SetPressed(false);
+        }
+
+        private void SetPointerPressed(bool isPressed)
+        {
+            _pointerPressed = isPressed;
+            SetPressed(_pointerPressed || _keyboardPressed);
+        }
+
+        private void SetPressed(bool isPressed)
+        {
+            BoostChanged?.Invoke(_pointerPressed || _keyboardPressed);
         }
     }
 }
