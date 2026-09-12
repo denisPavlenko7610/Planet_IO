@@ -8,11 +8,14 @@ namespace PlanetIO
 	{
 		private const float LootMassFraction = 0.6f;
 		private const int LootItemCount = 6;
+		private const float GoldenValueMultiplier = 8f;
 
 		[SerializeField, Min(0.1f)]
 		private float _droppedPointLifetime = 10f;
 		[SerializeField, Min(0.1f)]
 		private float _lootLifetime = 20f;
+		[SerializeField, Range(0f, 1f)]
+		private float _goldenChance = 0.04f;
 
 		public void SpawnAt(Transform spawnTransform)
 		{
@@ -58,6 +61,7 @@ namespace PlanetIO
 
 			RespawnObject(point);
 			point.ResetClaim();
+			point.SetValueMultiplier(Random.value < _goldenChance ? GoldenValueMultiplier : 1f);
 		}
 
 		private void ReturnDroppedPoint(Food point)

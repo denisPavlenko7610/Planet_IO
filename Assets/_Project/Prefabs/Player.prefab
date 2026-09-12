@@ -143,6 +143,7 @@ GameObject:
   - component: {fileID: -8062910053270479930}
   - component: {fileID: 7112992876354291134}
   - component: {fileID: 8188025366137381373}
+  - component: {fileID: 4579248558706267416}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -341,6 +342,8 @@ MonoBehaviour:
   _pointSpawnTransform: {fileID: 82095068}
   _spawnInvincibilityTime: 2
   _initialCapacity: 0.1
+  _foodAttractionRadius: 4
+  _foodAttractionSpeed: 5
 --- !u!114 &8517843457492819222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -466,3 +469,19 @@ MonoBehaviour:
   _edgePadding: 0.35
   _textColor: {r: 1, g: 1, b: 1, a: 0.92}
   _outlineColor: {r: 0, g: 0, b: 0, a: 0.85}
+--- !u!114 &4579248558706267416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f75ec85199fe39e4ba791f6858f23acb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PlanetIO.Gameplay::PlanetIO.PlayerVisualEffects
+  _boostPulseSpeed: 8
+  _protectionBlinkSpeed: 14
+  _protectionBlinkAmount: 0.7
+  _boostVolume: 0.3

@@ -125,7 +125,7 @@ namespace PlanetIO
                     return;
                 }
 
-                Grow(point.Capacity * FoodGrowthMultiplier);
+                Grow(point.Capacity * FoodGrowthMultiplier * point.ValueMultiplier);
                 FoodRespawnService?.Respawn(point);
             }
             else if (other.TryGetComponent(out Comet comet))

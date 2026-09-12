@@ -21,9 +21,14 @@ namespace PlanetIO.UI.Hud
         private readonly StringBuilder _leaderboardBuilder = new();
         private Player _localPlayer;
         private float _refreshTimeRemaining;
+        private float _lastCapacity;
         private bool _leaveInProgress;
         private bool _restartInProgress;
         private bool _isDefeated;
+        private AudioClip _eatClip;
+        private AudioClip _hitClip;
+        private AudioClip _killClip;
+        private AudioClip _deathClip;
 
         public GameSessionHudPresenter(
             NetworkManager networkManager,
@@ -39,6 +44,11 @@ namespace PlanetIO.UI.Hud
 
         public void Start()
         {
+            _eatClip = GameAudio.Load("eat");
+            _hitClip = GameAudio.Load("hit");
+            _killClip = GameAudio.Load("kill");
+            _deathClip = GameAudio.Load("death");
+
             _sessionHudView.LeaveRequested += OnLeaveRequested;
             _sessionHudView.PlayAgainRequested += OnPlayAgainRequested;
             _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
@@ -85,14 +95,34 @@ namespace PlanetIO.UI.Hud
                                NetworkSessionMode.SinglePlayer
                 ? "SINGLE PLAYER"
                 : $"ROOM {room.RoomCode}";
-            int playerCount =
-                _networkManager.ConnectedClientsList?.Count ?? 0;
-            _sessionHudView.ShowSessionText(
-                $"{roomLabel}\nPlayers: {playerCount}/{room.MaxPlayers}");
 
             CollectEntries();
             _entries.Sort(static (left, right) =>
                 right.Score.CompareTo(left.Score));
+
+            int totalEntries = _entries.Count;
+            int localRank = 0;
+            if (_localPlayer != null && _localPlayer.IsSpawned)
+            {
+                int localScore = Constants.CapacityToScore(_localPlayer.Capacity);
+                foreach ((string Name, int Score) entry in _entries)
+                {
+                    if (entry.Score > localScore)
+                    {
+                        localRank++;
+                    }
+                }
+
+                localRank++;
+            }
+
+            string rankLine = localRank > 0
+                ? $"\nRank: #{localRank}/{totalEntries}"
+                : string.Empty;
+            int playerCount =
+                _networkManager.ConnectedClientsList?.Count ?? 0;
+            _sessionHudView.ShowSessionText(
+                $"{roomLabel}\nPlayers: {playerCount}/{room.MaxPlayers}{rankLine}");
 
             _leaderboardBuilder.Clear();
             _leaderboardBuilder.AppendLine("<b>LEADERS</b>");
@@ -131,6 +161,7 @@ namespace PlanetIO.UI.Hud
             {
                 _localPlayer.Defeated -= OnPlayerDefeated;
                 _localPlayer.Killed -= OnLocalPlayerKill;
+                _localPlayer.CapacityChanged -= OnLocalCapacityChanged;
             }
 
             _localPlayer = player;
@@ -141,14 +172,32 @@ namespace PlanetIO.UI.Hud
 
             _localPlayer.Defeated += OnPlayerDefeated;
             _localPlayer.Killed += OnLocalPlayerKill;
+            _localPlayer.CapacityChanged += OnLocalCapacityChanged;
+            _lastCapacity = _localPlayer.Capacity;
             if (_localPlayer.IsDefeated)
             {
                 OnPlayerDefeated();
             }
         }
 
+        private void OnLocalCapacityChanged(float capacity)
+        {
+            float delta = capacity - _lastCapacity;
+            _lastCapacity = capacity;
+
+            if (delta > 0.0001f)
+            {
+                GameAudio.Play2D(_eatClip, Mathf.Clamp(1.4f - capacity, 0.8f, 1.7f), 0.45f);
+            }
+            else if (delta < -0.005f)
+            {
+                GameAudio.Play2D(_hitClip, 1f, 0.55f);
+            }
+        }
+
         private void OnLocalPlayerKill(string victimName, int score)
         {
+            GameAudio.Play2D(_killClip, 1f, 0.65f);
             _sessionHudView.ShowKillFeed($"You ate {victimName}");
             _sessionHudView.ShowScorePopup(GetLocalPlayerScreenPosition(), score);
         }
@@ -172,6 +221,8 @@ namespace PlanetIO.UI.Hud
             }
 
             _isDefeated = true;
+            GameAudio.Play2D(_deathClip, 1f, 0.7f);
+
             int finalScore = Constants.CapacityToScore(_localPlayer.Capacity);
             int bestScore = Mathf.Max(finalScore, PlayerPrefs.GetInt(BestScoreKey, 0));
             PlayerPrefs.SetInt(BestScoreKey, bestScore);

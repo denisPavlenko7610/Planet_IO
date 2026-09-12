@@ -29,7 +29,23 @@ namespace PlanetIO
         [SerializeField, Min(0f)] private float _spawnInvincibilityTime = 2f;
 		[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
 
+        [Header("Food magnet")]
+        [SerializeField, Min(0f)] private float _foodAttractionRadius = 4f;
+        [SerializeField, Min(0f)] private float _foodAttractionSpeed = 5f;
+
+        private const int FoodAttractionBuffer = 16;
+
         private readonly NetworkVariable<bool> _networkDefeated = new(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        private readonly NetworkVariable<bool> _networkBoosting = new(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+        private readonly NetworkVariable<bool> _networkSpawnProtected = new(
             false,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
@@ -45,6 +61,8 @@ namespace PlanetIO
         private bool _serverBoosting;
         private float _boostTimer;
         private float _invincibilityTimeRemaining;
+        private PlayerVisualEffects _visualEffects;
+        private readonly Collider2D[] _foodBuffer = new Collider2D[FoodAttractionBuffer];
 
         public bool IsDefeated => IsSpawned && _networkDefeated.Value;
         public bool IsSpawnProtected => _invincibilityTimeRemaining > 0f;
@@ -106,11 +124,17 @@ namespace PlanetIO
                 IsDefeated ||
                 !_gameStateService.IsGameplayActive)
             {
-                _serverBoosting = false;
+                SetServerBoosting(false);
                 return;
             }
 
+            SetServerBoosting(boosting);
+        }
+
+        private void SetServerBoosting(bool boosting)
+        {
             _serverBoosting = boosting;
+            _networkBoosting.Value = boosting;
         }
 
         private void UpdateBoost(float deltaTime)
@@ -134,7 +158,7 @@ namespace PlanetIO
 
             if (!CanBoost)
             {
-                _serverBoosting = false;
+                SetServerBoosting(false);
                 return;
             }
 
@@ -209,15 +233,21 @@ namespace PlanetIO
         {
             base.OnNetworkSpawn();
             _networkDefeated.OnValueChanged += OnDefeatedChanged;
+            _networkBoosting.OnValueChanged += OnBoostingChanged;
+            _networkSpawnProtected.OnValueChanged += OnSpawnProtectionChanged;
 
             if (IsServer)
             {
                 _networkDefeated.Value = false;
                 Capacity = _initialCapacity;
                 _invincibilityTimeRemaining = _spawnInvincibilityTime;
-                _serverBoosting = false;
+                SetServerBoosting(false);
+                _networkSpawnProtected.Value = true;
                 _boostTimer = 0f;
             }
+
+            _visualEffects = GetComponent<PlayerVisualEffects>();
+            ApplyVisualState();
 
             if (IsOwner && _playerProfileService != null)
             {
@@ -230,16 +260,39 @@ namespace PlanetIO
             }
         }
 
+        public override void OnNetworkDespawn()
+        {
+            _networkDefeated.OnValueChanged -= OnDefeatedChanged;
+            _networkBoosting.OnValueChanged -= OnBoostingChanged;
+            _networkSpawnProtected.OnValueChanged -= OnSpawnProtectionChanged;
+            base.OnNetworkDespawn();
+        }
+
+        private void OnBoostingChanged(bool _, bool boosting)
+        {
+            _visualEffects?.SetBoosting(boosting);
+        }
+
+        private void OnSpawnProtectionChanged(bool _, bool protection)
+        {
+            _visualEffects?.SetSpawnProtected(protection);
+        }
+
+        private void ApplyVisualState()
+        {
+            if (_visualEffects == null)
+            {
+                return;
+            }
+
+            _visualEffects.SetBoosting(_networkBoosting.Value);
+            _visualEffects.SetSpawnProtected(_networkSpawnProtected.Value);
+        }
+
         [Rpc(SendTo.Server)]
         private void SubmitNicknameRpc(FixedString64Bytes nickname)
         {
             SetDisplayName(nickname.ToString());
-        }
-
-        public override void OnNetworkDespawn()
-        {
-            _networkDefeated.OnValueChanged -= OnDefeatedChanged;
-            base.OnNetworkDespawn();
         }
 
         private void Update()
@@ -254,6 +307,46 @@ namespace PlanetIO
             if (!IsDefeated && _invincibilityTimeRemaining > 0f)
             {
                 _invincibilityTimeRemaining -= Time.deltaTime;
+            }
+
+            bool spawnProtected = !IsDefeated && _invincibilityTimeRemaining > 0f;
+            if (_networkSpawnProtected.Value != spawnProtected)
+            {
+                _networkSpawnProtected.Value = spawnProtected;
+            }
+
+            if (_servicesReady &&
+                !IsDefeated &&
+                _gameStateService.IsGameplayActive &&
+                _foodAttractionRadius > 0f)
+            {
+                AttractFood();
+            }
+        }
+
+        private void AttractFood()
+        {
+            int hitCount = Physics2D.OverlapCircle(
+                transform.position, _foodAttractionRadius, ContactFilter2D.noFilter, _foodBuffer);
+            float pullStep = _foodAttractionSpeed * Time.deltaTime;
+
+            for (int index = 0; index < hitCount; index++)
+            {
+                Collider2D hit = _foodBuffer[index];
+                if (hit == null || !hit.TryGetComponent(out Food food))
+                {
+                    continue;
+                }
+
+                Transform foodTransform = food.transform;
+                Vector2 offset = (Vector2)transform.position - (Vector2)foodTransform.position;
+                float distance = offset.magnitude;
+                if (distance < 0.01f)
+                {
+                    continue;
+                }
+
+                foodTransform.position += (Vector3)(offset / distance * Mathf.Min(pullStep, distance));
             }
         }
 
