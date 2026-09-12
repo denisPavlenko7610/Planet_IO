@@ -38,6 +38,7 @@ namespace PlanetIO
         private ISpawnService<Food> _foodSpawnService;
         private IGameStateService _gameStateService;
         private IPlayerProfileService _playerProfileService;
+        private ILootSpawnService _lootSpawnService;
 
         private bool _servicesReady;
         private bool _borderEventSubscribed;
@@ -50,6 +51,7 @@ namespace PlanetIO
         public bool CanBoost => !IsDefeated && Capacity > MinCapacity + _boostMassCost;
 
         public event Action Defeated;
+        public event Action<string, int> Killed;
 
         protected override float FoodGrowthMultiplier => _playerFoodGrowthMultiplier;
         protected override float CometDamageMultiplier => _playerCometDamageMultiplier;
@@ -64,6 +66,7 @@ namespace PlanetIO
             ISpawnService<Food> pointSpawnService,
             IGameStateService gameStateService,
             IPlayerProfileService playerProfileService,
+            ILootSpawnService lootSpawnService,
             BordersTrigger bordersTrigger)
         {
             CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
@@ -72,6 +75,7 @@ namespace PlanetIO
             _foodSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
             _playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
+            _lootSpawnService = lootSpawnService ?? throw new ArgumentNullException(nameof(lootSpawnService));
             SetBordersTrigger(bordersTrigger ?? throw new ArgumentNullException(nameof(bordersTrigger)));
             _servicesReady = true;
         }
@@ -274,6 +278,7 @@ namespace PlanetIO
                 if (Capacity >= enemy.Capacity * _eatSizeRatio)
                 {
                     Grow(enemy.Capacity);
+                    NotifyKillRpc(enemy.DisplayName, Constants.CapacityToScore(enemy.Capacity));
                     _enemyRespawnService.Respawn(enemy);
                 }
             }
@@ -293,8 +298,16 @@ namespace PlanetIO
                 return;
             }
 
+            int score = Constants.CapacityToScore(otherPlayer.Capacity);
+            NotifyKillRpc(otherPlayer.DisplayName, score);
             Grow(otherPlayer.Capacity);
             otherPlayer.Defeat();
+        }
+
+        [Rpc(SendTo.Owner)]
+        private void NotifyKillRpc(FixedString64Bytes victimName, int score)
+        {
+            Killed?.Invoke(victimName.ToString(), score);
         }
 
         public void Defeat()
@@ -303,6 +316,8 @@ namespace PlanetIO
             {
                 return;
             }
+
+            _lootSpawnService?.SpawnLoot(transform.position, Capacity);
 
             if (_rigidbody2D != null)
             {

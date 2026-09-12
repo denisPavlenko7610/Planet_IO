@@ -11,6 +11,7 @@ namespace PlanetIO.UI.Hud
     {
         private const float RefreshIntervalSeconds = 0.5f;
         private const int VisibleLeaderboardEntries = 6;
+        private const string BestScoreKey = "PlanetIO.BestScore";
 
         private readonly NetworkManager _networkManager;
         private readonly INetworkSessionService _networkSessionService;
@@ -21,6 +22,7 @@ namespace PlanetIO.UI.Hud
         private Player _localPlayer;
         private float _refreshTimeRemaining;
         private bool _leaveInProgress;
+        private bool _restartInProgress;
         private bool _isDefeated;
 
         public GameSessionHudPresenter(
@@ -38,6 +40,7 @@ namespace PlanetIO.UI.Hud
         public void Start()
         {
             _sessionHudView.LeaveRequested += OnLeaveRequested;
+            _sessionHudView.PlayAgainRequested += OnPlayAgainRequested;
             _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
             BindPlayer(_localPlayerProvider.LocalPlayer);
             Refresh();
@@ -64,6 +67,7 @@ namespace PlanetIO.UI.Hud
         public void Dispose()
         {
             _sessionHudView.LeaveRequested -= OnLeaveRequested;
+            _sessionHudView.PlayAgainRequested -= OnPlayAgainRequested;
             _localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
             BindPlayer(null);
         }
@@ -126,6 +130,7 @@ namespace PlanetIO.UI.Hud
             if (_localPlayer != null)
             {
                 _localPlayer.Defeated -= OnPlayerDefeated;
+                _localPlayer.Killed -= OnLocalPlayerKill;
             }
 
             _localPlayer = player;
@@ -135,10 +140,28 @@ namespace PlanetIO.UI.Hud
             }
 
             _localPlayer.Defeated += OnPlayerDefeated;
+            _localPlayer.Killed += OnLocalPlayerKill;
             if (_localPlayer.IsDefeated)
             {
                 OnPlayerDefeated();
             }
+        }
+
+        private void OnLocalPlayerKill(string victimName, int score)
+        {
+            _sessionHudView.ShowKillFeed($"You ate {victimName}");
+            _sessionHudView.ShowScorePopup(GetLocalPlayerScreenPosition(), score);
+        }
+
+        private Vector2 GetLocalPlayerScreenPosition()
+        {
+            UnityEngine.Camera camera = UnityEngine.Camera.main;
+            if (camera == null || _localPlayer == null)
+            {
+                return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            }
+
+            return (Vector2)camera.WorldToScreenPoint(_localPlayer.transform.position);
         }
 
         private void OnPlayerDefeated()
@@ -149,8 +172,13 @@ namespace PlanetIO.UI.Hud
             }
 
             _isDefeated = true;
-            _sessionHudView.ShowDefeat(
-                Constants.CapacityToScore(_localPlayer.Capacity));
+            int finalScore = Constants.CapacityToScore(_localPlayer.Capacity);
+            int bestScore = Mathf.Max(finalScore, PlayerPrefs.GetInt(BestScoreKey, 0));
+            PlayerPrefs.SetInt(BestScoreKey, bestScore);
+
+            bool canPlayAgain =
+                _networkSessionService.Mode == NetworkSessionMode.SinglePlayer;
+            _sessionHudView.ShowDefeat(finalScore, bestScore, canPlayAgain);
             _sessionHudView.SetLeaveButtonInteractable(true);
         }
 
@@ -191,6 +219,36 @@ namespace PlanetIO.UI.Hud
             _ = LeaveAsync();
         }
 
+        private void OnPlayAgainRequested()
+        {
+            if (_restartInProgress || _leaveInProgress)
+            {
+                return;
+            }
+
+            _restartInProgress = true;
+            _sessionHudView.SetLeaveButtonInteractable(false);
+            _sessionHudView.SetPlayAgainVisible(false);
+            _ = RestartSinglePlayerAsync();
+        }
+
+        private async Awaitable RestartSinglePlayerAsync()
+        {
+            try
+            {
+                await _networkSessionService.ShutdownAndReturnToMenuAsync();
+                await _networkSessionService.StartSinglePlayerAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // Scene or application is closing.
+            }
+            catch (Exception exception)
+            {
+                GameLogger.LogException(exception);
+            }
+        }
+
         private async Awaitable LeaveAsync()
         {
             if (_leaveInProgress)
@@ -200,6 +258,7 @@ namespace PlanetIO.UI.Hud
 
             _leaveInProgress = true;
             _sessionHudView.SetLeaveButtonInteractable(false);
+            _sessionHudView.SetPlayAgainVisible(false);
 
             try
             {

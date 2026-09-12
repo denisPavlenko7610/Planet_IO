@@ -68,7 +68,8 @@ namespace PlanetIO.Infrastructure.Bootstrap
             builder.RegisterComponent(_foodSpawner)
                 .AsSelf()
                 .As<IRespawnService<Food>>()
-                .As<ISpawnService<Food>>();
+                .As<ISpawnService<Food>>()
+                .As<ILootSpawnService>();
 
             builder.RegisterComponent(_cometSpawner)
                 .AsSelf()

@@ -1,6 +1,8 @@
+using System;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
+using VContainer;
 
 namespace PlanetIO
 {
@@ -9,12 +11,22 @@ namespace PlanetIO
         [SerializeField, Min(0f)] private float _minimumDistanceFromPlayers = 30f;
         [SerializeField, Min(1)] private int _maxPositionAttempts = 10;
 
+        private ILootSpawnService _lootSpawnService;
+
+        [Inject]
+        public void Construct(ILootSpawnService lootSpawnService)
+        {
+            _lootSpawnService = lootSpawnService ?? throw new ArgumentNullException(nameof(lootSpawnService));
+        }
+
         public void Respawn(Enemy enemy)
         {
             if (enemy == null)
             {
                 return;
             }
+
+            _lootSpawnService?.SpawnLoot(enemy.transform.position, enemy.Capacity);
 
             enemy.Capacity = enemy.InitialCapacity;
 

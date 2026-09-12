@@ -40,6 +40,11 @@ namespace PlanetIO
 			return CreateSpawnedObject(spawnTransform.position, _minimumObjectScale);
 		}
 
+        public T CreateObject(Vector2 position, float capacity)
+        {
+            return CreateSpawnedObject(position, capacity);
+        }
+
 		private T CreateSpawnedObject(Vector2 position, float capacity)
 		{
 			T spawnedObject = _objectPool.Get();
