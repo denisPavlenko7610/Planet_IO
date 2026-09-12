@@ -18,8 +18,6 @@ namespace PlanetIO
 
         private ObjectPool<T> _objectPool;
 
-        protected float MinimumObjectScale => _minimumObjectScale;
-
         public void Initialize(ObjectPool<T> objectPool)
         {
             _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));

@@ -1,24 +1,42 @@
-﻿using Unity.Netcode;
+using Unity.Netcode;
 
 namespace PlanetIO
 {
     public sealed class Point : NetworkBehaviour, ICapacity
     {
         public float Capacity { get; set; }
-		public bool IsDropped { get; private set; }
+        public bool IsDropped { get; private set; }
 
-		public int LifecycleVersion { get; private set; }
+        public int LifecycleVersion { get; private set; }
 
-		public int MarkAsDropped()
-		{
-			IsDropped = true;
-			return ++LifecycleVersion;
-		}
+        private bool _isClaimed;
 
-		public void MarkAsStored()
-		{
-			IsDropped = false;
-			LifecycleVersion++;
-		}
+        public bool TryClaim()
+        {
+            if (_isClaimed)
+            {
+                return false;
+            }
+
+            _isClaimed = true;
+            return true;
+        }
+
+        public void ResetClaim()
+        {
+            _isClaimed = false;
+        }
+
+        public int MarkAsDropped()
+        {
+            IsDropped = true;
+            return ++LifecycleVersion;
+        }
+
+        public void MarkAsStored()
+        {
+            IsDropped = false;
+            LifecycleVersion++;
+        }
     }
 }

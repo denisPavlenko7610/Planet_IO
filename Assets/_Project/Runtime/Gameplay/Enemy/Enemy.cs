@@ -25,6 +25,8 @@ namespace PlanetIO
         private IRespawnService<Enemy> _enemyRespawnService;
         private bool _servicesReady;
 
+        public float InitialCapacity => _initialCapacity;
+
         protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
         protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
 

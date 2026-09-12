@@ -559,7 +559,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (OperationCanceledException)
             {
-				LoggerIO.LogError("Application is closing");
+                // Scene or application is closing while recovering from a disconnect.
             }
             finally
             {

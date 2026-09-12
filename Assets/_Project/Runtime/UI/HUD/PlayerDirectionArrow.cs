@@ -59,10 +59,22 @@ namespace PlanetIO.UI.Hud
                 direction = transform.parent != null ? transform.parent.right : Vector2.right;
             }
 
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + _angleOffset;
+            Transform parent = _arrowTransform.parent;
+            Vector2 localDirection = parent != null
+                ? (Vector2)parent.InverseTransformDirection(direction)
+                : direction;
+
+            if (localDirection.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
+            localDirection.Normalize();
+
+            float angle = Mathf.Atan2(localDirection.y, localDirection.x) * Mathf.Rad2Deg + _angleOffset;
             _arrowTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
 
-            _arrowTransform.localPosition = (Vector3)(direction * _distanceFromCenter);
+            _arrowTransform.localPosition = (Vector3)(localDirection * _distanceFromCenter);
         }
     }
 }

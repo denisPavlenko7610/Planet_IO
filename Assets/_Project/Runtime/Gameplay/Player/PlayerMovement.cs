@@ -8,12 +8,10 @@ using VContainer;
 namespace PlanetIO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class PlayerMovement : NetworkBehaviour, IMove
+    public sealed class PlayerMovement : NetworkBehaviour
     {
         [SerializeField, Assign] private Player _player;
         [SerializeField, Assign] private Rigidbody2D _rigidbody2D;
-        [SerializeField, Min(0.05f)]
-        private float _boostMassConsumptionInterval = 0.15f;
         [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0.35f;
         [SerializeField, Range(0.1f, 1f)] private float _minimumSpeedMultiplier = 0.55f;
         [SerializeField, Min(1f)] private float _turnSpeed = 540f;
@@ -29,7 +27,6 @@ namespace PlanetIO
         private IBoostInput _boostInput;
         private IGameStateService _gameStateService;
         private float _currentSpeed;
-        private int _boostGeneration;
         private bool _boostInputSubscribed;
         private bool _isBoosting;
 
@@ -60,8 +57,6 @@ namespace PlanetIO
         private void OnDisable()
         {
             _isBoosting = false;
-            _boostGeneration++;
-            _currentSpeed = _normalSpeed;
             UnsubscribeBoostInput();
         }
 
@@ -141,54 +136,13 @@ namespace PlanetIO
 
         private void OnBoostChanged(bool isBoosting)
         {
-            if (!IsOwner || _gameStateService?.IsGameplayActive != true)
+            if (!IsOwner || _player == null || _gameStateService?.IsGameplayActive != true)
             {
                 return;
             }
 
-            if (!isBoosting)
-            {
-                _isBoosting = false;
-                _boostGeneration++;
-                _currentSpeed = _normalSpeed;
-                return;
-            }
-
-            if (_isBoosting)
-            {
-                return;
-            }
-
-            _isBoosting = true;
-            int generation = ++_boostGeneration;
-            _ = ActivatePlayerBoostLogicAsync(generation);
-        }
-
-        private async Awaitable ActivatePlayerBoostLogicAsync(
-            int generation)
-        {
-            _currentSpeed = _boostSpeed;
-
-            try
-            {
-                while (_isBoosting && generation == _boostGeneration)
-                {
-                    if (!_player.CanBoost)
-                    {
-                        _isBoosting = false;
-                        break;
-                    }
-
-                    _player.EnableBoost();
-                    await Awaitable.WaitForSecondsAsync(
-                        _boostMassConsumptionInterval,
-                        destroyCancellationToken);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-				LoggerIO.LogError("The player was destroyed while the boost loop was awaiting its next tick");
-            }
+            _isBoosting = isBoosting;
+            _player.SetBoostRpc(isBoosting);
         }
     }
 }

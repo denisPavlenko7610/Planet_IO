@@ -4,86 +4,52 @@ namespace PlanetIO
 {
     public static class LoggerIO
     {
-        public static bool Enabled { get; set; } = Application.isEditor;
-
         public static void Log(object message)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.Log(message);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log(message);
+#endif
         }
 
         public static void Log(object message, Object context)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.Log(message, context);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.Log(message, context);
+#endif
         }
 
         public static void LogWarning(object message)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.LogWarning(message);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(message);
+#endif
         }
 
         public static void LogWarning(object message, Object context)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.LogWarning(message, context);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning(message, context);
+#endif
         }
 
         public static void LogError(object message)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.LogError(message);
+            Debug.LogError(message);
         }
 
         public static void LogError(object message, Object context)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.LogError(message, context);
+            Debug.LogError(message, context);
         }
 
         public static void LogException(System.Exception exception)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.LogException(exception);
+            Debug.LogException(exception);
         }
 
         public static void LogException(System.Exception exception, Object context)
         {
-            if (!Enabled)
-			{
-				return;
-			}
-
-			Debug.LogException(exception, context);
+            Debug.LogException(exception, context);
         }
     }
 }

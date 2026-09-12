@@ -166,6 +166,18 @@ namespace PlanetIO.UI.Hud
             foreach (NetworkObject networkObject in
                      _networkManager.SpawnManager.SpawnedObjectsList)
             {
+                if (networkObject.TryGetComponent(out Player player))
+                {
+                    if (!player.IsDefeated)
+                    {
+                        _entries.Add((
+                            $"Player {networkObject.OwnerClientId}",
+                            Constants.CapacityToScore(player.Capacity)));
+                    }
+
+                    continue;
+                }
+
                 if (networkObject.TryGetComponent(out Enemy enemy))
                 {
                     _entries.Add((

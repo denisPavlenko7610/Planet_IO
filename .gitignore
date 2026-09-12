@@ -64,3 +64,4 @@ crashlytics-build.properties
 # macOS
 .DS_Store
 Thumbs.db
+Assets/RuntimeCodeDump_001.txt

@@ -9,7 +9,7 @@ namespace PlanetIO
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class CometMovement : NetworkBehaviour, IMove
+    public sealed class CometMovement : NetworkBehaviour
     {
         [SerializeField] private Rigidbody2D _rigidbody2D;
         [SerializeField] private Transform _cometTransform;

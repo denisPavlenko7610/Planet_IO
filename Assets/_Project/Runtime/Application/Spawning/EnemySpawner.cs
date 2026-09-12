@@ -16,12 +16,16 @@ namespace PlanetIO
                 return;
             }
 
-            float minimumScale = MinimumObjectScale;
-            enemy.Capacity = minimumScale;
+            enemy.Capacity = enemy.InitialCapacity;
 
             Vector3 newPosition = GetRandomPosition();
             enemy.transform.position = newPosition;
             enemy.gameObject.SetActive(true);
+
+            if (enemy.TryGetComponent(out EnemyMovement movement))
+            {
+                movement.ResetForRespawn();
+            }
 
             if (enemy.TryGetComponent(out NetworkObject networkObject) &&
                 networkObject.IsSpawned &&

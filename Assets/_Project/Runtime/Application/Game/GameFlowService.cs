@@ -17,6 +17,7 @@ namespace PlanetIO.Application
         private readonly ObjectPool<Comet> _cometsPool;
         private readonly ObjectPool<Enemy> _enemyPool;
         private readonly NetworkManager _networkManager;
+        private readonly NetworkWorldReadyState _worldReadyState;
         private readonly IGameLoadingView _loadingView;
         private bool _worldInitialized;
         private bool _disposed;
@@ -29,6 +30,7 @@ namespace PlanetIO.Application
             ObjectPool<Comet> cometsPool,
             ObjectPool<Enemy> enemyPool,
             NetworkManager networkManager,
+            NetworkWorldReadyState worldReadyState,
             IGameLoadingView loadingView)
         {
             _pointSpawner = pointSpawner ?? throw new ArgumentNullException(nameof(pointSpawner));
@@ -38,6 +40,7 @@ namespace PlanetIO.Application
             _cometsPool = cometsPool ?? throw new ArgumentNullException(nameof(cometsPool));
             _enemyPool = enemyPool ?? throw new ArgumentNullException(nameof(enemyPool));
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
+            _worldReadyState = worldReadyState ?? throw new ArgumentNullException(nameof(worldReadyState));
             _loadingView = loadingView ?? throw new ArgumentNullException(nameof(loadingView));
         }
 
@@ -49,6 +52,7 @@ namespace PlanetIO.Application
         public async Awaitable StartAsync(CancellationToken cancellation = default)
         {
             TransitionTo(GameState.Initializing);
+            _loadingView.Show();
 
             if (!await InitializeWorldAsync(cancellation))
             {
@@ -69,6 +73,7 @@ namespace PlanetIO.Application
             {
                 case GameState.WaitingForPlayers when IsSessionReady():
                     TransitionTo(GameState.Playing);
+                    _loadingView.Hide();
                     break;
 
                 case GameState.Playing when !IsSessionAlive():
@@ -96,6 +101,7 @@ namespace PlanetIO.Application
         public void Dispose()
         {
             _disposed = true;
+            _loadingView.Hide();
 
             if (State != GameState.ShuttingDown)
             {
@@ -161,6 +167,7 @@ namespace PlanetIO.Application
             }
 
             _worldInitialized = true;
+            _worldReadyState.MarkReady();
             return true;
         }
 
@@ -171,7 +178,7 @@ namespace PlanetIO.Application
 
         private bool IsSessionReady()
         {
-            if (!IsSessionAlive())
+            if (!IsSessionAlive() || !_worldReadyState.IsReady)
             {
                 return false;
             }

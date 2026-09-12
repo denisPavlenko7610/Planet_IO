@@ -9,7 +9,7 @@ namespace PlanetIO
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D), typeof(Enemy))]
-    public sealed class EnemyMovement : NetworkBehaviour, IMove
+    public sealed class EnemyMovement : NetworkBehaviour
     {
         public enum MovementState : byte
         {
@@ -37,7 +37,8 @@ namespace PlanetIO
 
         [Header("Awareness")]
         [SerializeField, Min(1f)] private float _awarenessRadius = 22f;
-        [SerializeField, Min(0.05f)] private float _thinkInterval = 0.24f;
+        [SerializeField, Min(MinimumThinkInterval)]
+        private float _thinkInterval = MinimumThinkInterval;
         [SerializeField, Min(1f)] private float _huntSizeRatio = 1.12f;
         [SerializeField, Min(1f)] private float _threatSizeRatio = 1.05f;
         [SerializeField, Min(0.1f)] private float _hazardDistance = 5f;
@@ -130,6 +131,8 @@ namespace PlanetIO
                 }
                 else
                 {
+                    _separationForce = Vector2.zero;
+
                     if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
                     {
                         EnterRoaming();
@@ -168,6 +171,21 @@ namespace PlanetIO
 
             _rigidbody2D.linearVelocity =
                 Direction * (_normalSpeed * speedMultiplier * stateMultiplier);
+        }
+
+        public void ResetForRespawn()
+        {
+            if (!IsServer)
+            {
+                return;
+            }
+
+            StopMovement();
+            _separationForce = Vector2.zero;
+            Direction = GetRandomDirection();
+            _desiredDirection = Direction;
+            _thinkTimeRemaining = Random.Range(0f, _thinkInterval);
+            EnterRoaming();
         }
 
         public void EvadeFrom(Vector2 threatPosition)
@@ -362,7 +380,6 @@ namespace PlanetIO
         private void OnValidate()
         {
             _maximumTimeToChangeDirection = Mathf.Max(_minimumTimeToChangeDirection, _maximumTimeToChangeDirection);
-            _thinkInterval = Mathf.Max(MinimumThinkInterval, _thinkInterval);
             _awarenessRadius = Mathf.Max(_hazardDistance, _awarenessRadius);
         }
 #endif

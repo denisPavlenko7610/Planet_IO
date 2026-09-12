@@ -16,11 +16,16 @@ namespace PlanetIO.Application
 
         private readonly NetworkManager _networkManager;
         private readonly NetworkObject _playerPrefab;
+        private readonly LayerMask _spawnBlockingLayers;
 
-        public NetworkPlayerSpawner(NetworkManager networkManager, NetworkObject playerPrefab)
+        public NetworkPlayerSpawner(
+            NetworkManager networkManager,
+            NetworkObject playerPrefab,
+            LayerMask spawnBlockingLayers)
         {
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _playerPrefab = playerPrefab ? playerPrefab : throw new ArgumentNullException(nameof(playerPrefab));
+            _spawnBlockingLayers = spawnBlockingLayers;
         }
 
         public void Start()
@@ -61,20 +66,28 @@ namespace PlanetIO.Application
             player.SpawnAsPlayerObject(clientId, true);
         }
 
-        private static Vector3 FindSafeSpawnPosition(ulong clientId)
+        private Vector3 FindSafeSpawnPosition(ulong clientId)
         {
             Vector3 fallback = GetSpawnCandidate(clientId, 0);
 
             for (int attempt = 0; attempt < MaximumSpawnAttempts; attempt++)
             {
                 Vector3 candidate = GetSpawnCandidate(clientId, attempt);
-                if (Physics2D.OverlapCircle(candidate, SpawnClearance) == null)
+                if (!IsPositionBlocked(candidate))
                 {
                     return candidate;
                 }
             }
 
             return fallback;
+        }
+
+        private bool IsPositionBlocked(Vector2 candidate)
+        {
+            // Zero mask keeps the legacy "any collider blocks" behaviour until layers are configured.
+            return _spawnBlockingLayers.value == 0
+                ? Physics2D.OverlapCircle(candidate, SpawnClearance) != null
+                : Physics2D.OverlapCircle(candidate, SpawnClearance, _spawnBlockingLayers) != null;
         }
 
         private static Vector3 GetSpawnCandidate(ulong clientId, int attempt)

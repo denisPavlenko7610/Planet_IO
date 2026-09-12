@@ -16,8 +16,9 @@ namespace PlanetIO
         [SerializeField, Min(0.001f)] private float _playerFoodGrowthMultiplier = 0.015f;
         [SerializeField, Min(0.001f)] private float _playerCometDamageMultiplier = 0.02f;
         [SerializeField, Min(0.001f)] private float _boostMassCost = 0.004f;
+        [SerializeField, Min(0.05f)] private float _boostMassConsumptionInterval = 0.15f;
         [SerializeField, Range(0f, 0.5f)] private float _borderMassLoss = 0.08f;
-        [SerializeField, Min(1f)] private float _eatEnemySizeRatio = 1.08f;
+        [SerializeField, Min(1f)] private float _eatSizeRatio = 1.08f;
 
         [Header("Boost food")]
         [SerializeField] private Transform _pointSpawnTransform;
@@ -38,6 +39,8 @@ namespace PlanetIO
 
         private bool _servicesReady;
         private bool _borderEventSubscribed;
+        private bool _serverBoosting;
+        private float _boostTimer;
         private float _invincibilityTimeRemaining;
 
         public bool IsDefeated => IsSpawned && _networkDefeated.Value;
@@ -85,26 +88,39 @@ namespace PlanetIO
             UnsubscribeFromBorderEvent();
         }
 
-        public void EnableBoost()
+        [Rpc(SendTo.Server)]
+        public void SetBoostRpc(bool boosting)
         {
-            if (!IsOwner ||
+            if (!_servicesReady ||
                 IsDefeated ||
-                _gameStateService?.IsGameplayActive != true)
+                !_gameStateService.IsGameplayActive)
+            {
+                _serverBoosting = false;
+                return;
+            }
+
+            _serverBoosting = boosting;
+        }
+
+        private void UpdateBoost(float deltaTime)
+        {
+            if (!_serverBoosting || IsDefeated)
+            {
+                _boostTimer = 0f;
+                return;
+            }
+
+            _boostTimer -= deltaTime;
+            if (_boostTimer > 0f)
             {
                 return;
             }
 
-            ApplyBoostRpc();
-        }
+            _boostTimer = _boostMassConsumptionInterval;
 
-        [Rpc(SendTo.Server)]
-        private void ApplyBoostRpc()
-        {
-            if (!_servicesReady ||
-                IsDefeated ||
-                !_gameStateService.IsGameplayActive ||
-                Capacity <= MinCapacity + _boostMassCost)
+            if (!CanBoost)
             {
+                _serverBoosting = false;
                 return;
             }
 
@@ -185,6 +201,8 @@ namespace PlanetIO
                 _networkDefeated.Value = false;
                 Capacity = _initialCapacity;
                 _invincibilityTimeRemaining = _spawnInvincibilityTime;
+                _serverBoosting = false;
+                _boostTimer = 0f;
             }
 
             if (_networkDefeated.Value)
@@ -201,9 +219,14 @@ namespace PlanetIO
 
         private void Update()
         {
-            if (IsServer &&
-                !IsDefeated &&
-                _invincibilityTimeRemaining > 0f)
+            if (!IsServer)
+            {
+                return;
+            }
+
+            UpdateBoost(Time.deltaTime);
+
+            if (!IsDefeated && _invincibilityTimeRemaining > 0f)
             {
                 _invincibilityTimeRemaining -= Time.deltaTime;
             }
@@ -221,9 +244,13 @@ namespace PlanetIO
                 return;
             }
 
-            if (other.TryGetComponent(out Enemy enemy))
+            if (other.TryGetComponent(out Player otherPlayer))
             {
-                if (Capacity >= enemy.Capacity * _eatEnemySizeRatio)
+                TryEatPlayer(otherPlayer);
+            }
+            else if (other.TryGetComponent(out Enemy enemy))
+            {
+                if (Capacity >= enemy.Capacity * _eatSizeRatio)
                 {
                     Grow(enemy.Capacity);
                     _enemyRespawnService.Respawn(enemy);
@@ -233,6 +260,19 @@ namespace PlanetIO
             {
                 HandleEntityCollision(other);
             }
+        }
+
+        private void TryEatPlayer(Player otherPlayer)
+        {
+            if (otherPlayer == this ||
+                otherPlayer.IsDefeated ||
+                Capacity < otherPlayer.Capacity * _eatSizeRatio)
+            {
+                return;
+            }
+
+            Grow(otherPlayer.Capacity);
+            otherPlayer.Defeat();
         }
 
         public void Defeat()

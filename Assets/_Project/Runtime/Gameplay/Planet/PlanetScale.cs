@@ -88,6 +88,11 @@ namespace PlanetIO
 
             if (other.TryGetComponent(out Point point))
             {
+                if (!point.TryClaim())
+                {
+                    return;
+                }
+
                 Grow(point.Capacity * FoodGrowthMultiplier);
                 PointRespawnService?.Respawn(point);
             }

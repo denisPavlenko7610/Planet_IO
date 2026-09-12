@@ -40,6 +40,9 @@ namespace PlanetIO.Infrastructure.DependencyInjection
         [Header("Application")]
         [SerializeField] private NetworkObject _playerPrefab;
 
+        [Header("Spawn")]
+        [SerializeField] private LayerMask _spawnBlockingLayers;
+
         [Header("UI")]
         [SerializeField, Assign(AssignMode.Scene)]
         private SessionHudView _sessionHudView;
@@ -88,11 +91,14 @@ namespace PlanetIO.Infrastructure.DependencyInjection
             builder.RegisterComponentInHierarchy<AccelerationButton>()
                 .As<IBoostInput>();
 
+            builder.RegisterComponentInHierarchy<NetworkWorldReadyState>();
+
             builder.RegisterEntryPoint<GameFlowService>()
                 .AsSelf()
                 .As<IGameStateService>();
 
-            builder.RegisterEntryPoint<NetworkPlayerSpawner>();
+            builder.RegisterEntryPoint<NetworkPlayerSpawner>()
+                .WithParameter(_spawnBlockingLayers);
 
             builder.RegisterComponentInHierarchy<ScoreText>()
                 .As<IScoreView>();

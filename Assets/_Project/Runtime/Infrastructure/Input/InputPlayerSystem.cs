@@ -11,6 +11,7 @@ namespace PlanetIO
 
         private PlayerInput _playerInput;
         private UnityEngine.Camera _camera;
+        private bool _mouseSteeringActive;
 
 		private void Awake()
         {
@@ -65,7 +66,17 @@ namespace PlanetIO
             }
 
             Mouse mouse = Mouse.current;
-            if (mouse == null || mouse.delta.ReadValue().sqrMagnitude <= 0.01f)
+            if (mouse == null)
+            {
+                return;
+            }
+
+            if (mouse.delta.ReadValue().sqrMagnitude > 0.01f)
+            {
+                _mouseSteeringActive = true;
+            }
+
+            if (!_mouseSteeringActive)
             {
                 return;
             }
@@ -89,6 +100,8 @@ namespace PlanetIO
             {
                 return;
             }
+
+            _mouseSteeringActive = false;
 
             Vector2 direction = _playerInput.Move.Movement.ReadValue<Vector2>();
             _playerMovement.SetDirection(direction);

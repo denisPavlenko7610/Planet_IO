@@ -30,7 +30,9 @@ namespace PlanetIO
 
             foreach (Player player in Players)
             {
-                if (player == null)
+                if (player == null ||
+                    !player.IsSpawned ||
+                    player.IsDefeated)
                 {
                     continue;
                 }

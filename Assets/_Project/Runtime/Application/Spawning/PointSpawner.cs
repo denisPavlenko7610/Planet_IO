@@ -31,6 +31,7 @@ namespace PlanetIO
 			}
 
 			RespawnObject(point);
+			point.ResetClaim();
 		}
 
 		private void ReturnDroppedPoint(Point point)
@@ -56,7 +57,7 @@ namespace PlanetIO
 			}
 			catch (OperationCanceledException)
 			{
-				LoggerIO.LogError("Scene or spawner was destroyed");
+				LoggerIO.Log("Dropped point lifetime cancelled.");
 			}
 		}
     }
