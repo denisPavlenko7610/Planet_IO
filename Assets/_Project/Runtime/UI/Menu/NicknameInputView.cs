@@ -18,11 +18,13 @@ namespace PlanetIO.UI.Menu
 
     public sealed class NicknameInputView : MonoBehaviour, INicknameInputView
     {
-        private const string ColorIndexKey = "PlanetIO.ColorIndex";
         private const float SelectedSwatchScale = 1.2f;
 
         [SerializeField] private TMP_InputField _inputField;
         [SerializeField] private Button _setRandomNicknameButton;
+        [SerializeField] private RectTransform _swatchContainer;
+        [SerializeField, Min(16f)] private float _swatchSize = 64f;
+        [SerializeField] private Sprite _swatchSprite;
 
         public event Action<string> NicknameChanged;
         public event Action RandomNicknameRequested;
@@ -55,10 +57,9 @@ namespace PlanetIO.UI.Menu
             _setRandomNicknameButton.onClick.RemoveListener(OnRandomNicknameRequested);
         }
 
-        private void Start()
+        private void Awake()
         {
             CreateColorSwatches();
-            ShowSelectedColor(PlayerPalette.GetColor(PlayerPrefs.GetInt(ColorIndexKey, 0)));
         }
 
         public void ShowNickname(string nickname)
@@ -89,23 +90,12 @@ namespace PlanetIO.UI.Menu
 
         private void CreateColorSwatches()
         {
-            Transform parent = _inputField.transform.parent;
-            if (parent == null)
+            if (_swatchContainer == null)
             {
                 return;
             }
 
-            GameObject rowObject = new("ColorSwatches", typeof(RectTransform));
-            rowObject.transform.SetParent(parent, false);
-
-            HorizontalLayoutGroup layout = rowObject.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = 10f;
-            layout.childAlignment = TextAnchor.MiddleLeft;
-            layout.childControlWidth = false;
-            layout.childControlHeight = false;
-            layout.childForceExpandWidth = false;
-            layout.childForceExpandHeight = false;
-            layout.padding = new RectOffset(0, 0, 10, 0);
+            Transform rowTransform = _swatchContainer;
 
             for (int index = 0; index < PlayerPalette.Colors.Count; index++)
             {
@@ -113,14 +103,15 @@ namespace PlanetIO.UI.Menu
                 int swatchIndex = index;
 
                 GameObject swatchObject = new($"Swatch_{index}", typeof(RectTransform));
-                swatchObject.transform.SetParent(rowObject.transform, false);
+                swatchObject.transform.SetParent(rowTransform, false);
 
                 Image image = swatchObject.AddComponent<Image>();
+                image.sprite = _swatchSprite;
                 image.color = color;
 
                 LayoutElement element = swatchObject.AddComponent<LayoutElement>();
-                element.preferredWidth = 42f;
-                element.preferredHeight = 42f;
+                element.preferredWidth = _swatchSize;
+                element.preferredHeight = _swatchSize;
 
                 Button button = swatchObject.AddComponent<Button>();
                 button.onClick.AddListener(() => OnSwatchClicked(swatchIndex, color));

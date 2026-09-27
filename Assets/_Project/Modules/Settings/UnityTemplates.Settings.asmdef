@@ -1,0 +1,7 @@
+{
+    "name": "UnityTemplates.Settings",
+    "rootNamespace": "UnityTemplates.Settings",
+    "references": [
+        "UnityTemplates.Foundation"
+    ]
+}

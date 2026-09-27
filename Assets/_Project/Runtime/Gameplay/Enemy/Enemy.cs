@@ -1,5 +1,6 @@
 using System;
 using PlanetIO.Core.Attributes;
+using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 
@@ -29,7 +30,7 @@ namespace PlanetIO
 
         protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
         protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
-        protected override string GetFallbackDisplayName() => $"Bot {NetworkObjectId % 100:00}";
+        protected override string GetFallbackDisplayName() => BotNames.Get(NetworkObjectId);
 
         [Inject]
         public void Construct(
@@ -55,14 +56,30 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            SceneContainers.Attach(transform, SceneContainers.Enemies);
 
             if (IsServer)
             {
-                SetDisplayName($"Bot {NetworkObjectId % 100:00}");
+                SetDisplayName(BotNames.Get(NetworkObjectId));
             }
 
             SetDeterministicSprite();
             ApplyDeterministicTint();
+        }
+
+        public void PlayDeathEffect()
+        {
+            if (IsServer && IsSpawned)
+            {
+                PlayDeathEffectRpc(transform.position, Capacity);
+            }
+        }
+
+        [Rpc(SendTo.Everyone)]
+        private void PlayDeathEffectRpc(Vector2 position, float size)
+        {
+            Color color = _spriteRenderer != null ? _spriteRenderer.color : Color.white;
+            GameVfx.Death(position, color, size);
         }
 
         private void ApplyDeterministicTint()
@@ -92,7 +109,7 @@ namespace PlanetIO
 
                 if (Capacity >= otherEnemy.Capacity * _eatSizeRatio)
                 {
-                    Grow(otherEnemy.Capacity);
+                    AbsorbVictim(otherEnemy.Capacity);
                     _enemyRespawnService.Respawn(otherEnemy);
                 }
             }
@@ -102,7 +119,7 @@ namespace PlanetIO
                     !player.IsSpawnProtected &&
                     Capacity >= player.Capacity * _eatSizeRatio)
                 {
-                    Grow(player.Capacity);
+                    AbsorbVictim(player.Capacity);
                     player.Defeat();
                 }
             }

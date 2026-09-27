@@ -58,12 +58,14 @@ namespace PlanetIO
             }
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             if (_gameStateService != null)
             {
                 _gameStateService.StateChanged -= OnGameStateChanged;
             }
+
+            base.OnDestroy();
         }
 
         private void OnEnable()
@@ -99,15 +101,13 @@ namespace PlanetIO
 
             _currentSpeed = targetSpeed * speedMultiplier;
             Move();
-            transform.position = Constants.ClampToWorld(transform.position);
         }
 
         public void Move()
         {
-            Quaternion targetRotation = Constants.DirectionToRotation(Direction);
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation, targetRotation, _turnSpeed * Time.fixedDeltaTime);
-            _rigidbody2D.linearVelocity = Direction * _currentSpeed;
+            float targetAngle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
+            _rigidbody2D.MoveRotation(Mathf.MoveTowardsAngle(_rigidbody2D.rotation, targetAngle, _turnSpeed * Time.fixedDeltaTime));
+            _rigidbody2D.linearVelocity = WorldBounds.KeepInside(_rigidbody2D.position, Direction * _currentSpeed);
         }
 
         public void SetDirection(Vector2 moveInput)

@@ -7,7 +7,8 @@
         "PlanetIO.Application",
         "PlanetIO.Infrastructure",
         "PlanetIO.UI",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "VContainer"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

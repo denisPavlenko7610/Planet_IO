@@ -1,0 +1,58 @@
+PRIVACY POLICY
+
+Planet IO · Effective date: 27 September 2026
+
+This Privacy Policy explains how the mobile game Planet IO (the "Game", package com.rd.planetio), developed by Denis Pavlenko ("we", "us"), handles information when you play it. By using the Game you agree to this policy.
+
+1. Information we do not collect
+
+The Game has no user accounts, no registration and no in-app purchases. We do not ask for your name, email address, phone number, contacts, photos, precise location or any other personal information, and we do not sell personal data.
+
+2. Information stored on your device
+
+The Game stores a few settings locally on your device only: your chosen planet color, best score, last used room code, language and sound settings. The nickname you enter is kept only while the Game is running. This data never leaves your device except as described in section 3 (your nickname and color are shown to other players in the same match). You can delete it at any time by clearing the app's data or uninstalling the Game.
+
+3. Multiplayer
+
+Online matches use Unity Gaming Services (Unity Authentication and Unity Relay) provided by Unity Technologies. To connect you to a match, Unity creates an anonymous player identifier and processes your device's IP address and connection data. No sign-in is required and the identifier is not linked to your real identity. During a match, your nickname, planet color, position and score are visible to the other players in that match.
+Unity's privacy policy: https://unity.com/legal/privacy-policy
+
+4. Advertising
+
+The Game offers optional rewarded video ads (for example, to continue after losing) through Google AdMob. AdMob may collect and process:
+
+  - the device advertising ID (Android Advertising ID),
+  - IP address and approximate location derived from it,
+  - device and app information (model, OS version, language, app version),
+  - ad interaction data (impressions, clicks, rewards).
+
+This data is used to show ads, measure them, prevent fraud and, where you have consented, to personalize ads. Users in the European Economic Area, the United Kingdom and Switzerland are asked for consent through Google's consent form (User Messaging Platform) before personalized ads are shown; you can decline and still play.
+You can reset or delete your advertising ID or opt out of personalized ads in your Android settings (Settings → Google → Ads).
+How Google uses data: https://policies.google.com/technologies/partner-sites
+
+Google Privacy Policy: https://policies.google.com/privacy
+
+5. Summary of data processed by third parties
+
+Service | Data | Purpose
+Google AdMob | Advertising ID, IP address, device info, ad interactions | Rewarded ads, measurement, fraud prevention
+Unity Authentication & Relay | Anonymous player ID, IP address, connection data | Online multiplayer matches
+Data sent to these services is encrypted in transit.
+
+6. Children
+
+The Game is not directed at children under 13 years of age (or the equivalent minimum age in your country), and we do not knowingly collect personal information from them. If you believe a child has provided us with personal information, contact us and we will take steps to delete it.
+
+7. Data retention and your rights
+
+We do not store your data on our own servers. Local data stays on your device until you clear it. Data processed by Google and Unity is retained according to their policies. Depending on where you live (for example under the GDPR or CCPA), you may have the right to access, correct or delete your data and to withdraw consent. Because we cannot identify you, requests about ad or multiplayer data are best handled through the settings above or directly with Google and Unity; you can also contact us and we will help.
+
+8. Changes to this policy
+
+We may update this policy from time to time. Changes are published on this page with a new effective date.
+
+9. Contact
+
+Denis Pavlenko
+
+Email: denispavlenko7610new@gmail.com

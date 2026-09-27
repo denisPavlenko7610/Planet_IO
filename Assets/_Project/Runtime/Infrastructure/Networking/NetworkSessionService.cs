@@ -14,6 +14,9 @@ namespace PlanetIO.Infrastructure.Networking
 {
     public sealed class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
     {
+        private const string LocalAddress = "127.0.0.1";
+        private const ushort LocalPort = 7777;
+
         private const float ClientConnectionTimeoutSeconds = 8f;
         private const float ProgressInitial = 0.02f;
         private const float ProgressSceneLoading = 0.04f;
@@ -47,6 +50,7 @@ namespace PlanetIO.Infrastructure.Networking
         public event Action<NetworkSessionState, string> StateChanged;
 
         public NetworkSessionState State { get; private set; } = NetworkSessionState.Offline;
+        public SessionFailure LastFailure { get; private set; }
         public NetworkSessionMode Mode { get; private set; } = NetworkSessionMode.None;
         public RoomConnectionSettings CurrentRoom { get; private set; } = RoomConnectionSettings.Default;
         public string Status { get; private set; } = "Ready to connect";
@@ -230,6 +234,7 @@ namespace PlanetIO.Infrastructure.Networking
 
             CurrentRoom = singlePlayerRoom;
             Mode = NetworkSessionMode.SinglePlayer;
+            UseLocalTransport();
             SetState(NetworkSessionState.StartingSinglePlayer, "Starting single player");
             _networkManager.ConnectionApprovalCallback = ConnectionApprovalHandler.ApproveSinglePlayerConnection;
 
@@ -346,6 +351,14 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             _ugsInitialized = true;
+        }
+
+        private void UseLocalTransport()
+        {
+            if (_networkManager.NetworkConfig.NetworkTransport is UnityTransport transport)
+            {
+                transport.SetConnectionData(LocalAddress, LocalPort);
+            }
         }
 
         private UnityTransport GetRelayTransport()
@@ -536,9 +549,11 @@ namespace PlanetIO.Infrastructure.Networking
                 return;
             }
 
-            string reason = string.IsNullOrWhiteSpace(_networkManager.DisconnectReason)
+            string disconnectReason = _networkManager.DisconnectReason;
+            LastFailure = SessionFailureReasons.FromDisconnectReason(disconnectReason, Mode == NetworkSessionMode.Client);
+            string reason = string.IsNullOrWhiteSpace(disconnectReason)
                 ? "Connection to room closed"
-                : _networkManager.DisconnectReason;
+                : disconnectReason;
 
             bool shouldReturnToMenu = State is NetworkSessionState.Loading or NetworkSessionState.InGame;
             SetState(NetworkSessionState.Failed, reason);
@@ -554,7 +569,9 @@ namespace PlanetIO.Infrastructure.Networking
             _recoveringFromDisconnect = true;
             try
             {
+                SessionFailure failure = LastFailure;
                 await ShutdownAndReturnToMenuAsync();
+                LastFailure = failure;
                 SetState(NetworkSessionState.Failed, $"Connection lost: {reason}");
             }
             catch (OperationCanceledException)
@@ -634,6 +651,15 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void SetState(NetworkSessionState state, string status)
         {
+            if (state != NetworkSessionState.Failed)
+            {
+                LastFailure = SessionFailure.None;
+            }
+            else if (LastFailure == SessionFailure.None)
+            {
+                LastFailure = SessionFailure.ConnectionFailed;
+            }
+
             State = state;
             Status = status;
             StateChanged?.Invoke(state, status);

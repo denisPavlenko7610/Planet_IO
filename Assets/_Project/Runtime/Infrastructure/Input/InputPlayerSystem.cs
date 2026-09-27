@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using PlanetIO.Core.Attributes;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace PlanetIO
 {
@@ -12,6 +15,8 @@ namespace PlanetIO
         private PlayerControls _controls;
         private Camera _camera;
         private bool _pointerSteeringActive;
+        private PointerEventData _uiPointerData;
+        private readonly List<RaycastResult> _uiRaycastResults = new();
 
 		private void Awake()
         {
@@ -93,14 +98,54 @@ namespace PlanetIO
 
         private bool TryGetTouchScreenPosition(out Vector2 position)
         {
+            position = default;
             Touchscreen touchscreen = Touchscreen.current;
-            if (touchscreen != null && touchscreen.primaryTouch.isInProgress)
+            if (touchscreen == null)
             {
-                position = touchscreen.primaryTouch.position.ReadValue();
+                return false;
+            }
+
+            foreach (TouchControl touch in touchscreen.touches)
+            {
+                if (!touch.isInProgress)
+                {
+                    continue;
+                }
+
+                Vector2 touchPosition = touch.position.ReadValue();
+                if (IsOverInteractiveUi(touchPosition))
+                {
+                    continue;
+                }
+
+                position = touchPosition;
                 return true;
             }
 
-            position = default;
+            return false;
+        }
+
+        private bool IsOverInteractiveUi(Vector2 screenPosition)
+        {
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem == null)
+            {
+                return false;
+            }
+
+            _uiPointerData ??= new PointerEventData(eventSystem);
+            _uiPointerData.position = screenPosition;
+            _uiRaycastResults.Clear();
+            eventSystem.RaycastAll(_uiPointerData, _uiRaycastResults);
+
+            foreach (RaycastResult result in _uiRaycastResults)
+            {
+                if (ExecuteEvents.GetEventHandler<IPointerDownHandler>(result.gameObject) != null)
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 

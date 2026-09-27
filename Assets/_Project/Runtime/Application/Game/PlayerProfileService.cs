@@ -7,6 +7,8 @@ namespace PlanetIO.Application
     public sealed class PlayerProfileService : IPlayerProfileService
     {
         private const string ColorIndexKey = "PlanetIO.ColorIndex";
+        private const string NicknameKey = "PlanetIO.Nickname";
+        private const string BestScoreKey = "PlanetIO.BestScore";
 
         private static readonly string[] AvailableNicknames =
         {
@@ -22,7 +24,17 @@ namespace PlanetIO.Application
 
         public PlayerProfileService()
         {
-            SetRandomNickname();
+            string savedNickname = PlayerPrefs.GetString(NicknameKey, string.Empty);
+            if (string.IsNullOrWhiteSpace(savedNickname))
+            {
+                SetRandomNickname();
+            }
+            else
+            {
+                SetNickname(savedNickname);
+            }
+
+            BestScore = PlayerPrefs.GetInt(BestScoreKey, 0);
             PreferredColor = PlayerPalette.GetColor(
                 PlayerPrefs.GetInt(ColorIndexKey, 0));
         }
@@ -32,6 +44,20 @@ namespace PlanetIO.Application
 
         public string Nickname { get; private set; }
         public Color32 PreferredColor { get; private set; }
+        public int BestScore { get; private set; }
+
+        public bool SubmitScore(int score)
+        {
+            if (score <= BestScore)
+            {
+                return false;
+            }
+
+            BestScore = score;
+            PlayerPrefs.SetInt(BestScoreKey, score);
+            PlayerPrefs.Save();
+            return true;
+        }
 
         public void SetNickname(string nickname)
         {
@@ -42,6 +68,7 @@ namespace PlanetIO.Application
             }
 
             Nickname = normalizedNickname;
+            PlayerPrefs.SetString(NicknameKey, normalizedNickname);
             NicknameChanged?.Invoke(Nickname);
         }
 

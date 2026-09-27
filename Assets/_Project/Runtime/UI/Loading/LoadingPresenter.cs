@@ -1,5 +1,6 @@
 using System;
 using VContainer.Unity;
+using UnityTemplates.Localization;
 
 namespace PlanetIO.UI.Loading
 {
@@ -7,9 +8,11 @@ namespace PlanetIO.UI.Loading
     {
         private readonly ILoadingView _loadingView;
         private readonly INetworkSessionService _networkSessionService;
+        private readonly ILocalizationService _localization;
 
-        public LoadingPresenter(ILoadingView loadingView, INetworkSessionService networkSessionService)
+        public LoadingPresenter(ILoadingView loadingView, INetworkSessionService networkSessionService, ILocalizationService localization)
         {
+            _localization = localization ?? throw new ArgumentNullException(nameof(localization));
             _loadingView = loadingView ?? throw new ArgumentNullException(nameof(loadingView));
             _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
         }
@@ -39,7 +42,9 @@ namespace PlanetIO.UI.Loading
 
         private void Render()
         {
-            _loadingView.Render(_networkSessionService.LoadingProgress, _networkSessionService.Status);
+            string status = SessionStatusFormatter.Format(_localization, _networkSessionService.State,
+                _networkSessionService.Mode, _networkSessionService.CurrentRoom.RoomCode);
+            _loadingView.Render(_networkSessionService.LoadingProgress, status);
         }
     }
 }

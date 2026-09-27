@@ -9,6 +9,7 @@ namespace PlanetIO
         event Action<NetworkSessionState, string> StateChanged;
 
         NetworkSessionState State { get; }
+        SessionFailure LastFailure { get; }
         NetworkSessionMode Mode { get; }
         RoomConnectionSettings CurrentRoom { get; }
         string Status { get; }

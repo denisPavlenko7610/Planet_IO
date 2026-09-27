@@ -10,6 +10,8 @@ namespace PlanetIO.UI.Hud
         private const float CanvasHeight = 90f;
         private const float CanvasToWorldScale = 0.012f;
         private const float MinimumParentScale = 0.0001f;
+        private const float MinimumLabelScale = 0.45f;
+        private const float MaximumLabelScale = 1.6f;
 
         [SerializeField, Min(0f)] private float _edgePadding = 0.35f;
         [SerializeField] private Color _textColor = new(1f, 1f, 1f, 0.92f);
@@ -78,8 +80,9 @@ namespace PlanetIO.UI.Hud
 
             if (parentScale > MinimumParentScale)
             {
+                float sizeFactor = Mathf.Clamp(MinimumLabelScale + _entity.Capacity, MinimumLabelScale, MaximumLabelScale);
                 _canvasRectTransform.localScale =
-                    Vector3.one * (CanvasToWorldScale / parentScale);
+                    Vector3.one * (CanvasToWorldScale * sizeFactor / parentScale);
             }
         }
 

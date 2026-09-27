@@ -9,7 +9,7 @@ namespace PlanetIO.Editor
 {
     public static class SpriteAtlasOptimizer
     {
-        private const string AtlasDirectory = "Assets/Atlases";
+        private const string AtlasDirectory = "Assets/_Project/Atlases";
 
         [MenuItem("Planet IO/Assets/Rebuild sprite atlases")]
         public static void RebuildSpriteAtlases()
@@ -17,12 +17,12 @@ namespace PlanetIO.Editor
             EnsureDirectory();
             ConfigureAtlas(
                 $"{AtlasDirectory}/Gameplay.spriteatlas",
-                "Assets/Sprites/Planets",
+                "Assets/_Project/Sprites/Planets",
                 2048);
 
             ConfigureAtlas(
                 $"{AtlasDirectory}/Controls.spriteatlas",
-                "Assets/Sprites/Buttons",
+                "Assets/_Project/Sprites/Buttons",
                 1024);
 
             AssetDatabase.SaveAssets();

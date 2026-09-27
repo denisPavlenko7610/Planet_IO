@@ -153,7 +153,6 @@ namespace PlanetIO
             UpdateDirection(deltaTime);
             Move();
             RotateTowardsDirection(deltaTime);
-            _enemyTransform.position = Constants.ClampToWorld(_enemyTransform.position);
         }
 
         public void Move()
@@ -169,8 +168,8 @@ namespace PlanetIO
                 _ => 1f
             };
 
-            _rigidbody2D.linearVelocity =
-                Direction * (_normalSpeed * speedMultiplier * stateMultiplier);
+            _rigidbody2D.linearVelocity = WorldBounds.KeepInside(_rigidbody2D.position,
+                Direction * (_normalSpeed * speedMultiplier * stateMultiplier));
         }
 
         public void ResetForRespawn()
@@ -357,8 +356,8 @@ namespace PlanetIO
                 return;
             }
 
-            Quaternion targetRotation = Constants.DirectionToRotation(Direction);
-            _enemyTransform.rotation = Quaternion.RotateTowards(_enemyTransform.rotation, targetRotation, _turnSpeed * deltaTime);
+            float targetAngle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
+            _rigidbody2D.MoveRotation(Mathf.MoveTowardsAngle(_rigidbody2D.rotation, targetAngle, _turnSpeed * deltaTime));
         }
 
         private void StopMovement()

@@ -4,6 +4,8 @@ using System.Text;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer.Unity;
+using UnityTemplates.Haptics;
+using UnityTemplates.Localization;
 
 namespace PlanetIO.UI.Hud
 {
@@ -11,21 +13,28 @@ namespace PlanetIO.UI.Hud
     {
         private const float RefreshIntervalSeconds = 0.5f;
         private const int VisibleLeaderboardEntries = 6;
-        private const string BestScoreKey = "PlanetIO.BestScore";
+        private const string LocalEntryColor = "#FFE066";
+        private const float FeedbackMuteAfterResumeSeconds = 0.5f;
+        private const float BorderWarningDistance = 18f;
+        private const float BorderWarningMaxAlpha = 0.75f;
 
         private readonly NetworkManager _networkManager;
         private readonly INetworkSessionService _networkSessionService;
         private readonly ISessionHudView _sessionHudView;
         private readonly ILocalPlayerProvider _localPlayerProvider;
         private readonly IRewardedAdsService _rewardedAdsService;
-        private readonly List<(string Name, int Score)> _entries = new();
+        private readonly IPlayerProfileService _playerProfileService;
+        private readonly ILocalizationService _localization;
+        private readonly List<(string Name, int Score, bool IsLocal)> _entries = new();
         private readonly StringBuilder _leaderboardBuilder = new();
         private Player _localPlayer;
         private float _refreshTimeRemaining;
         private float _lastCapacity;
+        private float _peakCapacity;
         private bool _leaveInProgress;
-        private bool _restartInProgress;
         private bool _continueInProgress;
+        private bool _continueUsedThisLife;
+        private float _feedbackMutedUntil;
         private bool _isDefeated;
         private bool _hintShown;
         private AudioClip _eatClip;
@@ -38,8 +47,12 @@ namespace PlanetIO.UI.Hud
             INetworkSessionService networkSessionService,
             ISessionHudView sessionHudView,
             ILocalPlayerProvider localPlayerProvider,
-            IRewardedAdsService rewardedAdsService)
+            IRewardedAdsService rewardedAdsService,
+            IPlayerProfileService playerProfileService,
+            ILocalizationService localization)
         {
+            _playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
+            _localization = localization ?? throw new ArgumentNullException(nameof(localization));
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
             _sessionHudView = sessionHudView ?? throw new ArgumentNullException(nameof(sessionHudView));
@@ -55,6 +68,8 @@ namespace PlanetIO.UI.Hud
             _deathClip = GameAudio.Load("death");
 
             _sessionHudView.LeaveRequested += OnLeaveRequested;
+            _localization.LocaleChanged += OnLocaleChanged;
+            RenderButtonLabels();
             _sessionHudView.PlayAgainRequested += OnPlayAgainRequested;
             _sessionHudView.ContinueRequested += OnContinueRequested;
             _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
@@ -65,6 +80,8 @@ namespace PlanetIO.UI.Hud
 
         public void Tick()
         {
+            UpdateBorderWarning();
+
             if (_isDefeated)
             {
                 return;
@@ -83,6 +100,7 @@ namespace PlanetIO.UI.Hud
         public void Dispose()
         {
             _sessionHudView.LeaveRequested -= OnLeaveRequested;
+            _localization.LocaleChanged -= OnLocaleChanged;
             _sessionHudView.PlayAgainRequested -= OnPlayAgainRequested;
             _sessionHudView.ContinueRequested -= OnContinueRequested;
             _localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
@@ -100,8 +118,8 @@ namespace PlanetIO.UI.Hud
                 _networkSessionService.CurrentRoom;
             string roomLabel = _networkSessionService.Mode ==
                                NetworkSessionMode.SinglePlayer
-                ? "SINGLE PLAYER"
-                : $"ROOM {room.RoomCode}";
+                ? _localization.Get(LocalizationKeys.HudSinglePlayer)
+                : _localization.Get(LocalizationKeys.HudRoom, room.RoomCode);
 
             CollectEntries();
             _entries.Sort(static (left, right) =>
@@ -112,7 +130,7 @@ namespace PlanetIO.UI.Hud
             if (_localPlayer != null && _localPlayer.IsSpawned)
             {
                 int localScore = Constants.CapacityToScore(_localPlayer.Capacity);
-                foreach ((string Name, int Score) entry in _entries)
+                foreach ((string Name, int Score, bool IsLocal) entry in _entries)
                 {
                     if (entry.Score > localScore)
                     {
@@ -124,22 +142,29 @@ namespace PlanetIO.UI.Hud
             }
 
             string rankLine = localRank > 0
-                ? $"\nRank: #{localRank}/{totalEntries}"
+                ? "\n" + _localization.Get(LocalizationKeys.HudRank, localRank, totalEntries)
                 : string.Empty;
             int playerCount =
                 _networkManager.ConnectedClientsList?.Count ?? 0;
-            _sessionHudView.ShowSessionText(
-                $"{roomLabel}\nPlayers: {playerCount}/{room.MaxPlayers}{rankLine}");
+            string playersLine = _networkSessionService.Mode == NetworkSessionMode.SinglePlayer
+                ? string.Empty
+                : "\n" + _localization.Get(LocalizationKeys.HudPlayers, playerCount, room.MaxPlayers);
+            _sessionHudView.ShowSessionText($"{roomLabel}{playersLine}{rankLine}");
 
             _leaderboardBuilder.Clear();
-            _leaderboardBuilder.AppendLine("<b>LEADERS</b>");
+            _leaderboardBuilder.Append("<b>").Append(_localization.Get(LocalizationKeys.HudLeaders)).AppendLine("</b>");
             int visibleCount = Mathf.Min(
                 VisibleLeaderboardEntries,
                 _entries.Count);
 
             for (int index = 0; index < visibleCount; index++)
             {
-                (string Name, int Score) entry = _entries[index];
+                (string Name, int Score, bool IsLocal) entry = _entries[index];
+                if (entry.IsLocal)
+                {
+                    _leaderboardBuilder.Append("<color=").Append(LocalEntryColor).Append('>');
+                }
+
                 _leaderboardBuilder
                     .Append(index + 1)
                     .Append(". ")
@@ -147,14 +172,58 @@ namespace PlanetIO.UI.Hud
                     .Append("  ")
                     .Append(entry.Score.ToString("N0"));
 
+                if (entry.IsLocal)
+                {
+                    _leaderboardBuilder.Append("</color>");
+                }
+
                 if (index < visibleCount - 1)
                 {
                     _leaderboardBuilder.AppendLine();
                 }
             }
 
+            if (localRank > visibleCount && _localPlayer != null)
+            {
+                _leaderboardBuilder
+                    .AppendLine()
+                    .Append("<color=").Append(LocalEntryColor).Append('>')
+                    .Append(localRank)
+                    .Append(". ")
+                    .Append(_localPlayer.DisplayName)
+                    .Append("  ")
+                    .Append(Constants.CapacityToScore(_localPlayer.Capacity).ToString("N0"))
+                    .Append("</color>");
+            }
+
             _sessionHudView.ShowLeaderboardText(
                 _leaderboardBuilder.ToString());
+        }
+
+        private void OnLocaleChanged(LocaleChanged _)
+        {
+            RenderButtonLabels();
+            Refresh();
+        }
+
+        private void RenderButtonLabels()
+        {
+            _sessionHudView.SetButtonLabels(
+                _localization.Get(LocalizationKeys.HudLeave),
+                _localization.Get(LocalizationKeys.HudPlayAgain),
+                _localization.Get(LocalizationKeys.HudWatchAd));
+        }
+
+        private void UpdateBorderWarning()
+        {
+            float strength = 0f;
+            if (!_isDefeated && _localPlayer != null && _localPlayer.IsSpawned)
+            {
+                float distance = WorldBounds.DistanceToEdge(_localPlayer.transform.position);
+                strength = (1f - Mathf.Clamp01(distance / BorderWarningDistance)) * BorderWarningMaxAlpha;
+            }
+
+            _sessionHudView.SetBorderWarning(strength);
         }
 
         private void OnLocalPlayerChanged(Player player)
@@ -181,13 +250,14 @@ namespace PlanetIO.UI.Hud
             _localPlayer.Killed += OnLocalPlayerKill;
             _localPlayer.CapacityChanged += OnLocalCapacityChanged;
             _lastCapacity = _localPlayer.Capacity;
+            _peakCapacity = Mathf.Max(_peakCapacity, _lastCapacity);
 
             if (!_hintShown)
             {
                 _hintShown = true;
-                _sessionHudView.ShowHint(Application.isMobilePlatform
-                    ? "Drag to steer \u2022 Hold the button to boost"
-                    : "Steer with mouse or WASD \u2022 Hold the boost button");
+                _sessionHudView.ShowHint(_localization.Get(UnityEngine.Application.isMobilePlatform
+                    ? LocalizationKeys.HudHintTouch
+                    : LocalizationKeys.HudHintDesktop));
             }
 
             if (_localPlayer.IsDefeated)
@@ -200,6 +270,16 @@ namespace PlanetIO.UI.Hud
         {
             float delta = capacity - _lastCapacity;
             _lastCapacity = capacity;
+            if (_isDefeated)
+            {
+                return;
+            }
+
+            _peakCapacity = Mathf.Max(_peakCapacity, capacity);
+            if (Time.unscaledTime < _feedbackMutedUntil)
+            {
+                return;
+            }
 
             if (delta > 0.0001f)
             {
@@ -214,7 +294,8 @@ namespace PlanetIO.UI.Hud
         private void OnLocalPlayerKill(string victimName, int score)
         {
             GameAudio.Play2D(_killClip, 1f, 0.65f);
-            _sessionHudView.ShowKillFeed($"You ate {victimName}");
+            Haptics.Play(HapticPreset.Success);
+            _sessionHudView.ShowKillFeed(_localization.Get(LocalizationKeys.HudYouAte, victimName));
             _sessionHudView.ShowScorePopup(GetLocalPlayerScreenPosition(), score);
         }
 
@@ -238,15 +319,16 @@ namespace PlanetIO.UI.Hud
 
             _isDefeated = true;
             GameAudio.Play2D(_deathClip, 1f, 0.7f);
+            Haptics.Play(HapticPreset.Failure);
 
-            int finalScore = Constants.CapacityToScore(_localPlayer.Capacity);
-            int bestScore = Mathf.Max(finalScore, PlayerPrefs.GetInt(BestScoreKey, 0));
-            PlayerPrefs.SetInt(BestScoreKey, bestScore);
+            int finalScore = Constants.CapacityToScore(Mathf.Max(_peakCapacity, _localPlayer.Capacity));
+            _playerProfileService.SubmitScore(finalScore);
+            int bestScore = _playerProfileService.BestScore;
 
-            bool canPlayAgain =
-                _networkSessionService.Mode == NetworkSessionMode.SinglePlayer;
-            _sessionHudView.ShowDefeat(finalScore, bestScore, canPlayAgain);
-            _sessionHudView.SetContinueVisible(_rewardedAdsService.CanShowAd);
+            _sessionHudView.ShowDefeat(
+                _localization.Get(LocalizationKeys.HudYouLost),
+                _localization.Get(LocalizationKeys.HudFinalScore, finalScore.ToString("N0"), bestScore.ToString("N0")));
+            _sessionHudView.SetContinueVisible(!_continueUsedThisLife && _rewardedAdsService.CanShowAd);
             _sessionHudView.SetLeaveButtonInteractable(true);
         }
 
@@ -267,7 +349,8 @@ namespace PlanetIO.UI.Hud
                     {
                         _entries.Add((
                             player.DisplayName,
-                            Constants.CapacityToScore(player.Capacity)));
+                            Constants.CapacityToScore(player.Capacity),
+                            player == _localPlayer));
                     }
 
                     continue;
@@ -277,7 +360,8 @@ namespace PlanetIO.UI.Hud
                 {
                     _entries.Add((
                         enemy.DisplayName,
-                        Constants.CapacityToScore(enemy.Capacity)));
+                        Constants.CapacityToScore(enemy.Capacity),
+                        false));
                 }
             }
         }
@@ -289,15 +373,15 @@ namespace PlanetIO.UI.Hud
 
         private void OnPlayAgainRequested()
         {
-            if (_restartInProgress || _leaveInProgress)
+            if (_leaveInProgress || !_isDefeated || _localPlayer == null)
             {
                 return;
             }
 
-            _restartInProgress = true;
-            _sessionHudView.SetLeaveButtonInteractable(false);
-            _sessionHudView.SetPlayAgainVisible(false);
-            _ = RestartSinglePlayerAsync();
+            ResumeAfterDefeat();
+            _peakCapacity = 0f;
+            _continueUsedThisLife = false;
+            _localPlayer.RespawnRpc();
         }
 
         private void OnContinueRequested()
@@ -316,28 +400,19 @@ namespace PlanetIO.UI.Hud
                     return;
                 }
 
-                _isDefeated = false;
-                _lastCapacity = _localPlayer.Capacity;
-                _sessionHudView.SetContinueVisible(false);
-                _sessionHudView.SetPlayAgainVisible(false);
+                ResumeAfterDefeat();
+                _continueUsedThisLife = true;
                 _localPlayer.ContinueRpc();
             });
         }
 
-        private async Awaitable RestartSinglePlayerAsync()
+        private void ResumeAfterDefeat()
         {
-            try
-            {
-                await _networkSessionService.ShutdownAndReturnToMenuAsync();
-                await _networkSessionService.StartSinglePlayerAsync();
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception exception)
-            {
-                GameLogger.LogException(exception);
-            }
+            _isDefeated = false;
+            _lastCapacity = _localPlayer.Capacity;
+            _sessionHudView.HideDefeat();
+            _refreshTimeRemaining = 0f;
+            _feedbackMutedUntil = Time.unscaledTime + FeedbackMuteAfterResumeSeconds;
         }
 
         private async Awaitable LeaveAsync()
@@ -349,8 +424,6 @@ namespace PlanetIO.UI.Hud
 
             _leaveInProgress = true;
             _sessionHudView.SetLeaveButtonInteractable(false);
-            _sessionHudView.SetPlayAgainVisible(false);
-            _sessionHudView.SetContinueVisible(false);
 
             try
             {

@@ -6,6 +6,10 @@ using PlanetIO.Infrastructure.Bootstrap;
 using PlanetIO.Infrastructure.Audio;
 using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
+using PlanetIO.Infrastructure.Localization;
+using PlanetIO.Infrastructure.Settings;
+using UnityTemplates.Localization;
+using UnityTemplates.Settings;
 using PlanetIO.Infrastructure.Mobile;
 using Unity.Netcode;
 using UnityTemplates.SceneFlow;
@@ -57,9 +61,19 @@ namespace PlanetIO.Infrastructure.Bootstrap
                 Lifetime.Singleton)
                 .As<ISceneFlow>();
             builder.Register<PlayerProfileService>(Lifetime.Singleton).As<IPlayerProfileService>();
+            builder.Register<ISettingsStore>(_ => new PlayerPrefsSettingsStore(GameSettingKeys.StorePrefix), Lifetime.Singleton);
+            builder.Register<SettingsService>(Lifetime.Singleton).As<ISettingsService>();
+            builder.RegisterEntryPoint<GameSettingsApplier>();
+            builder.Register<UnityLocalizationProvider>(Lifetime.Singleton);
+            builder.Register<ILocalizationService>(resolver =>
+            {
+                UnityLocalizationProvider provider = resolver.Resolve<UnityLocalizationProvider>();
+                provider.Initialize();
+                return new LocalizationService(provider);
+            }, Lifetime.Singleton);
             builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
             builder.Register<AddressableContentService>(Lifetime.Singleton).As<IContentInitializationService>();
-            builder.Register<AdMobRewardedService>(Lifetime.Singleton).As<IRewardedAdsService>();
+            builder.Register<AdMobRewardedService>(Lifetime.Singleton).As<IRewardedAdsService>().As<IAdPrivacyService>();
             builder.RegisterEntryPoint<AddressableMusicService>();
 			builder.RegisterEntryPoint<NetworkSessionService>()
                 .AsSelf()

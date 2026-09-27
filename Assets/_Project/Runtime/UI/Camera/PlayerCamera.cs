@@ -14,6 +14,9 @@ namespace PlanetIO.UI.Camera
         [SerializeField, Min(0f)] private float _zoomPerCapacityUnit = 5f;
         [SerializeField, Min(1f)] private float _maximumOrthographicSize = 30f;
         [SerializeField, Min(0.1f)] private float _minimumOrthographicSize = 2f;
+        [SerializeField, Min(0f)] private float _killShake = 0.25f;
+        [SerializeField, Min(0f)] private float _deathShake = 0.6f;
+        [SerializeField, Min(0.01f)] private float _shakeDuration = 0.35f;
 
         private Player _player;
         private ILocalPlayerProvider _localPlayerProvider;
@@ -23,6 +26,9 @@ namespace PlanetIO.UI.Camera
         private float _baseOrthographicSize;
         private float _baseCapacity;
         private float _targetOrthographicSize;
+        private float _shakeStrength;
+        private float _shakeTimeRemaining;
+        private Vector3 _lastShakeOffset;
 
         public UnityEngine.Camera Camera { get; private set; }
 
@@ -52,15 +58,10 @@ namespace PlanetIO.UI.Camera
 
             Vector3 playerPosition = _player.transform.position;
             Vector3 targetPosition = new(playerPosition.x, playerPosition.y, _cameraDepth);
-            Vector3 smoothed = Vector3.SmoothDamp(transform.position, targetPosition, ref _positionVelocity,
-                _positionSmoothTime);
-
-            float unitsPerPixel =
-                2f * Camera.orthographicSize / Mathf.Max(1, Screen.height);
-            transform.position = new Vector3(
-                Mathf.Round(smoothed.x / unitsPerPixel) * unitsPerPixel,
-                Mathf.Round(smoothed.y / unitsPerPixel) * unitsPerPixel,
-                _cameraDepth);
+            Vector3 basePosition = transform.position - _lastShakeOffset;
+            Vector3 smoothed = Vector3.SmoothDamp(basePosition, targetPosition, ref _positionVelocity, _positionSmoothTime);
+            _lastShakeOffset = GetShakeOffset();
+            transform.position = smoothed + _lastShakeOffset;
 
             Camera.orthographicSize = Mathf.SmoothDamp(Camera.orthographicSize, _targetOrthographicSize, ref _zoomVelocity,
                 _zoomSmoothTime);
@@ -89,6 +90,8 @@ namespace PlanetIO.UI.Camera
 
             _baseCapacity = Mathf.Max(_player.Capacity, Constants.MinimumDisplayCapacity);
             _player.CapacityChanged += OnCapacityChanged;
+            _player.Defeated += OnPlayerDefeated;
+            _player.Killed += OnPlayerKilled;
             OnCapacityChanged(_player.Capacity);
         }
 
@@ -100,7 +103,37 @@ namespace PlanetIO.UI.Camera
             }
 
             _player.CapacityChanged -= OnCapacityChanged;
+            _player.Defeated -= OnPlayerDefeated;
+            _player.Killed -= OnPlayerKilled;
             _player = null;
+        }
+
+        private void OnPlayerDefeated() => Shake(_deathShake);
+
+        private void OnPlayerKilled(string _, int __) => Shake(_killShake);
+
+        private void Shake(float strength)
+        {
+            _shakeStrength = Mathf.Max(_shakeStrength, strength);
+            _shakeTimeRemaining = _shakeDuration;
+        }
+
+        private Vector3 GetShakeOffset()
+        {
+            if (_shakeTimeRemaining <= 0f)
+            {
+                return Vector3.zero;
+            }
+
+            _shakeTimeRemaining -= Time.unscaledDeltaTime;
+            float fade = Mathf.Clamp01(_shakeTimeRemaining / _shakeDuration);
+            Vector2 offset = UnityEngine.Random.insideUnitCircle * (_shakeStrength * fade);
+            if (_shakeTimeRemaining <= 0f)
+            {
+                _shakeStrength = 0f;
+            }
+
+            return new Vector3(offset.x, offset.y, 0f);
         }
 
         private void OnCapacityChanged(float capacity)

@@ -1,0 +1,201 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_fr
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: fr
+  m_SharedData: {fileID: 11400000, guid: eb4c2c63b2be3474d8af3f96f31e4cd2, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 3513516032
+    m_Localized: Entrez un pseudo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3647733760
+    m_Localized: "Al\xE9atoire"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122368
+    m_Localized: Jouer contre des bots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122369
+    m_Localized: "Cr\xE9er une salle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122370
+    m_Localized: Rejoindre
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122371
+    m_Localized: Code de salle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122372
+    m_Localized: "Param\xE8tres"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122373
+    m_Localized: 'Record : {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122374
+    m_Localized: En ligne
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122375
+    m_Localized: Couleur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316672
+    m_Localized: "Pr\xEAt \xE0 jouer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316673
+    m_Localized: "Cr\xE9ation de la salle..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316674
+    m_Localized: "Salle cr\xE9\xE9e. Code : {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316675
+    m_Localized: "Connexion \xE0 la salle {0}..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316676
+    m_Localized: Lancement de la partie...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316677
+    m_Localized: Chargement...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316678
+    m_Localized: "D\xE9connexion..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316679
+    m_Localized: "\xC9chec de la connexion. V\xE9rifiez le code de salle et votre connexion."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316680
+    m_Localized: Entrez un code de salle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316681
+    m_Localized: "Param\xE8tres"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316682
+    m_Localized: Musique
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316683
+    m_Localized: Effets sonores
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316684
+    m_Localized: Langue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316685
+    m_Localized: "Confidentialit\xE9 des pubs"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316686
+    m_Localized: Fermer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316687
+    m_Localized: Solo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316688
+    m_Localized: Salle {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316689
+    m_Localized: 'Joueurs : {0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316690
+    m_Localized: 'Rang : #{0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316691
+    m_Localized: Classement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316692
+    m_Localized: "Glissez pour diriger \u2022 Maintenez le bouton pour acc\xE9l\xE9rer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316693
+    m_Localized: "Dirigez avec la souris ou WASD \u2022 Maintenez Espace pour acc\xE9l\xE9rer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316694
+    m_Localized: "Vous avez mang\xE9 {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316695
+    m_Localized: Perdu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510976
+    m_Localized: 'Score {0}
+
+      Record {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510977
+    m_Localized: Rejouer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510978
+    m_Localized: Continuer (pub)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510979
+    m_Localized: Menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510980
+    m_Localized: Boost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510981
+    m_Localized: "Appuyez \xE0 nouveau sur Retour pour quitter"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3714642083840
+    m_Localized: Vibration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989990191104
+    m_Localized: "L'h\xF4te a quitt\xE9 la partie"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385408
+    m_Localized: La salle est pleine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385409
+    m_Localized: "Mettez le jeu \xE0 jour pour rejoindre cette salle"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -1,0 +1,204 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: UI
+  m_TableCollectionNameGuidString: eb4c2c63b2be3474d8af3f96f31e4cd2
+  m_Entries:
+  - m_Id: 3513516032
+    m_Key: menu.nickname_placeholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3647733760
+    m_Key: menu.random_nickname
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122368
+    m_Key: menu.play_with_bots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122369
+    m_Key: menu.create_room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122370
+    m_Key: menu.join_room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122371
+    m_Key: menu.room_code_placeholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122372
+    m_Key: menu.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122373
+    m_Key: menu.best_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122374
+    m_Key: menu.online
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122375
+    m_Key: menu.color
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316672
+    m_Key: status.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316673
+    m_Key: status.creating_room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316674
+    m_Key: status.room_created
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316675
+    m_Key: status.connecting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316676
+    m_Key: status.starting_solo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316677
+    m_Key: status.loading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316678
+    m_Key: status.leaving
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316679
+    m_Key: status.failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316680
+    m_Key: status.enter_room_code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316681
+    m_Key: settings.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316682
+    m_Key: settings.music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316683
+    m_Key: settings.sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316684
+    m_Key: settings.language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316685
+    m_Key: settings.ad_privacy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316686
+    m_Key: settings.close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316687
+    m_Key: hud.single_player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316688
+    m_Key: hud.room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316689
+    m_Key: hud.players
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316690
+    m_Key: hud.rank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316691
+    m_Key: hud.leaders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316692
+    m_Key: hud.hint_touch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316693
+    m_Key: hud.hint_desktop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316694
+    m_Key: hud.you_ate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316695
+    m_Key: hud.you_lost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510976
+    m_Key: hud.final_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510977
+    m_Key: hud.play_again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510978
+    m_Key: hud.watch_ad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510979
+    m_Key: hud.leave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510980
+    m_Key: hud.boost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510981
+    m_Key: hud.back_to_leave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3714642083840
+    m_Key: settings.haptics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989990191104
+    m_Key: status.host_left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385408
+    m_Key: status.room_full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385409
+    m_Key: status.version_mismatch
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2420239018830594165
+  references:
+    version: 2
+    RefIds:
+    - rid: 2420239018830594165
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1790504142588

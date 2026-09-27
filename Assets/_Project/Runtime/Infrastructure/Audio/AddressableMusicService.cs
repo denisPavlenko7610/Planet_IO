@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
+using UnityTemplates.Settings;
 using VContainer.Unity;
 using Object = UnityEngine.Object;
 
@@ -12,10 +13,11 @@ namespace PlanetIO.Infrastructure.Audio
     {
         private const string MenuMusicAddress = "audio/mars";
         private const string GameMusicAddress = "audio/map";
-        private const float MusicVolume = 0.35f;
+        private const float MaximumMusicVolume = 0.45f;
         private const float FadeDurationSeconds = 0.25f;
 
         private readonly IContentInitializationService _contentInitializationService;
+        private readonly ISettingsService _settings;
         private AudioSource _audioSource;
         private AsyncOperationHandle<AudioClip> _clipHandle;
         private string _currentAddress = string.Empty;
@@ -23,10 +25,15 @@ namespace PlanetIO.Infrastructure.Audio
         private int _playGeneration;
         private bool _disposed;
 
-        public AddressableMusicService(IContentInitializationService contentInitializationService)
+        public AddressableMusicService(
+            IContentInitializationService contentInitializationService,
+            ISettingsService settings)
         {
             _contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
+
+        private float TargetVolume => MaximumMusicVolume * _settings.Get(GameSettingKeys.MusicVolume);
 
         public void Start()
         {
@@ -44,6 +51,7 @@ namespace PlanetIO.Infrastructure.Audio
             _audioSource.volume = 0f;
 
             SceneManager.sceneLoaded += OnSceneLoaded;
+            _settings.Changed += OnSettingsChanged;
             PlayForScene(SceneManager.GetActiveScene());
         }
 
@@ -56,6 +64,7 @@ namespace PlanetIO.Infrastructure.Audio
 
             _disposed = true;
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            _settings.Changed -= OnSettingsChanged;
             _playGeneration++;
             ReleaseClip();
 
@@ -98,7 +107,7 @@ namespace PlanetIO.Infrastructure.Audio
                 int generation = ++_playGeneration;
                 _requestedAddress = address;
                 ResumeIfNeeded();
-                _ = FadeToAsync(MusicVolume, generation);
+                _ = FadeToAsync(TargetVolume, generation);
                 return;
             }
 
@@ -154,7 +163,7 @@ namespace PlanetIO.Infrastructure.Audio
                 _audioSource.clip = handle.Result;
                 _audioSource.volume = 0f;
                 _audioSource.Play();
-                await FadeToAsync(MusicVolume, generation);
+                await FadeToAsync(TargetVolume, generation);
             }
             catch (OperationCanceledException)
             {
@@ -174,6 +183,14 @@ namespace PlanetIO.Infrastructure.Audio
                 {
                     _requestedAddress = _currentAddress;
                 }
+            }
+        }
+
+        private void OnSettingsChanged(SettingChanged _)
+        {
+            if (_audioSource != null && _audioSource.isPlaying)
+            {
+                _audioSource.volume = TargetVolume;
             }
         }
 

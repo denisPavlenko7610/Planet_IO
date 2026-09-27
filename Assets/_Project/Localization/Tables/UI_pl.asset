@@ -1,0 +1,201 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_pl
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: pl
+  m_SharedData: {fileID: 11400000, guid: eb4c2c63b2be3474d8af3f96f31e4cd2, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 3513516032
+    m_Localized: Wpisz nick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3647733760
+    m_Localized: Losowy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122368
+    m_Localized: Graj z botami
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122369
+    m_Localized: "Utw\xF3rz pok\xF3j"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122370
+    m_Localized: "Do\u0142\u0105cz"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122371
+    m_Localized: Kod pokoju
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122372
+    m_Localized: Ustawienia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122373
+    m_Localized: 'Rekord: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122374
+    m_Localized: Online
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122375
+    m_Localized: Kolor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316672
+    m_Localized: Gotowy do gry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316673
+    m_Localized: Tworzenie pokoju...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316674
+    m_Localized: "Pok\xF3j utworzony. Kod: {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316675
+    m_Localized: "\u0141\u0105czenie z pokojem {0}..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316676
+    m_Localized: Uruchamianie gry...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316677
+    m_Localized: "\u0141adowanie..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316678
+    m_Localized: Wychodzenie...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316679
+    m_Localized: "Nie uda\u0142o si\u0119 po\u0142\u0105czy\u0107. Sprawd\u017A kod pokoju i internet."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316680
+    m_Localized: Wpisz kod pokoju
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316681
+    m_Localized: Ustawienia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316682
+    m_Localized: Muzyka
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316683
+    m_Localized: "Efekty d\u017Awi\u0119kowe"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316684
+    m_Localized: "J\u0119zyk"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316685
+    m_Localized: "Prywatno\u015B\u0107 reklam"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316686
+    m_Localized: Zamknij
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316687
+    m_Localized: Gra solo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316688
+    m_Localized: "Pok\xF3j {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316689
+    m_Localized: 'Gracze: {0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316690
+    m_Localized: 'Miejsce: #{0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316691
+    m_Localized: Liderzy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316692
+    m_Localized: "Przeci\u0105gnij, by sterowa\u0107 \u2022 Przytrzymaj przycisk, by przyspieszy\u0107"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316693
+    m_Localized: "Steruj mysz\u0105 lub WASD \u2022 Przytrzymaj Spacj\u0119, by przyspieszy\u0107"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316694
+    m_Localized: 'Zjadasz: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316695
+    m_Localized: Przegrana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510976
+    m_Localized: 'Wynik {0}
+
+      Rekord {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510977
+    m_Localized: Zagraj ponownie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510978
+    m_Localized: Kontynuuj (reklama)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510979
+    m_Localized: Menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510980
+    m_Localized: Turbo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510981
+    m_Localized: "Naci\u015Bnij Wstecz ponownie, aby wyj\u015B\u0107"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3714642083840
+    m_Localized: Wibracje
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989990191104
+    m_Localized: "Gospodarz opu\u015Bci\u0142 gr\u0119"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385408
+    m_Localized: "Pok\xF3j jest pe\u0142ny"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385409
+    m_Localized: "Zaktualizuj gr\u0119, aby do\u0142\u0105czy\u0107 do tego pokoju"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

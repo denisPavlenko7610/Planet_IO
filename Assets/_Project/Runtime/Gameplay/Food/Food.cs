@@ -12,9 +12,12 @@ namespace PlanetIO
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        [SerializeField] private Color _effectColor = Color.white;
+
         private SpriteRenderer _spriteRenderer;
 
         public float Capacity { get; set; }
+        public float Nutrition { get; private set; }
         public bool IsDropped { get; private set; }
 
         public int LifecycleVersion { get; private set; }
@@ -39,6 +42,33 @@ namespace PlanetIO
             _isClaimed = false;
         }
 
+        public void PlayEatenEffect()
+        {
+            if (IsServer && IsSpawned)
+            {
+                PlayEatenEffectRpc(transform.position, transform.localScale.x);
+            }
+        }
+
+        [Rpc(SendTo.Everyone)]
+        private void PlayEatenEffectRpc(Vector2 position, float size)
+        {
+            Color color = ValueMultiplier > 1f ? GoldenTint : _effectColor;
+            GameVfx.Eat(position, color, size);
+        }
+
+        public void SetNutrition(float nutrition)
+        {
+            Nutrition = Mathf.Max(0f, nutrition);
+        }
+
+        public float GetGrowth(float growthMultiplier)
+        {
+            return Nutrition > 0f
+                ? Nutrition
+                : Capacity * growthMultiplier * ValueMultiplier;
+        }
+
         public int MarkAsDropped()
         {
             IsDropped = true;
@@ -48,6 +78,7 @@ namespace PlanetIO
         public void MarkAsStored()
         {
             IsDropped = false;
+            Nutrition = 0f;
             LifecycleVersion++;
         }
 
@@ -62,6 +93,7 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            SceneContainers.Attach(transform, SceneContainers.Food);
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _valueMultiplier.OnValueChanged += OnValueMultiplierChanged;
             ApplyGoldenTint(_valueMultiplier.Value);

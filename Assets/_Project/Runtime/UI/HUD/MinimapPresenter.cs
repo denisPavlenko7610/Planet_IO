@@ -24,7 +24,7 @@ namespace PlanetIO.UI.Hud
         public void Start()
         {
             Canvas overlayCanvas = null;
-            foreach (Canvas canvas in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            foreach (Canvas canvas in UnityEngine.Object.FindObjectsByType<Canvas>())
             {
                 if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
                 {

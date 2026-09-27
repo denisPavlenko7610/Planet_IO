@@ -1,0 +1,201 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_de
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: eb4c2c63b2be3474d8af3f96f31e4cd2, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 3513516032
+    m_Localized: Spitzname eingeben
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3647733760
+    m_Localized: "Zuf\xE4llig"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122368
+    m_Localized: Mit Bots spielen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122369
+    m_Localized: Raum erstellen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122370
+    m_Localized: Beitreten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122371
+    m_Localized: Raumcode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122372
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122373
+    m_Localized: 'Rekord: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122374
+    m_Localized: Online
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122375
+    m_Localized: Farbe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316672
+    m_Localized: Bereit zum Spielen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316673
+    m_Localized: Raum wird erstellt...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316674
+    m_Localized: 'Raum erstellt. Code: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316675
+    m_Localized: Verbinde mit Raum {0}...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316676
+    m_Localized: Spiel wird gestartet...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316677
+    m_Localized: "L\xE4dt..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316678
+    m_Localized: Verlassen...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316679
+    m_Localized: "Verbindung fehlgeschlagen. Pr\xFCfe den Raumcode und dein Internet."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316680
+    m_Localized: Gib einen Raumcode ein
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316681
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316682
+    m_Localized: Musik
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316683
+    m_Localized: Soundeffekte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316684
+    m_Localized: Sprache
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316685
+    m_Localized: Werbe-Datenschutz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316686
+    m_Localized: "Schlie\xDFen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316687
+    m_Localized: Einzelspieler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316688
+    m_Localized: Raum {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316689
+    m_Localized: 'Spieler: {0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316690
+    m_Localized: 'Platz: #{0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316691
+    m_Localized: Bestenliste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316692
+    m_Localized: "Ziehen zum Steuern \u2022 Taste halten f\xFCr Boost"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316693
+    m_Localized: "Steuern mit Maus oder WASD \u2022 Leertaste halten f\xFCr Boost"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316694
+    m_Localized: Du hast {0} gefressen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316695
+    m_Localized: Verloren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510976
+    m_Localized: 'Punkte {0}
+
+      Rekord {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510977
+    m_Localized: Nochmal spielen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510978
+    m_Localized: Weiter (Werbung)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510979
+    m_Localized: "Men\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510980
+    m_Localized: Boost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510981
+    m_Localized: "Nochmal Zur\xFCck dr\xFCcken, um das Spiel zu verlassen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3714642083840
+    m_Localized: Vibration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989990191104
+    m_Localized: Der Host hat das Spiel verlassen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385408
+    m_Localized: Der Raum ist voll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385409
+    m_Localized: Aktualisiere das Spiel, um diesem Raum beizutreten
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -1,0 +1,201 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_pt-BR
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: pt-BR
+  m_SharedData: {fileID: 11400000, guid: eb4c2c63b2be3474d8af3f96f31e4cd2, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 3513516032
+    m_Localized: Digite seu apelido
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3647733760
+    m_Localized: "Aleat\xF3rio"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122368
+    m_Localized: Jogar com bots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122369
+    m_Localized: Criar sala
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122370
+    m_Localized: Entrar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122371
+    m_Localized: "C\xF3digo da sala"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122372
+    m_Localized: "Configura\xE7\xF5es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122373
+    m_Localized: 'Recorde: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122374
+    m_Localized: Online
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3656122375
+    m_Localized: Cor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316672
+    m_Localized: Pronto para jogar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316673
+    m_Localized: Criando sala...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316674
+    m_Localized: "Sala criada. C\xF3digo: {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316675
+    m_Localized: "Conectando \xE0 sala {0}..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316676
+    m_Localized: Iniciando partida...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316677
+    m_Localized: Carregando...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316678
+    m_Localized: Saindo...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316679
+    m_Localized: "Falha na conex\xE3o. Verifique o c\xF3digo da sala e sua internet."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316680
+    m_Localized: "Digite um c\xF3digo de sala"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316681
+    m_Localized: "Configura\xE7\xF5es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316682
+    m_Localized: "M\xFAsica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316683
+    m_Localized: Efeitos sonoros
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316684
+    m_Localized: Idioma
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316685
+    m_Localized: "Privacidade de an\xFAncios"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316686
+    m_Localized: Fechar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316687
+    m_Localized: Um jogador
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316688
+    m_Localized: Sala {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316689
+    m_Localized: 'Jogadores: {0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316690
+    m_Localized: "Posi\xE7\xE3o: #{0}/{1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316691
+    m_Localized: "L\xEDderes"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316692
+    m_Localized: "Arraste para dirigir \u2022 Segure o bot\xE3o para acelerar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316693
+    m_Localized: "Dirija com o mouse ou WASD \u2022 Segure Espa\xE7o para acelerar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316694
+    m_Localized: "Voc\xEA comeu {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3660316695
+    m_Localized: "Voc\xEA perdeu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510976
+    m_Localized: 'Pontos {0}
+
+      Recorde {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510977
+    m_Localized: Jogar de novo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510978
+    m_Localized: "Continuar (an\xFAncio)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510979
+    m_Localized: Menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510980
+    m_Localized: Turbo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3664510981
+    m_Localized: Pressione voltar novamente para sair
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3714642083840
+    m_Localized: "Vibra\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989990191104
+    m_Localized: "O anfitri\xE3o saiu da partida"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385408
+    m_Localized: "A sala est\xE1 cheia"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8989994385409
+    m_Localized: Atualize o jogo para entrar nesta sala
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -1,6 +1,7 @@
 using VContainer;
 using VContainer.Unity;
 using PlanetIO.UI.Menu;
+using PlanetIO.UI.Settings;
 
 namespace PlanetIO.Infrastructure.Bootstrap
 {
@@ -8,12 +9,16 @@ namespace PlanetIO.Infrastructure.Bootstrap
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponentInHierarchy<NetworkUI>()
-                .As<INetworkMenuView>();
+            builder.RegisterComponentInHierarchy<MainMenuView>()
+                .As<IMainMenuView>();
 
             builder.RegisterComponentInHierarchy<NicknameInputView>()
                 .As<INicknameInputView>();
 
+            builder.RegisterComponentInHierarchy<SettingsView>()
+                .As<ISettingsView>();
+
+            builder.RegisterEntryPoint<SettingsPresenter>().AsSelf();
             builder.RegisterEntryPoint<MenuPresenter>();
         }
     }

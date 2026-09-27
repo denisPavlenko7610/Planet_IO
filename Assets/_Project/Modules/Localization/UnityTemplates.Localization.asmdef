@@ -1,0 +1,7 @@
+{
+    "name": "UnityTemplates.Localization",
+    "rootNamespace": "UnityTemplates.Localization",
+    "references": [
+        "UnityTemplates.Foundation"
+    ]
+}

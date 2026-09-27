@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Collections;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.Serialization;
 using VContainer;
@@ -29,12 +30,14 @@ namespace PlanetIO
         [SerializeField, Min(0f)] private float _spawnInvincibilityTime = 2f;
         [SerializeField, Min(0f)] private float _continueProtectionTime = 5f;
 		[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
+        [SerializeField, Range(0f, 1f)] private float _continueMassFraction = 0.5f;
 
         [Header("Food magnet")]
         [SerializeField, Min(0f)] private float _foodAttractionRadius = 4f;
         [SerializeField, Min(0f)] private float _foodAttractionSpeed = 5f;
 
         private const int FoodAttractionBuffer = 16;
+        public const float BoostDropNutritionFraction = 0.8f;
 
         private readonly NetworkVariable<bool> _networkDefeated = new(
             false,
@@ -68,6 +71,7 @@ namespace PlanetIO
         private bool _continueUsedThisLife;
         private float _boostTimer;
         private float _invincibilityTimeRemaining;
+        private float _capacityAtDefeat;
         private PlayerVisualEffects _visualEffects;
         private readonly Collider2D[] _foodBuffer = new Collider2D[FoodAttractionBuffer];
 
@@ -124,7 +128,7 @@ namespace PlanetIO
             UnsubscribeFromBorderEvent();
         }
 
-        [Rpc(SendTo.Server)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         public void SetBoostRpc(bool boosting)
         {
             if (!_servicesReady ||
@@ -179,7 +183,7 @@ namespace PlanetIO
         {
             if (_pointSpawnTransform != null)
             {
-                _foodSpawnService.SpawnAt(_pointSpawnTransform);
+                _foodSpawnService.SpawnAt(_pointSpawnTransform, _boostMassCost * BoostDropNutritionFraction);
             }
         }
 
@@ -239,9 +243,11 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            SceneContainers.Attach(transform, SceneContainers.Players);
             _networkDefeated.OnValueChanged += OnDefeatedChanged;
             _networkBoosting.OnValueChanged += OnBoostingChanged;
             _networkSpawnProtected.OnValueChanged += OnSpawnProtectionChanged;
+            _networkColor.OnValueChanged += OnColorChanged;
 
             if (IsServer)
             {
@@ -284,7 +290,7 @@ namespace PlanetIO
             _visualEffects?.SetBaseColor(color);
         }
 
-        [Rpc(SendTo.Server)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         private void SetColorRpc(Color32 color)
         {
             _networkColor.Value = color;
@@ -307,11 +313,12 @@ namespace PlanetIO
                 return;
             }
 
+            _visualEffects.SetBaseColor(_networkColor.Value);
             _visualEffects.SetBoosting(_networkBoosting.Value);
             _visualEffects.SetSpawnProtected(_networkSpawnProtected.Value);
         }
 
-        [Rpc(SendTo.Server)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         private void SubmitNicknameRpc(FixedString64Bytes nickname)
         {
             SetDisplayName(nickname.ToString());
@@ -349,7 +356,7 @@ namespace PlanetIO
         private void AttractFood()
         {
             int hitCount = Physics2D.OverlapCircle(
-                transform.position, _foodAttractionRadius, ContactFilter2D.noFilter, _foodBuffer);
+                transform.position, _foodAttractionRadius + Capacity, ContactFilter2D.noFilter, _foodBuffer);
             float pullStep = _foodAttractionSpeed * Time.deltaTime;
 
             for (int index = 0; index < hitCount; index++)
@@ -392,7 +399,7 @@ namespace PlanetIO
             {
                 if (Capacity >= enemy.Capacity * _eatSizeRatio)
                 {
-                    Grow(enemy.Capacity);
+                    AbsorbVictim(enemy.Capacity);
                     NotifyKillRpc(enemy.DisplayName, Constants.CapacityToScore(enemy.Capacity));
                     _enemyRespawnService.Respawn(enemy);
                 }
@@ -415,7 +422,7 @@ namespace PlanetIO
 
             int score = Constants.CapacityToScore(otherPlayer.Capacity);
             NotifyKillRpc(otherPlayer.DisplayName, score);
-            Grow(otherPlayer.Capacity);
+            AbsorbVictim(otherPlayer.Capacity);
             otherPlayer.Defeat();
         }
 
@@ -432,6 +439,7 @@ namespace PlanetIO
                 return;
             }
 
+            _capacityAtDefeat = Capacity;
             _lootSpawnService?.SpawnLoot(transform.position, Capacity);
 
             if (_rigidbody2D != null)
@@ -453,6 +461,8 @@ namespace PlanetIO
                     _rigidbody2D.linearVelocity = Vector2.zero;
                 }
 
+                GameVfx.Death(transform.position, GetBodyColor(), Capacity);
+
                 if (IsOwner)
                 {
                     Defeated?.Invoke();
@@ -463,12 +473,32 @@ namespace PlanetIO
 
             if (IsOwner)
             {
-                transform.position = Constants.RandomWorldPosition();
-                if (_rigidbody2D != null)
-                {
-                    _rigidbody2D.linearVelocity = Vector2.zero;
-                }
+                TeleportTo(Constants.RandomWorldPosition());
             }
+        }
+
+        private void TeleportTo(Vector2 position)
+        {
+            if (_rigidbody2D != null)
+            {
+                _rigidbody2D.linearVelocity = Vector2.zero;
+                _rigidbody2D.position = position;
+            }
+
+            if (TryGetComponent(out NetworkTransform networkTransform))
+            {
+                networkTransform.Teleport(position, transform.rotation, transform.localScale);
+            }
+            else
+            {
+                transform.position = position;
+            }
+        }
+
+        private Color GetBodyColor()
+        {
+            Color32 color = _networkColor.Value;
+            return color;
         }
 
         private void SetBodyActive(bool active)
@@ -484,7 +514,7 @@ namespace PlanetIO
             }
         }
 
-        [Rpc(SendTo.Server)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         public void ContinueRpc()
         {
             if (!IsServer ||
@@ -499,6 +529,25 @@ namespace PlanetIO
             SetServerBoosting(false);
             _boostTimer = 0f;
             _invincibilityTimeRemaining = _continueProtectionTime;
+            Capacity = Mathf.Max(_initialCapacity, _capacityAtDefeat * _continueMassFraction);
+            _networkDefeated.Value = false;
+        }
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+        public void RespawnRpc()
+        {
+            if (!IsServer ||
+                !IsDefeated ||
+                !_servicesReady)
+            {
+                return;
+            }
+
+            _continueUsedThisLife = false;
+            SetServerBoosting(false);
+            _boostTimer = 0f;
+            _invincibilityTimeRemaining = _spawnInvincibilityTime;
+            Capacity = _initialCapacity;
             _networkDefeated.Value = false;
         }
 

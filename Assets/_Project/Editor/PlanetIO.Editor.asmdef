@@ -1,0 +1,20 @@
+{
+    "name": "PlanetIO.Editor",
+    "rootNamespace": "PlanetIO.Editor",
+    "references": [
+        "PlanetIO.Core",
+        "Unity.Localization",
+        "Unity.Localization.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

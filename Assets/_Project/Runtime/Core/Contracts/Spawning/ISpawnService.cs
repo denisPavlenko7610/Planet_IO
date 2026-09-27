@@ -4,6 +4,6 @@ namespace PlanetIO
 {
     public interface ISpawnService<T>
     {
-        void SpawnAt(Transform position);
+        void SpawnAt(Transform position, float nutrition);
     }
 }

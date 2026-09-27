@@ -7,7 +7,13 @@
     "PlanetIO.Gameplay",
     "PlanetIO.Infrastructure",
     "Unity.Addressables.Editor",
-    "Unity.Netcode.Runtime"
+    "Unity.Netcode.Runtime",
+    "PlanetIO.UI",
+    "Unity.Localization",
+    "Unity.Localization.Editor",
+    "UnityTemplates.Localization",
+    "UnityTemplates.Settings",
+    "PlanetIO.Editor"
   ],
   "includePlatforms": [
     "Editor"

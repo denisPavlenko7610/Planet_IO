@@ -34,6 +34,7 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            SceneContainers.Attach(transform, SceneContainers.Comets);
 
             if (IsServer)
             {

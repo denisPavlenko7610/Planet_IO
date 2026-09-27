@@ -13,164 +13,145 @@ namespace PlanetIO.UI.Hud
 
         void ShowSessionText(string text);
         void ShowLeaderboardText(string text);
-        void ShowDefeat(int finalScore, int bestScore, bool canPlayAgain);
+        void ShowDefeat(string title, string body);
+        void HideDefeat();
+        void SetButtonLabels(string leave, string playAgain, string watchAd);
         void SetLeaveButtonInteractable(bool interactable);
-        void SetPlayAgainVisible(bool visible);
         void SetContinueVisible(bool visible);
         void ShowKillFeed(string message);
         void ShowScorePopup(Vector2 screenPosition, int score);
         void ShowHint(string message);
+        void SetBorderWarning(float strength);
     }
 
     public sealed class SessionHudView : MonoBehaviour, ISessionHudView
     {
-        private const string DefeatTitle = "YOU LOST";
         private const float KillFeedFadeSeconds = 3f;
         private const float ScorePopupSeconds = 0.9f;
         private const float ScorePopupRiseSpeed = 80f;
         private const float HintFadeSeconds = 4f;
 
+        [Header("Corner info")]
         [SerializeField] private TMP_Text _sessionText;
         [SerializeField] private TMP_Text _leaderboardText;
         [SerializeField] private Button _leaveButton;
+
+        [Header("Defeat")]
+        [SerializeField] private GameObject _defeatPanel;
+        [SerializeField] private TMP_Text _defeatTitleText;
+        [SerializeField] private TMP_Text _defeatBodyText;
+        [SerializeField] private Button _playAgainButton;
+        [SerializeField] private Button _continueButton;
+        [SerializeField] private Button _defeatLeaveButton;
+
+        [Header("Feedback")]
+        [SerializeField] private TMP_Text _killFeedText;
+        [SerializeField] private TMP_Text _scorePopupText;
+        [SerializeField] private TMP_Text _hintText;
+        [SerializeField] private Image _borderWarning;
 
         public event Action LeaveRequested;
         public event Action PlayAgainRequested;
         public event Action ContinueRequested;
 
-        public bool IsDefeatVisible =>
-            _sessionText != null &&
-            _sessionText.text == DefeatTitle;
+        public bool IsDefeatVisible => _defeatPanel.activeSelf;
 
-        private Button _playAgainButton;
-        private Button _continueButton;
-        private TMP_Text _killFeedText;
-        private TMP_Text _scorePopupText;
-        private TMP_Text _hintText;
         private float _killFeedTimeRemaining;
         private float _scorePopupTimeRemaining;
         private float _hintTimeRemaining;
 
         private void Awake()
         {
-            CreateDefeatButtons();
-            CreateKillFeedText();
-            CreateScorePopupText();
-            CreateHintText();
+            _defeatPanel.SetActive(false);
+            _killFeedText.alpha = 0f;
+            _scorePopupText.alpha = 0f;
+            _hintText.alpha = 0f;
         }
 
         private void OnEnable()
         {
-            _leaveButton?.onClick.AddListener(OnLeaveClicked);
-            if (_playAgainButton != null)
-            {
-                _playAgainButton.onClick.AddListener(OnPlayAgainClicked);
-            }
-
-            if (_continueButton != null)
-            {
-                _continueButton.onClick.AddListener(OnContinueClicked);
-            }
+            _leaveButton.onClick.AddListener(OnLeaveClicked);
+            _defeatLeaveButton.onClick.AddListener(OnLeaveClicked);
+            _playAgainButton.onClick.AddListener(OnPlayAgainClicked);
+            _continueButton.onClick.AddListener(OnContinueClicked);
         }
 
         private void OnDisable()
         {
-            _leaveButton?.onClick.RemoveListener(OnLeaveClicked);
-            if (_playAgainButton != null)
-            {
-                _playAgainButton.onClick.RemoveListener(OnPlayAgainClicked);
-            }
-
-            if (_continueButton != null)
-            {
-                _continueButton.onClick.RemoveListener(OnContinueClicked);
-            }
+            _leaveButton.onClick.RemoveListener(OnLeaveClicked);
+            _defeatLeaveButton.onClick.RemoveListener(OnLeaveClicked);
+            _playAgainButton.onClick.RemoveListener(OnPlayAgainClicked);
+            _continueButton.onClick.RemoveListener(OnContinueClicked);
         }
 
         private void Update()
         {
+            float deltaTime = Time.unscaledDeltaTime;
+
             if (_killFeedTimeRemaining > 0f)
             {
-                _killFeedTimeRemaining -= Time.unscaledDeltaTime;
+                _killFeedTimeRemaining -= deltaTime;
                 _killFeedText.alpha = Mathf.Clamp01(_killFeedTimeRemaining / KillFeedFadeSeconds);
             }
 
             if (_scorePopupTimeRemaining > 0f)
             {
-                _scorePopupTimeRemaining -= Time.unscaledDeltaTime;
-                float fade = Mathf.Clamp01(_scorePopupTimeRemaining / ScorePopupSeconds);
-                _scorePopupText.alpha = fade;
-                _scorePopupText.rectTransform.anchoredPosition +=
-                    Vector2.up * (ScorePopupRiseSpeed * Time.unscaledDeltaTime);
+                _scorePopupTimeRemaining -= deltaTime;
+                _scorePopupText.alpha = Mathf.Clamp01(_scorePopupTimeRemaining / ScorePopupSeconds);
+                _scorePopupText.rectTransform.anchoredPosition += Vector2.up * (ScorePopupRiseSpeed * deltaTime);
             }
 
             if (_hintTimeRemaining > 0f)
             {
-                _hintTimeRemaining -= Time.unscaledDeltaTime;
-                float hintFade = Mathf.Clamp01(_hintTimeRemaining / (HintFadeSeconds * 0.4f));
-                _hintText.alpha = hintFade;
+                _hintTimeRemaining -= deltaTime;
+                _hintText.alpha = Mathf.Clamp01(_hintTimeRemaining / (HintFadeSeconds * 0.4f));
             }
         }
 
         public void ShowSessionText(string text)
         {
-            if (_sessionText != null)
-            {
-                _sessionText.text = text;
-            }
+            _sessionText.text = text;
         }
 
         public void ShowLeaderboardText(string text)
         {
-            if (_leaderboardText != null)
-            {
-                _leaderboardText.text = text;
-            }
+            _leaderboardText.text = text;
         }
 
-        public void ShowDefeat(int finalScore, int bestScore, bool canPlayAgain)
+        public void ShowDefeat(string title, string body)
         {
-            ShowSessionText(DefeatTitle);
-            ShowLeaderboardText($"FINAL SCORE\n{finalScore:N0}\nBEST {bestScore:N0}");
+            _defeatTitleText.text = title;
+            _defeatBodyText.text = body;
+            _playAgainButton.interactable = true;
+            _defeatPanel.SetActive(true);
+        }
 
-            if (_playAgainButton != null)
-            {
-                _playAgainButton.gameObject.SetActive(canPlayAgain);
-                _playAgainButton.interactable = true;
-            }
+        public void HideDefeat()
+        {
+            _defeatPanel.SetActive(false);
+        }
+
+        public void SetButtonLabels(string leave, string playAgain, string watchAd)
+        {
+            SetButtonLabel(_leaveButton, leave);
+            SetButtonLabel(_defeatLeaveButton, leave);
+            SetButtonLabel(_playAgainButton, playAgain);
+            SetButtonLabel(_continueButton, watchAd);
         }
 
         public void SetLeaveButtonInteractable(bool interactable)
         {
-            if (_leaveButton != null)
-            {
-                _leaveButton.interactable = interactable;
-            }
-        }
-
-        public void SetPlayAgainVisible(bool visible)
-        {
-            if (_playAgainButton != null)
-            {
-                _playAgainButton.gameObject.SetActive(visible);
-            }
+            _leaveButton.interactable = interactable;
+            _defeatLeaveButton.interactable = interactable;
         }
 
         public void SetContinueVisible(bool visible)
         {
-            if (_continueButton != null)
-            {
-                _continueButton.gameObject.SetActive(visible);
-            }
+            _continueButton.gameObject.SetActive(visible);
         }
 
         public void ShowKillFeed(string message)
         {
-            if (_killFeedText == null)
-            {
-                return;
-            }
-
             _killFeedText.text = message;
             _killFeedText.alpha = 1f;
             _killFeedTimeRemaining = KillFeedFadeSeconds;
@@ -178,14 +159,8 @@ namespace PlanetIO.UI.Hud
 
         public void ShowScorePopup(Vector2 screenPosition, int score)
         {
-            if (_scorePopupText == null)
-            {
-                return;
-            }
-
-            RectTransform canvasRect = _scorePopupText.transform.parent.GetComponent<RectTransform>();
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    canvasRect, screenPosition, null, out Vector2 localPoint))
+            RectTransform parentRect = (RectTransform)_scorePopupText.rectTransform.parent;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, screenPosition, null, out Vector2 localPoint))
             {
                 _scorePopupText.rectTransform.anchoredPosition = localPoint;
             }
@@ -197,144 +172,32 @@ namespace PlanetIO.UI.Hud
 
         public void ShowHint(string message)
         {
-            if (_hintText == null)
-            {
-                return;
-            }
-
             _hintText.text = message;
             _hintText.alpha = 1f;
             _hintTimeRemaining = HintFadeSeconds;
         }
 
-        private void CreateDefeatButtons()
+        public void SetBorderWarning(float strength)
         {
-            if (_leaveButton == null)
+            Color color = _borderWarning.color;
+            color.a = Mathf.Clamp01(strength);
+            _borderWarning.color = color;
+            _borderWarning.enabled = color.a > 0.001f;
+        }
+
+        private static void SetButtonLabel(Button button, string label)
+        {
+            TMP_Text text = button.GetComponentInChildren<TMP_Text>(true);
+            if (text != null)
             {
-                return;
+                text.text = label;
             }
-
-            _playAgainButton = CreateDefeatButton("PlayAgainButton", "PLAY AGAIN", 1);
-            _continueButton = CreateDefeatButton("ContinueButton", "WATCH AD", 2);
-            _continueButton.gameObject.SetActive(false);
         }
 
-        private Button CreateDefeatButton(string buttonName, string buttonText, int slotIndex)
-        {
-            GameObject buttonObject = Instantiate(_leaveButton.gameObject, _leaveButton.transform.parent);
-            buttonObject.name = buttonName;
-            Button button = buttonObject.GetComponent<Button>();
+        private void OnLeaveClicked() => LeaveRequested?.Invoke();
 
-            RectTransform leaveRect = _leaveButton.GetComponent<RectTransform>();
-            RectTransform rect = buttonObject.GetComponent<RectTransform>();
-            if (leaveRect.parent.GetComponent<LayoutGroup>() == null)
-            {
-                rect.anchoredPosition =
-                    leaveRect.anchoredPosition + new Vector2(0f, -slotIndex * (leaveRect.rect.height + 12f));
-            }
+        private void OnPlayAgainClicked() => PlayAgainRequested?.Invoke();
 
-            TMP_Text buttonTextElement = buttonObject.GetComponentInChildren<TMP_Text>(true);
-            if (buttonTextElement != null)
-            {
-                buttonTextElement.text = buttonText;
-            }
-
-            return button;
-        }
-
-        private void CreateKillFeedText()
-        {
-            Canvas canvas = _sessionText != null ? _sessionText.GetComponentInParent<Canvas>() : null;
-            if (canvas == null)
-            {
-                return;
-            }
-
-            GameObject textObject = new GameObject("KillFeedText", typeof(RectTransform));
-            textObject.transform.SetParent(canvas.transform, false);
-
-            _killFeedText = textObject.AddComponent<TextMeshProUGUI>();
-            _killFeedText.font = _sessionText.font;
-            _killFeedText.fontSize = _sessionText.fontSize * 0.7f;
-            _killFeedText.alignment = TextAlignmentOptions.Center;
-            _killFeedText.color = Color.white;
-            _killFeedText.raycastTarget = false;
-            _killFeedText.alpha = 0f;
-
-            RectTransform rect = _killFeedText.rectTransform;
-            rect.anchorMin = new Vector2(0.5f, 1f);
-            rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.sizeDelta = new Vector2(700f, 50f);
-            rect.anchoredPosition = new Vector2(0f, -130f);
-        }
-
-        private void CreateScorePopupText()
-        {
-            Canvas canvas = _sessionText != null ? _sessionText.GetComponentInParent<Canvas>() : null;
-            if (canvas == null)
-            {
-                return;
-            }
-
-            GameObject textObject = new GameObject("ScorePopupText", typeof(RectTransform));
-            textObject.transform.SetParent(canvas.transform, false);
-
-            _scorePopupText = textObject.AddComponent<TextMeshProUGUI>();
-            _scorePopupText.font = _sessionText.font;
-            _scorePopupText.fontSize = _sessionText.fontSize * 1.2f;
-            _scorePopupText.alignment = TextAlignmentOptions.Center;
-            _scorePopupText.color = new Color(0.6f, 1f, 0.5f);
-            _scorePopupText.raycastTarget = false;
-            _scorePopupText.alpha = 0f;
-
-            RectTransform rect = _scorePopupText.rectTransform;
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(300f, 60f);
-        }
-
-        private void CreateHintText()
-        {
-            Canvas canvas = _sessionText != null ? _sessionText.GetComponentInParent<Canvas>() : null;
-            if (canvas == null)
-            {
-                return;
-            }
-
-            GameObject textObject = new GameObject("HintText", typeof(RectTransform));
-            textObject.transform.SetParent(canvas.transform, false);
-
-            _hintText = textObject.AddComponent<TextMeshProUGUI>();
-            _hintText.font = _sessionText.font;
-            _hintText.fontSize = _sessionText.fontSize * 0.9f;
-            _hintText.alignment = TextAlignmentOptions.Center;
-            _hintText.color = new Color(1f, 1f, 1f, 0.85f);
-            _hintText.raycastTarget = false;
-            _hintText.alpha = 0f;
-
-            RectTransform rect = _hintText.rectTransform;
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(900f, 60f);
-            rect.anchoredPosition = new Vector2(0f, 140f);
-        }
-
-        private void OnLeaveClicked()
-        {
-            LeaveRequested?.Invoke();
-        }
-
-        private void OnPlayAgainClicked()
-        {
-            PlayAgainRequested?.Invoke();
-        }
-
-        private void OnContinueClicked()
-        {
-            ContinueRequested?.Invoke();
-        }
+        private void OnContinueClicked() => ContinueRequested?.Invoke();
     }
 }

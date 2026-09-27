@@ -3,19 +3,24 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
+using UnityTemplates.Localization;
 
 namespace PlanetIO.Infrastructure.Mobile
 {
     public sealed class MobileRuntimeService : IStartable, ITickable, IDisposable
     {
         private const int TargetFrameRate = 60;
+        private const float LeaveConfirmWindowSeconds = 2f;
 
         private readonly INetworkSessionService _networkSessionService;
+        private readonly ILocalizationService _localization;
         private bool _returnToMenuInProgress;
         private bool _memoryCleanupInProgress;
+        private float _leaveConfirmDeadline;
 
-        public MobileRuntimeService(INetworkSessionService networkSessionService)
+        public MobileRuntimeService(INetworkSessionService networkSessionService, ILocalizationService localization)
         {
+            _localization = localization ?? throw new ArgumentNullException(nameof(localization));
             _networkSessionService = networkSessionService ?? throw new ArgumentNullException(nameof(networkSessionService));
         }
 
@@ -42,9 +47,23 @@ namespace PlanetIO.Infrastructure.Mobile
             }
 
             Scene activeScene = SceneManager.GetActiveScene();
-            if (activeScene.name is SceneNames.Game or SceneNames.Loading)
+            if (activeScene.name == SceneNames.Loading)
             {
                 _ = ReturnToMenuAsync();
+                return;
+            }
+
+            if (activeScene.name == SceneNames.Game)
+            {
+                if (Time.unscaledTime <= _leaveConfirmDeadline)
+                {
+                    _leaveConfirmDeadline = 0f;
+                    _ = ReturnToMenuAsync();
+                    return;
+                }
+
+                _leaveConfirmDeadline = Time.unscaledTime + LeaveConfirmWindowSeconds;
+                ShowToast(_localization.Get(LocalizationKeys.HudBackToLeave));
                 return;
             }
 
@@ -59,6 +78,23 @@ namespace PlanetIO.Infrastructure.Mobile
             UnityEngine.Application.lowMemory -= OnLowMemory;
             SceneManager.sceneLoaded -= OnSceneLoaded;
             Screen.sleepTimeout = SleepTimeout.SystemSetting;
+        }
+
+        private static void ShowToast(string message)
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            using AndroidJavaClass unityPlayer = new("com.unity3d.player.UnityPlayer");
+            AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            activity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
+            {
+                using AndroidJavaClass toastClass = new("android.widget.Toast");
+                using AndroidJavaObject toast = toastClass.CallStatic<AndroidJavaObject>(
+                    "makeText", activity, message, toastClass.GetStatic<int>("LENGTH_SHORT"));
+                toast.Call("show");
+            }));
+#else
+            GameLogger.Log(message);
+#endif
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode _)

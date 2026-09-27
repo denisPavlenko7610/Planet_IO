@@ -68,3 +68,8 @@ Assets/RuntimeCodeDump_001.txt
 
 # ZCode client workspace config
 .zcode/
+Assets/Plugins/Roslyn
+Assets/Plugins/Roslyn.meta
+Assets/Screenshots
+Assets/Screenshots.meta
+docs/RELEASE_PLAN.md

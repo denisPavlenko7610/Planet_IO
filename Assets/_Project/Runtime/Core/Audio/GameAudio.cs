@@ -6,7 +6,13 @@ namespace PlanetIO
     public static class GameAudio
     {
         private const string ClipsFolder = "SFX/";
+        private const int SourcePoolSize = 8;
         private static readonly Dictionary<string, AudioClip> ClipCache = new();
+        private static readonly List<AudioSource> Sources = new();
+        private static GameObject _host;
+        private static int _nextSource;
+
+        public static float SfxVolume { get; set; } = 1f;
 
         public static AudioClip Load(string clipName)
         {
@@ -33,18 +39,35 @@ namespace PlanetIO
 
         public static void Play2D(AudioClip clip, float pitch = 1f, float volume = 1f)
         {
-            if (clip == null)
+            float finalVolume = volume * Mathf.Clamp01(SfxVolume);
+            if (clip == null || finalVolume <= 0f || !UnityEngine.Application.isPlaying)
             {
                 return;
             }
 
-            GameObject sourceObject = new($"Sfx_{clip.name}");
-            AudioSource source = sourceObject.AddComponent<AudioSource>();
-            source.clip = clip;
+            AudioSource source = NextSource();
             source.pitch = Mathf.Max(0.1f, pitch);
-            source.volume = volume;
-            source.Play();
-            Object.Destroy(sourceObject, clip.length / source.pitch + 0.1f);
+            source.PlayOneShot(clip, finalVolume);
+        }
+
+        private static AudioSource NextSource()
+        {
+            if (_host == null)
+            {
+                _host = new GameObject("GameAudio");
+                Object.DontDestroyOnLoad(_host);
+                Sources.Clear();
+                for (int index = 0; index < SourcePoolSize; index++)
+                {
+                    AudioSource created = _host.AddComponent<AudioSource>();
+                    created.playOnAwake = false;
+                    Sources.Add(created);
+                }
+            }
+
+            AudioSource source = Sources[_nextSource];
+            _nextSource = (_nextSource + 1) % Sources.Count;
+            return source;
         }
     }
 }

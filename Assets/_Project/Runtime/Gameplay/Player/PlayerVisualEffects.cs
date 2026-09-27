@@ -13,6 +13,8 @@ namespace PlanetIO
         [SerializeField, Min(0.1f)] private float _protectionBlinkSpeed = 14f;
         [SerializeField, Range(0f, 1f)] private float _protectionBlinkAmount = 0.7f;
         [SerializeField, Range(0f, 1f)] private float _boostVolume = 0.3f;
+        [SerializeField] private TrailRenderer _boostTrail;
+        [SerializeField, Min(0f)] private float _trailWidthPerScale = 0.8f;
 
         private SpriteRenderer _spriteRenderer;
         private Color _baseColor;
@@ -36,6 +38,7 @@ namespace PlanetIO
         public void SetBaseColor(Color color)
         {
             _baseColor = color;
+            ApplyTrailColor(color);
             if (!_boosting && !_protected)
             {
                 RestoreColor();
@@ -59,6 +62,11 @@ namespace PlanetIO
             }
 
             _boosting = boosting;
+            if (_boostTrail != null)
+            {
+                _boostTrail.emitting = boosting;
+            }
+
             if (_localAudio && _boostSource != null && _boostSource.clip != null)
             {
                 if (boosting)
@@ -98,6 +106,11 @@ namespace PlanetIO
                 return;
             }
 
+            if (_boostTrail != null && _boostTrail.emitting)
+            {
+                _boostTrail.widthMultiplier = transform.lossyScale.x * _trailWidthPerScale;
+            }
+
             if (_protected)
             {
                 float blink = 0.5f + 0.5f * Mathf.Sin(Time.time * _protectionBlinkSpeed);
@@ -119,6 +132,21 @@ namespace PlanetIO
             {
                 _boostSource.Stop();
             }
+        }
+
+        private void ApplyTrailColor(Color color)
+        {
+            if (_boostTrail == null)
+            {
+                return;
+            }
+
+            Color start = color;
+            start.a = 0.85f;
+            Color end = color;
+            end.a = 0f;
+            _boostTrail.startColor = start;
+            _boostTrail.endColor = end;
         }
 
         private void RestoreColor()

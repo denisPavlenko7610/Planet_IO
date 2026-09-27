@@ -24,9 +24,17 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.99215686
       objectReference: {fileID: 0}
+    - target: {fileID: 5420805597195293474, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
+      propertyPath: _effectColor.b
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 5420805597195293474, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
+      propertyPath: _effectColor.g
+      value: 0.35
+      objectReference: {fileID: 0}
     - target: {fileID: 7519804484521273883, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
       propertyPath: m_Name
-      value: RedPoint
+      value: RedFood
       objectReference: {fileID: 0}
     - target: {fileID: 8526295946806252870, guid: 81700cca74affaa47942112d4a51e2bd, type: 3}
       propertyPath: m_RootOrder

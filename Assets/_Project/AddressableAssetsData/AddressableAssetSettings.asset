@@ -15,8 +15,9 @@ MonoBehaviour:
   m_DefaultGroup: f454bf3b2314e3a4c95609e6a11ded9e
   m_currentHash:
     serializedVersion: 2
-    Hash: 6034ac5e4f345d27db64668261492fa9
+    Hash: 00000000000000000000000000000000
   m_ExtractTypeTreeData: 0
+  m_DisableWriteTypeTree: 0
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -62,7 +63,23 @@ MonoBehaviour:
   m_BuildAddressablesWithPlayerBuild: 1
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
+  - {fileID: 11400000, guid: b28ba96815a5b4d4c82d0237e86981a9, type: 2}
+  - {fileID: 11400000, guid: 284e7d4d4f50f364bbc424c4bc73eba9, type: 2}
+  - {fileID: 11400000, guid: a301627f158d2854bac184fc51adaf0f, type: 2}
+  - {fileID: 11400000, guid: 4315b8c3512ba6e45883de39c1b3621f, type: 2}
+  - {fileID: 11400000, guid: b129d398a4064be43bda81aaa4909754, type: 2}
+  - {fileID: 11400000, guid: ba3df1b56805176419e91225a464c28d, type: 2}
+  - {fileID: 11400000, guid: d95f72f87131a3c4d8278c6cf7e7fedf, type: 2}
+  - {fileID: 11400000, guid: 0c948ac883a60cf478272e2dd0b73e55, type: 2}
+  - {fileID: 11400000, guid: a3560e665cc49dc4b904b21c27bf1518, type: 2}
+  - {fileID: 11400000, guid: 5a229912a8e930147a67479d6a7b32a2, type: 2}
+  - {fileID: 11400000, guid: 4a0040e2f9dd93642ac2a2e6dc2e1d9a, type: 2}
+  - {fileID: 11400000, guid: 0b0682b625045d14dbb550eaa50d7d31, type: 2}
+  - {fileID: 11400000, guid: d830567924b03ef4ba2f6839a6407ba5, type: 2}
+  - {fileID: 11400000, guid: b23c2c7f0d8ad254bb62d2fa036e0c57, type: 2}
+  - {fileID: 11400000, guid: f040933e92c6ba949a2efe2cab41b7ff, type: 2}
   - {fileID: 11400000, guid: e7b22416fb5fc544a8c3d9ea83e63532, type: 2}
+  - {fileID: 11400000, guid: c5c913f18502c34438d3fe0e22e791ae, type: 2}
   - {fileID: 11400000, guid: 6950679a110db6e40996c2fac823eaac, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
@@ -105,6 +122,22 @@ MonoBehaviour:
     - default
     - audio
     - preload
+    - Locale
+    - Locale-en
+    - Locale-ru
+    - Locale-zh-Hans
+    - Locale-ja
+    - Locale-ko
+    - Locale-de
+    - Locale-fr
+    - Locale-es
+    - Locale-pt-BR
+    - Locale-it
+    - Locale-pl
+    - Locale-uk
+    - Locale-be
+    - Locale-tr
+    - Preload
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 9946933a388f689439290a745e94457b, type: 2}

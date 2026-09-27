@@ -17,6 +17,8 @@ namespace PlanetIO
         [SerializeField, Min(MinAllowedCapacity)] private float _minCapacity = 0.08f;
         [FormerlySerializedAs("_maximumCapacity")]
         [SerializeField, Min(MinAllowedCapacity)] private float _maxCapacity = 1f;
+        [SerializeField, Range(0f, 1f)] private float _killAbsorbFraction = 0.4f;
+        [SerializeField, Min(0f)] private float _foodGrowthFalloff = 1f;
 
         private readonly NetworkVariable<float> _networkCapacity = new(
             0f,
@@ -107,6 +109,11 @@ namespace PlanetIO
             return ChangeCapacity(-Mathf.Abs(amount));
         }
 
+        protected void AbsorbVictim(float victimCapacity)
+        {
+            Grow(victimCapacity * _killAbsorbFraction);
+        }
+
         protected virtual void DeathCheck(float capacity)
         {
         }
@@ -125,12 +132,14 @@ namespace PlanetIO
                     return;
                 }
 
-                Grow(point.Capacity * FoodGrowthMultiplier * point.ValueMultiplier);
+                Grow(GrowthRules.ApplyFalloff(point.GetGrowth(FoodGrowthMultiplier), Capacity, _foodGrowthFalloff, point.Nutrition > 0f));
+                point.PlayEatenEffect();
                 FoodRespawnService?.Respawn(point);
             }
             else if (other.TryGetComponent(out Comet comet))
             {
                 Shrink(comet.Capacity * CometDamageMultiplier);
+                comet.PlayImpactEffect();
                 CometRespawnService?.Respawn(comet);
             }
         }

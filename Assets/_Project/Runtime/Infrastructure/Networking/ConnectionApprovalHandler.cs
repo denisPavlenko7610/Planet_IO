@@ -27,19 +27,19 @@ namespace PlanetIO.Infrastructure.Networking
 
             if (!TryDeserializePayload(request.Payload, out RoomConnectionPayload payload))
             {
-                Reject(response, "Invalid connection payload.");
+                Reject(response, SessionFailureReasons.InvalidPayload);
                 return;
             }
 
             if (!string.Equals(payload.Protocol, RoomRules.ProtocolVersion, StringComparison.Ordinal))
             {
-                Reject(response, "Client version does not match room version.");
+                Reject(response, SessionFailureReasons.VersionMismatch);
                 return;
             }
 
             if (_networkManager.ConnectedClientsIds.Count >= currentRoom.MaxPlayers)
             {
-                Reject(response, "Room is full.");
+                Reject(response, SessionFailureReasons.RoomFull);
                 return;
             }
 
@@ -55,7 +55,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             else
             {
-                Reject(response, "This session is running in single player mode.");
+                Reject(response, SessionFailureReasons.SinglePlayerOnly);
             }
         }
 

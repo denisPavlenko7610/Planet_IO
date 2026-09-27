@@ -228,7 +228,7 @@ MonoBehaviour:
   SceneMigrationSynchronization: 1
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
+  AutoObjectParentSync: 0
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
 --- !u!114 &3248940148568355940
@@ -246,8 +246,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _rigidbody2D: {fileID: 3248940148568355938}
   _cometTransform: {fileID: 3248940148568355939}
-  _minimumSpeed: 0.01
-  _maximumSpeed: 0.03
+  _minimumSpeed: 0.4
+  _maximumSpeed: 1.2
 --- !u!114 &3248940148568355936
 MonoBehaviour:
   m_ObjectHideFlags: 0

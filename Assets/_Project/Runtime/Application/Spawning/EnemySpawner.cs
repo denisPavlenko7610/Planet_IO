@@ -26,6 +26,7 @@ namespace PlanetIO
                 return;
             }
 
+            enemy.PlayDeathEffect();
             _lootSpawnService?.SpawnLoot(enemy.transform.position, enemy.Capacity);
 
             enemy.Capacity = enemy.InitialCapacity;
