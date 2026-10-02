@@ -11,6 +11,24 @@ namespace PlanetIO
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
     public sealed class Player : PlanetScale
     {
+        // Names are display-only; client ids drive logic (local-player filtering).
+        // Constants.UnassignedClientId means the killer is not a player (enemy, comet, border).
+        public readonly struct DefeatAnnouncement
+        {
+            public readonly string KillerName;
+            public readonly ulong KillerClientId;
+            public readonly string VictimName;
+            public readonly ulong VictimClientId;
+
+            public DefeatAnnouncement(string killerName, ulong killerClientId, string victimName, ulong victimClientId)
+            {
+                KillerName = killerName;
+                KillerClientId = killerClientId;
+                VictimName = victimName;
+                VictimClientId = victimClientId;
+            }
+        }
+
         private BordersTrigger _bordersTrigger;
         private Rigidbody2D _rigidbody2D;
 
@@ -54,6 +72,11 @@ namespace PlanetIO
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+        private readonly NetworkVariable<byte> _networkSkin = new(
+            0,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
         private readonly NetworkVariable<Color32> _networkColor = new(
             new Color32(255, 255, 255, 255),
             NetworkVariableReadPermission.Everyone,
@@ -73,6 +96,7 @@ namespace PlanetIO
         private float _invincibilityTimeRemaining;
         private float _capacityAtDefeat;
         private PlayerVisualEffects _visualEffects;
+        private PlanetSkinCatalog _skinCatalog;
         private readonly Collider2D[] _foodBuffer = new Collider2D[FoodAttractionBuffer];
 
         public bool IsDefeated => IsSpawned && _networkDefeated.Value;
@@ -80,6 +104,8 @@ namespace PlanetIO
         public bool CanBoost => !IsDefeated && Capacity > MinCapacity + _boostMassCost;
 
         public event Action Defeated;
+        public event Action Revived;
+        public static event Action<DefeatAnnouncement> DefeatAnnounced;
         public event Action<string, int> Killed;
 
         protected override float FoodGrowthMultiplier => _playerFoodGrowthMultiplier;
@@ -96,8 +122,10 @@ namespace PlanetIO
             IGameStateService gameStateService,
             IPlayerProfileService playerProfileService,
             ILootSpawnService lootSpawnService,
-            BordersTrigger bordersTrigger)
+            BordersTrigger bordersTrigger,
+            PlanetSkinCatalog skinCatalog)
         {
+            _skinCatalog = skinCatalog;
             CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
             FoodRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
             _enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
@@ -156,6 +184,11 @@ namespace PlanetIO
                 !_gameStateService.IsGameplayActive)
             {
                 _boostTimer = 0f;
+                if (_serverBoosting)
+                {
+                    SetServerBoosting(false);
+                }
+
                 return;
             }
 
@@ -248,6 +281,7 @@ namespace PlanetIO
             _networkBoosting.OnValueChanged += OnBoostingChanged;
             _networkSpawnProtected.OnValueChanged += OnSpawnProtectionChanged;
             _networkColor.OnValueChanged += OnColorChanged;
+            _networkSkin.OnValueChanged += OnSkinChanged;
 
             if (IsServer)
             {
@@ -260,6 +294,11 @@ namespace PlanetIO
                 _boostTimer = 0f;
             }
 
+            if (IsOwner)
+            {
+                PlayerRegistry.SetLocal(this);
+            }
+
             _visualEffects = GetComponent<PlayerVisualEffects>();
             _visualEffects?.SetLocalAudio(IsOwner);
             ApplyVisualState();
@@ -268,6 +307,7 @@ namespace PlanetIO
             {
                 SubmitNicknameRpc(_playerProfileService.Nickname);
                 SetColorRpc(_playerProfileService.PreferredColor);
+                SetSkinRpc((byte)_playerProfileService.SelectedSkin);
             }
 
             if (_networkDefeated.Value)
@@ -282,7 +322,36 @@ namespace PlanetIO
             _networkBoosting.OnValueChanged -= OnBoostingChanged;
             _networkSpawnProtected.OnValueChanged -= OnSpawnProtectionChanged;
             _networkColor.OnValueChanged -= OnColorChanged;
+            _networkSkin.OnValueChanged -= OnSkinChanged;
             base.OnNetworkDespawn();
+        }
+
+        private void OnSkinChanged(byte _, byte skin)
+        {
+            ApplySkin(skin);
+        }
+
+        private void ApplySkin(byte skin)
+        {
+            if (_skinCatalog == null || !_skinCatalog.IsValid(skin) || !TryGetComponent(out SpriteRenderer body))
+            {
+                return;
+            }
+
+            Sprite sprite = _skinCatalog.Get(skin).Sprite;
+            if (sprite != null)
+            {
+                body.sprite = sprite;
+            }
+        }
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+        private void SetSkinRpc(byte skin)
+        {
+            if (_skinCatalog != null && _skinCatalog.IsValid(skin))
+            {
+                _networkSkin.Value = skin;
+            }
         }
 
         private void OnColorChanged(Color32 _, Color32 color)
@@ -314,6 +383,7 @@ namespace PlanetIO
             }
 
             _visualEffects.SetBaseColor(_networkColor.Value);
+            ApplySkin(_networkSkin.Value);
             _visualEffects.SetBoosting(_networkBoosting.Value);
             _visualEffects.SetSpawnProtected(_networkSpawnProtected.Value);
         }
@@ -321,7 +391,7 @@ namespace PlanetIO
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         private void SubmitNicknameRpc(FixedString64Bytes nickname)
         {
-            SetDisplayName(nickname.ToString());
+            SetDisplayName(NicknameRules.Normalize(nickname.ToString()));
         }
 
         private void Update()
@@ -423,7 +493,14 @@ namespace PlanetIO
             int score = Constants.CapacityToScore(otherPlayer.Capacity);
             NotifyKillRpc(otherPlayer.DisplayName, score);
             AbsorbVictim(otherPlayer.Capacity);
-            otherPlayer.Defeat();
+            otherPlayer.Defeat(DisplayName, OwnerClientId);
+        }
+
+        [Rpc(SendTo.Everyone)]
+        private void AnnounceDefeatRpc(FixedString64Bytes killerName, ulong killerClientId)
+        {
+            DefeatAnnounced?.Invoke(new DefeatAnnouncement(
+                killerName.ToString(), killerClientId, DisplayName, OwnerClientId));
         }
 
         [Rpc(SendTo.Owner)]
@@ -432,13 +509,20 @@ namespace PlanetIO
             Killed?.Invoke(victimName.ToString(), score);
         }
 
-        public void Defeat()
+        public void Defeat(string killerName = null, ulong killerClientId = Constants.UnassignedClientId)
         {
             if (!IsServer || IsDefeated)
             {
                 return;
             }
 
+            if (!string.IsNullOrEmpty(killerName))
+            {
+                AnnounceDefeatRpc(killerName, killerClientId);
+            }
+
+            SetServerBoosting(false);
+            _boostTimer = 0f;
             _capacityAtDefeat = Capacity;
             _lootSpawnService?.SpawnLoot(transform.position, Capacity);
 
@@ -474,6 +558,7 @@ namespace PlanetIO
             if (IsOwner)
             {
                 TeleportTo(Constants.RandomWorldPosition());
+                Revived?.Invoke();
             }
         }
 
@@ -508,9 +593,10 @@ namespace PlanetIO
                 bodyCollider.enabled = active;
             }
 
-            foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>(true))
+            // Only the body renderer; child visuals (direction arrow, nameplate, trail) manage their own visibility.
+            if (TryGetComponent(out SpriteRenderer bodyRenderer))
             {
-                renderer.enabled = active;
+                bodyRenderer.enabled = active;
             }
         }
 

@@ -6,37 +6,21 @@ using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud
 {
-    public sealed class MinimapPresenter : IStartable, ITickable
+    public sealed class MinimapPresenter : ITickable
     {
         private readonly NetworkManager _networkManager;
         private readonly ILocalPlayerProvider _localPlayerProvider;
         private readonly List<MinimapBlip> _blips = new();
-        private MinimapView _view;
+        private readonly MinimapView _view;
 
         public MinimapPresenter(
+            MinimapView view,
             NetworkManager networkManager,
             ILocalPlayerProvider localPlayerProvider)
         {
+            _view = view ?? throw new ArgumentNullException(nameof(view));
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
-        }
-
-        public void Start()
-        {
-            Canvas overlayCanvas = null;
-            foreach (Canvas canvas in UnityEngine.Object.FindObjectsByType<Canvas>())
-            {
-                if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-                {
-                    overlayCanvas = canvas;
-                    break;
-                }
-            }
-
-            if (overlayCanvas != null)
-            {
-                _view = overlayCanvas.gameObject.AddComponent<MinimapView>();
-            }
         }
 
         public void Tick()

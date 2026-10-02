@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -55,6 +55,15 @@ namespace PlanetIO.Tests
         }
 
         [Test]
+        public void BootScene_ApplicationScopeHasAllReferences()
+        {
+            string boot = File.ReadAllText("Assets/_Project/Scenes/Boot.unity");
+
+            StringAssert.DoesNotContain("_sfxCatalog: {fileID: 0}", boot);
+            StringAssert.DoesNotContain("_sceneCatalog: {fileID: 0}", boot);
+        }
+
+        [Test]
         public void AdMob_AndroidAppIdIsConfigured()
         {
             Object settings = AssetDatabase.LoadMainAssetAtPath(AdMobSettingsPath);
@@ -70,6 +79,7 @@ namespace PlanetIO.Tests
         [TestCase("SetColorRpc")]
         [TestCase("SubmitNicknameRpc")]
         [TestCase("ContinueRpc")]
+        [TestCase("SetSkinRpc")]
         [TestCase("RespawnRpc")]
         public void PlayerServerRpc_OnlyAcceptsCallsFromOwner(string methodName)
         {

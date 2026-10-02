@@ -1,5 +1,4 @@
 using System;
-using PlanetIO.UI.Mobile;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +9,7 @@ namespace PlanetIO.UI.Menu
     {
         event Action PlayWithBotsRequested;
         event Action CreateRoomRequested;
+        event Action QuickPlayRequested;
         event Action<string> JoinRoomRequested;
         event Action SettingsRequested;
 
@@ -26,6 +26,7 @@ namespace PlanetIO.UI.Menu
 
         [SerializeField] private Button _playWithBotsButton;
         [SerializeField] private Button _createRoomButton;
+        [SerializeField] private Button _quickPlayButton;
         [SerializeField] private Button _joinRoomButton;
         [SerializeField] private TMP_InputField _roomCodeInput;
         [SerializeField] private Button _settingsButton;
@@ -34,12 +35,12 @@ namespace PlanetIO.UI.Menu
 
         public event Action PlayWithBotsRequested;
         public event Action CreateRoomRequested;
+        public event Action QuickPlayRequested;
         public event Action<string> JoinRoomRequested;
         public event Action SettingsRequested;
 
         private void Awake()
         {
-            SafeAreaFitter.AttachTo(transform);
             _roomCodeInput.characterLimit = RoomRules.MaximumRoomCodeLength;
             _roomCodeInput.characterValidation = TMP_InputField.CharacterValidation.Alphanumeric;
             _roomCodeInput.onValidateInput = (_, _, character) => char.ToUpperInvariant(character);
@@ -49,6 +50,7 @@ namespace PlanetIO.UI.Menu
         {
             _playWithBotsButton.onClick.AddListener(OnPlayWithBots);
             _createRoomButton.onClick.AddListener(OnCreateRoom);
+            _quickPlayButton.onClick.AddListener(OnQuickPlay);
             _joinRoomButton.onClick.AddListener(OnJoinRoom);
             _settingsButton.onClick.AddListener(OnSettings);
             _roomCodeInput.onSubmit.AddListener(OnRoomCodeSubmitted);
@@ -58,6 +60,7 @@ namespace PlanetIO.UI.Menu
         {
             _playWithBotsButton.onClick.RemoveListener(OnPlayWithBots);
             _createRoomButton.onClick.RemoveListener(OnCreateRoom);
+            _quickPlayButton.onClick.RemoveListener(OnQuickPlay);
             _joinRoomButton.onClick.RemoveListener(OnJoinRoom);
             _settingsButton.onClick.RemoveListener(OnSettings);
             _roomCodeInput.onSubmit.RemoveListener(OnRoomCodeSubmitted);
@@ -67,6 +70,7 @@ namespace PlanetIO.UI.Menu
         {
             _playWithBotsButton.interactable = interactionEnabled;
             _createRoomButton.interactable = interactionEnabled;
+            _quickPlayButton.interactable = interactionEnabled;
             _joinRoomButton.interactable = interactionEnabled;
             _roomCodeInput.interactable = interactionEnabled;
         }
@@ -91,6 +95,8 @@ namespace PlanetIO.UI.Menu
         private void OnPlayWithBots() => PlayWithBotsRequested?.Invoke();
 
         private void OnCreateRoom() => CreateRoomRequested?.Invoke();
+
+        private void OnQuickPlay() => QuickPlayRequested?.Invoke();
 
         private void OnSettings() => SettingsRequested?.Invoke();
 

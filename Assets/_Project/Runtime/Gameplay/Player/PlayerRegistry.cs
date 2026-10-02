@@ -9,6 +9,13 @@ namespace PlanetIO
 
         public static int Count => Players.Count;
 
+        public static Player LocalPlayer { get; private set; }
+
+        public static void SetLocal(Player player)
+        {
+            LocalPlayer = player;
+        }
+
         public static void Register(Player player)
         {
             Players.Add(player);
@@ -17,6 +24,10 @@ namespace PlanetIO
         public static void Unregister(Player player)
         {
             Players.Remove(player);
+            if (LocalPlayer == player)
+            {
+                LocalPlayer = null;
+            }
         }
 
         public static bool IsAnyPlayerWithinDistance(Vector2 position, float maxDistance)

@@ -10,6 +10,7 @@ namespace PlanetIO
         Loading,
         InGame,
         ShuttingDown,
-        Failed
+        Failed,
+        Searching
     }
 }

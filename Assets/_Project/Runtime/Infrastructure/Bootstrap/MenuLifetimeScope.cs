@@ -15,6 +15,11 @@ namespace PlanetIO.Infrastructure.Bootstrap
             builder.RegisterComponentInHierarchy<NicknameInputView>()
                 .As<INicknameInputView>();
 
+            builder.RegisterComponentInHierarchy<SkinSelectorView>()
+                .As<ISkinSelectorView>();
+
+            builder.RegisterEntryPoint<SkinSelectionPresenter>();
+
             builder.RegisterComponentInHierarchy<SettingsView>()
                 .As<ISettingsView>();
 

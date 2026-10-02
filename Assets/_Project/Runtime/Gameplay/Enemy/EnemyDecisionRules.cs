@@ -52,5 +52,11 @@ namespace PlanetIO
                 Mathf.Clamp01(minimumMultiplier),
                 1f);
         }
+
+        public static float GetTurnSpeed(float smoothTurnSpeed, float dashTurnSpeed, float remainingDashTime)
+        {
+            float speed = Mathf.Max(0f, smoothTurnSpeed);
+            return remainingDashTime > 0f ? Mathf.Max(speed, dashTurnSpeed) : speed;
+        }
     }
 }

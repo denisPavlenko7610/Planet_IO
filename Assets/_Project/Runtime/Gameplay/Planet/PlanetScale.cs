@@ -12,6 +12,10 @@ namespace PlanetIO
         private const float ScaleDepth = 1f;
         private const int DisplayNameMaximumLength = 32;
 
+        // Display names are embedded into TMP rich-text strings (leaderboard, kill feed),
+        // so angle brackets must never survive server validation.
+        private static readonly char[] RichTextCharacters = { '<', '>' };
+
         [Header("Capacity")]
         [FormerlySerializedAs("_minimumCapacity")]
         [SerializeField, Min(MinAllowedCapacity)] private float _minCapacity = 0.08f;
@@ -94,6 +98,11 @@ namespace PlanetIO
             if (normalized.Length > DisplayNameMaximumLength)
             {
                 normalized = normalized[..DisplayNameMaximumLength];
+            }
+
+            if (normalized.IndexOfAny(RichTextCharacters) >= 0)
+            {
+                normalized = normalized.Replace("<", string.Empty).Replace(">", string.Empty);
             }
 
             _networkDisplayName.Value = normalized;

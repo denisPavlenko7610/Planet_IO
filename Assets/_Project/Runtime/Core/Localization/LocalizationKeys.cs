@@ -8,12 +8,15 @@ namespace PlanetIO
         public const string MenuRandomNickname = "menu.random_nickname";
         public const string MenuPlayWithBots = "menu.play_with_bots";
         public const string MenuCreateRoom = "menu.create_room";
+        public const string MenuQuickPlay = "menu.quick_play";
         public const string MenuJoinRoom = "menu.join_room";
         public const string MenuRoomCodePlaceholder = "menu.room_code_placeholder";
         public const string MenuSettings = "menu.settings";
         public const string MenuBestScore = "menu.best_score";
         public const string MenuOnline = "menu.online";
         public const string MenuColor = "menu.color";
+        public const string MenuPlanet = "menu.planet";
+        public const string MenuSkinLocked = "menu.skin_locked";
 
         public const string StatusReady = "status.ready";
         public const string StatusCreatingRoom = "status.creating_room";
@@ -25,6 +28,7 @@ namespace PlanetIO
         public const string StatusFailed = "status.failed";
         public const string StatusEnterRoomCode = "status.enter_room_code";
         public const string StatusHostLeft = "status.host_left";
+        public const string StatusSearching = "status.searching";
         public const string StatusRoomFull = "status.room_full";
         public const string StatusVersionMismatch = "status.version_mismatch";
 
@@ -42,7 +46,6 @@ namespace PlanetIO
         public const string HudRank = "hud.rank";
         public const string HudLeaders = "hud.leaders";
         public const string HudHintTouch = "hud.hint_touch";
-        public const string HudHintDesktop = "hud.hint_desktop";
         public const string HudYouAte = "hud.you_ate";
         public const string HudYouLost = "hud.you_lost";
         public const string HudFinalScore = "hud.final_score";
@@ -51,16 +54,21 @@ namespace PlanetIO
         public const string HudLeave = "hud.leave";
         public const string HudBoost = "hud.boost";
         public const string HudBackToLeave = "hud.back_to_leave";
+        public const string HudKillFeed = "hud.kill_feed";
+        public const string TutorialEat = "tutorial.eat";
+        public const string TutorialAvoid = "tutorial.avoid";
+        public const string TutorialBoost = "tutorial.boost";
 
         public static readonly string[] All =
         {
-            MenuNicknamePlaceholder, MenuRandomNickname, MenuPlayWithBots, MenuCreateRoom, MenuJoinRoom,
-            MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuColor,
+            MenuNicknamePlaceholder, MenuRandomNickname, MenuPlayWithBots, MenuCreateRoom, MenuQuickPlay, MenuJoinRoom,
+            MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuColor, MenuPlanet, MenuSkinLocked,
             StatusReady, StatusCreatingRoom, StatusRoomCreated, StatusConnecting, StatusStartingSolo,
-            StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusHostLeft, StatusRoomFull, StatusVersionMismatch,
+            StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
             SettingsTitle, SettingsMusic, SettingsSound, SettingsLanguage, SettingsHaptics, SettingsAdPrivacy, SettingsClose,
-            HudSinglePlayer, HudRoom, HudPlayers, HudRank, HudLeaders, HudHintTouch, HudHintDesktop,
-            HudYouAte, HudYouLost, HudFinalScore, HudPlayAgain, HudWatchAd, HudLeave, HudBoost, HudBackToLeave
+            HudSinglePlayer, HudRoom, HudPlayers, HudRank, HudLeaders, HudHintTouch,
+            HudYouAte, HudYouLost, HudFinalScore, HudPlayAgain, HudWatchAd, HudLeave, HudBoost, HudBackToLeave,
+            HudKillFeed, TutorialEat, TutorialAvoid, TutorialBoost
         };
     }
 }

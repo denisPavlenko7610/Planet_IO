@@ -63,6 +63,64 @@ namespace PlanetIO.Tests
             }
         }
 
+        [TestCase("Nova", true)]
+        [TestCase("Маша", true)]
+        [TestCase("Sh1t_Lord", false)]
+        [TestCase("f.u.c.k", false)]
+        [TestCase("СуКа", false)]
+        public void NicknameFilter_BlocksObviousProfanity(string nickname, bool allowed)
+        {
+            Assert.That(NicknameFilter.IsAllowed(nickname), Is.EqualTo(allowed));
+        }
+
+        [Test]
+        public void NicknameRules_ReplaceBlockedNickname()
+        {
+            Assert.That(NicknameRules.Normalize("fuck you"), Is.EqualTo(NicknameRules.DefaultNickname));
+        }
+
+        [Test]
+        public void BotTuning_HunterIsBolderThanCautious()
+        {
+            BotTuning hunter = BotTuning.For(BotPersonality.Hunter);
+            BotTuning cautious = BotTuning.For(BotPersonality.Cautious);
+
+            Assert.That(hunter.Awareness, Is.GreaterThan(cautious.Awareness));
+            Assert.That(hunter.HuntRatio, Is.LessThan(cautious.HuntRatio));
+            Assert.That(hunter.ThreatRatio, Is.GreaterThan(cautious.ThreatRatio));
+        }
+
+        [Test]
+        public void BotTuning_PersonalitiesAreDistributed()
+        {
+            int[] counts = new int[3];
+            for (ulong id = 5; id < 5 + 3 * 30; id += 3)
+            {
+                counts[(int)BotTuning.PersonalityFor(id)]++;
+            }
+
+            Assert.That(counts, Has.All.GreaterThanOrEqualTo(5), string.Join(",", counts));
+        }
+
+        [Test]
+        public void EnemyTurnRules_TurnsSmoothlyWithoutDash()
+        {
+            Assert.That(EnemyDecisionRules.GetTurnSpeed(260f, 900f, 0f), Is.EqualTo(260f));
+        }
+
+        [Test]
+        public void EnemyTurnRules_DashesWhileBurstIsActive()
+        {
+            Assert.That(EnemyDecisionRules.GetTurnSpeed(260f, 900f, 0.3f), Is.EqualTo(900f));
+        }
+
+        [Test]
+        public void EnemyTurnRules_NeverTurnsSlowerThanSmoothSpeed()
+        {
+            Assert.That(EnemyDecisionRules.GetTurnSpeed(260f, 100f, 0.3f), Is.EqualTo(260f));
+            Assert.That(EnemyDecisionRules.GetTurnSpeed(-50f, 900f, 0f), Is.EqualTo(0f));
+        }
+
         [Test]
         public void SceneContainers_GroupObjectsUnderRuntimeRoot()
         {

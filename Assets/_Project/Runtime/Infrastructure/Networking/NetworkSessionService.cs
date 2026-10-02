@@ -1,10 +1,7 @@
 using System;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
+using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityTemplates.SceneFlow;
@@ -17,7 +14,6 @@ namespace PlanetIO.Infrastructure.Networking
         private const string LocalAddress = "127.0.0.1";
         private const ushort LocalPort = 7777;
 
-        private const float ClientConnectionTimeoutSeconds = 8f;
         private const float ProgressInitial = 0.02f;
         private const float ProgressSceneLoading = 0.04f;
         private const float ProgressSceneLoaded = 0.94f;
@@ -26,6 +22,7 @@ namespace PlanetIO.Infrastructure.Networking
         private readonly NetworkManager _networkManager;
         private readonly ConnectionApprovalHandler _approvalHandler;
         private readonly ISceneFlow _sceneFlow;
+        private readonly UgsSessionConnector _sessionConnector = new();
         private NetworkSceneManager _networkSceneManager;
 		private readonly IPlayerProfileService _playerProfileService;
 
@@ -33,7 +30,6 @@ namespace PlanetIO.Infrastructure.Networking
         private bool _subscribed;
         private bool _shutdownRequested;
         private bool _recoveringFromDisconnect;
-        private bool _ugsInitialized;
 
         public NetworkSessionService(
             NetworkManager networkManager,
@@ -63,55 +59,66 @@ namespace PlanetIO.Infrastructure.Networking
             Subscribe();
         }
 
-        public async Awaitable<bool> StartHostAsync(int maxPlayers)
+        public Awaitable<bool> StartHostAsync(int maxPlayers)
+        {
+            int playerLimit = RoomRules.ClampMaxPlayers(maxPlayers);
+            return StartSessionAsync(NetworkSessionState.StartingHost, "Creating room...",
+                handler => _sessionConnector.CreatePrivateRoomAsync(playerLimit, handler));
+        }
+
+        public Awaitable<bool> StartClientAsync(string roomCode)
+        {
+            if (!RoomRules.TryCreateConnectionSettings(roomCode, out RoomConnectionSettings room, out string validationError))
+            {
+                FailStart(validationError);
+                return CompletedFalse();
+            }
+
+            CurrentRoom = room;
+            return StartSessionAsync(NetworkSessionState.StartingClient, $"Connecting to {room.RoomCode}...",
+                handler => _sessionConnector.JoinByCodeAsync(room.RoomCode, handler));
+        }
+
+        public Awaitable<bool> StartQuickPlayAsync()
+        {
+            return StartSessionAsync(NetworkSessionState.Searching, "Searching for a match...",
+                handler => _sessionConnector.QuickPlayAsync(RoomRules.QuickPlayMaxPlayers, handler));
+        }
+
+        private async Awaitable<bool> StartSessionAsync(
+            NetworkSessionState startingState,
+            string startingStatus,
+            Func<INetworkHandler, Awaitable<ISession>> connect)
         {
             if (!CanStartSession())
             {
                 return false;
             }
 
-            int playerLimit = RoomRules.ClampMaxPlayers(maxPlayers);
-            Mode = NetworkSessionMode.Host;
-            SetState(NetworkSessionState.StartingHost, "Creating room...");
+            Mode = startingState == NetworkSessionState.StartingHost ? NetworkSessionMode.Host : NetworkSessionMode.Client;
+            SetState(startingState, startingStatus);
+            NgoSessionNetworkHandler handler = new(_networkManager, PrepareConnection);
 
             try
             {
-                await EnsureUgsInitializedAsync();
-
-                Allocation allocation = await RelayService.Instance
-                    .CreateAllocationAsync(playerLimit - 1);
-
-                string joinCode = await RelayService.Instance
-                    .GetJoinCodeAsync(allocation.AllocationId);
-
-                ConfigureTransportForRelay(allocation);
-
-                CurrentRoom = new RoomConnectionSettings(joinCode, playerLimit);
-
-                _networkManager.ConnectionApprovalCallback = (request, response) =>
-                        _approvalHandler.ApproveRoomConnection(request, response, CurrentRoom);
-
-                if (!_networkManager.StartHost())
-                {
-                    FailStart("NetworkManager rejected room start");
-                    return false;
-                }
-
+                ISession session = await connect(handler);
+                Mode = handler.IsHost ? NetworkSessionMode.Host : NetworkSessionMode.Client;
+                CurrentRoom = new RoomConnectionSettings(session.Code ?? string.Empty, session.MaxPlayers);
                 SubscribeSceneManager();
-                if (!await WaitOneFrameAsync())
+
+                if (!handler.IsHost)
                 {
-                    await AbortStartAsync("Room start was cancelled");
-                    return false;
+                    SetState(NetworkSessionState.Connecting, $"Joined room {CurrentRoom.RoomCode}");
+                    return true;
                 }
 
-                if (!_networkManager.IsListening || !_networkManager.IsServer)
+                if (!await WaitOneFrameAsync() || !_networkManager.IsListening || !_networkManager.IsServer)
                 {
                     await AbortStartAsync("Room did not transition to Listening state");
                     return false;
                 }
 
-                SetState(NetworkSessionState.StartingHost, $"Room created. Code: {joinCode}");
-
+                SetState(NetworkSessionState.StartingHost, $"Room created. Code: {CurrentRoom.RoomCode}");
                 if (LoadNetworkScene(SceneNames.Loading))
                 {
                     return true;
@@ -122,105 +129,39 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (OperationCanceledException)
             {
-                await AbortStartAsync("Room start was cancelled");
+                await AbortStartAsync("Session start was cancelled");
                 return false;
             }
             catch (Exception exception)
             {
                 GameLogger.LogException(exception);
-                await AbortStartAsync($"Failed to create room: {exception.Message}");
+                await AbortStartAsync($"Session error: {exception.Message}");
                 return false;
             }
         }
 
-        public async Awaitable<bool> StartClientAsync(string relayJoinCode)
+        private void PrepareConnection(bool isHost)
         {
-            if (!CanStartSession())
+            if (isHost)
             {
-                return false;
+                _networkManager.ConnectionApprovalCallback = (request, response) =>
+                    _approvalHandler.ApproveRoomConnection(request, response, CurrentRoom);
+                return;
             }
 
-            if (!RoomRules.TryCreateConnectionSettings(
-                    relayJoinCode,
-                    out RoomConnectionSettings room,
-                    out string validationError))
-            {
-                FailStart(validationError);
-                return false;
-            }
-
-            Mode = NetworkSessionMode.Client;
             _networkManager.ConnectionApprovalCallback = null;
-            SetState(NetworkSessionState.StartingClient, $"Connecting to {room.RoomCode}...");
-
-            try
+            ConnectionApprovalHandler.RoomConnectionPayload payload = new()
             {
-                await EnsureUgsInitializedAsync();
+                Protocol = RoomRules.ProtocolVersion,
+                Nickname = _playerProfileService.Nickname
+            };
+            _networkManager.NetworkConfig.ConnectionData = ConnectionApprovalHandler.SerializePayload(payload);
+        }
 
-                JoinAllocation joinAllocation = await RelayService.Instance
-                    .JoinAllocationAsync(room.RoomCode);
-
-                ConfigureTransportForRelay(joinAllocation);
-
-                CurrentRoom = room;
-
-				ConnectionApprovalHandler.RoomConnectionPayload payload = new ConnectionApprovalHandler.RoomConnectionPayload
-				{
-					Protocol = RoomRules.ProtocolVersion,
-					Nickname = _playerProfileService.Nickname
-				};
-
-				_networkManager.NetworkConfig.ConnectionData = ConnectionApprovalHandler.SerializePayload(payload);
-
-                if (!_networkManager.StartClient())
-                {
-                    FailStart("NetworkManager rejected client start");
-                    return false;
-                }
-
-                SubscribeSceneManager();
-                SetState(NetworkSessionState.Connecting, $"Joining room {room.RoomCode}");
-
-                float connectionDeadline = Time.realtimeSinceStartup + ClientConnectionTimeoutSeconds;
-
-                while (Time.realtimeSinceStartup < connectionDeadline)
-                {
-                    if (_networkManager.IsConnectedClient)
-                    {
-                        return true;
-                    }
-
-                    if (!_networkManager.IsListening)
-                    {
-                        break;
-                    }
-
-                    await Awaitable.NextFrameAsync();
-                }
-
-                if (_networkManager.IsConnectedClient)
-                {
-                    return true;
-                }
-
-                string failureReason = string.IsNullOrWhiteSpace(_networkManager.DisconnectReason)
-                    ? $"Room did not respond within {ClientConnectionTimeoutSeconds:0}s."
-                    : _networkManager.DisconnectReason;
-
-                await AbortStartAsync(failureReason);
-                return false;
-            }
-            catch (OperationCanceledException)
-            {
-                await AbortStartAsync("Connection was cancelled");
-                return false;
-            }
-            catch (Exception exception)
-            {
-                GameLogger.LogException(exception);
-                await AbortStartAsync($"Connection error: {exception.Message}");
-                return false;
-            }
+        private static async Awaitable<bool> CompletedFalse()
+        {
+            await Awaitable.NextFrameAsync();
+            return false;
         }
 
         public async Awaitable<bool> StartSinglePlayerAsync()
@@ -310,6 +251,7 @@ namespace PlanetIO.Infrastructure.Networking
 
             try
             {
+                await _sessionConnector.LeaveAsync();
                 await StopNetworkManagerAsync();
                 ResetConnectionConfiguration();
                 Mode = NetworkSessionMode.None;
@@ -336,49 +278,12 @@ namespace PlanetIO.Infrastructure.Networking
             Unsubscribe();
         }
 
-        private async Awaitable EnsureUgsInitializedAsync()
-        {
-            if (_ugsInitialized)
-            {
-                return;
-            }
-
-            await UnityServices.InitializeAsync();
-
-            if (!AuthenticationService.Instance.IsSignedIn)
-            {
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            }
-
-            _ugsInitialized = true;
-        }
-
         private void UseLocalTransport()
         {
             if (_networkManager.NetworkConfig.NetworkTransport is UnityTransport transport)
             {
                 transport.SetConnectionData(LocalAddress, LocalPort);
             }
-        }
-
-        private UnityTransport GetRelayTransport()
-        {
-            if (_networkManager.NetworkConfig.NetworkTransport is not UnityTransport transport)
-            {
-                throw new InvalidOperationException("Relay requires Unity Transport");
-            }
-
-            return transport;
-        }
-
-        private void ConfigureTransportForRelay(Allocation allocation)
-        {
-            GetRelayTransport().SetRelayServerData(allocation.ToRelayServerData("dtls"));
-        }
-
-        private void ConfigureTransportForRelay(JoinAllocation joinAllocation)
-        {
-            GetRelayTransport().SetRelayServerData(joinAllocation.ToRelayServerData("dtls"));
         }
 
         private bool CanStartSession()
@@ -406,6 +311,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         private async Awaitable AbortStartAsync(string reason)
         {
+            await _sessionConnector.LeaveAsync();
             await StopNetworkManagerAsync();
             FailStart(reason);
         }

@@ -40,6 +40,7 @@ namespace PlanetIO.UI.Menu
         {
             _menuView.PlayWithBotsRequested += OnPlayWithBotsRequested;
             _menuView.CreateRoomRequested += OnCreateRoomRequested;
+            _menuView.QuickPlayRequested += OnQuickPlayRequested;
             _menuView.JoinRoomRequested += OnJoinRoomRequested;
             _menuView.SettingsRequested += OnSettingsRequested;
             _nicknameInputView.NicknameChanged += OnNicknameChanged;
@@ -61,6 +62,7 @@ namespace PlanetIO.UI.Menu
         {
             _menuView.PlayWithBotsRequested -= OnPlayWithBotsRequested;
             _menuView.CreateRoomRequested -= OnCreateRoomRequested;
+            _menuView.QuickPlayRequested -= OnQuickPlayRequested;
             _menuView.JoinRoomRequested -= OnJoinRoomRequested;
             _menuView.SettingsRequested -= OnSettingsRequested;
             _nicknameInputView.NicknameChanged -= OnNicknameChanged;
@@ -105,6 +107,11 @@ namespace PlanetIO.UI.Menu
         private void OnCreateRoomRequested()
         {
             _ = StartSessionAsync(() => _networkSessionService.StartHostAsync(RoomRules.DefaultMaxPlayers));
+        }
+
+        private void OnQuickPlayRequested()
+        {
+            _ = StartSessionAsync(_networkSessionService.StartQuickPlayAsync);
         }
 
         private void OnJoinRoomRequested(string roomCode)
@@ -192,6 +199,12 @@ namespace PlanetIO.UI.Menu
             }
             catch (OperationCanceledException)
             {
+                // Session start was cancelled (e.g. scene teardown): unblock the menu unless it is being destroyed too.
+                _sessionRequestInProgress = false;
+                if (_menuView is UnityEngine.Object menuView && menuView)
+                {
+                    _menuView.SetInteractionEnabled(true);
+                }
             }
             catch (Exception exception)
             {

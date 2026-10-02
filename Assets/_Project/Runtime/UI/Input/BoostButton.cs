@@ -38,23 +38,23 @@ namespace PlanetIO
             }
 
             _keyboardPressed = keyboardPressed;
-            SetPressed(_pointerPressed || _keyboardPressed);
+            NotifyPressedState();
         }
 
         private void OnDisable()
         {
             _pointerPressed = false;
             _keyboardPressed = false;
-            SetPressed(false);
+            NotifyPressedState();
         }
 
         private void SetPointerPressed(bool isPressed)
         {
             _pointerPressed = isPressed;
-            SetPressed(_pointerPressed || _keyboardPressed);
+            NotifyPressedState();
         }
 
-        private void SetPressed(bool isPressed)
+        private void NotifyPressedState()
         {
             BoostChanged?.Invoke(_pointerPressed || _keyboardPressed);
         }

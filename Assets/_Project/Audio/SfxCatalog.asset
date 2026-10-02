@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a807cc63bd117e4395c1782ec309d1b, type: 3}
+  m_Name: SfxCatalog
+  m_EditorClassIdentifier: PlanetIO.Infrastructure::PlanetIO.Infrastructure.Audio.SfxCatalog
+  _eat: {fileID: 11400000, guid: 92055f3cb47a74d439e88034d441eeda, type: 2}
+  _hit: {fileID: 11400000, guid: 363e8e3fd588b3d4cafafc548ce2a6a9, type: 2}
+  _kill: {fileID: 11400000, guid: 0366c1e83726c4e4b9c5f7a2f251a3db, type: 2}
+  _death: {fileID: 11400000, guid: 38ed50739f2b35a4bb3fdae84170256c, type: 2}
+  _boost: {fileID: 11400000, guid: 2e892b90fb5bd2940acd984609bd3ef9, type: 2}

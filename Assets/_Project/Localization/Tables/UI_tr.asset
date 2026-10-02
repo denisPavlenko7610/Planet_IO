@@ -196,6 +196,38 @@ MonoBehaviour:
     m_Localized: "Bu odaya kat\u0131lmak i\xE7in oyunu g\xFCncelle"
     m_Metadata:
       m_Items: []
+  - m_Id: 67018165059584
+    m_Localized: '{0}, {1} oyuncusunu yedi'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083008
+    m_Localized: "B\xFCy\xFCmek i\xE7in parlayan yemleri ye"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083009
+    m_Localized: "K\xFC\xE7\xFCk gezegenleri ye, b\xFCy\xFCklerden ka\xE7"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083010
+    m_Localized: "H\u0131z k\xFCtle harcar \u2014 ka\xE7mak ya da avlanmak i\xE7in kullan"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559036448768
+    m_Localized: "H\u0131zl\u0131 oyun"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559170666496
+    m_Localized: "Ma\xE7 aran\u0131yor..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881082834944
+    m_Localized: Gezegen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881208664064
+    m_Localized: Reklam
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

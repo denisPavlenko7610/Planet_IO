@@ -102,7 +102,10 @@ namespace PlanetIO.Pooling
 
         protected virtual void DestroyPooledObject(T pooledObject)
         {
-            Destroy(pooledObject.gameObject);
+            if (pooledObject != null)
+            {
+                Destroy(pooledObject.gameObject);
+            }
         }
 
 #if UNITY_EDITOR

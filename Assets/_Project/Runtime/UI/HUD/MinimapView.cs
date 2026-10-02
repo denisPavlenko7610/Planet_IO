@@ -26,10 +26,6 @@ namespace PlanetIO.UI.Hud
         private void Awake()
         {
             _rect = GetComponent<RectTransform>();
-
-            Image background = gameObject.AddComponent<Image>();
-            background.color = new Color(0f, 0f, 0f, 0.35f);
-            background.raycastTarget = false;
         }
 
         public void UpdateBlips(IReadOnlyList<MinimapBlip> blips)

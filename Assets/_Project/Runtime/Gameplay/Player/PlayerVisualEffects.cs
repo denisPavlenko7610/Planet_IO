@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using VContainer;
 
 namespace PlanetIO
 {
@@ -12,13 +14,13 @@ namespace PlanetIO
         [SerializeField, Min(0.1f)] private float _boostPulseSpeed = 8f;
         [SerializeField, Min(0.1f)] private float _protectionBlinkSpeed = 14f;
         [SerializeField, Range(0f, 1f)] private float _protectionBlinkAmount = 0.7f;
-        [SerializeField, Range(0f, 1f)] private float _boostVolume = 0.3f;
         [SerializeField] private TrailRenderer _boostTrail;
         [SerializeField, Min(0f)] private float _trailWidthPerScale = 0.8f;
 
         private SpriteRenderer _spriteRenderer;
         private Color _baseColor;
-        private AudioSource _boostSource;
+        private ISfxPlayer _sfxPlayer;
+        private IDisposable _boostLoop;
         private bool _localAudio;
         private bool _boosting;
         private bool _protected;
@@ -27,30 +29,31 @@ namespace PlanetIO
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _baseColor = _spriteRenderer != null ? _spriteRenderer.color : Color.white;
+        }
 
-            _boostSource = gameObject.AddComponent<AudioSource>();
-            _boostSource.loop = true;
-            _boostSource.playOnAwake = false;
-            _boostSource.volume = _boostVolume;
-            _boostSource.clip = GameAudio.Load("boost_loop");
+        [Inject]
+        public void Construct(ISfxPlayer sfxPlayer)
+        {
+            _sfxPlayer = sfxPlayer;
         }
 
         public void SetBaseColor(Color color)
         {
             _baseColor = color;
             ApplyTrailColor(color);
-            if (!_boosting && !_protected)
+
+            if (_spriteRenderer != null && !_boosting && !_protected)
             {
-                RestoreColor();
+                _spriteRenderer.color = color;
             }
         }
 
         public void SetLocalAudio(bool local)
         {
             _localAudio = local;
-            if (!local && _boostSource != null && _boostSource.isPlaying)
+            if (!local)
             {
-                _boostSource.Stop();
+                StopBoostLoop();
             }
         }
 
@@ -67,16 +70,13 @@ namespace PlanetIO
                 _boostTrail.emitting = boosting;
             }
 
-            if (_localAudio && _boostSource != null && _boostSource.clip != null)
+            if (boosting && _localAudio && _sfxPlayer != null)
             {
-                if (boosting)
-                {
-                    _boostSource.Play();
-                }
-                else
-                {
-                    _boostSource.Stop();
-                }
+                _boostLoop ??= _sfxPlayer.PlayLoop(SfxId.Boost, transform);
+            }
+            else
+            {
+                StopBoostLoop();
             }
 
             if (!_boosting && !_protected)
@@ -128,10 +128,7 @@ namespace PlanetIO
             _boosting = false;
             _protected = false;
             RestoreColor();
-            if (_boostSource != null && _boostSource.isPlaying)
-            {
-                _boostSource.Stop();
-            }
+            StopBoostLoop();
         }
 
         private void ApplyTrailColor(Color color)
@@ -147,6 +144,12 @@ namespace PlanetIO
             end.a = 0f;
             _boostTrail.startColor = start;
             _boostTrail.endColor = end;
+        }
+
+        private void StopBoostLoop()
+        {
+            _boostLoop?.Dispose();
+            _boostLoop = null;
         }
 
         private void RestoreColor()

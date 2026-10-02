@@ -27,6 +27,8 @@ namespace PlanetIO.Infrastructure.Bootstrap
 
         [SerializeField, Assign] private NetworkManager _networkManager;
         [SerializeField, Assign] private SceneCatalog _sceneCatalog;
+        [SerializeField] private SfxCatalog _sfxCatalog;
+        [SerializeField] private PlanetSkinCatalog _skinCatalog;
 
         protected override void Awake()
         {
@@ -54,6 +56,16 @@ namespace PlanetIO.Infrastructure.Bootstrap
                 throw new InvalidOperationException($"{nameof(ApplicationLifetimeScope)} requires a {nameof(SceneCatalog)}.");
             }
 
+            if (_sfxCatalog == null)
+            {
+                throw new MissingComponentException($"{nameof(ApplicationLifetimeScope)} requires a {nameof(SfxCatalog)}.");
+            }
+
+            if (_skinCatalog == null)
+            {
+                throw new MissingComponentException($"{nameof(ApplicationLifetimeScope)} requires a {nameof(PlanetSkinCatalog)}.");
+            }
+
             builder.RegisterComponent(_networkManager);
             builder.RegisterInstance(_sceneCatalog);
             builder.Register<SceneFlow>(resolver => new SceneFlow(
@@ -73,6 +85,9 @@ namespace PlanetIO.Infrastructure.Bootstrap
             }, Lifetime.Singleton);
             builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
             builder.Register<AddressableContentService>(Lifetime.Singleton).As<IContentInitializationService>();
+            builder.RegisterInstance(_sfxCatalog);
+            builder.RegisterInstance(_skinCatalog);
+            builder.Register<SfxPlayer>(Lifetime.Singleton).As<ISfxPlayer>();
             builder.Register<AdMobRewardedService>(Lifetime.Singleton).As<IRewardedAdsService>().As<IAdPrivacyService>();
             builder.RegisterEntryPoint<AddressableMusicService>();
 			builder.RegisterEntryPoint<NetworkSessionService>()

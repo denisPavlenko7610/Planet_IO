@@ -14,17 +14,8 @@ namespace PlanetIO
 
         private PlayerControls _controls;
         private Camera _camera;
-        private bool _pointerSteeringActive;
         private PointerEventData _uiPointerData;
         private readonly List<RaycastResult> _uiRaycastResults = new();
-
-		private void Awake()
-        {
-            if (_playerMovement == null)
-            {
-                _playerMovement = GetComponent<PlayerMovement>();
-            }
-        }
 
         public override void OnNetworkSpawn()
         {
@@ -36,20 +27,6 @@ namespace PlanetIO
             }
 
             _controls = new PlayerControls();
-            _controls.Move.Movement
-                .AddCompositeBinding("2DVector")
-                .With("Up", "<Keyboard>/w")
-                .With("Down", "<Keyboard>/s")
-                .With("Left", "<Keyboard>/a")
-                .With("Right", "<Keyboard>/d");
-
-            _controls.Move.Movement
-                .AddCompositeBinding("2DVector")
-                .With("Up", "<Keyboard>/upArrow")
-                .With("Down", "<Keyboard>/downArrow")
-                .With("Left", "<Keyboard>/leftArrow")
-                .With("Right", "<Keyboard>/rightArrow");
-
             _controls.Enable();
             _controls.Move.Movement.performed += UpdateInput;
             _controls.Move.Movement.canceled += CanceledInput;
@@ -72,28 +49,34 @@ namespace PlanetIO
 
             if (TryGetTouchScreenPosition(out Vector2 touchPosition))
             {
-                _pointerSteeringActive = true;
                 SteerTo(touchPosition);
                 return;
             }
 
+            if (TryGetHeldMousePosition(out Vector2 mousePosition))
+            {
+                SteerTo(mousePosition);
+            }
+        }
+
+        private bool TryGetHeldMousePosition(out Vector2 position)
+        {
+            position = default;
+
             Mouse mouse = Mouse.current;
-            if (mouse == null)
+            if (mouse == null || !mouse.leftButton.isPressed)
             {
-                return;
+                return false;
             }
 
-            if (mouse.delta.ReadValue().sqrMagnitude > 0.01f)
+            Vector2 mousePosition = mouse.position.ReadValue();
+            if (IsOverInteractiveUi(mousePosition))
             {
-                _pointerSteeringActive = true;
+                return false;
             }
 
-            if (!_pointerSteeringActive)
-            {
-                return;
-            }
-
-            SteerTo(mouse.position.ReadValue());
+            position = mousePosition;
+            return true;
         }
 
         private bool TryGetTouchScreenPosition(out Vector2 position)
@@ -151,7 +134,7 @@ namespace PlanetIO
 
         private void SteerTo(Vector2 screenPosition)
         {
-            _camera ??= UnityEngine.Camera.main;
+            _camera ??= Camera.main;
             if (_camera == null)
             {
                 return;
@@ -160,6 +143,7 @@ namespace PlanetIO
             Vector3 playerPosition = _playerMovement.Player.transform.position;
             Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y,
                 -_camera.transform.position.z));
+
             _playerMovement.SetDirection(worldPosition - playerPosition);
         }
 
@@ -169,8 +153,6 @@ namespace PlanetIO
             {
                 return;
             }
-
-            _pointerSteeringActive = false;
 
             Vector2 direction = _controls.Move.Movement.ReadValue<Vector2>();
             _playerMovement.SetDirection(direction);

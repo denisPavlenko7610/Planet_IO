@@ -75,6 +75,12 @@ namespace PlanetIO.Editor.Localization
                 }
             }
 
+            HashSet<string> csvKeys = new(rows.Skip(1).Select(row => row[0].Trim()));
+            foreach (string staleKey in collection.SharedData.Entries.Select(entry => entry.Key).Where(key => !csvKeys.Contains(key)).ToList())
+            {
+                collection.SharedData.RemoveKey(staleKey);
+            }
+
             collection.SetPreloadTableFlag(true);
             EditorUtility.SetDirty(collection.SharedData);
             EditorUtility.SetDirty(collection);

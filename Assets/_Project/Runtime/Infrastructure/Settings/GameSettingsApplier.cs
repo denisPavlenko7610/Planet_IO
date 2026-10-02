@@ -33,7 +33,6 @@ namespace PlanetIO.Infrastructure.Settings
 
         private void Apply()
         {
-            GameAudio.SfxVolume = _settings.Get(GameSettingKeys.SfxVolume);
             Haptics.IsEnabled = _settings.Get(GameSettingKeys.HapticsEnabled);
         }
     }

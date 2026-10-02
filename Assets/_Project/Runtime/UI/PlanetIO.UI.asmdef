@@ -10,7 +10,8 @@
         "VContainer",
         "UnityTemplates.Localization",
         "UnityTemplates.Settings",
-        "UnityTemplates.Haptics"
+        "UnityTemplates.Haptics",
+        "UnityTemplates.Pause"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

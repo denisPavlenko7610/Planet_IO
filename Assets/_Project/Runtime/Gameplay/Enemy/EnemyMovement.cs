@@ -1,6 +1,7 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 using VContainer;
 using Random = UnityEngine.Random;
 
@@ -27,12 +28,20 @@ namespace PlanetIO
 
         [Header("Movement")]
         [SerializeField, Min(0f)] private float _normalSpeed = 3.2f;
-        [SerializeField, Min(0f)] private float _turnSpeed = 420f;
         [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0.28f;
         [SerializeField, Range(0.1f, 1f)]
         private float _minimumSpeedMultiplier = 0.58f;
         [SerializeField, Min(1f)] private float _huntSpeedMultiplier = 1.12f;
         [SerializeField, Min(1f)] private float _evadeSpeedMultiplier = 1.3f;
+
+        [Header("Turning")]
+        [SerializeField, Min(0f), FormerlySerializedAs("_turnSpeed")]
+        private float _smoothTurnSpeed = 260f;
+        [SerializeField, Min(0f)] private float _dashTurnSpeed = 900f;
+        [SerializeField, Range(0f, 1f)] private float _dashChance = 0.45f;
+        [SerializeField, Min(0.05f)] private float _dashDuration = 0.3f;
+        [SerializeField, Min(0.1f)] private float _minimumDashInterval = 3f;
+        [SerializeField, Min(0.1f)] private float _maximumDashInterval = 9f;
 
         [Header("Awareness")]
         [SerializeField, Min(1f)] private float _awarenessRadius = 22f;
@@ -59,6 +68,11 @@ namespace PlanetIO
         private const float SeparationRadiusPerUnit = 2f;
         private const float SeparationWeight = 0.8f;
 
+        private float _baseAwarenessRadius;
+        private float _baseHuntSizeRatio;
+        private float _baseThreatSizeRatio;
+        private float _baseNormalSpeed;
+
         private readonly Collider2D[] _nearbyColliders =
             new Collider2D[NearbyColliderCapacity];
         private IGameStateService _gameStateService;
@@ -66,6 +80,9 @@ namespace PlanetIO
         private Vector2 _separationForce;
         private float _stateTimeRemaining;
         private float _thinkTimeRemaining;
+        private bool _dashEnabled;
+        private float _dashTimeRemaining;
+        private float _nextDashDelay;
 
         public Vector2 Direction { get; private set; } = Vector2.right;
         public MovementState State { get; private set; } =
@@ -76,6 +93,22 @@ namespace PlanetIO
             _enemyTransform ??= transform;
             _rigidbody2D ??= GetComponent<Rigidbody2D>();
             _enemy ??= GetComponent<Enemy>();
+            _baseAwarenessRadius = _awarenessRadius;
+            _baseHuntSizeRatio = _huntSizeRatio;
+            _baseThreatSizeRatio = _threatSizeRatio;
+            _baseNormalSpeed = _normalSpeed;
+        }
+
+        public BotPersonality Personality { get; private set; }
+
+        private void ApplyPersonality(BotPersonality personality)
+        {
+            Personality = personality;
+            BotTuning tuning = BotTuning.For(personality);
+            _awarenessRadius = _baseAwarenessRadius * tuning.Awareness;
+            _huntSizeRatio = Mathf.Max(1f, _baseHuntSizeRatio * tuning.HuntRatio);
+            _threatSizeRatio = Mathf.Max(1f, _baseThreatSizeRatio * tuning.ThreatRatio);
+            _normalSpeed = _baseNormalSpeed * tuning.Speed;
         }
 
         [Inject]
@@ -90,7 +123,9 @@ namespace PlanetIO
 
             if (IsServer)
             {
+                ApplyPersonality(BotTuning.PersonalityFor(NetworkObjectId));
                 _thinkTimeRemaining = Random.Range(0f, _thinkInterval);
+                InitializeDashing();
                 EnterRoaming();
             }
         }
@@ -150,9 +185,10 @@ namespace PlanetIO
                 Think();
             }
 
-            UpdateDirection(deltaTime);
+            float turnSpeed = UpdateTurnSpeed(deltaTime);
+            UpdateDirection(deltaTime, turnSpeed);
             Move();
-            RotateTowardsDirection(deltaTime);
+            RotateTowardsDirection(deltaTime, turnSpeed);
         }
 
         public void Move()
@@ -184,6 +220,7 @@ namespace PlanetIO
             Direction = GetRandomDirection();
             _desiredDirection = Direction;
             _thinkTimeRemaining = Random.Range(0f, _thinkInterval);
+            InitializeDashing();
             EnterRoaming();
         }
 
@@ -201,6 +238,48 @@ namespace PlanetIO
 
             State = MovementState.Evading;
             _stateTimeRemaining = _evasionDuration;
+
+            if (_dashEnabled)
+            {
+                StartDash();
+            }
+        }
+
+        private void InitializeDashing()
+        {
+            _dashEnabled = Random.value < _dashChance;
+            _dashTimeRemaining = 0f;
+            _nextDashDelay = NextDashDelay();
+        }
+
+        private float NextDashDelay() => Random.Range(_minimumDashInterval,
+            Mathf.Max(_minimumDashInterval, _maximumDashInterval));
+
+        private void StartDash()
+        {
+            _dashTimeRemaining = _dashDuration;
+            _nextDashDelay = NextDashDelay();
+        }
+
+        private float UpdateTurnSpeed(float deltaTime)
+        {
+            if (_dashEnabled)
+            {
+                if (_dashTimeRemaining > 0f)
+                {
+                    _dashTimeRemaining = Mathf.Max(0f, _dashTimeRemaining - deltaTime);
+                }
+                else
+                {
+                    _nextDashDelay -= deltaTime;
+                    if (_nextDashDelay <= 0f)
+                    {
+                        StartDash();
+                    }
+                }
+            }
+
+            return EnemyDecisionRules.GetTurnSpeed(_smoothTurnSpeed, _dashTurnSpeed, _dashTimeRemaining);
         }
 
         private void Think()
@@ -329,7 +408,7 @@ namespace PlanetIO
             _stateTimeRemaining = Random.Range(min, max);
         }
 
-        private void UpdateDirection(float deltaTime)
+        private void UpdateDirection(float deltaTime, float turnSpeed)
         {
             Vector2 target = _desiredDirection;
 
@@ -346,10 +425,10 @@ namespace PlanetIO
             target.Normalize();
 
             Direction = Vector3.RotateTowards(Direction, target,
-				_turnSpeed * Mathf.Deg2Rad * deltaTime, 0f).normalized;
+				turnSpeed * Mathf.Deg2Rad * deltaTime, 0f).normalized;
         }
 
-        private void RotateTowardsDirection(float deltaTime)
+        private void RotateTowardsDirection(float deltaTime, float turnSpeed)
         {
             if (Direction.sqrMagnitude <= Constants.MinimumDirectionSquaredMagnitude)
             {
@@ -357,7 +436,7 @@ namespace PlanetIO
             }
 
             float targetAngle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
-            _rigidbody2D.MoveRotation(Mathf.MoveTowardsAngle(_rigidbody2D.rotation, targetAngle, _turnSpeed * deltaTime));
+            _rigidbody2D.MoveRotation(Mathf.MoveTowardsAngle(_rigidbody2D.rotation, targetAngle, turnSpeed * deltaTime));
         }
 
         private void StopMovement()
@@ -379,6 +458,7 @@ namespace PlanetIO
         private void OnValidate()
         {
             _maximumTimeToChangeDirection = Mathf.Max(_minimumTimeToChangeDirection, _maximumTimeToChangeDirection);
+            _maximumDashInterval = Mathf.Max(_minimumDashInterval, _maximumDashInterval);
             _awarenessRadius = Mathf.Max(_hazardDistance, _awarenessRadius);
         }
 #endif

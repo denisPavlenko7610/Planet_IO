@@ -120,7 +120,7 @@ namespace PlanetIO
                     Capacity >= player.Capacity * _eatSizeRatio)
                 {
                     AbsorbVictim(player.Capacity);
-                    player.Defeat();
+                    player.Defeat(DisplayName);
                 }
             }
             else

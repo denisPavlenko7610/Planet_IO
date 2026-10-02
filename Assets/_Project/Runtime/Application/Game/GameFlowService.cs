@@ -54,12 +54,28 @@ namespace PlanetIO.Application
             TransitionTo(GameState.Initializing);
             _loadingView.Show();
 
-            if (!await InitializeWorldAsync(cancellation))
+            try
             {
-                return;
+                if (await InitializeWorldAsync(cancellation))
+                {
+                    TransitionTo(GameState.WaitingForPlayers);
+                }
+                else
+                {
+                    FailStartup("World initialization failed");
+                }
             }
+            catch (OperationCanceledException)
+            {
+                FailStartup("World initialization was cancelled");
+            }
+        }
 
-            TransitionTo(GameState.WaitingForPlayers);
+        private void FailStartup(string reason)
+        {
+            GameLogger.LogWarning(reason);
+            _loadingView.Hide();
+            BeginShutdown();
         }
 
         public void Tick()

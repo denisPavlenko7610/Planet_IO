@@ -196,6 +196,38 @@ MonoBehaviour:
     m_Localized: Aggiorna il gioco per entrare in questa stanza
     m_Metadata:
       m_Items: []
+  - m_Id: 67018165059584
+    m_Localized: '{0} ha mangiato {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083008
+    m_Localized: Mangia il cibo luminoso per crescere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083009
+    m_Localized: "Mangia i pianeti pi\xF9 piccoli, scappa da quelli grandi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083010
+    m_Localized: 'Il boost consuma massa: usalo per fuggire o cacciare'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559036448768
+    m_Localized: Partita veloce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559170666496
+    m_Localized: Ricerca partita...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881082834944
+    m_Localized: Pianeta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881208664064
+    m_Localized: Video
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

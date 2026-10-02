@@ -28,6 +28,9 @@ namespace PlanetIO.UI.Settings
 
         public bool IsOpen => _view.IsVisible;
 
+        public event Action Opened;
+        public event Action Closed;
+
         public void Start()
         {
             _view.MusicVolumeChanged += OnMusicVolumeChanged;
@@ -59,12 +62,14 @@ namespace PlanetIO.UI.Settings
         {
             Render();
             _view.Show();
+            Opened?.Invoke();
         }
 
         public void Close()
         {
             _settings.Flush();
             _view.Hide();
+            Closed?.Invoke();
         }
 
         public static int GetNextIndex(int current, int count, int step)

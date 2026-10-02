@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 349ba30805614f1d87a24bf2a6773073, type: 3}
+  m_Name: Kill
+  m_EditorClassIdentifier: UnityTemplates.Audio::UnityTemplates.Audio.AudioCue
+  _clips:
+  - _clip: {fileID: 8300000, guid: d4cdc7e20460bd942a2623c702ea2d28, type: 3}
+    _weight: 1
+  _output: {fileID: 0}
+  _ignoreListenerPause: 0
+  _loop: 0
+  _priority: 60
+  _volumeRange: {x: 0.585, y: 0.65}
+  _pitchRange: {x: 1, y: 1}
+  _spatialBlend: 0
+  _minDistance: 1
+  _maxDistance: 500
+  _fadeInSeconds: 0
+  _fadeOutSeconds: 0
+  _maxInstances: 2
+  _cooldownSeconds: 0

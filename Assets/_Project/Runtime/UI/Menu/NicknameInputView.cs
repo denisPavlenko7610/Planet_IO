@@ -18,7 +18,7 @@ namespace PlanetIO.UI.Menu
 
     public sealed class NicknameInputView : MonoBehaviour, INicknameInputView
     {
-        private const float SelectedSwatchScale = 1.2f;
+        private const float SelectedSwatchScale = 1.15f;
 
         [SerializeField] private TMP_InputField _inputField;
         [SerializeField] private Button _setRandomNicknameButton;
@@ -104,6 +104,7 @@ namespace PlanetIO.UI.Menu
 
                 GameObject swatchObject = new($"Swatch_{index}", typeof(RectTransform));
                 swatchObject.transform.SetParent(rowTransform, false);
+                ((RectTransform)swatchObject.transform).sizeDelta = new Vector2(_swatchSize, _swatchSize);
 
                 Image image = swatchObject.AddComponent<Image>();
                 image.sprite = _swatchSprite;

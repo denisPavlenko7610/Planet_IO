@@ -93,6 +93,7 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
             SceneContainers.Attach(transform, SceneContainers.Food);
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _valueMultiplier.OnValueChanged += OnValueMultiplierChanged;

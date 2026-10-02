@@ -26,7 +26,7 @@ namespace PlanetIO
                     normalizedNickname[..MaximumLength].TrimEnd();
             }
 
-            return string.IsNullOrWhiteSpace(normalizedNickname)
+            return string.IsNullOrWhiteSpace(normalizedNickname) || !NicknameFilter.IsAllowed(normalizedNickname)
                 ? DefaultNickname
                 : normalizedNickname;
         }

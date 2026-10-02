@@ -196,6 +196,38 @@ MonoBehaviour:
     m_Localized: Atualize o jogo para entrar nesta sala
     m_Metadata:
       m_Items: []
+  - m_Id: 67018165059584
+    m_Localized: '{0} comeu {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083008
+    m_Localized: Coma a comida brilhante para crescer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083009
+    m_Localized: Coma planetas menores, fuja dos maiores
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083010
+    m_Localized: "O turbo gasta massa \u2014 use para fugir ou ca\xE7ar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559036448768
+    m_Localized: "Partida r\xE1pida"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559170666496
+    m_Localized: Procurando partida...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881082834944
+    m_Localized: Planeta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881208664064
+    m_Localized: "An\xFAncio"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

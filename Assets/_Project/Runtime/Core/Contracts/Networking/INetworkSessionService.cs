@@ -20,6 +20,7 @@ namespace PlanetIO
         Awaitable<bool> StartHostAsync(int maxPlayers);
         Awaitable<bool> StartClientAsync(string relayJoinCode);
         Awaitable<bool> StartSinglePlayerAsync();
+        Awaitable<bool> StartQuickPlayAsync();
         Awaitable ContinueToGameAsync();
         Awaitable ShutdownAndReturnToMenuAsync();
     }

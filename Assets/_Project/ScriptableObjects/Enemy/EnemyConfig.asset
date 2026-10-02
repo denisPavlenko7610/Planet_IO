@@ -14,7 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemySprites:
   - {fileID: 21300000, guid: b82d72e19631266429304b92c1710fcc, type: 3}
-  - {fileID: 21300000, guid: 0d3fe788df9f2ab45a1d9a655406baa8, type: 3}
   - {fileID: 21300000, guid: 992576d838d02f34abbdcd31a516c499, type: 3}
+  - {fileID: 21300000, guid: 0d3fe788df9f2ab45a1d9a655406baa8, type: 3}
   - {fileID: 21300000, guid: ef4b841b2d1af5243a5a5f5ec7685fa8, type: 3}
-  - {fileID: 21300000, guid: 14ab230260f12754ca96d46571344495, type: 3}
+  - {fileID: 21300000, guid: f919ebeead943bb40be2d0a5efd34332, type: 3}
+  - {fileID: 21300000, guid: 56098cc701762af4cb3323e4c8c2ea92, type: 3}
+  - {fileID: 21300000, guid: f78a473269470f44a9d38fe7b050153d, type: 3}
+  - {fileID: 21300000, guid: b7751b3d0c4e9664fa825c79de11d616, type: 3}
+  - {fileID: 21300000, guid: 796ad89e55aad9645ab5c53ef4702ddd, type: 3}
+  - {fileID: 21300000, guid: 2c45ca0c92225b84086de9eb5853b522, type: 3}
+  - {fileID: 21300000, guid: 570a25b2a9b42624eab52175c1aa1856, type: 3}
+  - {fileID: 21300000, guid: 0b41fcb7065f01a41a641ed2f8f51a5f, type: 3}
+  - {fileID: 21300000, guid: 72d1c7f41b76d0f46b15b6bc598ce7c9, type: 3}
+  - {fileID: 21300000, guid: eecb251cc859901489609309a679da5b, type: 3}
+  - {fileID: 21300000, guid: dbfd0a2f9652b1545bb00612775a8d54, type: 3}
+  - {fileID: 21300000, guid: f9cab1cc603eda84398fcf7e5781c3a9, type: 3}
+  - {fileID: 21300000, guid: ffee2190b33475c49935f79230786d64, type: 3}
+  - {fileID: 21300000, guid: f28e5a65fce32dc41aec0e98f1597984, type: 3}
+  - {fileID: 21300000, guid: 665c72d93cb110d4fb8c4c27f54da580, type: 3}

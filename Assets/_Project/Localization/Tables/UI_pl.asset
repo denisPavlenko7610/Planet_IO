@@ -196,6 +196,38 @@ MonoBehaviour:
     m_Localized: "Zaktualizuj gr\u0119, aby do\u0142\u0105czy\u0107 do tego pokoju"
     m_Metadata:
       m_Items: []
+  - m_Id: 67018165059584
+    m_Localized: '{0} zjada: {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083008
+    m_Localized: "Jedz \u015Bwiec\u0105ce jedzenie, aby rosn\u0105\u0107"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083009
+    m_Localized: "Zjadaj mniejsze planety, uciekaj przed wi\u0119kszymi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67018295083010
+    m_Localized: "Turbo zu\u017Cywa mas\u0119 \u2014 u\u017Cywaj go do ucieczki lub polowania"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559036448768
+    m_Localized: Szybka gra
+    m_Metadata:
+      m_Items: []
+  - m_Id: 76559170666496
+    m_Localized: Szukanie gry...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881082834944
+    m_Localized: Planeta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 78881208664064
+    m_Localized: Reklama
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

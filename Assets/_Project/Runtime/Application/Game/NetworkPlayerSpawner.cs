@@ -82,11 +82,12 @@ namespace PlanetIO.Application
             return fallback;
         }
 
+        // An empty mask means "nothing blocks the spawn"; never fall back to an unmasked query,
+        // which would treat every collider as blocking.
         private bool IsPositionBlocked(Vector2 candidate)
         {
-            return _spawnBlockingLayers.value == 0
-                ? Physics2D.OverlapCircle(candidate, SpawnClearance) != null
-                : Physics2D.OverlapCircle(candidate, SpawnClearance, _spawnBlockingLayers) != null;
+            return _spawnBlockingLayers.value != 0 &&
+                Physics2D.OverlapCircle(candidate, SpawnClearance, _spawnBlockingLayers) != null;
         }
 
         private static Vector3 GetSpawnCandidate(ulong clientId, int attempt)

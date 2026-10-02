@@ -21,7 +21,9 @@
         "UnityTemplates.Localization",
         "UnityTemplates.Settings",
         "UnityTemplates.Haptics",
-        "UnityTemplates.Foundation"
+        "UnityTemplates.Foundation",
+        "UnityTemplates.Audio",
+        "UnityTemplates.Pause"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

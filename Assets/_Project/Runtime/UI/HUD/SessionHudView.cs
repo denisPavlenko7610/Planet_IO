@@ -10,6 +10,7 @@ namespace PlanetIO.UI.Hud
         event Action LeaveRequested;
         event Action PlayAgainRequested;
         event Action ContinueRequested;
+        event Action SettingsRequested;
 
         void ShowSessionText(string text);
         void ShowLeaderboardText(string text);
@@ -35,6 +36,7 @@ namespace PlanetIO.UI.Hud
         [SerializeField] private TMP_Text _sessionText;
         [SerializeField] private TMP_Text _leaderboardText;
         [SerializeField] private Button _leaveButton;
+        [SerializeField] private Button _settingsButton;
 
         [Header("Defeat")]
         [SerializeField] private GameObject _defeatPanel;
@@ -53,6 +55,7 @@ namespace PlanetIO.UI.Hud
         public event Action LeaveRequested;
         public event Action PlayAgainRequested;
         public event Action ContinueRequested;
+        public event Action SettingsRequested;
 
         public bool IsDefeatVisible => _defeatPanel.activeSelf;
 
@@ -71,6 +74,7 @@ namespace PlanetIO.UI.Hud
         private void OnEnable()
         {
             _leaveButton.onClick.AddListener(OnLeaveClicked);
+            _settingsButton.onClick.AddListener(OnSettingsClicked);
             _defeatLeaveButton.onClick.AddListener(OnLeaveClicked);
             _playAgainButton.onClick.AddListener(OnPlayAgainClicked);
             _continueButton.onClick.AddListener(OnContinueClicked);
@@ -79,6 +83,7 @@ namespace PlanetIO.UI.Hud
         private void OnDisable()
         {
             _leaveButton.onClick.RemoveListener(OnLeaveClicked);
+            _settingsButton.onClick.RemoveListener(OnSettingsClicked);
             _defeatLeaveButton.onClick.RemoveListener(OnLeaveClicked);
             _playAgainButton.onClick.RemoveListener(OnPlayAgainClicked);
             _continueButton.onClick.RemoveListener(OnContinueClicked);
@@ -195,6 +200,8 @@ namespace PlanetIO.UI.Hud
         }
 
         private void OnLeaveClicked() => LeaveRequested?.Invoke();
+
+        private void OnSettingsClicked() => SettingsRequested?.Invoke();
 
         private void OnPlayAgainClicked() => PlayAgainRequested?.Invoke();
 

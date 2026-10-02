@@ -16,5 +16,8 @@ namespace PlanetIO
 
         public static readonly SettingKey<bool> HapticsEnabled =
             new("feedback.haptics", true, SettingCodecs.Boolean);
+
+        public static readonly SettingKey<bool> TutorialCompleted =
+            new("onboarding.tutorial-completed", false, SettingCodecs.Boolean);
     }
 }

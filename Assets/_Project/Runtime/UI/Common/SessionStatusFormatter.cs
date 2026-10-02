@@ -17,6 +17,7 @@ namespace PlanetIO.UI
                     ? localization.Get(LocalizationKeys.StatusStartingSolo)
                     : localization.Get(LocalizationKeys.StatusConnecting, roomCode),
                 NetworkSessionState.StartingSinglePlayer => localization.Get(LocalizationKeys.StatusStartingSolo),
+                NetworkSessionState.Searching => localization.Get(LocalizationKeys.StatusSearching),
                 NetworkSessionState.Loading or NetworkSessionState.InGame => localization.Get(LocalizationKeys.StatusLoading),
                 NetworkSessionState.ShuttingDown => localization.Get(LocalizationKeys.StatusLeaving),
                 NetworkSessionState.Failed => failure switch

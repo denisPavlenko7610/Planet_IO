@@ -6,6 +6,8 @@ using PlanetIO.Pooling;
 using PlanetIO.UI.Hud;
 using PlanetIO.UI.Camera;
 using PlanetIO.UI.Loading;
+using PlanetIO.UI.Settings;
+using UnityTemplates.Pause;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -110,7 +112,17 @@ namespace PlanetIO.Infrastructure.Bootstrap
 
             builder.RegisterEntryPoint<ScorePresenter>();
             builder.RegisterEntryPoint<DirectionArrowPresenter>();
-            builder.RegisterEntryPoint<GameSessionHudPresenter>();
+            builder.RegisterEntryPoint<LeaderboardPresenter>();
+            builder.RegisterEntryPoint<DefeatPresenter>();
+            builder.RegisterEntryPoint<PlayerFeedbackPresenter>();
+            builder.RegisterEntryPoint<HudNavigationPresenter>();
+            builder.RegisterComponentInHierarchy<SettingsView>()
+                .As<ISettingsView>();
+            builder.RegisterEntryPoint<SettingsPresenter>().AsSelf();
+            builder.Register<PauseService>(Lifetime.Scoped).As<IPauseService>();
+            builder.Register<UnityTimeScalePauseController>(Lifetime.Scoped);
+            builder.RegisterBuildCallback(container => container.Resolve<UnityTimeScalePauseController>());
+            builder.RegisterComponentInHierarchy<MinimapView>();
             builder.RegisterEntryPoint<MinimapPresenter>();
 
             builder.RegisterComponentInHierarchy<GameLoadingView>()
