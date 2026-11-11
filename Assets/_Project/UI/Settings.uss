@@ -1,0 +1,155 @@
+#settings-overlay {
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#settings-backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.settings-panel {
+    width: 1040px;
+    padding: 36px 60px 40px 60px;
+    background-color: var(--panel-modal);
+    align-items: center;
+}
+
+#settings-title {
+    font-size: 60px;
+    color: white;
+    -unity-text-align: middle-center;
+    margin: 0 0 24px 0;
+}
+
+.settings-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    height: 100px;
+}
+
+.settings-label {
+    font-size: 42px;
+    width: 320px;
+    margin: 0;
+}
+
+.settings-slider {
+    width: 440px;
+    margin: 0;
+}
+
+.settings-slider .unity-base-slider__drag-container {
+    height: 56px;
+}
+
+.settings-slider .unity-base-slider__tracker {
+    height: 22px;
+    top: 17px;
+    border-width: 0;
+    border-radius: 11px;
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.settings-slider .unity-base-slider__dragger {
+    width: 56px;
+    height: 56px;
+    top: 0;
+    margin: 0 0 0 -28px;
+    border-width: 0;
+    border-radius: 28px;
+    background-color: white;
+}
+
+.slider-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 11px;
+    background-color: var(--gold);
+}
+
+.settings-toggle {
+    margin: 0;
+    width: 80px;
+    height: 80px;
+}
+
+.settings-toggle .unity-toggle__input {
+    width: 80px;
+    height: 80px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-toggle .unity-toggle__checkmark {
+    width: 80px;
+    height: 80px;
+    margin: 0;
+    border-radius: 26px;
+    border-width: 2px;
+    border-color: var(--outline);
+    background-color: var(--field);
+    background-image: none;
+    -unity-background-image-tint-color: rgba(0, 0, 0, 0);
+}
+
+.settings-toggle:checked .unity-toggle__checkmark {
+    background-color: var(--gold);
+}
+
+.language-stepper {
+    width: 600px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stepper-button {
+    width: 170px;
+    height: 82px;
+    font-size: 52px;
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/11Button_Midl_Blue.png");
+}
+
+#language-value {
+    font-size: 42px;
+    color: white;
+    -unity-text-align: middle-center;
+    flex-grow: 1;
+    margin: 0;
+}
+
+#ad-privacy {
+    margin-top: 10px;
+}
+
+.link {
+    margin: 14px 0 0 0;
+    padding: 6px 16px;
+    border-width: 0;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    font-size: 34px;
+    color: rgb(150, 210, 255);
+    -unity-text-align: middle-center;
+}
+
+.link:hover {
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+}
+
+.link:active {
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--gold);
+}
+
+#settings-close {
+    margin-top: 18px;
+}

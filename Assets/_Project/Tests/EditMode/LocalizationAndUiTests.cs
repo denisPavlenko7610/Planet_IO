@@ -13,6 +13,7 @@ using UnityEditor;
 using UnityEditor.Localization;
 using UnityEngine;
 using UnityEngine.Localization.Tables;
+using UnityEngine.UIElements;
 
 namespace PlanetIO.Tests
 {
@@ -33,6 +34,45 @@ namespace PlanetIO.Tests
 
             Assert.That(csvKeys, Is.EquivalentTo(LocalizationKeys.All));
             Assert.That(rows[0].Skip(1), Is.EquivalentTo(RequiredLocales));
+        }
+
+        [Test]
+        public void Fonts_CoverEveryCharacterOfEveryLocale()
+        {
+            const string fontFolder = "Assets/_Project/Art/Fonts/";
+            Font latin = AssetDatabase.LoadAssetAtPath<Font>(fontFolder + "Nunito-Bold.ttf");
+            Assert.That(latin, Is.Not.Null);
+
+            Dictionary<string, string> cjkFonts = new()
+            {
+                ["zh-Hans"] = "NotoSansSC-Bold.ttf",
+                ["ja"] = "NotoSansJP-Bold.ttf",
+                ["ko"] = "NotoSansKR-Bold.ttf"
+            };
+
+            List<string[]> rows = UIStringsImporter.ReadCsv(File.ReadAllText(UIStringsImporter.CsvPath, Encoding.UTF8));
+            for (int column = 1; column < rows[0].Length; column++)
+            {
+                string localeCode = rows[0][column];
+                Font font = latin;
+                if (cjkFonts.TryGetValue(localeCode, out string fontFile))
+                {
+                    font = AssetDatabase.LoadAssetAtPath<Font>(fontFolder + fontFile);
+                    Assert.That(font, Is.Not.Null, fontFile);
+                }
+
+                foreach (string[] row in rows.Skip(1))
+                {
+                    foreach (char character in row[column])
+                    {
+                        if (!char.IsWhiteSpace(character) && !char.IsSurrogate(character))
+                        {
+                            Assert.That(font.HasCharacter(character), Is.True,
+                                $"{localeCode}: '{character}' (U+{(int)character:X4}) in {row[0]} is missing from {font.name}");
+                        }
+                    }
+                }
+            }
         }
 
         [Test]
@@ -72,25 +112,19 @@ namespace PlanetIO.Tests
             }
         }
 
-        [TestCase("Assets/_Project/Prefabs/UI/Menu.prefab", typeof(MainMenuView))]
-        [TestCase("Assets/_Project/Prefabs/UI/Menu.prefab", typeof(SettingsView))]
-        [TestCase("Assets/_Project/Prefabs/UI/Menu.prefab", typeof(NicknameInputView))]
-        [TestCase("Assets/_Project/Prefabs/UI/SessionHud.prefab", typeof(SessionHudView))]
-        public void UiPrefab_HasAllSerializedReferencesAssigned(string prefabPath, System.Type viewType)
+        [TestCase("Assets/_Project/UI/Menu.uxml", new[] { "play-with-bots", "quick-play", "create-room", "join-room", "room-code-input", "settings-button", "status-text", "best-score", "nickname-input", "random-nickname", "swatches", "skins", "settings-overlay" })]
+        [TestCase("Assets/_Project/UI/Settings.uxml", new[] { "settings-overlay", "settings-backdrop", "music-slider", "sound-slider", "haptics-toggle", "previous-language", "next-language", "language-value", "ad-privacy", "privacy-policy", "settings-close" })]
+        [TestCase("Assets/_Project/UI/Hud.uxml", new[] { "leave-button", "settings-button", "play-again", "continue-button", "defeat-leave", "defeat-panel", "session-text", "leaderboard-text", "score-text", "minimap", "stick", "boost-button", "border-warning", "loading-overlay" })]
+        [TestCase("Assets/_Project/UI/Loading.uxml", new[] { "progress-fill", "loading-status" })]
+        public void UiDocument_ContainsAllElementsRequiredByViews(string uxmlPath, string[] elementNames)
         {
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-            Assert.That(prefab, Is.Not.Null, prefabPath);
+            UnityEngine.UIElements.VisualTreeAsset asset = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.VisualTreeAsset>(uxmlPath);
+            Assert.That(asset, Is.Not.Null, uxmlPath);
 
-            Component view = prefab.GetComponentInChildren(viewType, true);
-            Assert.That(view, Is.Not.Null, viewType.Name);
-
-            SerializedProperty property = new SerializedObject(view).GetIterator();
-            while (property.NextVisible(true))
+            UnityEngine.UIElements.VisualElement root = asset.Instantiate();
+            foreach (string elementName in elementNames)
             {
-                if (property.propertyType == SerializedPropertyType.ObjectReference && property.name != "m_Script")
-                {
-                    Assert.That(property.objectReferenceValue, Is.Not.Null, $"{viewType.Name}.{property.name}");
-                }
+                Assert.That(root.Q(elementName), Is.Not.Null, $"{uxmlPath}: {elementName}");
             }
         }
 

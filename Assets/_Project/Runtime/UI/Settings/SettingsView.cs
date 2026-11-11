@@ -1,7 +1,8 @@
 using System;
-using TMPro;
+using RD.Localization;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using VContainer;
 
 namespace PlanetIO.UI.Settings
 {
@@ -10,81 +11,135 @@ namespace PlanetIO.UI.Settings
         event Action<float> MusicVolumeChanged;
         event Action<float> SfxVolumeChanged;
         event Action<bool> HapticsChanged;
+        event Action<bool> CometNamesChanged;
         event Action PreviousLanguageRequested;
         event Action NextLanguageRequested;
         event Action AdPrivacyRequested;
+        event Action PrivacyPolicyRequested;
         event Action CloseRequested;
 
         bool IsVisible { get; }
 
         void Show();
         void Hide();
-        void ShowValues(float music, float sfx, bool haptics);
+        void ShowValues(float music, float sfx, bool haptics, bool cometNames);
         void ShowLanguage(string languageName);
         void SetAdPrivacyVisible(bool visible);
     }
 
+    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(UIDocument))]
     public sealed class SettingsView : MonoBehaviour, ISettingsView
     {
-        [SerializeField] private GameObject _root;
-        [SerializeField] private Slider _musicSlider;
-        [SerializeField] private Slider _sfxSlider;
-        [SerializeField] private Toggle _hapticsToggle;
-        [SerializeField] private Button _previousLanguageButton;
-        [SerializeField] private Button _nextLanguageButton;
-        [SerializeField] private TMP_Text _languageText;
-        [SerializeField] private Button _adPrivacyButton;
-        [SerializeField] private Button _closeButton;
-        [SerializeField] private Button _backdropButton;
+        private const string FillClass = "slider-fill";
+
+        private ILocalizationService _localization;
+        private LocalizedLabels _labels;
+        private VisualElement _overlay;
+        private VisualElement _backdrop;
+        private Slider _musicSlider;
+        private Slider _sfxSlider;
+        private VisualElement _musicFill;
+        private VisualElement _sfxFill;
+        private Toggle _hapticsToggle;
+        private Toggle _cometNamesToggle;
+        private Button _previousLanguageButton;
+        private Button _nextLanguageButton;
+        private Label _languageText;
+        private Button _adPrivacyButton;
+        private Button _privacyPolicyButton;
+        private Button _closeButton;
 
         public event Action<float> MusicVolumeChanged;
         public event Action<float> SfxVolumeChanged;
         public event Action<bool> HapticsChanged;
+        public event Action<bool> CometNamesChanged;
         public event Action PreviousLanguageRequested;
         public event Action NextLanguageRequested;
         public event Action AdPrivacyRequested;
+        public event Action PrivacyPolicyRequested;
         public event Action CloseRequested;
 
-        public bool IsVisible => _root.activeSelf;
+        public bool IsVisible => _overlay != null && _overlay.resolvedStyle.display == DisplayStyle.Flex;
 
-        private void Awake()
+        [Inject]
+        public void Construct(ILocalizationService localization)
         {
-            _root.SetActive(false);
+            _localization = localization;
         }
 
         private void OnEnable()
         {
-            _musicSlider.onValueChanged.AddListener(OnMusicChanged);
-            _sfxSlider.onValueChanged.AddListener(OnSfxChanged);
-            _hapticsToggle.onValueChanged.AddListener(OnHapticsChanged);
-            _previousLanguageButton.onClick.AddListener(OnPreviousLanguage);
-            _nextLanguageButton.onClick.AddListener(OnNextLanguage);
-            _adPrivacyButton.onClick.AddListener(OnAdPrivacy);
-            _closeButton.onClick.AddListener(OnClose);
-            _backdropButton.onClick.AddListener(OnClose);
+            VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+            _overlay = root.Q<VisualElement>("settings-overlay");
+            _backdrop = root.Q<VisualElement>("settings-backdrop");
+            _musicSlider = root.Q<Slider>("music-slider");
+            _sfxSlider = root.Q<Slider>("sound-slider");
+            _hapticsToggle = root.Q<Toggle>("haptics-toggle");
+            _cometNamesToggle = root.Q<Toggle>("comet-names-toggle");
+            _previousLanguageButton = root.Q<Button>("previous-language");
+            _nextLanguageButton = root.Q<Button>("next-language");
+            _languageText = root.Q<Label>("language-value");
+            _adPrivacyButton = root.Q<Button>("ad-privacy");
+            _privacyPolicyButton = root.Q<Button>("privacy-policy");
+            _closeButton = root.Q<Button>("settings-close");
+
+            _musicFill = CreateFill(_musicSlider);
+            _sfxFill = CreateFill(_sfxSlider);
+            Hide();
+
+            _musicSlider.RegisterValueChangedCallback(OnMusicChanged);
+            _sfxSlider.RegisterValueChangedCallback(OnSfxChanged);
+            _hapticsToggle.RegisterValueChangedCallback(OnHapticsChanged);
+            _cometNamesToggle.RegisterValueChangedCallback(OnCometNamesChanged);
+            _previousLanguageButton.clicked += OnPreviousLanguage;
+            _nextLanguageButton.clicked += OnNextLanguage;
+            _adPrivacyButton.clicked += OnAdPrivacy;
+            _privacyPolicyButton.clicked += OnPrivacyPolicy;
+            _closeButton.clicked += OnClose;
+            _backdrop.RegisterCallback<ClickEvent>(OnBackdropClicked);
+
+            _labels?.Dispose();
+            _labels = new LocalizedLabels(_localization);
+            _labels.Bind(root.Q<Label>("settings-title"), LocalizationKeys.SettingsTitle);
+            _labels.Bind(root.Q<Label>("music-label"), LocalizationKeys.SettingsMusic);
+            _labels.Bind(root.Q<Label>("sound-label"), LocalizationKeys.SettingsSound);
+            _labels.Bind(root.Q<Label>("haptics-label"), LocalizationKeys.SettingsHaptics);
+            _labels.Bind(root.Q<Label>("comet-names-label"), LocalizationKeys.SettingsCometNames);
+            _labels.Bind(root.Q<Label>("language-label"), LocalizationKeys.SettingsLanguage);
+            _labels.Bind(_adPrivacyButton, LocalizationKeys.SettingsAdPrivacy);
+            _labels.Bind(_privacyPolicyButton, LocalizationKeys.SettingsPrivacyPolicy);
+            _labels.Bind(_closeButton, LocalizationKeys.SettingsClose);
         }
 
         private void OnDisable()
         {
-            _musicSlider.onValueChanged.RemoveListener(OnMusicChanged);
-            _sfxSlider.onValueChanged.RemoveListener(OnSfxChanged);
-            _hapticsToggle.onValueChanged.RemoveListener(OnHapticsChanged);
-            _previousLanguageButton.onClick.RemoveListener(OnPreviousLanguage);
-            _nextLanguageButton.onClick.RemoveListener(OnNextLanguage);
-            _adPrivacyButton.onClick.RemoveListener(OnAdPrivacy);
-            _closeButton.onClick.RemoveListener(OnClose);
-            _backdropButton.onClick.RemoveListener(OnClose);
+            _musicSlider.UnregisterValueChangedCallback(OnMusicChanged);
+            _sfxSlider.UnregisterValueChangedCallback(OnSfxChanged);
+            _hapticsToggle.UnregisterValueChangedCallback(OnHapticsChanged);
+            _cometNamesToggle.UnregisterValueChangedCallback(OnCometNamesChanged);
+            _previousLanguageButton.clicked -= OnPreviousLanguage;
+            _nextLanguageButton.clicked -= OnNextLanguage;
+            _adPrivacyButton.clicked -= OnAdPrivacy;
+            _privacyPolicyButton.clicked -= OnPrivacyPolicy;
+            _closeButton.clicked -= OnClose;
+            _backdrop.UnregisterCallback<ClickEvent>(OnBackdropClicked);
+            _labels?.Dispose();
+            _labels = null;
         }
 
-        public void Show() => _root.SetActive(true);
+        public void Show() => _overlay.style.display = DisplayStyle.Flex;
 
-        public void Hide() => _root.SetActive(false);
+        public void Hide() => _overlay.style.display = DisplayStyle.None;
 
-        public void ShowValues(float music, float sfx, bool haptics)
+        public void ShowValues(float music, float sfx, bool haptics, bool cometNames)
         {
             _musicSlider.SetValueWithoutNotify(music);
             _sfxSlider.SetValueWithoutNotify(sfx);
-            _hapticsToggle.SetIsOnWithoutNotify(haptics);
+            _hapticsToggle.SetValueWithoutNotify(haptics);
+            _cometNamesToggle.SetValueWithoutNotify(cometNames);
+            UpdateFill(_musicFill, _musicSlider);
+            UpdateFill(_sfxFill, _sfxSlider);
         }
 
         public void ShowLanguage(string languageName)
@@ -94,14 +149,40 @@ namespace PlanetIO.UI.Settings
 
         public void SetAdPrivacyVisible(bool visible)
         {
-            _adPrivacyButton.gameObject.SetActive(visible);
+            _adPrivacyButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
-        private void OnMusicChanged(float value) => MusicVolumeChanged?.Invoke(value);
+        private static VisualElement CreateFill(Slider slider)
+        {
+            VisualElement tracker = slider.Q<VisualElement>(className: "unity-base-slider__tracker");
+            VisualElement fill = new();
+            fill.AddToClassList(FillClass);
+            fill.pickingMode = PickingMode.Ignore;
+            tracker.Add(fill);
+            return fill;
+        }
 
-        private void OnSfxChanged(float value) => SfxVolumeChanged?.Invoke(value);
+        private static void UpdateFill(VisualElement fill, Slider slider)
+        {
+            float range = Mathf.Max(0.0001f, slider.highValue - slider.lowValue);
+            fill.style.width = Length.Percent(Mathf.Clamp01((slider.value - slider.lowValue) / range) * 100f);
+        }
 
-        private void OnHapticsChanged(bool enabled) => HapticsChanged?.Invoke(enabled);
+        private void OnMusicChanged(ChangeEvent<float> changeEvent)
+        {
+            UpdateFill(_musicFill, _musicSlider);
+            MusicVolumeChanged?.Invoke(changeEvent.newValue);
+        }
+
+        private void OnSfxChanged(ChangeEvent<float> changeEvent)
+        {
+            UpdateFill(_sfxFill, _sfxSlider);
+            SfxVolumeChanged?.Invoke(changeEvent.newValue);
+        }
+
+        private void OnHapticsChanged(ChangeEvent<bool> changeEvent) => HapticsChanged?.Invoke(changeEvent.newValue);
+
+        private void OnCometNamesChanged(ChangeEvent<bool> changeEvent) => CometNamesChanged?.Invoke(changeEvent.newValue);
 
         private void OnPreviousLanguage() => PreviousLanguageRequested?.Invoke();
 
@@ -109,6 +190,10 @@ namespace PlanetIO.UI.Settings
 
         private void OnAdPrivacy() => AdPrivacyRequested?.Invoke();
 
+        private void OnPrivacyPolicy() => PrivacyPolicyRequested?.Invoke();
+
         private void OnClose() => CloseRequested?.Invoke();
+
+        private void OnBackdropClicked(ClickEvent clickEvent) => CloseRequested?.Invoke();
     }
 }

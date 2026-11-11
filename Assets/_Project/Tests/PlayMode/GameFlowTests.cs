@@ -1,12 +1,16 @@
+using System;
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using PlanetIO.Infrastructure.Bootstrap;
+using PlanetIO.Infrastructure.Networking;
 using PlanetIO.UI.Hud;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using VContainer;
 using Object = UnityEngine.Object;
 
@@ -20,13 +24,13 @@ namespace PlanetIO.Tests
         {
             yield return OpenMenu();
 
-            Button soloButton = FindButton("SinglePlayerButton");
+            Button soloButton = FindButton("play-with-bots");
             Assert.That(soloButton, Is.Not.Null);
-            soloButton.onClick.Invoke();
+            Click(soloButton);
 
             yield return WaitForScene(SceneNames.Game, 18f);
             yield return WaitForOpponentCount(10, 5f);
-            yield return WaitForMusicClip("Map", 5f);
+            yield return WaitForMusicClip("GameTheme", 5f);
 
             Assert.That(GameObject.Find("SessionHud"), Is.Not.Null);
             Assert.That(
@@ -41,9 +45,9 @@ namespace PlanetIO.Tests
             yield return WaitForDefeatView(2f);
             Assert.That(localPlayer.IsDefeated, Is.True);
 
-            Button leaveButton = FindButton("LeaveButton");
+            Button leaveButton = FindButton("leave-button");
             Assert.That(leaveButton, Is.Not.Null);
-            leaveButton.onClick.Invoke();
+            Click(leaveButton);
 
             yield return WaitForScene(SceneNames.Menu, 10f);
         }
@@ -80,9 +84,9 @@ namespace PlanetIO.Tests
             yield return WaitForDefeatView(2f);
             Assert.That(localPlayer.IsDefeated, Is.True);
 
-            Button continueButton = FindButton("ContinueButton");
+            Button continueButton = FindButton("continue-button");
             Assert.That(continueButton, Is.Not.Null);
-            continueButton.onClick.Invoke();
+            Click(continueButton);
 
             float deadline = Time.realtimeSinceStartup + 3f;
             while (localPlayer.IsDefeated && Time.realtimeSinceStartup < deadline)
@@ -109,9 +113,9 @@ namespace PlanetIO.Tests
             localPlayer.Defeat();
             yield return WaitForDefeatView(2f);
 
-            Button playAgainButton = FindButton("PlayAgainButton");
+            Button playAgainButton = FindButton("play-again");
             Assert.That(playAgainButton, Is.Not.Null);
-            playAgainButton.onClick.Invoke();
+            Click(playAgainButton);
 
             float deadline = Time.realtimeSinceStartup + 3f;
             while (localPlayer.IsDefeated && Time.realtimeSinceStartup < deadline)
@@ -127,13 +131,191 @@ namespace PlanetIO.Tests
             yield return LeaveToMenu();
         }
 
+        [UnityTest]
+        [Timeout(45000)]
+        public IEnumerator Defeat_DropsLootAndContinueRestoresConfiguredFraction()
+        {
+            yield return StartSoloGame();
+
+            Player localPlayer = FindLocalPlayer();
+            Assert.That(localPlayer, Is.Not.Null);
+
+            localPlayer.Capacity = 1f;
+            float capacity = localPlayer.Capacity;
+            float droppedBefore = SumDroppedNutrition();
+
+            localPlayer.Defeat();
+
+            Assert.That(localPlayer.IsDefeated, Is.True);
+            Assert.That(
+                SumDroppedNutrition() - droppedBefore,
+                Is.EqualTo(capacity * FoodSpawner.LootMassFraction).Within(1e-3f));
+
+            float continueFraction = ReadPrivateField<float>(localPlayer, "_continueMassFraction");
+            float initialCapacity = ReadPrivateField<float>(localPlayer, "_initialCapacity");
+            localPlayer.ContinueRpc();
+
+            Assert.That(localPlayer.IsDefeated, Is.False);
+            Assert.That(
+                localPlayer.Capacity,
+                Is.EqualTo(Mathf.Max(initialCapacity, capacity * continueFraction)).Within(1e-4f));
+            Assert.That(SumDroppedNutrition() - droppedBefore, Is.EqualTo(0f).Within(1e-3f));
+
+            yield return LeaveToMenu();
+        }
+
+        [UnityTest]
+        [Timeout(45000)]
+        public IEnumerator PlayerEatsFood_WithAndWithoutSpawnProtection([Values(true, false)] bool spawnProtected)
+        {
+            yield return StartSoloGame();
+            yield return WaitForGameplay(10f);
+
+            Player localPlayer = FindLocalPlayer();
+            Assert.That(localPlayer, Is.Not.Null);
+
+            if (spawnProtected)
+            {
+                localPlayer.Defeat();
+                localPlayer.ContinueRpc();
+            }
+            else
+            {
+                float protectionDeadline = Time.realtimeSinceStartup + 6f;
+                while (localPlayer.IsSpawnProtected && Time.realtimeSinceStartup < protectionDeadline)
+                {
+                    yield return null;
+                }
+            }
+
+            Assert.That(localPlayer.IsSpawnProtected, Is.EqualTo(spawnProtected));
+
+            Food food = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude).First(item => !item.IsDropped);
+            float capacityBefore = localPlayer.Capacity;
+
+            TouchWith(localPlayer, food.GetComponent<Collider2D>());
+
+            Assert.That(localPlayer.Capacity, Is.GreaterThan(capacityBefore));
+            Assert.That(localPlayer.IsSpawnProtected, Is.EqualTo(spawnProtected));
+
+            yield return LeaveToMenu();
+        }
+
+        [UnityTest]
+        [Timeout(45000)]
+        public IEnumerator CometHit_HurtsOnlyUnprotectedPlayer([Values(true, false)] bool spawnProtected)
+        {
+            yield return StartSoloGame();
+            yield return WaitForGameplay(10f);
+
+            Player localPlayer = FindLocalPlayer();
+            Assert.That(localPlayer, Is.Not.Null);
+
+            if (spawnProtected)
+            {
+                localPlayer.Defeat();
+                localPlayer.ContinueRpc();
+            }
+            else
+            {
+                float protectionDeadline = Time.realtimeSinceStartup + 6f;
+                while (localPlayer.IsSpawnProtected && Time.realtimeSinceStartup < protectionDeadline)
+                {
+                    yield return null;
+                }
+            }
+
+            Assert.That(localPlayer.IsSpawnProtected, Is.EqualTo(spawnProtected));
+            localPlayer.Capacity = 1f;
+
+            Comet comet = Object.FindObjectsByType<Comet>(FindObjectsInactive.Exclude).First();
+            float capacityBefore = localPlayer.Capacity;
+
+            TouchWith(localPlayer, comet.GetComponent<Collider2D>());
+
+            if (spawnProtected)
+            {
+                Assert.That(localPlayer.Capacity, Is.EqualTo(capacityBefore));
+            }
+            else
+            {
+                Assert.That(localPlayer.Capacity, Is.LessThan(capacityBefore));
+            }
+
+            yield return LeaveToMenu();
+        }
+
+        [UnityTest]
+        [Timeout(45000)]
+        public IEnumerator LeavingGame_ReleasesStaticPlayerState()
+        {
+            yield return StartSoloGame();
+
+            Assert.That(PlayerRegistry.Count, Is.GreaterThan(0));
+            Assert.That(PlayerRegistry.LocalPlayer, Is.Not.Null);
+
+            yield return LeaveToMenu();
+            yield return null;
+            yield return null;
+
+            Assert.That(PlayerRegistry.Count, Is.Zero);
+            Assert.That(PlayerRegistry.LocalPlayer, Is.Null);
+            Assert.That(CountDefeatAnnouncementSubscribers(), Is.Zero);
+        }
+
+        [UnityTest]
+        [Timeout(45000)]
+        public IEnumerator RejectedSessionStart_DoesNotChangeActiveRoom()
+        {
+            yield return StartSoloGame();
+
+            INetworkSessionService session = Resolve<INetworkSessionService>();
+            RoomConnectionSettings activeRoom = session.CurrentRoom;
+            NetworkSessionMode activeMode = session.Mode;
+            bool started = true;
+
+            yield return Await(session.StartClientAsync("ABCD"), result => started = result);
+
+            Assert.That(started, Is.False);
+            Assert.That(session.CurrentRoom, Is.EqualTo(activeRoom));
+            Assert.That(session.Mode, Is.EqualTo(activeMode));
+
+            yield return LeaveToMenu();
+        }
+
+        [UnityTest]
+        [Timeout(45000)]
+        public IEnumerator RoomApproval_RejectsClientWhenRoomIsFull()
+        {
+            yield return StartSoloGame();
+
+            ConnectionApprovalHandler handler = new(Resolve<NetworkManager>());
+            byte[] payload = ConnectionApprovalHandler.SerializePayload(new ConnectionApprovalHandler.RoomConnectionPayload
+            {
+                Protocol = RoomRules.ProtocolVersion,
+                Nickname = "Guest"
+            });
+            NetworkManager.ConnectionApprovalRequest request = new() { ClientNetworkId = 99, Payload = payload };
+
+            NetworkManager.ConnectionApprovalResponse full = new();
+            handler.ApproveRoomConnection(request, full, new RoomConnectionSettings("ROOM", 1));
+            NetworkManager.ConnectionApprovalResponse spare = new();
+            handler.ApproveRoomConnection(request, spare, new RoomConnectionSettings("ROOM", 2));
+
+            Assert.That(full.Approved, Is.False);
+            Assert.That(full.Reason, Is.EqualTo(SessionFailureReasons.RoomFull));
+            Assert.That(spare.Approved, Is.True);
+
+            yield return LeaveToMenu();
+        }
+
         private static IEnumerator StartSoloGame()
         {
             yield return OpenMenu();
 
-            Button soloButton = FindButton("SinglePlayerButton");
+            Button soloButton = FindButton("play-with-bots");
             Assert.That(soloButton, Is.Not.Null);
-            soloButton.onClick.Invoke();
+            Click(soloButton);
 
             yield return WaitForScene(SceneNames.Game, 18f);
 
@@ -142,6 +324,17 @@ namespace PlanetIO.Tests
             {
                 yield return null;
             }
+        }
+
+        [UnityTearDown]
+        public IEnumerator StopSession()
+        {
+            ApplicationLifetimeScope scope = Object.FindAnyObjectByType<ApplicationLifetimeScope>();
+            if (scope == null || scope.Container == null) yield break;
+            var operation = scope.Container.Resolve<INetworkSessionService>().ShutdownAndReturnToMenuAsync();
+            var awaiter = operation.GetAwaiter();
+            while (!awaiter.IsCompleted) yield return null;
+            awaiter.GetResult();
         }
 
         private static IEnumerator OpenMenu()
@@ -153,16 +346,83 @@ namespace PlanetIO.Tests
 
         private static IEnumerator LeaveToMenu()
         {
-            Button leaveButton = FindButton("LeaveButton");
+            Button leaveButton = FindButton("leave-button");
             Assert.That(leaveButton, Is.Not.Null);
-            leaveButton.onClick.Invoke();
+            Click(leaveButton);
 
             yield return WaitForScene(SceneNames.Menu, 10f);
         }
 
-        private static IPlayerProfileService ResolveProfile() =>
-            Object.FindAnyObjectByType<ApplicationLifetimeScope>()
-                .Container.Resolve<IPlayerProfileService>();
+        private static IPlayerProfileService ResolveProfile() => Resolve<IPlayerProfileService>();
+
+        private static T Resolve<T>() =>
+            Object.FindAnyObjectByType<ApplicationLifetimeScope>().Container.Resolve<T>();
+
+        private static IEnumerator Await(Awaitable<bool> operation, Action<bool> onResult)
+        {
+            var awaiter = operation.GetAwaiter();
+            while (!awaiter.IsCompleted)
+            {
+                yield return null;
+            }
+
+            onResult(awaiter.GetResult());
+        }
+
+        private static IEnumerator WaitForGameplay(float timeoutSeconds)
+        {
+            float deadline = Time.realtimeSinceStartup + timeoutSeconds;
+            while (Time.realtimeSinceStartup < deadline)
+            {
+                GameLifetimeScope scope = GameLifetimeScope.Instance;
+                if (scope != null && scope.Container != null && scope.Container.Resolve<IGameStateService>().IsGameplayActive)
+                {
+                    yield break;
+                }
+
+                yield return null;
+            }
+
+            Assert.Fail("Gameplay did not become active in time.");
+        }
+
+        private static void TouchWith(Player player, Collider2D other)
+        {
+            MethodInfo method = typeof(Player).GetMethod(
+                "OnTriggerEnter2D", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            Assert.That(method, Is.Not.Null, "Player.OnTriggerEnter2D");
+            method.Invoke(player, new object[] { other });
+        }
+
+        private static float SumDroppedNutrition()
+        {
+            float total = 0f;
+            foreach (Food food in Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude))
+            {
+                if (food.IsDropped)
+                {
+                    total += food.Nutrition;
+                }
+            }
+
+            return total;
+        }
+
+        private static T ReadPrivateField<T>(object target, string fieldName)
+        {
+            FieldInfo field = target.GetType().GetField(
+                fieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            Assert.That(field, Is.Not.Null, fieldName);
+            return (T)field.GetValue(target);
+        }
+
+        private static int CountDefeatAnnouncementSubscribers()
+        {
+            FieldInfo field = typeof(Player).GetField(
+                "DefeatAnnounced", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+            Assert.That(field, Is.Not.Null, "Player.DefeatAnnounced backing field");
+            return (field.GetValue(null) as Delegate)?.GetInvocationList().Length ?? 0;
+        }
 
         private static float ColorDistance(Color left, Color right) =>
             Mathf.Abs(left.r - right.r) + Mathf.Abs(left.g - right.g) + Mathf.Abs(left.b - right.b);
@@ -256,9 +516,25 @@ namespace PlanetIO.Tests
             Assert.Fail("Defeat UI was not shown in time.");
         }
 
-        private static Button FindButton(string objectName) =>
-            Object.FindObjectsByType<Button>(
-                    FindObjectsInactive.Exclude)
-                .FirstOrDefault(button => button.name == objectName);
+        private static Button FindButton(string elementName)
+        {
+            foreach (UIDocument document in Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude))
+            {
+                Button button = document.rootVisualElement?.Q<Button>(elementName);
+                if (button != null)
+                {
+                    return button;
+                }
+            }
+
+            return null;
+        }
+
+        private static void Click(Button button)
+        {
+            using NavigationSubmitEvent submit = NavigationSubmitEvent.GetPooled();
+            submit.target = button;
+            button.SendEvent(submit);
+        }
     }
 }

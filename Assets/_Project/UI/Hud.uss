@@ -1,0 +1,193 @@
+#border-warning {
+    background-image: url("/Assets/_Project/Sprites/UI/EdgeVignette.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: rgb(255, 38, 51);
+    opacity: 0;
+}
+
+#score-text {
+    position: absolute;
+    left: 40px;
+    top: 28px;
+    font-size: 86px;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+#session-text {
+    position: absolute;
+    left: 40px;
+    top: 138px;
+    width: 560px;
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.9);
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+}
+
+#minimap {
+    position: absolute;
+    left: 40px;
+    top: 300px;
+    width: 180px;
+    height: 180px;
+    border-radius: 24px;
+    border-width: 2px;
+    border-color: var(--outline);
+    background-color: rgba(41, 20, 82, 0.6);
+}
+
+.minimap-blip {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+}
+
+#top-buttons {
+    position: absolute;
+    right: 30px;
+    top: 24px;
+    flex-direction: row;
+}
+
+#top-buttons .btn {
+    margin-left: 12px;
+}
+
+#leaderboard-panel {
+    position: absolute;
+    right: 30px;
+    top: 130px;
+    width: 430px;
+    min-height: 330px;
+    padding: 14px 22px;
+    background-color: rgba(41, 20, 82, 0.66);
+}
+
+#leaderboard-text {
+    font-size: 30px;
+    color: white;
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+}
+
+#kill-feed {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 40px;
+    font-size: 36px;
+    color: rgb(255, 230, 115);
+    -unity-text-align: middle-center;
+    opacity: 0;
+}
+
+#hint-text {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 300px;
+    font-size: 36px;
+    color: white;
+    -unity-text-align: middle-center;
+    opacity: 0;
+}
+
+#score-popup {
+    position: absolute;
+    width: 320px;
+    margin-left: -160px;
+    font-size: 48px;
+    color: rgb(153, 255, 128);
+    -unity-text-align: middle-center;
+    opacity: 0;
+}
+
+.control {
+    position: absolute;
+    bottom: 80px;
+    width: 200px;
+    height: 200px;
+    background-image: url("/Assets/_Project/Sprites/Buttons/ControlBase.png");
+    -unity-background-scale-mode: scale-to-fit;
+    align-items: center;
+    justify-content: center;
+}
+
+#stick {
+    left: 250px;
+}
+
+#boost-button {
+    right: 250px;
+}
+
+#stick-knob {
+    width: 100px;
+    height: 100px;
+    background-image: url("/Assets/_Project/Sprites/Buttons/StickRing.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#boost-icon {
+    rotate: 180deg;
+    width: 100px;
+    height: 100px;
+    background-image: url("/Assets/_Project/Sprites/Buttons/BoostTriangle.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#boost-button:active {
+    scale: 0.94 0.94;
+}
+
+#defeat-panel {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.55);
+    justify-content: center;
+    align-items: center;
+}
+
+#defeat-card {
+    width: 720px;
+    padding: 36px 40px 40px 40px;
+    align-items: center;
+    background-color: rgba(41, 20, 82, 0.96);
+}
+
+#defeat-title {
+    font-size: 68px;
+    color: var(--danger);
+    margin: 0 0 12px 0;
+}
+
+#defeat-body {
+    font-size: 40px;
+    color: white;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 0 0 22px 0;
+}
+
+#continue-button {
+    margin-top: 14px;
+}
+
+#defeat-leave {
+    margin-top: 20px;
+}
+
+#loading-overlay {
+    display: none;
+    background-color: rgb(21, 10, 51);
+    justify-content: center;
+    align-items: center;
+}
+
+#loading-title {
+    font-size: 48px;
+    color: white;
+}

@@ -1,0 +1,39 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/UI/Common.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Menu.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Settings.uss" />
+    <ui:Template name="Settings" src="project://database/Assets/_Project/UI/Settings.uxml" />
+    <ui:VisualElement name="menu-root" class="screen menu-bg">
+        <ui:VisualElement name="safe-area" class="safe">
+            <ui:VisualElement name="header">
+                <ui:Label name="game-title" text="Planet IO" />
+                <ui:Label name="best-score" />
+            </ui:VisualElement>
+            <ui:Button name="settings-button" class="btn btn-small btn-blue" />
+            <ui:VisualElement name="columns">
+                <ui:VisualElement name="profile-card" class="card menu-card">
+                    <ui:VisualElement class="row">
+                        <ui:TextField name="nickname-input" class="field grow" />
+                        <ui:Button name="random-nickname" class="btn btn-small btn-blue" />
+                    </ui:VisualElement>
+                    <ui:Label name="color-label" class="section-label" />
+                    <ui:VisualElement name="swatches" class="swatches" />
+                    <ui:Label name="planet-label" class="section-label" />
+                    <ui:VisualElement name="skins" class="skins" />
+                </ui:VisualElement>
+                <ui:VisualElement name="play-card" class="card menu-card centered">
+                    <ui:Button name="play-with-bots" class="btn btn-cta btn-yellow" />
+                    <ui:Label name="online-label" class="section-label" />
+                    <ui:Button name="quick-play" class="btn btn-long btn-green" />
+                    <ui:Button name="create-room" class="btn btn-long btn-blue" />
+                    <ui:VisualElement class="row join-row">
+                        <ui:TextField name="room-code-input" class="field grow" />
+                        <ui:Button name="join-room" class="btn btn-small btn-blue" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="status-text" />
+        </ui:VisualElement>
+        <ui:Instance template="Settings" name="settings" class="screen" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

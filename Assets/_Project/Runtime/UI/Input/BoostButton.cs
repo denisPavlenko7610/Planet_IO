@@ -1,31 +1,40 @@
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 namespace PlanetIO
 {
-    public sealed class BoostButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
-        IBoostInput
+    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(UIDocument))]
+    public sealed class BoostButton : MonoBehaviour, IBoostInput
     {
+        private VisualElement _button;
         private bool _pointerPressed;
         private bool _keyboardPressed;
+        private int _pointerId = -1;
 
         public event Action<bool> BoostChanged;
 
-        public void OnPointerDown(PointerEventData eventData)
+        private void OnEnable()
         {
-            SetPointerPressed(true);
+            _button = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("boost-button");
+            _button.RegisterCallback<PointerDownEvent>(OnPointerDown);
+            _button.RegisterCallback<PointerUpEvent>(OnPointerUp);
+            _button.RegisterCallback<PointerCancelEvent>(OnPointerCancel);
+            _button.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
         }
 
-        public void OnPointerUp(PointerEventData eventData)
+        private void OnDisable()
         {
-            SetPointerPressed(false);
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            SetPointerPressed(false);
+            _button.UnregisterCallback<PointerDownEvent>(OnPointerDown);
+            _button.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+            _button.UnregisterCallback<PointerCancelEvent>(OnPointerCancel);
+            _button.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
+            _pointerPressed = false;
+            _keyboardPressed = false;
+            _pointerId = -1;
+            NotifyPressedState();
         }
 
         private void Update()
@@ -41,11 +50,50 @@ namespace PlanetIO
             NotifyPressedState();
         }
 
-        private void OnDisable()
+        private void OnPointerDown(PointerDownEvent pointerEvent)
         {
-            _pointerPressed = false;
-            _keyboardPressed = false;
-            NotifyPressedState();
+            if (_pointerId >= 0)
+            {
+                return;
+            }
+
+            _pointerId = pointerEvent.pointerId;
+            _button.CapturePointer(_pointerId);
+            pointerEvent.StopPropagation();
+            SetPointerPressed(true);
+        }
+
+        private void OnPointerUp(PointerUpEvent pointerEvent)
+        {
+            if (pointerEvent.pointerId != _pointerId)
+            {
+                return;
+            }
+
+            _button.ReleasePointer(_pointerId);
+            Release();
+        }
+
+        private void OnPointerCancel(PointerCancelEvent pointerEvent)
+        {
+            if (pointerEvent.pointerId == _pointerId)
+            {
+                Release();
+            }
+        }
+
+        private void OnPointerCaptureOut(PointerCaptureOutEvent pointerEvent)
+        {
+            if (pointerEvent.pointerId == _pointerId)
+            {
+                Release();
+            }
+        }
+
+        private void Release()
+        {
+            _pointerId = -1;
+            SetPointerPressed(false);
         }
 
         private void SetPointerPressed(bool isPressed)

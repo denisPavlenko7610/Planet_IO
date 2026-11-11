@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/UI/Common.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Loading.uss" />
+    <ui:VisualElement name="loading-root" class="screen">
+        <ui:VisualElement name="safe-area" class="safe loading-center">
+            <ui:Label name="loading-title" text="Loading Session" />
+            <ui:VisualElement name="progress-track">
+                <ui:VisualElement name="progress-fill" />
+            </ui:VisualElement>
+            <ui:Label name="loading-status" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

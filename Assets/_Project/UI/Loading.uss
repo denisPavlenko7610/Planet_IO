@@ -1,0 +1,35 @@
+#loading-root {
+    background-color: rgb(21, 10, 51);
+}
+
+.loading-center {
+    justify-content: center;
+    align-items: center;
+}
+
+#loading-title {
+    font-size: 48px;
+    color: white;
+    margin: 0 0 40px 0;
+}
+
+#progress-track {
+    width: 960px;
+    height: 38px;
+    border-radius: 19px;
+    background-color: rgb(41, 20, 82);
+    padding: 4px;
+}
+
+#progress-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 15px;
+    background-color: var(--gold);
+}
+
+#loading-status {
+    font-size: 30px;
+    color: var(--muted);
+    margin: 28px 0 0 0;
+}

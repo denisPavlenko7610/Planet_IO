@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace PlanetIO.UI.Menu
 {
@@ -15,53 +14,49 @@ namespace PlanetIO.UI.Menu
         void SetState(int index, bool unlocked, bool selected);
     }
 
+    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(UIDocument))]
     public sealed class SkinSelectorView : MonoBehaviour, ISkinSelectorView
     {
-        private const float SelectedScale = 1.12f;
-        private static readonly Color LockedTint = new(0.45f, 0.45f, 0.55f, 1f);
-        private static readonly Color SelectedOutline = new(1f, 0.85f, 0.3f, 1f);
-        private static readonly Color BadgeColor = new(0.15f, 0.55f, 1f, 0.95f);
+        private const string SkinClass = "skin";
+        private const string SelectedClass = "skin--selected";
+        private const string LockedClass = "skin--locked";
+        private const string BadgeClass = "skin__badge";
 
-        [SerializeField] private RectTransform _container;
-        [SerializeField, Min(24f)] private float _cellSize = 76f;
-        [SerializeField] private TMP_FontAsset _font;
-        [SerializeField] private Sprite _badgeSprite;
-
-        private readonly List<(Image Planet, Outline Ring, GameObject Badge, TMP_Text BadgeText)> _cells = new();
+        private readonly List<(VisualElement Planet, Label Badge)> _cells = new();
 
         public event Action<int> SkinClicked;
 
         public void Build(IReadOnlyList<Sprite> sprites, string lockedLabel)
         {
+            VisualElement container = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("skins");
+            container.Clear();
+            _cells.Clear();
+
             for (int index = 0; index < sprites.Count; index++)
             {
                 int skinIndex = index;
-                GameObject cell = new($"Skin_{index}", typeof(RectTransform));
-                cell.transform.SetParent(_container, false);
-                ((RectTransform)cell.transform).sizeDelta = new Vector2(_cellSize, _cellSize);
 
-                Image planet = cell.AddComponent<Image>();
-                planet.sprite = sprites[index];
-                planet.preserveAspect = true;
-                Outline ring = cell.AddComponent<Outline>();
-                ring.effectColor = SelectedOutline;
-                ring.effectDistance = new Vector2(3f, -3f);
-                ring.enabled = false;
+                VisualElement planet = new();
+                planet.AddToClassList(SkinClass);
+                planet.style.backgroundImage = new StyleBackground(sprites[index]);
+                planet.RegisterCallback<ClickEvent>(_ => SkinClicked?.Invoke(skinIndex));
 
-                Button button = cell.AddComponent<Button>();
-                button.targetGraphic = planet;
-                button.onClick.AddListener(() => SkinClicked?.Invoke(skinIndex));
+                Label badge = new(lockedLabel);
+                badge.AddToClassList(BadgeClass);
+                badge.pickingMode = PickingMode.Ignore;
+                planet.Add(badge);
 
-                (GameObject badge, TMP_Text badgeText) = CreateBadge(cell.transform, lockedLabel);
-                _cells.Add((planet, ring, badge, badgeText));
+                container.Add(planet);
+                _cells.Add((planet, badge));
             }
         }
 
         public void SetLockedLabel(string lockedLabel)
         {
-            foreach ((_, _, _, TMP_Text badgeText) in _cells)
+            foreach ((_, Label badge) in _cells)
             {
-                badgeText.text = lockedLabel;
+                badge.text = lockedLabel;
             }
         }
 
@@ -72,48 +67,10 @@ namespace PlanetIO.UI.Menu
                 return;
             }
 
-            (Image planet, Outline ring, GameObject badge, _) = _cells[index];
-            planet.color = unlocked ? Color.white : LockedTint;
-            ring.enabled = selected;
-            badge.SetActive(!unlocked);
-            planet.transform.localScale = Vector3.one * (selected ? SelectedScale : 1f);
-        }
-
-        private (GameObject, TMP_Text) CreateBadge(Transform parent, string label)
-        {
-            GameObject badge = new("AdBadge", typeof(RectTransform));
-            badge.transform.SetParent(parent, false);
-            RectTransform rect = (RectTransform)badge.transform;
-            rect.anchorMin = new Vector2(0.5f, 0f);
-            rect.anchorMax = new Vector2(0.5f, 0f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(_cellSize * 0.95f, _cellSize * 0.32f);
-            rect.anchoredPosition = Vector2.zero;
-
-            Image background = badge.AddComponent<Image>();
-            background.sprite = _badgeSprite;
-            background.type = Image.Type.Sliced;
-            background.color = BadgeColor;
-            background.raycastTarget = false;
-
-            GameObject textObject = new("Label", typeof(RectTransform));
-            textObject.transform.SetParent(badge.transform, false);
-            RectTransform textRect = (RectTransform)textObject.transform;
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = Vector2.zero;
-            textRect.offsetMax = Vector2.zero;
-
-            TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
-            text.font = _font;
-            text.text = label;
-            text.alignment = TextAlignmentOptions.Center;
-            text.enableAutoSizing = true;
-            text.fontSizeMin = 10f;
-            text.fontSizeMax = 20f;
-            text.color = Color.white;
-            text.raycastTarget = false;
-            return (badge, text);
+            (VisualElement planet, Label badge) = _cells[index];
+            planet.EnableInClassList(LockedClass, !unlocked);
+            planet.EnableInClassList(SelectedClass, selected);
+            badge.style.display = unlocked ? DisplayStyle.None : DisplayStyle.Flex;
         }
     }
 }

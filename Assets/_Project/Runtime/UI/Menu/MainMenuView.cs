@@ -1,7 +1,8 @@
 using System;
-using TMPro;
+using RD.Localization;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using VContainer;
 
 namespace PlanetIO.UI.Menu
 {
@@ -19,19 +20,22 @@ namespace PlanetIO.UI.Menu
         void ShowRoomCode(string roomCode);
     }
 
+    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(UIDocument))]
     public sealed class MainMenuView : MonoBehaviour, IMainMenuView
     {
-        private static readonly Color ErrorColor = new(1f, 0.45f, 0.45f);
-        private static readonly Color InfoColor = new(0.8f, 0.92f, 1f);
+        private const string ErrorClass = "status--error";
 
-        [SerializeField] private Button _playWithBotsButton;
-        [SerializeField] private Button _createRoomButton;
-        [SerializeField] private Button _quickPlayButton;
-        [SerializeField] private Button _joinRoomButton;
-        [SerializeField] private TMP_InputField _roomCodeInput;
-        [SerializeField] private Button _settingsButton;
-        [SerializeField] private TMP_Text _statusText;
-        [SerializeField] private TMP_Text _bestScoreText;
+        private ILocalizationService _localization;
+        private LocalizedLabels _labels;
+        private Button _playWithBotsButton;
+        private Button _createRoomButton;
+        private Button _quickPlayButton;
+        private Button _joinRoomButton;
+        private Button _settingsButton;
+        private TextField _roomCodeInput;
+        private Label _statusText;
+        private Label _bestScoreText;
 
         public event Action PlayWithBotsRequested;
         public event Action CreateRoomRequested;
@@ -39,57 +43,122 @@ namespace PlanetIO.UI.Menu
         public event Action<string> JoinRoomRequested;
         public event Action SettingsRequested;
 
-        private void Awake()
+        [Inject]
+        public void Construct(ILocalizationService localization)
         {
-            _roomCodeInput.characterLimit = RoomRules.MaximumRoomCodeLength;
-            _roomCodeInput.characterValidation = TMP_InputField.CharacterValidation.Alphanumeric;
-            _roomCodeInput.onValidateInput = (_, _, character) => char.ToUpperInvariant(character);
+            _localization = localization;
         }
 
         private void OnEnable()
         {
-            _playWithBotsButton.onClick.AddListener(OnPlayWithBots);
-            _createRoomButton.onClick.AddListener(OnCreateRoom);
-            _quickPlayButton.onClick.AddListener(OnQuickPlay);
-            _joinRoomButton.onClick.AddListener(OnJoinRoom);
-            _settingsButton.onClick.AddListener(OnSettings);
-            _roomCodeInput.onSubmit.AddListener(OnRoomCodeSubmitted);
+            VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+            _playWithBotsButton = root.Q<Button>("play-with-bots");
+            _createRoomButton = root.Q<Button>("create-room");
+            _quickPlayButton = root.Q<Button>("quick-play");
+            _joinRoomButton = root.Q<Button>("join-room");
+            _settingsButton = root.Q<Button>("settings-button");
+            _roomCodeInput = root.Q<TextField>("room-code-input");
+            _statusText = root.Q<Label>("status-text");
+            _bestScoreText = root.Q<Label>("best-score");
+
+            _roomCodeInput.maxLength = RoomRules.MaximumRoomCodeLength;
+            _roomCodeInput.RegisterValueChangedCallback(OnRoomCodeEdited);
+            _roomCodeInput.RegisterCallback<KeyDownEvent>(OnRoomCodeKeyDown);
+
+            _playWithBotsButton.clicked += OnPlayWithBots;
+            _createRoomButton.clicked += OnCreateRoom;
+            _quickPlayButton.clicked += OnQuickPlay;
+            _joinRoomButton.clicked += OnJoinRoom;
+            _settingsButton.clicked += OnSettings;
+
+            _labels?.Dispose();
+            _labels = new LocalizedLabels(_localization);
+            _labels.BindLanguageClass(root);
+            _labels.Bind(_playWithBotsButton, LocalizationKeys.MenuPlayWithBots);
+            _labels.Bind(_createRoomButton, LocalizationKeys.MenuCreateRoom);
+            _labels.Bind(_quickPlayButton, LocalizationKeys.MenuQuickPlay);
+            _labels.Bind(_joinRoomButton, LocalizationKeys.MenuJoinRoom);
+            _labels.Bind(_settingsButton, LocalizationKeys.MenuSettings);
+            _labels.Bind(root.Q<Button>("random-nickname"), LocalizationKeys.MenuRandomNickname);
+            _labels.Bind(root.Q<Label>("color-label"), LocalizationKeys.MenuColor);
+            _labels.Bind(root.Q<Label>("planet-label"), LocalizationKeys.MenuPlanet);
+            _labels.Bind(root.Q<Label>("online-label"), LocalizationKeys.MenuOnline);
+            _labels.BindPlaceholder(_roomCodeInput, LocalizationKeys.MenuRoomCodePlaceholder);
         }
 
         private void OnDisable()
         {
-            _playWithBotsButton.onClick.RemoveListener(OnPlayWithBots);
-            _createRoomButton.onClick.RemoveListener(OnCreateRoom);
-            _quickPlayButton.onClick.RemoveListener(OnQuickPlay);
-            _joinRoomButton.onClick.RemoveListener(OnJoinRoom);
-            _settingsButton.onClick.RemoveListener(OnSettings);
-            _roomCodeInput.onSubmit.RemoveListener(OnRoomCodeSubmitted);
+            _playWithBotsButton.clicked -= OnPlayWithBots;
+            _createRoomButton.clicked -= OnCreateRoom;
+            _quickPlayButton.clicked -= OnQuickPlay;
+            _joinRoomButton.clicked -= OnJoinRoom;
+            _settingsButton.clicked -= OnSettings;
+            _roomCodeInput.UnregisterValueChangedCallback(OnRoomCodeEdited);
+            _roomCodeInput.UnregisterCallback<KeyDownEvent>(OnRoomCodeKeyDown);
+            _labels?.Dispose();
+            _labels = null;
         }
 
         public void SetInteractionEnabled(bool interactionEnabled)
         {
-            _playWithBotsButton.interactable = interactionEnabled;
-            _createRoomButton.interactable = interactionEnabled;
-            _quickPlayButton.interactable = interactionEnabled;
-            _joinRoomButton.interactable = interactionEnabled;
-            _roomCodeInput.interactable = interactionEnabled;
+            _playWithBotsButton.SetEnabled(interactionEnabled);
+            _createRoomButton.SetEnabled(interactionEnabled);
+            _quickPlayButton.SetEnabled(interactionEnabled);
+            _joinRoomButton.SetEnabled(interactionEnabled);
+            _roomCodeInput.SetEnabled(interactionEnabled);
         }
 
         public void ShowStatus(string status, bool isError)
         {
             _statusText.text = status ?? string.Empty;
-            _statusText.color = isError ? ErrorColor : InfoColor;
+            _statusText.EnableInClassList(ErrorClass, isError);
         }
 
         public void ShowBestScore(string text)
         {
             _bestScoreText.text = text ?? string.Empty;
-            _bestScoreText.gameObject.SetActive(!string.IsNullOrEmpty(text));
+            _bestScoreText.style.display = string.IsNullOrEmpty(text) ? DisplayStyle.None : DisplayStyle.Flex;
         }
 
         public void ShowRoomCode(string roomCode)
         {
-            _roomCodeInput.SetTextWithoutNotify(roomCode ?? string.Empty);
+            _roomCodeInput.SetValueWithoutNotify(roomCode ?? string.Empty);
+        }
+
+        private void OnRoomCodeEdited(ChangeEvent<string> changeEvent)
+        {
+            string filtered = Filter(changeEvent.newValue);
+            if (filtered != changeEvent.newValue)
+            {
+                _roomCodeInput.SetValueWithoutNotify(filtered);
+            }
+        }
+
+        private void OnRoomCodeKeyDown(KeyDownEvent keyEvent)
+        {
+            if (keyEvent.keyCode == KeyCode.Return || keyEvent.keyCode == KeyCode.KeypadEnter)
+            {
+                JoinRoomRequested?.Invoke(_roomCodeInput.value);
+            }
+        }
+
+        private static string Filter(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+
+            System.Text.StringBuilder builder = new(value.Length);
+            foreach (char character in value)
+            {
+                if (char.IsLetterOrDigit(character) && character < 128)
+                {
+                    builder.Append(char.ToUpperInvariant(character));
+                }
+            }
+
+            return builder.ToString();
         }
 
         private void OnPlayWithBots() => PlayWithBotsRequested?.Invoke();
@@ -100,8 +169,6 @@ namespace PlanetIO.UI.Menu
 
         private void OnSettings() => SettingsRequested?.Invoke();
 
-        private void OnJoinRoom() => JoinRoomRequested?.Invoke(_roomCodeInput.text);
-
-        private void OnRoomCodeSubmitted(string roomCode) => JoinRoomRequested?.Invoke(roomCode);
+        private void OnJoinRoom() => JoinRoomRequested?.Invoke(_roomCodeInput.value);
     }
 }

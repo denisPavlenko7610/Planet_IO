@@ -1,8 +1,10 @@
+using RD.Foundation;
+using RD.Localization;
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using VContainer;
 
 namespace PlanetIO.UI.Menu
 {
@@ -16,34 +18,54 @@ namespace PlanetIO.UI.Menu
         void ShowSelectedColor(Color32 color);
     }
 
+    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(UIDocument))]
     public sealed class NicknameInputView : MonoBehaviour, INicknameInputView
     {
-        private const float SelectedSwatchScale = 1.15f;
+        private const string SwatchClass = "swatch";
+        private const string SwatchSelectedClass = "swatch--selected";
 
-        [SerializeField] private TMP_InputField _inputField;
-        [SerializeField] private Button _setRandomNicknameButton;
-        [SerializeField] private RectTransform _swatchContainer;
-        [SerializeField, Min(16f)] private float _swatchSize = 64f;
-        [SerializeField] private Sprite _swatchSprite;
+        private readonly List<VisualElement> _swatches = new();
+
+        private ILocalizationService _localization;
+        private LocalizedLabels _labels;
+        private TextField _inputField;
+        private Button _setRandomNicknameButton;
 
         public event Action<string> NicknameChanged;
         public event Action RandomNicknameRequested;
         public event Action<Color32> ColorSelected;
 
-        private readonly List<Image> _swatches = new();
+        [Inject]
+        public void Construct(ILocalizationService localization)
+        {
+            _localization = localization;
+        }
 
         private void OnEnable()
         {
+            VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+            _inputField = root.Q<TextField>("nickname-input");
+            _setRandomNicknameButton = root.Q<Button>("random-nickname");
+            VisualElement swatchContainer = root.Q<VisualElement>("swatches");
+
             if (_inputField == null || _setRandomNicknameButton == null)
             {
-                GameLogger.LogError($"{nameof(NicknameInputView)} is not configured.", this);
+                UnityLogger.LogError($"{nameof(NicknameInputView)} is not configured.", this);
                 enabled = false;
                 return;
             }
 
-            _inputField.characterLimit = NicknameRules.MaximumLength;
-            _inputField.onEndEdit.AddListener(OnNicknameChanged);
-            _setRandomNicknameButton.onClick.AddListener(OnRandomNicknameRequested);
+            _inputField.maxLength = NicknameRules.MaximumLength;
+            _inputField.isDelayed = true;
+            _inputField.RegisterValueChangedCallback(OnNicknameEdited);
+            _setRandomNicknameButton.clicked += OnRandomNicknameRequested;
+
+            CreateColorSwatches(swatchContainer);
+
+            _labels?.Dispose();
+            _labels = new LocalizedLabels(_localization);
+            _labels.BindPlaceholder(_inputField, LocalizationKeys.MenuNicknamePlaceholder);
         }
 
         private void OnDisable()
@@ -53,18 +75,15 @@ namespace PlanetIO.UI.Menu
                 return;
             }
 
-            _inputField.onEndEdit.RemoveListener(OnNicknameChanged);
-            _setRandomNicknameButton.onClick.RemoveListener(OnRandomNicknameRequested);
-        }
-
-        private void Awake()
-        {
-            CreateColorSwatches();
+            _inputField.UnregisterValueChangedCallback(OnNicknameEdited);
+            _setRandomNicknameButton.clicked -= OnRandomNicknameRequested;
+            _labels?.Dispose();
+            _labels = null;
         }
 
         public void ShowNickname(string nickname)
         {
-            _inputField?.SetTextWithoutNotify(NicknameRules.Normalize(nickname));
+            _inputField?.SetValueWithoutNotify(NicknameRules.Normalize(nickname));
         }
 
         public void ShowSelectedColor(Color32 color)
@@ -76,10 +95,10 @@ namespace PlanetIO.UI.Menu
             }
         }
 
-        private void OnNicknameChanged(string nickname)
+        private void OnNicknameEdited(ChangeEvent<string> changeEvent)
         {
-            string normalized = NicknameRules.Normalize(nickname);
-            _inputField.SetTextWithoutNotify(normalized);
+            string normalized = NicknameRules.Normalize(changeEvent.newValue);
+            _inputField.SetValueWithoutNotify(normalized);
             NicknameChanged?.Invoke(normalized);
         }
 
@@ -88,36 +107,27 @@ namespace PlanetIO.UI.Menu
             RandomNicknameRequested?.Invoke();
         }
 
-        private void CreateColorSwatches()
+        private void CreateColorSwatches(VisualElement container)
         {
-            if (_swatchContainer == null)
+            _swatches.Clear();
+            if (container == null)
             {
                 return;
             }
 
-            Transform rowTransform = _swatchContainer;
-
+            container.Clear();
             for (int index = 0; index < PlayerPalette.Colors.Count; index++)
             {
                 Color32 color = PlayerPalette.Colors[index];
                 int swatchIndex = index;
 
-                GameObject swatchObject = new($"Swatch_{index}", typeof(RectTransform));
-                swatchObject.transform.SetParent(rowTransform, false);
-                ((RectTransform)swatchObject.transform).sizeDelta = new Vector2(_swatchSize, _swatchSize);
+                VisualElement swatch = new();
+                swatch.AddToClassList(SwatchClass);
+                swatch.style.backgroundColor = new Color(color.r / 255f, color.g / 255f, color.b / 255f, 1f);
+                swatch.RegisterCallback<ClickEvent>(_ => OnSwatchClicked(swatchIndex, color));
 
-                Image image = swatchObject.AddComponent<Image>();
-                image.sprite = _swatchSprite;
-                image.color = color;
-
-                LayoutElement element = swatchObject.AddComponent<LayoutElement>();
-                element.preferredWidth = _swatchSize;
-                element.preferredHeight = _swatchSize;
-
-                Button button = swatchObject.AddComponent<Button>();
-                button.onClick.AddListener(() => OnSwatchClicked(swatchIndex, color));
-
-                _swatches.Add(image);
+                container.Add(swatch);
+                _swatches.Add(swatch);
             }
         }
 
@@ -131,9 +141,7 @@ namespace PlanetIO.UI.Menu
         {
             for (int i = 0; i < _swatches.Count; i++)
             {
-                _swatches[i].transform.localScale = i == index
-                    ? new Vector3(SelectedSwatchScale, SelectedSwatchScale, 1f)
-                    : Vector3.one;
+                _swatches[i].EnableInClassList(SwatchSelectedClass, i == index);
             }
         }
     }

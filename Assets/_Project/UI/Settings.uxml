@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/UI/Common.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Settings.uss" />
+    <ui:VisualElement name="settings-overlay" class="screen">
+        <ui:VisualElement name="settings-backdrop" class="screen" />
+        <ui:VisualElement name="settings-panel" class="card settings-panel">
+            <ui:Label name="settings-title" />
+            <ui:VisualElement class="settings-row">
+                <ui:Label name="music-label" class="settings-label" />
+                <ui:Slider name="music-slider" class="settings-slider" low-value="0" high-value="1" />
+            </ui:VisualElement>
+            <ui:VisualElement class="settings-row">
+                <ui:Label name="sound-label" class="settings-label" />
+                <ui:Slider name="sound-slider" class="settings-slider" low-value="0" high-value="1" />
+            </ui:VisualElement>
+            <ui:VisualElement class="settings-row">
+                <ui:Label name="haptics-label" class="settings-label" />
+                <ui:Toggle name="haptics-toggle" class="settings-toggle" />
+            </ui:VisualElement>
+            <ui:VisualElement class="settings-row">
+                <ui:Label name="language-label" class="settings-label" />
+                <ui:VisualElement class="language-stepper">
+                    <ui:Button name="previous-language" class="btn btn-blue stepper-button" text="&lt;" />
+                    <ui:Label name="language-value" />
+                    <ui:Button name="next-language" class="btn btn-blue stepper-button" text="&gt;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Button name="ad-privacy" class="btn btn-long btn-blue" />
+            <ui:Button name="privacy-policy" class="link" />
+            <ui:Button name="settings-close" class="btn btn-small btn-red" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

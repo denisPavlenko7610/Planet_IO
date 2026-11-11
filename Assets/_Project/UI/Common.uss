@@ -1,0 +1,169 @@
+:root {
+    --panel: rgba(41, 20, 82, 0.88);
+    --panel-modal: rgba(41, 20, 82, 0.96);
+    --outline: rgba(191, 153, 255, 0.28);
+    --field: rgba(23, 11, 51, 0.95);
+    --muted: rgb(204, 230, 255);
+    --gold: rgb(255, 199, 51);
+    --danger: rgb(255, 140, 140);
+    -unity-font: url("/Assets/_Project/Art/Fonts/Nunito-Bold.ttf");
+    -unity-font-style: bold;
+    color: white;
+    font-size: 34px;
+}
+
+.lang-zh {
+    -unity-font: url("/Assets/_Project/Art/Fonts/NotoSansSC-Bold.ttf");
+}
+
+.lang-ja {
+    -unity-font: url("/Assets/_Project/Art/Fonts/NotoSansJP-Bold.ttf");
+}
+
+.lang-ko {
+    -unity-font: url("/Assets/_Project/Art/Fonts/NotoSansKR-Bold.ttf");
+}
+
+.screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.safe {
+    flex-grow: 1;
+}
+
+.hidden {
+    display: none;
+}
+
+.card {
+    background-color: var(--panel);
+    border-radius: 32px;
+    border-width: 2px;
+    border-color: var(--outline);
+    padding: 34px;
+}
+
+.section-label {
+    color: var(--muted);
+    font-size: 34px;
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}
+
+.btn {
+    margin: 0;
+    padding: 0 0 10px 0;
+    border-width: 0;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    color: white;
+    transition-property: scale, opacity;
+    transition-duration: 0.08s;
+}
+
+.btn:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.btn:active {
+    scale: 0.94 0.94;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+}
+
+.btn-long {
+    width: 400px;
+    height: 108px;
+    font-size: 40px;
+}
+
+.btn-cta {
+    width: 460px;
+    height: 124px;
+    font-size: 46px;
+}
+
+.btn-small {
+    width: 228px;
+    height: 110px;
+    font-size: 30px;
+}
+
+.btn-hud {
+    width: 190px;
+    height: 92px;
+    font-size: 30px;
+}
+
+.btn-yellow.btn-cta, .btn-yellow.btn-long {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/15Button_Long_Yellow.png");
+}
+
+.btn-green.btn-cta, .btn-green.btn-long {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/13Button_Long_Green.png");
+}
+
+.btn-blue.btn-cta, .btn-blue.btn-long {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/12Button_Long_Blue.png");
+}
+
+.btn-red.btn-cta, .btn-red.btn-long {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/14Button_Long_Red.png");
+}
+
+.btn-yellow.btn-small, .btn-yellow.btn-hud {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/10Button_Midl_Yellow.png");
+}
+
+.btn-green.btn-small, .btn-green.btn-hud {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/9Button_Midl_Green.png");
+}
+
+.btn-blue.btn-small, .btn-blue.btn-hud {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/11Button_Midl_Blue.png");
+}
+
+.btn-red.btn-small, .btn-red.btn-hud {
+    background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/8Button_Midl_Red.png");
+}
+
+.field {
+    margin: 0;
+    height: 92px;
+}
+
+.field > .unity-base-text-field__input {
+    height: 100%;
+    margin: 0;
+    background-color: var(--field);
+    border-radius: 30px;
+    border-width: 2px;
+    border-color: var(--outline);
+    color: white;
+    font-size: 38px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    padding: 0 20px;
+}
+
+.field > .unity-base-text-field__input:focus {
+    border-color: var(--gold);
+}
+
+.unity-base-text-field__input--placeholder,
+.field .unity-base-text-field__input--placeholder {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 34px;
+}

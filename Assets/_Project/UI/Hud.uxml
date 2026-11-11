@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/UI/Common.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Hud.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Settings.uss" />
+    <ui:Template name="Settings" src="project://database/Assets/_Project/UI/Settings.uxml" />
+    <ui:VisualElement name="hud-root" class="screen" picking-mode="Ignore">
+        <ui:VisualElement name="border-warning" class="screen" picking-mode="Ignore" />
+        <ui:VisualElement name="safe-area" class="safe" picking-mode="Ignore">
+            <ui:Label name="score-text" text="0" picking-mode="Ignore" />
+            <ui:Label name="session-text" picking-mode="Ignore" />
+            <ui:VisualElement name="minimap" picking-mode="Ignore" />
+            <ui:VisualElement name="top-buttons" picking-mode="Ignore">
+                <ui:Button name="settings-button" class="btn btn-hud btn-blue" />
+                <ui:Button name="leave-button" class="btn btn-hud btn-red" />
+            </ui:VisualElement>
+            <ui:VisualElement name="leaderboard-panel" class="card" picking-mode="Ignore">
+                <ui:Label name="leaderboard-text" enable-rich-text="true" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="kill-feed" picking-mode="Ignore" />
+            <ui:Label name="hint-text" picking-mode="Ignore" />
+            <ui:Label name="score-popup" picking-mode="Ignore" />
+            <ui:VisualElement name="stick" class="control">
+                <ui:VisualElement name="stick-knob" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="boost-button" class="control">
+                <ui:VisualElement name="boost-icon" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="defeat-panel" class="screen">
+            <ui:VisualElement name="defeat-card" class="card">
+                <ui:Label name="defeat-title" />
+                <ui:Label name="defeat-body" />
+                <ui:Button name="play-again" class="btn btn-cta btn-yellow" />
+                <ui:Button name="continue-button" class="btn btn-long btn-green" />
+                <ui:Button name="defeat-leave" class="btn btn-hud btn-red" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="loading-overlay" class="screen">
+            <ui:Label name="loading-title" text="Loading Session" />
+        </ui:VisualElement>
+        <ui:Instance template="Settings" name="settings" class="screen" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

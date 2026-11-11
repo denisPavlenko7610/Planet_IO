@@ -1,0 +1,146 @@
+.menu-bg {
+    background-image: url("/Assets/_Project/Sprites/Backgrounds/MainBackground.png");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+#header {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 12px;
+    align-items: center;
+}
+
+#game-title {
+    font-size: 104px;
+    color: white;
+    -unity-text-align: middle-center;
+    text-shadow: 0 4px 0 rgba(10, 4, 30, 0.9);
+    margin: 0;
+    padding: 0;
+}
+
+#best-score {
+    font-size: 34px;
+    color: var(--gold);
+    margin: 0;
+    padding: 0;
+}
+
+#settings-button {
+    position: absolute;
+    top: 25px;
+    right: 40px;
+}
+
+#columns {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    margin-top: 170px;
+    margin-bottom: 110px;
+}
+
+.menu-card {
+    width: 620px;
+    height: 640px;
+    margin: 0 20px;
+    justify-content: space-between;
+}
+
+.menu-card.centered {
+    align-items: center;
+}
+
+.row {
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+}
+
+.grow {
+    flex-grow: 1;
+    margin-right: 20px;
+}
+
+.join-row {
+    margin-top: 6px;
+}
+
+.swatches {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.swatch {
+    width: 64px;
+    height: 64px;
+    margin: 0 7px;
+    border-radius: 32px;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.swatch--selected {
+    scale: 1.2 1.2;
+    border-width: 3px;
+    border-color: white;
+}
+
+.skins {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    height: 200px;
+}
+
+.skin {
+    width: 76px;
+    height: 76px;
+    margin: 4px 5px;
+    -unity-background-scale-mode: scale-to-fit;
+    border-radius: 38px;
+    transition-property: scale;
+    transition-duration: 0.1s;
+}
+
+.skin--selected {
+    scale: 1.12 1.12;
+    border-width: 3px;
+    border-color: var(--gold);
+}
+
+.skin--locked {
+    -unity-background-image-tint-color: rgb(115, 115, 140);
+}
+
+.skin__badge {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    bottom: -2px;
+    height: 24px;
+    border-radius: 12px;
+    background-color: rgba(38, 140, 255, 0.95);
+    font-size: 15px;
+    color: white;
+    -unity-text-align: middle-center;
+    padding: 0;
+    margin: 0;
+}
+
+#status-text {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 36px;
+    font-size: 32px;
+    color: rgb(204, 235, 255);
+    -unity-text-align: middle-center;
+}
+
+#status-text.status--error {
+    color: rgb(255, 115, 115);
+}

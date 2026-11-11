@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-using PlanetIO.Core.Attributes;
+using RD.Attributes;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 
@@ -14,8 +12,6 @@ namespace PlanetIO
 
         private PlayerControls _controls;
         private Camera _camera;
-        private PointerEventData _uiPointerData;
-        private readonly List<RaycastResult> _uiRaycastResults = new();
 
         public override void OnNetworkSpawn()
         {
@@ -108,28 +104,9 @@ namespace PlanetIO
             return false;
         }
 
-        private bool IsOverInteractiveUi(Vector2 screenPosition)
+        private static bool IsOverInteractiveUi(Vector2 screenPosition)
         {
-            EventSystem eventSystem = EventSystem.current;
-            if (eventSystem == null)
-            {
-                return false;
-            }
-
-            _uiPointerData ??= new PointerEventData(eventSystem);
-            _uiPointerData.position = screenPosition;
-            _uiRaycastResults.Clear();
-            eventSystem.RaycastAll(_uiPointerData, _uiRaycastResults);
-
-            foreach (RaycastResult result in _uiRaycastResults)
-            {
-                if (ExecuteEvents.GetEventHandler<IPointerDownHandler>(result.gameObject) != null)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return UiPointerBlocker.IsOverUi(screenPosition);
         }
 
         private void SteerTo(Vector2 screenPosition)

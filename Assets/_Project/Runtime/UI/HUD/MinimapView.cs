@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace PlanetIO.UI.Hud
 {
@@ -16,46 +16,59 @@ namespace PlanetIO.UI.Hud
         }
     }
 
+    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(UIDocument))]
     public sealed class MinimapView : MonoBehaviour
     {
         private const float BlipSize = 7f;
+        private const float FallbackSize = 180f;
 
-        private readonly List<Image> _blips = new();
-        private RectTransform _rect;
+        private readonly List<VisualElement> _blips = new();
+        private VisualElement _map;
 
-        private void Awake()
+        private void OnEnable()
         {
-            _rect = GetComponent<RectTransform>();
+            _map = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("minimap");
+            _blips.Clear();
+            _map.Clear();
         }
 
         public void UpdateBlips(IReadOnlyList<MinimapBlip> blips)
         {
+            if (_map == null)
+            {
+                return;
+            }
+
             while (_blips.Count < blips.Count)
             {
-                GameObject blipObject = new($"Blip_{_blips.Count}", typeof(RectTransform));
-                blipObject.transform.SetParent(transform, false);
-
-                Image blip = blipObject.AddComponent<Image>();
-                blip.raycastTarget = false;
-                blip.rectTransform.sizeDelta = new Vector2(BlipSize, BlipSize);
-
+                VisualElement blip = new();
+                blip.AddToClassList("minimap-blip");
+                blip.pickingMode = PickingMode.Ignore;
+                _map.Add(blip);
                 _blips.Add(blip);
+            }
+
+            Vector2 size = _map.contentRect.size;
+            if (size.x <= 0f || size.y <= 0f)
+            {
+                size = new Vector2(FallbackSize, FallbackSize);
             }
 
             for (int index = 0; index < _blips.Count; index++)
             {
-                Image blip = _blips[index];
+                VisualElement blip = _blips[index];
                 if (index >= blips.Count)
                 {
-                    blip.gameObject.SetActive(false);
+                    blip.style.display = DisplayStyle.None;
                     continue;
                 }
 
                 MinimapBlip data = blips[index];
-                blip.gameObject.SetActive(true);
-                blip.color = data.Color;
-                blip.rectTransform.anchoredPosition =
-                    (data.NormalizedPosition - Vector2.one * 0.5f) * (Vector2)_rect.rect.size;
+                blip.style.display = DisplayStyle.Flex;
+                blip.style.backgroundColor = data.Color;
+                blip.style.left = data.NormalizedPosition.x * size.x - BlipSize * 0.5f;
+                blip.style.top = (1f - data.NormalizedPosition.y) * size.y - BlipSize * 0.5f;
             }
         }
     }
