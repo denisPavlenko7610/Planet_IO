@@ -10,7 +10,8 @@ PluginImporter:
   serializedVersion: 3
   iconMap: {}
   executionOrder: {}
-  defineConstraints: []
+  defineConstraints:
+  - UNITY_EDM_DISABLED
   isPreloaded: 0
   isOverridable: 0
   isExplicitlyReferenced: 0
@@ -20,7 +21,7 @@ PluginImporter:
       enabled: 0
       settings: {}
     Editor:
-      enabled: 1
+      enabled: 0
       settings:
         DefaultValueInitialized: true
     WindowsStoreApps:

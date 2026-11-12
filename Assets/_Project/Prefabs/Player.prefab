@@ -680,7 +680,7 @@ MonoBehaviour:
   _continueProtectionTime: 5
   _initialCapacity: 0.1
   _continueMassFraction: 0.5
-  _foodAttractionRadius: 4
+  _foodAttractionRadius: 0.3
   _foodAttractionSpeed: 5
 --- !u!114 &8517843457492819222
 MonoBehaviour:

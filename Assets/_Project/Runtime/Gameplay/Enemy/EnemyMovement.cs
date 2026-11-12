@@ -85,6 +85,7 @@ namespace PlanetIO
         private ContactFilter2D _foodFilter;
         private IGameStateService _gameStateService;
         private IFoodFieldGuide _fieldGuide;
+        private IPlayerRegistry _playerRegistry;
         private Vector2 _desiredDirection = Vector2.right;
         private Vector2 _separationForce;
         private float _stateTimeRemaining;
@@ -127,10 +128,11 @@ namespace PlanetIO
         }
 
         [Inject]
-        public void Construct(IGameStateService gameStateService, IFoodFieldGuide fieldGuide)
+        public void Construct(IGameStateService gameStateService, IFoodFieldGuide fieldGuide, IPlayerRegistry playerRegistry)
         {
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
             _fieldGuide = fieldGuide ?? throw new ArgumentNullException(nameof(fieldGuide));
+            _playerRegistry = playerRegistry ?? throw new ArgumentNullException(nameof(playerRegistry));
         }
 
         public override void OnNetworkSpawn()
@@ -175,7 +177,7 @@ namespace PlanetIO
 
             if (_thinkTimeRemaining <= 0f)
             {
-                if (PlayerRegistry.IsAnyPlayerWithinDistance(_enemyTransform.position, IdleCullDistance))
+                if (_playerRegistry.IsAnyPlayerWithinDistance(_enemyTransform.position, IdleCullDistance))
                 {
                     Think();
                 }

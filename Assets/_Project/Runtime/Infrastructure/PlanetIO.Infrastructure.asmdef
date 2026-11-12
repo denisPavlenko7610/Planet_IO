@@ -4,8 +4,6 @@
     "references": [
         "PlanetIO.Core",
         "PlanetIO.Gameplay",
-        "PlanetIO.Application",
-        "PlanetIO.UI",
         "VContainer",
         "Unity.Netcode.Runtime",
         "Unity.Networking.Transport",

@@ -59,7 +59,7 @@ namespace PlanetIO.Infrastructure.Networking
                     throw new InvalidOperationException(reason);
                 }
 
-                await Task.Yield();
+                await Awaitable.NextFrameAsync();
             }
         }
 

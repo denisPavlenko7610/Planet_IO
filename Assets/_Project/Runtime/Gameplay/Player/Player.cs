@@ -1,4 +1,3 @@
-using Unity.Scripting.LifecycleManagement;
 using System;
 using Unity.Collections;
 using Unity.Netcode;
@@ -10,7 +9,6 @@ using VContainer;
 namespace PlanetIO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
-    [AutoStaticsCleanup]
     public sealed partial class Player : PlanetScale
     {
         public readonly struct DefeatAnnouncement
@@ -51,7 +49,7 @@ namespace PlanetIO
         [SerializeField, Range(0f, 1f)] private float _continueMassFraction = 0.5f;
 
         [Header("Food magnet")]
-        [SerializeField, Min(0f)] private float _foodAttractionRadius = 4f;
+        [SerializeField, Min(0f)] private float _foodAttractionRadius = 0.3f;
         [SerializeField, Min(0f)] private float _foodAttractionSpeed = 5f;
 
         private const int FoodAttractionBuffer = 64;
@@ -88,8 +86,7 @@ namespace PlanetIO
         private IPlayerProfileService _playerProfileService;
         private ILootSpawnService _lootSpawnService;
         private ILootDrop _lootDrop;
-
-        private bool _servicesReady;
+        private IPlayerRegistry _playerRegistry;
         private bool _borderEventSubscribed;
         private bool _serverBoosting;
         private bool _continueUsedThisLife;
@@ -105,7 +102,7 @@ namespace PlanetIO
         public bool IsSpawnProtected => _invincibilityTimeRemaining > 0f;
         public bool CanBoost => !IsDefeated && Capacity > MinCapacity + _boostMassCost;
 
-        private bool CanActInGameplay => _servicesReady && !IsDefeated && _gameStateService.IsGameplayActive;
+        private bool CanActInGameplay => !IsDefeated && _gameStateService.IsGameplayActive;
 
         public event Action Defeated;
         public event Action Revived;
@@ -127,18 +124,19 @@ namespace PlanetIO
             IPlayerProfileService playerProfileService,
             ILootSpawnService lootSpawnService,
             BordersTrigger bordersTrigger,
-            PlanetSkinCatalog skinCatalog)
+            PlanetSkinCatalog skinCatalog,
+            IPlayerRegistry playerRegistry)
         {
             _skinCatalog = skinCatalog;
-            CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
-            FoodRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));
-            _enemyRespawnService = enemyRespawnService ?? throw new ArgumentNullException(nameof(enemyRespawnService));
-            _foodSpawnService = pointSpawnService ?? throw new ArgumentNullException(nameof(pointSpawnService));
-            _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
-            _playerProfileService = playerProfileService ?? throw new ArgumentNullException(nameof(playerProfileService));
-            _lootSpawnService = lootSpawnService ?? throw new ArgumentNullException(nameof(lootSpawnService));
-            SetBordersTrigger(bordersTrigger ?? throw new ArgumentNullException(nameof(bordersTrigger)));
-            _servicesReady = true;
+            CometRespawnService = cometRespawnService;
+            FoodRespawnService = pointRespawnService;
+            _enemyRespawnService = enemyRespawnService;
+            _foodSpawnService = pointSpawnService;
+            _gameStateService = gameStateService;
+            _playerProfileService = playerProfileService;
+            _lootSpawnService = lootSpawnService;
+            SetBordersTrigger(bordersTrigger);
+            _playerRegistry = playerRegistry;
         }
 
         protected override void Awake()
@@ -152,13 +150,13 @@ namespace PlanetIO
 
         private void OnEnable()
         {
-            PlayerRegistry.Register(this);
+            _playerRegistry.Register(this);
             SubscribeToBorderEvent();
         }
 
         private void OnDisable()
         {
-            PlayerRegistry.Unregister(this);
+            _playerRegistry.Unregister(this);
             UnsubscribeFromBorderEvent();
         }
 
@@ -215,10 +213,24 @@ namespace PlanetIO
 
         private void CreateFoodBehindPlayer()
         {
-            if (_pointSpawnTransform != null)
+            if (_pointSpawnTransform == null)
             {
-                _foodSpawnService.SpawnAt(_pointSpawnTransform, _boostMassCost * BoostDropNutritionFraction);
+                return;
             }
+
+            Vector2 spawnPosition = _pointSpawnTransform.position;
+            if (_rigidbody2D != null)
+            {
+                Vector2 velocity = _rigidbody2D.linearVelocity;
+                if (velocity.sqrMagnitude > 0.001f)
+                {
+                    spawnPosition = (Vector2)transform.position - velocity.normalized * Capacity * 0.3f;
+                    spawnPosition = Constants.ClampToWorld(spawnPosition);
+                    _pointSpawnTransform.position = spawnPosition;
+                }
+            }
+
+            _foodSpawnService.SpawnAt(_pointSpawnTransform, _boostMassCost * BoostDropNutritionFraction);
         }
 
         protected override void DeathCheck(float capacity)
@@ -297,14 +309,14 @@ namespace PlanetIO
 
             if (IsOwner)
             {
-                PlayerRegistry.SetLocal(this);
+                _playerRegistry.SetLocal(this);
             }
 
             _visualEffects = GetComponent<PlayerVisualEffects>();
             _visualEffects?.SetLocalAudio(IsOwner);
             ApplyVisualState();
 
-            if (IsOwner && _playerProfileService != null)
+            if (IsOwner)
             {
                 SubmitNicknameRpc(_playerProfileService.Nickname);
                 SetColorRpc(_playerProfileService.PreferredColor);
@@ -334,7 +346,7 @@ namespace PlanetIO
 
         private void ApplySkin(byte skin)
         {
-            if (_skinCatalog == null || !_skinCatalog.IsValid(skin) || !TryGetComponent(out SpriteRenderer body))
+            if (!_skinCatalog.IsValid(skin) || !TryGetComponent(out SpriteRenderer body))
             {
                 return;
             }
@@ -349,7 +361,7 @@ namespace PlanetIO
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         private void SetSkinRpc(byte skin)
         {
-            if (_skinCatalog != null && _skinCatalog.IsValid(skin))
+            if (_skinCatalog.IsValid(skin))
             {
                 _networkSkin.Value = skin;
             }
@@ -424,7 +436,7 @@ namespace PlanetIO
         private void AttractFood()
         {
             int hitCount = Physics2D.OverlapCircle(
-                transform.position, _foodAttractionRadius + Capacity, _foodFilter, _foodBuffer);
+                transform.position, Capacity * 0.5f + _foodAttractionRadius, _foodFilter, _foodBuffer);
             float pullStep = _foodAttractionSpeed * Time.deltaTime;
 
             for (int index = 0; index < hitCount; index++)
@@ -597,8 +609,7 @@ namespace PlanetIO
         {
             if (!IsServer ||
                 !IsDefeated ||
-                _continueUsedThisLife ||
-                !_servicesReady)
+                _continueUsedThisLife)
             {
                 return;
             }
@@ -616,8 +627,7 @@ namespace PlanetIO
         public void RespawnRpc()
         {
             if (!IsServer ||
-                !IsDefeated ||
-                !_servicesReady)
+                !IsDefeated)
             {
                 return;
             }

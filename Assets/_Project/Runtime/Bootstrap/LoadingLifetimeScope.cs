@@ -3,7 +3,7 @@ using VContainer.Unity;
 using PlanetIO.Infrastructure.Loading;
 using PlanetIO.UI.Loading;
 
-namespace PlanetIO.Infrastructure.Bootstrap
+namespace PlanetIO.Bootstrap
 {
     public sealed class LoadingLifetimeScope : LifetimeScope
     {

@@ -1,11 +1,20 @@
+using System;
 using Unity.Netcode;
+using VContainer;
 using VContainer.Unity;
 
-namespace PlanetIO.Infrastructure.Bootstrap
+namespace PlanetIO.Bootstrap
 {
     public sealed class NetworkObjectDependencyInjector : NetworkBehaviour
     {
         private bool _injected;
+        private IObjectResolver _container;
+
+        [Inject]
+        public void Construct(IObjectResolver container)
+        {
+            _container = container;
+        }
 
         private void Awake()
         {
@@ -25,10 +34,9 @@ namespace PlanetIO.Infrastructure.Bootstrap
                 return;
             }
 
-            GameLifetimeScope scope = GameLifetimeScope.Instance;
-            if (scope != null && scope.Container != null)
+            if (_container != null)
             {
-                scope.Container.InjectGameObject(gameObject);
+                _container.InjectGameObject(gameObject);
                 _injected = true;
             }
         }

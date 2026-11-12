@@ -6,6 +6,7 @@
         "PlanetIO.Gameplay",
         "PlanetIO.Application",
         "PlanetIO.Infrastructure",
+        "PlanetIO.Bootstrap",
         "PlanetIO.UI",
         "Unity.Netcode.Runtime",
         "VContainer"

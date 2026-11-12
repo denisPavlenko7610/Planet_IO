@@ -1,0 +1,3 @@
+# Google Mobile Ads (Next Gen) classes referenced by the Unity wrapper but absent in Legacy mode.
+-dontwarn com.google.unity.ads.nextgen.**
+-dontwarn com.google.android.libraries.ads.mobile.sdk.**

@@ -6,6 +6,7 @@
         "PlanetIO.Core",
         "PlanetIO.Gameplay",
         "PlanetIO.Infrastructure",
+        "PlanetIO.Bootstrap",
         "Unity.Addressables.Editor",
         "Unity.Netcode.Runtime",
         "PlanetIO.UI",

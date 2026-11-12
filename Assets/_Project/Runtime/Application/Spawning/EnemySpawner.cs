@@ -10,11 +10,13 @@ namespace PlanetIO
         [SerializeField, Min(1)] private int _maxPositionAttempts = 10;
 
         private ILootSpawnService _lootSpawnService;
+        private IPlayerRegistry _playerRegistry;
 
         [Inject]
-        public void Construct(ILootSpawnService lootSpawnService)
+        public void Construct(ILootSpawnService lootSpawnService, IPlayerRegistry playerRegistry)
         {
             _lootSpawnService = lootSpawnService ?? throw new ArgumentNullException(nameof(lootSpawnService));
+            _playerRegistry = playerRegistry ?? throw new ArgumentNullException(nameof(playerRegistry));
         }
 
         public void Respawn(Enemy enemy)
@@ -43,7 +45,7 @@ namespace PlanetIO
 
         protected override Vector2 GetRandomPosition()
         {
-            if (PlayerRegistry.Count == 0)
+            if (_playerRegistry.Count == 0)
             {
                 return base.GetRandomPosition();
             }
@@ -51,7 +53,7 @@ namespace PlanetIO
             for (int i = 0; i < _maxPositionAttempts; i++)
             {
                 Vector2 candidate = base.GetRandomPosition();
-                if (!PlayerRegistry.IsAnyPlayerWithinDistance(candidate, _minimumDistanceFromPlayers))
+                if (!_playerRegistry.IsAnyPlayerWithinDistance(candidate, _minimumDistanceFromPlayers))
                 {
                     return candidate;
                 }

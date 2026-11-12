@@ -2,18 +2,14 @@ fileFormatVersion: 2
 guid: 766f36c9503c48e5915b2dbb1b312f64
 labels:
 - gvh
-- gvh_version-11.5.0
+- gvh_version-11.7.0
 - gvhp_exportpath-Plugins/iOS/NativeTemplates/GADTMediumTemplateView.xib
+timeCreated: 1480838400
 PluginImporter:
-  externalObjects: {}
-  serializedVersion: 3
+  serializedVersion: 1
   iconMap: {}
   executionOrder: {}
-  defineConstraints: []
   isPreloaded: 0
-  isOverridable: 0
-  isExplicitlyReferenced: 0
-  validateReferences: 1
   platformData:
     Android:
       enabled: 0
@@ -28,7 +24,23 @@ PluginImporter:
         CPU: AnyCPU
         DefaultValueInitialized: true
         OS: AnyOS
+    Linux:
+      enabled: 1
+      settings:
+        CPU: x86
     Linux64:
+      enabled: 1
+      settings:
+        CPU: x86_64
+    LinuxUniversal:
+      enabled: 1
+      settings:
+        CPU: AnyCPU
+    OSXIntel:
+      enabled: 1
+      settings:
+        CPU: x86
+    OSXIntel64:
       enabled: 1
       settings:
         CPU: x86_64
@@ -36,7 +48,10 @@ PluginImporter:
       enabled: 1
       settings:
         CPU: AnyCPU
-    WebGL:
+    Web:
+      enabled: 0
+      settings: {}
+    WebStreamed:
       enabled: 0
       settings: {}
     Win:

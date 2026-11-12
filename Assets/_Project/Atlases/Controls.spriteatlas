@@ -37,11 +37,11 @@ SpriteAtlas:
       m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     packingSettings:
       serializedVersion: 2
-      padding: 8
+      padding: 4
       blockOffset: 1
       allowAlphaSplitting: 0
       enableRotation: 0
-      enableTightPacking: 0
+      enableTightPacking: 1
       enableAlphaDilation: 0
     secondaryTextureSettings: {}
     variantMultiplier: 1
@@ -51,9 +51,11 @@ SpriteAtlas:
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
+    - 8d0612229575f2e4a9399511afff8188: 98854176424871084
     - eb55d13574db2ed46927672efcc23003: 21300000
     - 46a8b1753faaa9148a0f07bb8a3fbd77: 21300000
     - 980ad287e93fcf845a113c4f62a9adfe: 21300000
+    - 0da02f3936bc63b4db7709cd929f6f73: -7974888402626901537
   m_MasterAtlas: {fileID: 0}
   m_RenderDataMap: {}
   m_Tag: Controls

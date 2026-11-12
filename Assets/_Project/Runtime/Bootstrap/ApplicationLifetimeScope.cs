@@ -1,4 +1,3 @@
-using Unity.Scripting.LifecycleManagement;
 using System;
 using RD.Foundation;
 using System.IO;
@@ -7,7 +6,6 @@ using RD.AddressableAssets;
 using RD.Attributes;
 using PlanetIO.Application;
 using PlanetIO.Infrastructure.Ads;
-using PlanetIO.Infrastructure.Bootstrap;
 using PlanetIO.Infrastructure.Audio;
 using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
@@ -22,11 +20,10 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace PlanetIO.Infrastructure.Bootstrap
+namespace PlanetIO.Bootstrap
 {
     [DefaultExecutionOrder(-6000)]
     [DisallowMultipleComponent]
-    [AutoStaticsCleanup]
     public sealed partial class ApplicationLifetimeScope : LifetimeScope
     {
         private static ApplicationLifetimeScope _activeScope;

@@ -1,19 +1,15 @@
 fileFormatVersion: 2
-guid: cae514165f5d4bbbbd9c4bbceb947a28
+guid: 4f31f18705cd4d5fb80634a1d689e0c9
 labels:
 - gvh
-- gvh_version-11.5.0
+- gvh_version-11.7.0
 - gvhp_exportpath-Plugins/Android/googlemobileads-unity.aar
+timeCreated: 1480838400
 PluginImporter:
-  externalObjects: {}
-  serializedVersion: 3
+  serializedVersion: 1
   iconMap: {}
   executionOrder: {}
-  defineConstraints: []
   isPreloaded: 0
-  isOverridable: 0
-  isExplicitlyReferenced: 0
-  validateReferences: 1
   platformData:
     Android:
       enabled: 1
@@ -28,7 +24,23 @@ PluginImporter:
         CPU: AnyCPU
         DefaultValueInitialized: true
         OS: AnyOS
+    Linux:
+      enabled: 1
+      settings:
+        CPU: x86
     Linux64:
+      enabled: 1
+      settings:
+        CPU: x86_64
+    LinuxUniversal:
+      enabled: 1
+      settings:
+        CPU: AnyCPU
+    OSXIntel:
+      enabled: 1
+      settings:
+        CPU: x86
+    OSXIntel64:
       enabled: 1
       settings:
         CPU: x86_64
@@ -36,7 +48,10 @@ PluginImporter:
       enabled: 1
       settings:
         CPU: AnyCPU
-    WebGL:
+    Web:
+      enabled: 0
+      settings: {}
+    WebStreamed:
       enabled: 0
       settings: {}
     Win:

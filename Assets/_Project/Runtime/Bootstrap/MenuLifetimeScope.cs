@@ -3,7 +3,7 @@ using VContainer.Unity;
 using PlanetIO.UI.Menu;
 using PlanetIO.UI.Settings;
 
-namespace PlanetIO.Infrastructure.Bootstrap
+namespace PlanetIO.Bootstrap
 {
     public sealed class MenuLifetimeScope : LifetimeScope
     {

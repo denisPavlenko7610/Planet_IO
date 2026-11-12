@@ -1,4 +1,3 @@
-using Unity.Scripting.LifecycleManagement;
 using System;
 using RD.Attributes;
 using PlanetIO.Core.Contracts.Loading;
@@ -14,13 +13,10 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-namespace PlanetIO.Infrastructure.Bootstrap
+namespace PlanetIO.Bootstrap
 {
-    [AutoStaticsCleanup]
     public sealed partial class GameLifetimeScope : LifetimeScope
     {
-        public static GameLifetimeScope Instance { get; private set; }
-
         [Header("Pools")]
         [SerializeField, Assign(AssignMode.Scene)]
         private ObjectPool<Food> _foodsPool;
@@ -53,13 +49,6 @@ namespace PlanetIO.Infrastructure.Bootstrap
 
         protected override void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
             base.Awake();
         }
 
@@ -139,16 +128,8 @@ namespace PlanetIO.Infrastructure.Bootstrap
 
             builder.RegisterComponent(_sessionHudView)
                 .As<ISessionHudView>();
-        }
 
-        protected override void OnDestroy()
-        {
-            if (Instance == this)
-            {
-                Instance = null;
-            }
-
-            base.OnDestroy();
+            builder.RegisterInstance<IPlayerRegistry>(new PlayerRegistryService());
         }
     }
 }

@@ -2,18 +2,14 @@ fileFormatVersion: 2
 guid: bf90317f8c2e41979b0be47e1b17c528
 labels:
 - gvh
-- gvh_version-11.5.0
+- gvh_version-11.7.0
 - gvhp_exportpath-GoogleMobileAds/GoogleMobileAds.Ump.Android.dll
+timeCreated: 1480838400
 PluginImporter:
-  externalObjects: {}
-  serializedVersion: 3
+  serializedVersion: 1
   iconMap: {}
   executionOrder: {}
-  defineConstraints: []
   isPreloaded: 0
-  isOverridable: 0
-  isExplicitlyReferenced: 0
-  validateReferences: 1
   platformData:
     Android:
       enabled: 1
@@ -28,7 +24,23 @@ PluginImporter:
         CPU: AnyCPU
         DefaultValueInitialized: true
         OS: AnyOS
+    Linux:
+      enabled: 0
+      settings:
+        CPU: None
     Linux64:
+      enabled: 0
+      settings:
+        CPU: None
+    LinuxUniversal:
+      enabled: 0
+      settings:
+        CPU: None
+    OSXIntel:
+      enabled: 0
+      settings:
+        CPU: None
+    OSXIntel64:
       enabled: 0
       settings:
         CPU: None
@@ -36,7 +48,10 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: None
-    WebGL:
+    Web:
+      enabled: 0
+      settings: {}
+    WebStreamed:
       enabled: 0
       settings: {}
     Win:

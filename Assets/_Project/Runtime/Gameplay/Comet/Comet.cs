@@ -1,5 +1,7 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
+using VContainer;
 
 namespace PlanetIO
 {
@@ -11,6 +13,13 @@ namespace PlanetIO
 
         private SpriteRenderer _spriteRenderer;
         private Color _baseColor = Color.white;
+        private IPlayerRegistry _playerRegistry;
+
+        [Inject]
+        public void Construct(IPlayerRegistry playerRegistry)
+        {
+            _playerRegistry = playerRegistry ?? throw new ArgumentNullException(nameof(playerRegistry));
+        }
 
         public float Capacity { get; set; }
 
@@ -31,7 +40,7 @@ namespace PlanetIO
             }
 
             float danger = 0f;
-            Player localPlayer = PlayerRegistry.LocalPlayer;
+            Player localPlayer = _playerRegistry?.LocalPlayer;
             if (localPlayer != null && !localPlayer.IsDefeated)
             {
                 float distance = Vector2.Distance(localPlayer.transform.position, transform.position);

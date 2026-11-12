@@ -98,3 +98,10 @@ docs/RELEASE_PLAN.md
 *.aab
 *.symbols.zip
 docs/PlayStore/screenshots
+.utmp
+.junie
+unity-build.log
+unity-android-build.log
+unity-android-build2.log
+Assets/netcode-build-assets-temp
+Assets/netcode-build-assets-temp.meta

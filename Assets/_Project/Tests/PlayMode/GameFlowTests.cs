@@ -3,7 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using PlanetIO.Infrastructure.Bootstrap;
+using PlanetIO.Bootstrap;
 using PlanetIO.Infrastructure.Networking;
 using PlanetIO.UI.Hud;
 using Unity.Netcode;
@@ -251,15 +251,17 @@ namespace PlanetIO.Tests
         {
             yield return StartSoloGame();
 
-            Assert.That(PlayerRegistry.Count, Is.GreaterThan(0));
-            Assert.That(PlayerRegistry.LocalPlayer, Is.Not.Null);
+            IPlayerRegistry registry = Resolve<IPlayerRegistry>();
+            Assert.That(registry.Count, Is.GreaterThan(0));
+            Assert.That(registry.LocalPlayer, Is.Not.Null);
 
             yield return LeaveToMenu();
             yield return null;
             yield return null;
 
-            Assert.That(PlayerRegistry.Count, Is.Zero);
-            Assert.That(PlayerRegistry.LocalPlayer, Is.Null);
+            registry = Resolve<IPlayerRegistry>();
+            Assert.That(registry.Count, Is.Zero);
+            Assert.That(registry.LocalPlayer, Is.Null);
             Assert.That(CountDefeatAnnouncementSubscribers(), Is.Zero);
         }
 
@@ -330,8 +332,11 @@ namespace PlanetIO.Tests
         public IEnumerator StopSession()
         {
             ApplicationLifetimeScope scope = Object.FindAnyObjectByType<ApplicationLifetimeScope>();
-            if (scope == null || scope.Container == null) yield break;
-            var operation = scope.Container.Resolve<INetworkSessionService>().ShutdownAndReturnToMenuAsync();
+            if (scope == null || scope.Container == null)
+			{
+				yield break;
+			}
+			var operation = scope.Container.Resolve<INetworkSessionService>().ShutdownAndReturnToMenuAsync();
             var awaiter = operation.GetAwaiter();
             while (!awaiter.IsCompleted) yield return null;
             awaiter.GetResult();
@@ -374,7 +379,7 @@ namespace PlanetIO.Tests
             float deadline = Time.realtimeSinceStartup + timeoutSeconds;
             while (Time.realtimeSinceStartup < deadline)
             {
-                GameLifetimeScope scope = GameLifetimeScope.Instance;
+                GameLifetimeScope scope = Object.FindAnyObjectByType<GameLifetimeScope>();
                 if (scope != null && scope.Container != null && scope.Container.Resolve<IGameStateService>().IsGameplayActive)
                 {
                     yield break;

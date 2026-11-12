@@ -12,16 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a187246822bbb47529482707f3e0eff8, type: 3}
   m_Name: GoogleMobileAdsSettings
   m_EditorClassIdentifier: GoogleMobileAds.Editor::GoogleMobileAds.Editor.GoogleMobileAdsSettings
-  adMobAndroidAppId: ca-app-pub-7173647303121367~8143078815
-  adMobIOSAppId:
+  adMobAndroidAppId: ca-app-pub-3940256099942544~3347511713 
+  adMobIOSAppId: 
   enableKotlinXCoroutinesPackagingOption: 1
   enableGradleBuildPreProcessor: 1
   disableOptimizeInitialization: 0
   disableOptimizeAdLoading: 0
-  userTrackingUsageDescription:
+  userTrackingUsageDescription: 
   userLanguage: en
-  overrideDefaultGmaAndroidSdk: 0
-  selectedGmaAndroidSdk: 0
-  enableExternalDependencyManager: 0
-  edmPackageDetected: 0
-  addedEdmVersion:
+  overrideDefaultGmaAndroidSdk: 1
+  selectedGmaAndroidSdk: 1
+  enableExternalDependencyManager: 1
+  edmPackageDetected: 1
+  addedEdmVersion: 2.1.1
+  debugGeography: 0
+  testDeviceHashedIds: []

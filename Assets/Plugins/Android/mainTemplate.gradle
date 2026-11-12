@@ -9,7 +9,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:12
     implementation 'androidx.fragment:fragment:1.7.1' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:22
     implementation 'androidx.lifecycle:lifecycle-process:2.6.2' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:17
-    implementation 'com.google.android.gms:play-services-ads:25.5.0' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:7
+    implementation 'com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.0.0' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:7
     implementation 'com.google.android.ump:user-messaging-platform:4.0.0' // Assets/GoogleMobileAds/Editor/GoogleUmpDependencies.xml:7
 // Android Resolver Dependencies End
 **DEPS**}
@@ -17,6 +17,7 @@ dependencies {
 // Android Resolver Exclusions Start
 android {
   packaging {
+      exclude ('/lib/armeabi-v7a/*' + '*')
       exclude ('/lib/armeabi/*' + '*')
       exclude ('/lib/mips/*' + '*')
       exclude ('/lib/mips64/*' + '*')

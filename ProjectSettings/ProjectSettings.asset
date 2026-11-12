@@ -164,7 +164,10 @@ PlayerSettings:
   tvOSBundleVersion: 1.0
   bundleVersion: 1.0
   preloadedAssets:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: a1763f7e521264543b7bc917f7a3879a, type: 2}
+  - {fileID: 11400000, guid: dafc5443cd90af348b02a4c458584bfb, type: 2}
+  - {fileID: 11400000, guid: 3f5b5dff67a942289a9defa416b206f3, type: 2}
+  - {fileID: 11400000, guid: f652a23f1455e1547a12cc5668e3742b, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -193,9 +196,9 @@ PlayerSettings:
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 28
-  AndroidTargetSdkVersion: 37
-  AndroidCompileSdkVersion: 37002000
+  AndroidMinSdkVersion: 26
+  AndroidTargetSdkVersion: 36
+  AndroidCompileSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   AndroidPreferredDataLocation: 1
   aotOptions: 
@@ -277,17 +280,17 @@ PlayerSettings:
   templateDefaultScene: Assets/Scenes/SampleScene.unity
   useCustomMainManifest: 0
   useCustomLauncherManifest: 0
-  useCustomMainGradleTemplate: 0
+  useCustomMainGradleTemplate: 1
   useCustomLauncherGradleManifest: 0
   useCustomBaseGradleTemplate: 0
-  useCustomGradlePropertiesTemplate: 0
-  useCustomGradleSettingsTemplate: 0
-  useCustomProguardFile: 0
-  AndroidTargetArchitectures: 3
+  useCustomGradlePropertiesTemplate: 1
+  useCustomGradleSettingsTemplate: 1
+  useCustomProguardFile: 1
+  AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: 
-  AndroidKeyaliasName: 
+  AndroidKeystoreName: '{inproject}: Keystore/planetio-upload.keystore'
+  AndroidKeyaliasName: planetio-upload
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0
   AndroidBuildApkPerCpuArchitecture: 0
@@ -305,7 +308,7 @@ PlayerSettings:
     height: 180
     banner: {fileID: 0}
   androidGamepadSupportLevel: 0
-  AndroidMinifyRelease: 0
+  AndroidMinifyRelease: 1
   AndroidMinifyDebug: 0
   AndroidValidateAppBundleSize: 1
   AndroidAppBundleSizeToValidate: 150

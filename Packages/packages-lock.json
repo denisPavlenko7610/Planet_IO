@@ -187,6 +187,15 @@
       "source": "builtin",
       "dependencies": {}
     },
+    "com.unity.external-dependency-manager": {
+      "version": "2.1.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.feature.2d": {
       "version": "3.0.0",
       "depth": 0,
@@ -288,7 +297,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.pipeline": {
-      "version": "1.0.0-pre.1",
+      "version": "1.0.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
