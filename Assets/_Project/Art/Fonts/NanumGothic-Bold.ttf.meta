@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d7abb2c388ddde34aaab5960281ded8d
+guid: 8293d8a7e3c24f69aba1af06c6bd203f
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Noto Sans JP
+  - NanumGothic
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

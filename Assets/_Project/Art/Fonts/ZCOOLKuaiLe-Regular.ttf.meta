@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1c0403bed4ae7544c931581c5d053aaa
+guid: cf7636f5bfc244e1a2ecabf6b852bd68
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Noto Sans SC
+  - ZCOOL KuaiLe
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

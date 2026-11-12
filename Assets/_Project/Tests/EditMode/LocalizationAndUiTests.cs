@@ -45,9 +45,9 @@ namespace PlanetIO.Tests
 
             Dictionary<string, string> cjkFonts = new()
             {
-                ["zh-Hans"] = "NotoSansSC-Bold.ttf",
-                ["ja"] = "NotoSansJP-Bold.ttf",
-                ["ko"] = "NotoSansKR-Bold.ttf"
+                ["zh-Hans"] = "ZCOOLKuaiLe-Regular.ttf",
+                ["ja"] = "ZenMaruGothic-Bold.ttf",
+                ["ko"] = "NanumGothic-Bold.ttf"
             };
 
             List<string[]> rows = UIStringsImporter.ReadCsv(File.ReadAllText(UIStringsImporter.CsvPath, Encoding.UTF8));
@@ -113,7 +113,7 @@ namespace PlanetIO.Tests
         }
 
         [TestCase("Assets/_Project/UI/Menu.uxml", new[] { "play-with-bots", "quick-play", "create-room", "join-room", "room-code-input", "settings-button", "status-text", "best-score", "nickname-input", "random-nickname", "swatches", "skins", "settings-overlay" })]
-        [TestCase("Assets/_Project/UI/Settings.uxml", new[] { "settings-overlay", "settings-backdrop", "music-slider", "sound-slider", "haptics-toggle", "previous-language", "next-language", "language-value", "ad-privacy", "privacy-policy", "settings-close" })]
+        [TestCase("Assets/_Project/UI/Settings.uxml", new[] { "settings-overlay", "settings-backdrop", "music-slider", "sound-slider", "haptics-toggle", "comet-names-toggle", "previous-language", "next-language", "language-value", "ad-privacy", "privacy-policy", "settings-close" })]
         [TestCase("Assets/_Project/UI/Hud.uxml", new[] { "leave-button", "settings-button", "play-again", "continue-button", "defeat-leave", "defeat-panel", "session-text", "leaderboard-text", "score-text", "minimap", "stick", "boost-button", "border-warning", "loading-overlay" })]
         [TestCase("Assets/_Project/UI/Loading.uxml", new[] { "progress-fill", "loading-status" })]
         public void UiDocument_ContainsAllElementsRequiredByViews(string uxmlPath, string[] elementNames)

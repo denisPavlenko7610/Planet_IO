@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 138c8277b78991b49b6eb10c5ba7d480
+guid: 13fff7eef981479b83ee305aa06dbfad
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Noto Sans KR
+  - Zen Maru Gothic
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
