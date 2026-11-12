@@ -228,6 +228,14 @@ MonoBehaviour:
     m_Localized: Pub
     m_Metadata:
       m_Items: []
+  - m_Id: 16379358955941888
+    m_Localized: "Politique de confidentialit\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16380462645096448
+    m_Localized: "Noms des com\xE8tes"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -1,10 +1,12 @@
+using Unity.Scripting.LifecycleManagement;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace PlanetIO
 {
-    public static class SceneContainers
+    [AutoStaticsCleanup]
+    public static partial class SceneContainers
     {
         public const string Players = "Players";
         public const string Enemies = "Enemies";

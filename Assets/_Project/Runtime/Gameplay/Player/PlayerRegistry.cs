@@ -1,9 +1,11 @@
+using Unity.Scripting.LifecycleManagement;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlanetIO
 {
-    public static class PlayerRegistry
+    [AutoStaticsCleanup]
+    public static partial class PlayerRegistry
     {
         private static readonly HashSet<Player> Players = new();
 

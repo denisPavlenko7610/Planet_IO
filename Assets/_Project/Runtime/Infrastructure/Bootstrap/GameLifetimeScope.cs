@@ -1,5 +1,6 @@
-﻿using System;
-using PlanetIO.Core.Attributes;
+using Unity.Scripting.LifecycleManagement;
+using System;
+using RD.Attributes;
 using PlanetIO.Core.Contracts.Loading;
 using PlanetIO.Application;
 using PlanetIO.Pooling;
@@ -7,7 +8,7 @@ using PlanetIO.UI.Hud;
 using PlanetIO.UI.Camera;
 using PlanetIO.UI.Loading;
 using PlanetIO.UI.Settings;
-using UnityTemplates.Pause;
+using RD.Pause;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -15,7 +16,8 @@ using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Bootstrap
 {
-    public sealed class GameLifetimeScope : LifetimeScope
+    [AutoStaticsCleanup]
+    public sealed partial class GameLifetimeScope : LifetimeScope
     {
         public static GameLifetimeScope Instance { get; private set; }
 
@@ -71,7 +73,8 @@ namespace PlanetIO.Infrastructure.Bootstrap
                 .AsSelf()
                 .As<IRespawnService<Food>>()
                 .As<ISpawnService<Food>>()
-                .As<ILootSpawnService>();
+                .As<ILootSpawnService>()
+                .As<IFoodFieldGuide>();
 
             builder.RegisterComponent(_cometSpawner)
                 .AsSelf()

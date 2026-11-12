@@ -23,6 +23,9 @@
 #best-score {
     font-size: 34px;
     color: var(--gold);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
     margin: 0;
     padding: 0;
 }
@@ -47,6 +50,16 @@
     height: 640px;
     margin: 0 20px;
     justify-content: space-between;
+}
+
+.menu--portrait #columns {
+    flex-direction: column;
+    margin-top: 200px;
+    margin-bottom: 150px;
+}
+
+.menu--portrait .menu-card {
+    margin: 14px 0;
 }
 
 .menu-card.centered {
@@ -121,11 +134,14 @@
     left: 2px;
     right: 2px;
     bottom: -2px;
-    height: 24px;
-    border-radius: 12px;
-    background-color: rgba(38, 140, 255, 0.95);
-    font-size: 15px;
+    height: 28px;
+    border-radius: 14px;
+    background-color: rgb(14, 74, 178);
+    border-width: 2px;
+    border-color: rgb(21, 10, 51);
+    font-size: 17px;
     color: white;
+    -unity-font-style: bold;
     -unity-text-align: middle-center;
     padding: 0;
     margin: 0;
@@ -137,10 +153,13 @@
     right: 0;
     bottom: 36px;
     font-size: 32px;
-    color: rgb(204, 235, 255);
+    color: rgb(226, 242, 255);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
     -unity-text-align: middle-center;
 }
 
 #status-text.status--error {
-    color: rgb(255, 115, 115);
+    color: rgb(255, 150, 150);
 }

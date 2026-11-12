@@ -8,6 +8,7 @@ namespace PlanetIO.UI.Vfx
     {
         private const int DefaultPoolCapacity = 16;
         private const int MaximumPoolSize = 64;
+        private const float ViewCullMargin = 0.1f;
 
         [SerializeField] private ParticleSystem _eatPrefab;
         [SerializeField] private ParticleSystem _deathPrefab;
@@ -62,6 +63,11 @@ namespace PlanetIO.UI.Vfx
 
         public void PlayEat(Vector2 position, Color color, float size)
         {
+            if (_active.Count >= MaximumPoolSize || !IsNearView(position))
+            {
+                return;
+            }
+
             Play(_eatPool, position, color, ScaleFor(size, _eatScaleRange));
         }
 
@@ -73,6 +79,19 @@ namespace PlanetIO.UI.Vfx
         public void PlayImpact(Vector2 position, float size)
         {
             Play(_impactPool, position, Color.white, ScaleFor(size, _impactScaleRange));
+        }
+
+        private static bool IsNearView(Vector2 position)
+        {
+            UnityEngine.Camera view = UnityEngine.Camera.main;
+            if (view == null)
+            {
+                return true;
+            }
+
+            Vector3 viewPoint = view.WorldToViewportPoint(position);
+            return viewPoint.x is > -ViewCullMargin and < 1f + ViewCullMargin &&
+                viewPoint.y is > -ViewCullMargin and < 1f + ViewCullMargin;
         }
 
         private float ScaleFor(float sourceSize, Vector2 range)

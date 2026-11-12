@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using PlanetIO.Editor;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEditor.Build.Player;
@@ -73,6 +74,24 @@ namespace PlanetIO.Tests
 
             Assert.That(appId, Does.StartWith("ca-app-pub-"));
             Assert.That(appId, Is.Not.EqualTo(AdMobSampleAppId));
+        }
+
+        [Test]
+        public void AndroidAppIcon_IsPlanetIoIconNotPlaceholder()
+        {
+            Assert.That(AndroidAppIcons.GetValidationError(), Is.Empty);
+        }
+
+        [Test]
+        public void AndroidTarget_MeetsGooglePlayRequirements()
+        {
+            Assert.That(
+                (int)PlayerSettings.Android.targetSdkVersion,
+                Is.GreaterThanOrEqualTo((int)AndroidSdkVersions.AndroidApiLevel35));
+            Assert.That(
+                PlayerSettings.Android.targetArchitectures & AndroidArchitecture.ARM64,
+                Is.EqualTo(AndroidArchitecture.ARM64));
+            Assert.That(PlayerSettings.Android.bundleVersionCode, Is.GreaterThanOrEqualTo(1));
         }
 
         [TestCase("SetBoostRpc")]

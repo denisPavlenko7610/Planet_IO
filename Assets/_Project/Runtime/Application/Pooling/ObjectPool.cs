@@ -46,28 +46,29 @@ namespace PlanetIO.Pooling
 
         public T Get()
         {
+            EnsureInitialized();
+            return _pool.Get();
+        }
+
+        public void Release(T pooledObject)
+        {
+            EnsureInitialized();
+
+            if (pooledObject == null)
+            {
+                return;
+            }
+
+            _pool.Release(pooledObject);
+        }
+
+        private void EnsureInitialized()
+        {
             if (_pool == null)
             {
                 throw new InvalidOperationException($"{GetType().Name} must be initialized before use.");
             }
-
-            return _pool.Get();
         }
-
-		public void Release(T pooledObject)
-		{
-			if (_pool == null)
-			{
-				throw new InvalidOperationException($"{GetType().Name} must be initialized before use.");
-			}
-
-			if (pooledObject == null)
-			{
-				return;
-			}
-
-			_pool.Release(pooledObject);
-		}
 
         protected virtual T CreatePooledObject()
         {

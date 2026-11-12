@@ -17,16 +17,12 @@ namespace PlanetIO.Tests
     {
         private static readonly string[] StreamingMusicPaths =
         {
-            "Assets/_Project/Audio/BossMain.wav",
-            "Assets/_Project/Audio/Map (basic version).wav",
-            "Assets/_Project/Audio/Map.wav",
-            "Assets/_Project/Audio/Mars.wav",
-            "Assets/_Project/Audio/Mercury.wav",
-            "Assets/_Project/Audio/Venus.wav"
+            "Assets/_Project/Audio/MenuTheme.ogg",
+            "Assets/_Project/Audio/GameTheme.ogg"
         };
 
         [Test]
-        public void EnemyPool_AlwaysProvidesAtLeastTenOpponents()
+        public void EnemyPool_AlwaysProvidesMinimumOpponentCount()
         {
             GameObject gameObject = new("EnemyPoolTest");
             try
@@ -113,7 +109,7 @@ namespace PlanetIO.Tests
         }
 
         [Test]
-        public void AndroidRelease_UsesApi36Il2CppAndArm64()
+        public void AndroidRelease_UsesApi37Il2CppAndArm64()
         {
             Assert.That(
                 PlayerSettings.GetApplicationIdentifier(
@@ -121,7 +117,7 @@ namespace PlanetIO.Tests
                 Is.EqualTo("com.rd.planetio"));
             Assert.That(
                 PlayerSettings.Android.targetSdkVersion,
-                Is.EqualTo(AndroidSdkVersions.AndroidApiLevel36));
+                Is.EqualTo(AndroidSdkVersions.AndroidApiLevel37));
             Assert.That(
                 PlayerSettings.GetScriptingBackend(
                     NamedBuildTarget.Android),

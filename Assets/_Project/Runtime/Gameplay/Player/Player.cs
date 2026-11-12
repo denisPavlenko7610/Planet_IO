@@ -1,4 +1,5 @@
-﻿using System;
+using Unity.Scripting.LifecycleManagement;
+using System;
 using Unity.Collections;
 using Unity.Netcode;
 using Unity.Netcode.Components;
@@ -9,10 +10,9 @@ using VContainer;
 namespace PlanetIO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
-    public sealed class Player : PlanetScale
+    [AutoStaticsCleanup]
+    public sealed partial class Player : PlanetScale
     {
-        // Names are display-only; client ids drive logic (local-player filtering).
-        // Constants.UnassignedClientId means the killer is not a player (enemy, comet, border).
         public readonly struct DefeatAnnouncement
         {
             public readonly string KillerName;
@@ -47,14 +47,14 @@ namespace PlanetIO
         [FormerlySerializedAs("_respawnInvincibilityTime")]
         [SerializeField, Min(0f)] private float _spawnInvincibilityTime = 2f;
         [SerializeField, Min(0f)] private float _continueProtectionTime = 5f;
-		[SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
+        [SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
         [SerializeField, Range(0f, 1f)] private float _continueMassFraction = 0.5f;
 
         [Header("Food magnet")]
         [SerializeField, Min(0f)] private float _foodAttractionRadius = 4f;
         [SerializeField, Min(0f)] private float _foodAttractionSpeed = 5f;
 
-        private const int FoodAttractionBuffer = 16;
+        private const int FoodAttractionBuffer = 64;
         public const float BoostDropNutritionFraction = 0.8f;
 
         private readonly NetworkVariable<bool> _networkDefeated = new(
@@ -82,11 +82,12 @@ namespace PlanetIO
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-		private IRespawnService<Enemy> _enemyRespawnService;
+        private IRespawnService<Enemy> _enemyRespawnService;
         private ISpawnService<Food> _foodSpawnService;
         private IGameStateService _gameStateService;
         private IPlayerProfileService _playerProfileService;
         private ILootSpawnService _lootSpawnService;
+        private ILootDrop _lootDrop;
 
         private bool _servicesReady;
         private bool _borderEventSubscribed;
@@ -98,10 +99,13 @@ namespace PlanetIO
         private PlayerVisualEffects _visualEffects;
         private PlanetSkinCatalog _skinCatalog;
         private readonly Collider2D[] _foodBuffer = new Collider2D[FoodAttractionBuffer];
+        private ContactFilter2D _foodFilter;
 
         public bool IsDefeated => IsSpawned && _networkDefeated.Value;
         public bool IsSpawnProtected => _invincibilityTimeRemaining > 0f;
         public bool CanBoost => !IsDefeated && Capacity > MinCapacity + _boostMassCost;
+
+        private bool CanActInGameplay => _servicesReady && !IsDefeated && _gameStateService.IsGameplayActive;
 
         public event Action Defeated;
         public event Action Revived;
@@ -141,6 +145,8 @@ namespace PlanetIO
         {
             base.Awake();
             _rigidbody2D = GetComponent<Rigidbody2D>();
+            _foodFilter = ContactFilter2D.noFilter;
+            _foodFilter.SetLayerMask(LayerMask.GetMask(Constants.FoodLayerName));
             Capacity = _initialCapacity;
         }
 
@@ -159,15 +165,7 @@ namespace PlanetIO
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         public void SetBoostRpc(bool boosting)
         {
-            if (!_servicesReady ||
-                IsDefeated ||
-                !_gameStateService.IsGameplayActive)
-            {
-                SetServerBoosting(false);
-                return;
-            }
-
-            SetServerBoosting(boosting);
+            SetServerBoosting(CanActInGameplay && boosting);
         }
 
         private void SetServerBoosting(bool boosting)
@@ -176,12 +174,15 @@ namespace PlanetIO
             _networkBoosting.Value = boosting;
         }
 
+        private void ResetBoost()
+        {
+            SetServerBoosting(false);
+            _boostTimer = 0f;
+        }
+
         private void UpdateBoost(float deltaTime)
         {
-            if (!_serverBoosting ||
-                IsDefeated ||
-                !_servicesReady ||
-                !_gameStateService.IsGameplayActive)
+            if (!_serverBoosting || !CanActInGameplay)
             {
                 _boostTimer = 0f;
                 if (_serverBoosting)
@@ -267,7 +268,7 @@ namespace PlanetIO
             if (IsServer &&
                 !IsDefeated &&
                 triggeringPlayer == this &&
-                _invincibilityTimeRemaining <= 0f)
+                !IsSpawnProtected)
             {
                 Shrink(Mathf.Max(_boostMassCost, Capacity * _borderMassLoss));
             }
@@ -403,21 +404,18 @@ namespace PlanetIO
 
             UpdateBoost(Time.deltaTime);
 
-            if (!IsDefeated && _invincibilityTimeRemaining > 0f)
+            if (!IsDefeated && IsSpawnProtected)
             {
                 _invincibilityTimeRemaining -= Time.deltaTime;
             }
 
-            bool spawnProtected = !IsDefeated && _invincibilityTimeRemaining > 0f;
+            bool spawnProtected = !IsDefeated && IsSpawnProtected;
             if (_networkSpawnProtected.Value != spawnProtected)
             {
                 _networkSpawnProtected.Value = spawnProtected;
             }
 
-            if (_servicesReady &&
-                !IsDefeated &&
-                _gameStateService.IsGameplayActive &&
-                _foodAttractionRadius > 0f)
+            if (CanActInGameplay && _foodAttractionRadius > 0f)
             {
                 AttractFood();
             }
@@ -426,7 +424,7 @@ namespace PlanetIO
         private void AttractFood()
         {
             int hitCount = Physics2D.OverlapCircle(
-                transform.position, _foodAttractionRadius + Capacity, ContactFilter2D.noFilter, _foodBuffer);
+                transform.position, _foodAttractionRadius + Capacity, _foodFilter, _foodBuffer);
             float pullStep = _foodAttractionSpeed * Time.deltaTime;
 
             for (int index = 0; index < hitCount; index++)
@@ -452,18 +450,20 @@ namespace PlanetIO
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (!IsServer ||
-                !_servicesReady ||
-                !_gameStateService.IsGameplayActive ||
-                IsDefeated ||
-                other == null ||
-                _invincibilityTimeRemaining > 0f)
+                !CanActInGameplay ||
+                other == null)
             {
                 return;
             }
 
+            bool protectedFromHarm = IsSpawnProtected;
+
             if (other.TryGetComponent(out Player otherPlayer))
             {
-                TryEatPlayer(otherPlayer);
+                if (!protectedFromHarm)
+                {
+                    TryEatPlayer(otherPlayer);
+                }
             }
             else if (other.TryGetComponent(out Enemy enemy))
             {
@@ -474,7 +474,7 @@ namespace PlanetIO
                     _enemyRespawnService.Respawn(enemy);
                 }
             }
-            else
+            else if (!protectedFromHarm || other.TryGetComponent<Food>(out _))
             {
                 HandleEntityCollision(other);
             }
@@ -521,10 +521,9 @@ namespace PlanetIO
                 AnnounceDefeatRpc(killerName, killerClientId);
             }
 
-            SetServerBoosting(false);
-            _boostTimer = 0f;
+            ResetBoost();
             _capacityAtDefeat = Capacity;
-            _lootSpawnService?.SpawnLoot(transform.position, Capacity);
+            _lootDrop = _lootSpawnService?.SpawnLoot(transform.position, Capacity);
 
             if (_rigidbody2D != null)
             {
@@ -545,7 +544,7 @@ namespace PlanetIO
                     _rigidbody2D.linearVelocity = Vector2.zero;
                 }
 
-                GameVfx.Death(transform.position, GetBodyColor(), Capacity);
+                GameVfx.Death(transform.position, _networkColor.Value, Capacity);
 
                 if (IsOwner)
                 {
@@ -580,12 +579,6 @@ namespace PlanetIO
             }
         }
 
-        private Color GetBodyColor()
-        {
-            Color32 color = _networkColor.Value;
-            return color;
-        }
-
         private void SetBodyActive(bool active)
         {
             if (TryGetComponent(out Collider2D bodyCollider))
@@ -593,7 +586,6 @@ namespace PlanetIO
                 bodyCollider.enabled = active;
             }
 
-            // Only the body renderer; child visuals (direction arrow, nameplate, trail) manage their own visibility.
             if (TryGetComponent(out SpriteRenderer bodyRenderer))
             {
                 bodyRenderer.enabled = active;
@@ -612,8 +604,9 @@ namespace PlanetIO
             }
 
             _continueUsedThisLife = true;
-            SetServerBoosting(false);
-            _boostTimer = 0f;
+            _lootDrop?.Discard();
+            _lootDrop = null;
+            ResetBoost();
             _invincibilityTimeRemaining = _continueProtectionTime;
             Capacity = Mathf.Max(_initialCapacity, _capacityAtDefeat * _continueMassFraction);
             _networkDefeated.Value = false;
@@ -630,12 +623,11 @@ namespace PlanetIO
             }
 
             _continueUsedThisLife = false;
-            SetServerBoosting(false);
-            _boostTimer = 0f;
+            _lootDrop = null;
+            ResetBoost();
             _invincibilityTimeRemaining = _spawnInvincibilityTime;
             Capacity = _initialCapacity;
             _networkDefeated.Value = false;
         }
-
     }
 }

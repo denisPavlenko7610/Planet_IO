@@ -228,6 +228,14 @@ MonoBehaviour:
     m_Localized: Reklam
     m_Metadata:
       m_Items: []
+  - m_Id: 16379358955941888
+    m_Localized: "Gizlilik politikas\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16380462645096448
+    m_Localized: "Kuyruklu y\u0131ld\u0131z adlar\u0131"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

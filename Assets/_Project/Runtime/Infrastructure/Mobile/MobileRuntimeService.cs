@@ -1,9 +1,10 @@
+using RD.Foundation;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
-using UnityTemplates.Localization;
+using RD.Localization;
 
 namespace PlanetIO.Infrastructure.Mobile
 {
@@ -93,7 +94,7 @@ namespace PlanetIO.Infrastructure.Mobile
                 toast.Call("show");
             }));
 #else
-            GameLogger.Log(message);
+            UnityLogger.Log(message);
 #endif
         }
 
@@ -154,7 +155,7 @@ namespace PlanetIO.Infrastructure.Mobile
             }
             catch (Exception exception)
             {
-                GameLogger.LogException(exception);
+                UnityLogger.LogException(exception);
             }
             finally
             {

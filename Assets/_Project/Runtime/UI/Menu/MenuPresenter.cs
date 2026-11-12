@@ -1,8 +1,9 @@
+using RD.Foundation;
 using System;
 using PlanetIO.UI.Settings;
 using UnityEngine;
 using VContainer.Unity;
-using UnityTemplates.Localization;
+using RD.Localization;
 
 namespace PlanetIO.UI.Menu
 {
@@ -165,7 +166,7 @@ namespace PlanetIO.UI.Menu
 
             if (state == NetworkSessionState.Failed)
             {
-                GameLogger.LogWarning($"Session failed: {status}");
+                UnityLogger.LogWarning($"Session failed: {status}");
                 RestoreInteraction();
             }
         }
@@ -195,7 +196,7 @@ namespace PlanetIO.UI.Menu
                 }
 
                 RestoreInteraction();
-                GameLogger.LogWarning($"Session start failed: {_networkSessionService.Status}");
+                UnityLogger.LogWarning($"Session start failed: {_networkSessionService.Status}");
             }
             catch (OperationCanceledException)
             {
@@ -209,7 +210,7 @@ namespace PlanetIO.UI.Menu
             catch (Exception exception)
             {
                 RestoreInteraction();
-                GameLogger.LogException(exception);
+                UnityLogger.LogException(exception);
             }
         }
 

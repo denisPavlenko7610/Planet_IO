@@ -1,6 +1,6 @@
 using System;
-using UnityTemplates.Haptics;
-using UnityTemplates.Settings;
+using RD.Haptics;
+using RD.Settings;
 using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Settings

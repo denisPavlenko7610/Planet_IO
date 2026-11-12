@@ -1,10 +1,11 @@
+using RD.Foundation;
 using System;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityTemplates.SceneFlow;
+using RD.SceneFlow;
 using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Networking
@@ -74,9 +75,8 @@ namespace PlanetIO.Infrastructure.Networking
                 return CompletedFalse();
             }
 
-            CurrentRoom = room;
             return StartSessionAsync(NetworkSessionState.StartingClient, $"Connecting to {room.RoomCode}...",
-                handler => _sessionConnector.JoinByCodeAsync(room.RoomCode, handler));
+                handler => _sessionConnector.JoinByCodeAsync(room.RoomCode, handler), room);
         }
 
         public Awaitable<bool> StartQuickPlayAsync()
@@ -88,11 +88,17 @@ namespace PlanetIO.Infrastructure.Networking
         private async Awaitable<bool> StartSessionAsync(
             NetworkSessionState startingState,
             string startingStatus,
-            Func<INetworkHandler, Awaitable<ISession>> connect)
+            Func<INetworkHandler, Awaitable<ISession>> connect,
+            RoomConnectionSettings? requestedRoom = null)
         {
             if (!CanStartSession())
             {
                 return false;
+            }
+
+            if (requestedRoom.HasValue)
+            {
+                CurrentRoom = requestedRoom.Value;
             }
 
             Mode = startingState == NetworkSessionState.StartingHost ? NetworkSessionMode.Host : NetworkSessionMode.Client;
@@ -134,7 +140,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (Exception exception)
             {
-                GameLogger.LogException(exception);
+                UnityLogger.LogException(exception);
                 await AbortStartAsync($"Session error: {exception.Message}");
                 return false;
             }
@@ -214,21 +220,20 @@ namespace PlanetIO.Infrastructure.Networking
                 return;
             }
 
-            try
+            while (IsSceneEventInProgress)
             {
-                while (IsSceneEventInProgress)
+                if (_shutdownRequested || !_networkManager.IsListening || !IsServer)
                 {
-                    if (_shutdownRequested || !_networkManager.IsListening || !IsServer)
-                    {
-                        return;
-                    }
-
-                    await Awaitable.NextFrameAsync();
+                    return;
                 }
 
-                await Awaitable.NextFrameAsync();
+                if (!await WaitOneFrameAsync())
+                {
+                    return;
+                }
             }
-            catch (OperationCanceledException)
+
+            if (!await WaitOneFrameAsync())
             {
                 return;
             }
@@ -327,15 +332,12 @@ namespace PlanetIO.Infrastructure.Networking
                 _networkManager.Shutdown();
             }
 
-            try
+            while (_networkManager.ShutdownInProgress)
             {
-                while (_networkManager.ShutdownInProgress)
+                if (!await WaitOneFrameAsync())
                 {
-                    await Awaitable.NextFrameAsync();
+                    return;
                 }
-            }
-            catch (OperationCanceledException)
-            {
             }
         }
 
@@ -515,13 +517,15 @@ namespace PlanetIO.Infrastructure.Networking
                 case SceneEventType.LoadEventCompleted:
                     IsSceneEventInProgress = false;
                     SetProgress(1f);
-                    SetState(sceneEvent.SceneName == SceneNames.Game
-                            ? NetworkSessionState.InGame
-                            : NetworkSessionState.Loading,
+                    if (sceneEvent.SceneName == SceneNames.Game)
+                    {
+                        SetState(NetworkSessionState.InGame, $"Room {CurrentRoom.RoomCode}: game loaded");
+                    }
+                    else
+                    {
+                        SetState(NetworkSessionState.Loading, "Preparing game world");
+                    }
 
-                        sceneEvent.SceneName == SceneNames.Game
-                            ? $"Room {CurrentRoom.RoomCode}: game loaded"
-                            : "Preparing game world");
                     break;
             }
         }

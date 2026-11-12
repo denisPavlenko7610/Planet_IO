@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b9cb55060f81459782d4c9d5af7cfa12, type: 3}
   m_Name: SceneCatalog
-  m_EditorClassIdentifier: UnityTemplates.SceneFlow::UnityTemplates.SceneFlow.SceneCatalog
+  m_EditorClassIdentifier: RD.SceneFlow::RD.SceneFlow.SceneCatalog
   _scenes:
   - _id: boot
     _path: Assets/_Project/Scenes/Boot.unity

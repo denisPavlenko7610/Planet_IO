@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -22,9 +23,9 @@ namespace PlanetIO.Editor
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
-            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Low);
+            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Minimal);
 
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
@@ -32,9 +33,14 @@ namespace PlanetIO.Editor
             PlayerSettings.Android.optimizedFramePacing = true;
             PlayerSettings.Android.renderOutsideSafeArea = true;
             EditorUserBuildSettings.buildAppBundle = true;
+            EditorUserBuildSettings.development = false;
+            UserBuildSettings.DebugSymbols.level = Unity.Android.Types.DebugSymbolLevel.SymbolTable;
+
+            AndroidAppIcons.Apply();
+            AndroidSigning.ApplyFromEnvironment();
 
             AssetDatabase.SaveAssets();
-            Debug.Log("Planet IO Android settings applied: API 36, " + "IL2CPP, ARMv7 + ARM64, AAB.");
+            Debug.Log("Planet IO Android settings applied: API 36, IL2CPP, ARMv7 + ARM64, AAB, release flags.");
         }
 
         [MenuItem("Planet IO/Android/Validate release")]
@@ -104,9 +110,14 @@ namespace PlanetIO.Editor
                 return "Android release must use IL2CPP.";
             }
 
-            if (!PlayerSettings.Android.useCustomKeystore)
+            if (EditorUserBuildSettings.development)
             {
-                return "Configure a private Android keystore before publishing.";
+                return "Development build is on: rewarded ads would use test ad unit IDs.";
+            }
+
+            if (PlayerSettings.Android.bundleVersionCode < 1)
+            {
+                return "Android version code must be 1 or higher.";
             }
 
             if (!EditorBuildSettings.scenes.Any(scene => scene.enabled))
@@ -114,7 +125,13 @@ namespace PlanetIO.Editor
                 return "No enabled scenes are configured for the build.";
             }
 
-            return string.Empty;
+            string iconError = AndroidAppIcons.GetValidationError();
+            if (!string.IsNullOrEmpty(iconError))
+            {
+                return iconError;
+            }
+
+            return AndroidSigning.GetValidationError();
         }
     }
 }

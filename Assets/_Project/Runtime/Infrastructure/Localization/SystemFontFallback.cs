@@ -1,3 +1,5 @@
+using Unity.Scripting.LifecycleManagement;
+using RD.Foundation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +8,8 @@ using UnityEngine;
 
 namespace PlanetIO.Infrastructure.Localization
 {
-    public static class SystemFontFallback
+    [AutoStaticsCleanup]
+    public static partial class SystemFontFallback
     {
         private static readonly string[] CjkLanguagePrefixes = { "zh", "ja", "ko" };
 
@@ -32,7 +35,7 @@ namespace PlanetIO.Infrastructure.Localization
             TMP_FontAsset fallback = CreateFromFamilies() ?? CreateFromFiles();
             if (fallback == null)
             {
-                GameLogger.LogWarning("No CJK system font found; Chinese, Japanese and Korean text may not render.");
+                UnityLogger.LogWarning("No CJK system font found; Chinese, Japanese and Korean text may not render.");
                 return;
             }
 
@@ -77,7 +80,7 @@ namespace PlanetIO.Infrastructure.Localization
                 }
                 catch (Exception exception)
                 {
-                    GameLogger.LogWarning($"System font '{family}' failed: {exception.Message}");
+                    UnityLogger.LogWarning($"System font '{family}' failed: {exception.Message}");
                 }
             }
 

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 349ba30805614f1d87a24bf2a6773073, type: 3}
   m_Name: Eat
-  m_EditorClassIdentifier: UnityTemplates.Audio::UnityTemplates.Audio.AudioCue
+  m_EditorClassIdentifier: RD.Audio::RD.Audio.AudioCue
   _clips:
   - _clip: {fileID: 8300000, guid: bf47b440d91ce28448c432ba9c4bcf95, type: 3}
     _weight: 1

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Unity.Netcode;
 using UnityEngine;
-using UnityTemplates.Localization;
+using RD.Localization;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud

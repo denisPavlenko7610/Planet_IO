@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityTemplates.Audio;
+using RD.Audio;
 
 namespace PlanetIO.Infrastructure.Audio
 {

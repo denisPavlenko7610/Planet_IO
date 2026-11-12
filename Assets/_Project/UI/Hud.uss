@@ -5,6 +5,12 @@
     opacity: 0;
 }
 
+#score-text, #session-text, #kill-feed, #hint-text, #score-popup {
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
+}
+
 #score-text {
     position: absolute;
     left: 40px;
@@ -21,7 +27,7 @@
     top: 138px;
     width: 560px;
     font-size: 30px;
-    color: rgba(255, 255, 255, 0.9);
+    color: white;
     white-space: normal;
     margin: 0;
     padding: 0;
@@ -35,14 +41,15 @@
     height: 180px;
     border-radius: 24px;
     border-width: 2px;
-    border-color: var(--outline);
-    background-color: rgba(41, 20, 82, 0.6);
+    border-color: rgba(191, 153, 255, 0.55);
+    background-color: rgba(21, 10, 51, 0.8);
 }
 
 .minimap-blip {
     position: absolute;
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
+    border-radius: 5px;
 }
 
 #top-buttons {
@@ -63,7 +70,7 @@
     width: 430px;
     min-height: 330px;
     padding: 14px 22px;
-    background-color: rgba(41, 20, 82, 0.66);
+    background-color: rgba(21, 10, 51, 0.82);
 }
 
 #leaderboard-text {
@@ -108,51 +115,60 @@
 
 .control {
     position: absolute;
-    bottom: 80px;
+    bottom: 70px;
     width: 200px;
     height: 200px;
-    background-image: url("/Assets/_Project/Sprites/Buttons/ControlBase.png");
-    -unity-background-scale-mode: scale-to-fit;
+    border-radius: 100px;
+    border-width: 5px;
+    border-color: rgba(205, 170, 255, 0.8);
+    background-color: rgba(41, 20, 82, 0.55);
+    scale: 0.78 0.78;
     align-items: center;
     justify-content: center;
+    transition-property: scale, background-color;
+    transition-duration: 0.08s;
 }
 
 #stick {
-    left: 250px;
+    left: 180px;
 }
 
 #boost-button {
-    right: 250px;
+    right: 180px;
 }
 
 #stick-knob {
-    width: 100px;
-    height: 100px;
+    width: 104px;
+    height: 104px;
+    border-radius: 52px;
+    background-color: rgba(191, 153, 255, 0.22);
     background-image: url("/Assets/_Project/Sprites/Buttons/StickRing.png");
     -unity-background-scale-mode: scale-to-fit;
 }
 
 #boost-icon {
     rotate: 180deg;
-    width: 100px;
-    height: 100px;
+    width: 104px;
+    height: 104px;
     background-image: url("/Assets/_Project/Sprites/Buttons/BoostTriangle.png");
     -unity-background-scale-mode: scale-to-fit;
 }
 
 #boost-button:active {
-    scale: 0.94 0.94;
+    scale: 0.72 0.72;
+    background-color: rgba(120, 70, 220, 0.6);
 }
 
 #defeat-panel {
     display: none;
-    background-color: rgba(0, 0, 0, 0.55);
+    background-color: rgba(8, 3, 22, 0.72);
     justify-content: center;
     align-items: center;
 }
 
 #defeat-card {
     width: 720px;
+    max-width: 94%;
     padding: 36px 40px 40px 40px;
     align-items: center;
     background-color: rgba(41, 20, 82, 0.96);

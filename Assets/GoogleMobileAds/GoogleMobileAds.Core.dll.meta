@@ -4,8 +4,28 @@ labels:
 - gvh
 - gvh_version-11.5.0
 - gvhp_exportpath-GoogleMobileAds/GoogleMobileAds.Core.dll
-timeCreated: 1480838400
-DefaultImporter:
+PluginImporter:
+  externalObjects: {}
+  serializedVersion: 3
+  iconMap: {}
+  executionOrder: {}
+  defineConstraints: []
+  isPreloaded: 0
+  isOverridable: 0
+  isExplicitlyReferenced: 0
+  validateReferences: 1
+  platformData:
+    Any:
+      enabled: 1
+      settings: {}
+    Editor:
+      enabled: 0
+      settings:
+        DefaultValueInitialized: true
+    WindowsStoreApps:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
   userData:
   assetBundleName:
   assetBundleVariant:

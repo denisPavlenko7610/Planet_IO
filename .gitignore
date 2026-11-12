@@ -64,7 +64,12 @@ crashlytics-build.properties
 # macOS
 .DS_Store
 Thumbs.db
-Assets/RuntimeCodeDump_001.txt
+/Assets/RuntimeCodeDump*.txt
+/Assets/RuntimeCodeDump*.txt.meta
+
+# Generated UI Toolkit schemas and profiler captures
+/UIElementsSchema/
+/ProfilerCaptures/
 
 # ZCode client workspace config
 .zcode/
@@ -73,3 +78,23 @@ Assets/Plugins/Roslyn.meta
 Assets/Screenshots
 Assets/Screenshots.meta
 docs/RELEASE_PLAN.md
+
+# Live UnityTemplates sources; folder metadata stays versioned.
+/Assets/TemplateSources/Foundation/Runtime/
+/Assets/TemplateSources/Modules/Framework/Addressables/Runtime/
+/Assets/TemplateSources/Modules/Framework/Attributes/Editor/
+/Assets/TemplateSources/Modules/Framework/Attributes/Runtime/
+/Assets/TemplateSources/Modules/Framework/Localization/Runtime/
+/Assets/TemplateSources/Modules/Framework/Save/Runtime/
+/Assets/TemplateSources/Modules/Framework/SceneFlow/Editor/
+/Assets/TemplateSources/Modules/Framework/SceneFlow/Runtime/
+/Assets/TemplateSources/Modules/Framework/Settings/Runtime/
+/Assets/TemplateSources/Modules/Framework/Startup/Runtime/
+/Assets/TemplateSources/Modules/Presentation/Audio/Runtime/
+/Assets/TemplateSources/Modules/Presentation/Haptics/Runtime/
+
+# Android signing and release artifacts
+*.jks
+*.aab
+*.symbols.zip
+docs/PlayStore/screenshots

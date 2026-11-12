@@ -1,3 +1,4 @@
+using RD.Foundation;
 using System;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -61,7 +62,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
             catch (Exception exception)
             {
-                GameLogger.LogWarning($"Leaving session failed: {exception.Message}");
+                UnityLogger.LogWarning($"Leaving session failed: {exception.Message}");
             }
         }
 

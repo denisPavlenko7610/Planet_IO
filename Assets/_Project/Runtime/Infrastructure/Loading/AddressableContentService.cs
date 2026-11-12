@@ -1,4 +1,6 @@
 using System;
+using RD.Foundation;
+using RD.AddressableAssets;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -8,99 +10,46 @@ namespace PlanetIO.Infrastructure.Loading
     public sealed class AddressableContentService : IContentInitializationService
     {
         private const string PreloadLabel = "preload";
-        private bool _initializationStarted;
-        private bool _initializationComplete;
+        private readonly AsyncGate _gate = new();
+        private readonly AddressableService _addressables;
+
+        public AddressableContentService(AddressableService addressables)
+        {
+            _addressables = addressables ?? throw new ArgumentNullException(nameof(addressables));
+        }
 
         public bool IsReady { get; private set; }
 
-        public Awaitable InitializeAsync()
+        public async Awaitable InitializeAsync()
         {
-            if (!_initializationStarted)
+            using (await _gate.EnterAsync())
             {
-                _initializationStarted = true;
-                _ = InitializeInternalAsync();
-            }
-
-            return WaitForInitializationAsync();
-        }
-
-        private async Awaitable InitializeInternalAsync()
-        {
-            AsyncOperationHandle initializationHandle = default;
-
-            try
-            {
-                initializationHandle = Addressables.InitializeAsync(false);
-                await initializationHandle.Task;
-
-                if (initializationHandle.Status != AsyncOperationStatus.Succeeded)
+                if (IsReady)
+				{
+					return;
+				}
+				var handle = Addressables.InitializeAsync(false);
+                try
                 {
-                    throw initializationHandle.OperationException
-                        ?? new InvalidOperationException("Addressables initialization failed.");
+                    await handle.ToAwaitable();
+                    IsReady = true;
                 }
-
-                IsReady = true;
-                _ = WarmUpPreloadAssetsAsync();
-            }
-            catch (OperationCanceledException)
-            {
-                IsReady = false;
-            }
-            catch (Exception exception)
-            {
-                GameLogger.LogException(exception);
-                IsReady = false;
-            }
-            finally
-            {
-                if (initializationHandle.IsValid())
+                finally
                 {
-                    Addressables.Release(initializationHandle);
-                }
-
-                _initializationComplete = true;
+                    if (handle.IsValid())
+					{
+						Addressables.Release(handle);
+					}
+				}
+                _ = WarmUpAsync();
             }
         }
 
-        private static async Awaitable WarmUpPreloadAssetsAsync()
+        private async Awaitable WarmUpAsync()
         {
-            AsyncOperationHandle downloadHandle = default;
-
-            try
-            {
-                downloadHandle = Addressables.DownloadDependenciesAsync(PreloadLabel, false);
-                await downloadHandle.Task;
-
-                if (downloadHandle.Status != AsyncOperationStatus.Succeeded)
-                {
-                    GameLogger.LogWarning(
-                        $"Failed to warm up Addressables label " +
-                        $"'{PreloadLabel}': " +
-                        $"{downloadHandle.OperationException?.Message}");
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception exception)
-            {
-                GameLogger.LogException(exception);
-            }
-            finally
-            {
-                if (downloadHandle.IsValid())
-                {
-                    Addressables.Release(downloadHandle);
-                }
-            }
-        }
-
-        private async Awaitable WaitForInitializationAsync()
-        {
-            while (!_initializationComplete)
-            {
-                await Awaitable.NextFrameAsync();
-            }
+            try { await _addressables.DownloadDependenciesAsync(PreloadLabel); }
+            catch (OperationCanceledException) { }
+            catch (Exception exception) { UnityLogger.LogWarning($"Preload failed: {exception.Message}"); }
         }
     }
 }

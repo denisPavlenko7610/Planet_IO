@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using UnityTemplates.Haptics;
-using UnityTemplates.Localization;
-using UnityTemplates.Settings;
+using RD.Haptics;
+using RD.Localization;
+using RD.Settings;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud

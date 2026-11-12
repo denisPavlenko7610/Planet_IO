@@ -4,6 +4,6 @@ namespace PlanetIO
 {
     public interface ILootSpawnService
     {
-        void SpawnLoot(Vector2 position, float sourceCapacity);
+        ILootDrop SpawnLoot(Vector2 position, float sourceCapacity);
     }
 }

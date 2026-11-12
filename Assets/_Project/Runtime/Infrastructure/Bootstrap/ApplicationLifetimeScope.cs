@@ -1,5 +1,10 @@
+using Unity.Scripting.LifecycleManagement;
 using System;
-using PlanetIO.Core.Attributes;
+using RD.Foundation;
+using System.IO;
+using RD.Save;
+using RD.AddressableAssets;
+using RD.Attributes;
 using PlanetIO.Application;
 using PlanetIO.Infrastructure.Ads;
 using PlanetIO.Infrastructure.Bootstrap;
@@ -8,11 +13,11 @@ using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
 using PlanetIO.Infrastructure.Localization;
 using PlanetIO.Infrastructure.Settings;
-using UnityTemplates.Localization;
-using UnityTemplates.Settings;
+using RD.Localization;
+using RD.Settings;
 using PlanetIO.Infrastructure.Mobile;
 using Unity.Netcode;
-using UnityTemplates.SceneFlow;
+using RD.SceneFlow;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -21,7 +26,8 @@ namespace PlanetIO.Infrastructure.Bootstrap
 {
     [DefaultExecutionOrder(-6000)]
     [DisallowMultipleComponent]
-    public sealed class ApplicationLifetimeScope : LifetimeScope
+    [AutoStaticsCleanup]
+    public sealed partial class ApplicationLifetimeScope : LifetimeScope
     {
         private static ApplicationLifetimeScope _activeScope;
 
@@ -72,7 +78,9 @@ namespace PlanetIO.Infrastructure.Bootstrap
                     resolver.Resolve<SceneCatalog>()),
                 Lifetime.Singleton)
                 .As<ISceneFlow>();
-            builder.Register<PlayerProfileService>(Lifetime.Singleton).As<IPlayerProfileService>();
+            builder.Register<SaveStore>(_ => new SaveStore(Path.Combine(UnityEngine.Application.persistentDataPath, "Saves")), Lifetime.Singleton);
+            builder.Register<PlayerProfileService>(Lifetime.Singleton).AsSelf().As<IPlayerProfileService>();
+            builder.Register<AddressableService>(Lifetime.Singleton);
             builder.Register<ISettingsStore>(_ => new PlayerPrefsSettingsStore(GameSettingKeys.StorePrefix), Lifetime.Singleton);
             builder.Register<SettingsService>(Lifetime.Singleton).As<ISettingsService>();
             builder.RegisterEntryPoint<GameSettingsApplier>();
@@ -83,7 +91,7 @@ namespace PlanetIO.Infrastructure.Bootstrap
                 provider.Initialize();
                 return new LocalizationService(provider);
             }, Lifetime.Singleton);
-            builder.Register<PlayerPrefsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
+            builder.Register<SettingsRoomPreferences>(Lifetime.Singleton).As<IRoomPreferences>();
             builder.Register<AddressableContentService>(Lifetime.Singleton).As<IContentInitializationService>();
             builder.RegisterInstance(_sfxCatalog);
             builder.RegisterInstance(_skinCatalog);
@@ -96,6 +104,13 @@ namespace PlanetIO.Infrastructure.Bootstrap
 
             builder.RegisterEntryPoint<MobileRuntimeService>();
             builder.RegisterEntryPoint<ApplicationBootstrap>();
+        }
+
+        private async void OnApplicationPause(bool paused)
+        {
+            if (!paused || Container == null) return;
+            try { await Container.Resolve<PlayerProfileService>().FlushAsync(); }
+            catch (Exception exception) { UnityLogger.LogException(exception); }
         }
 
         protected override void OnDestroy()

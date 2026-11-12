@@ -1,32 +1,33 @@
 {
-  "name": "PlanetIO.EditModeTests",
-  "rootNamespace": "PlanetIO.Tests",
-  "references": [
-    "PlanetIO.Application",
-    "PlanetIO.Core",
-    "PlanetIO.Gameplay",
-    "PlanetIO.Infrastructure",
-    "Unity.Addressables.Editor",
-    "Unity.Netcode.Runtime",
-    "PlanetIO.UI",
-    "Unity.Localization",
-    "Unity.Localization.Editor",
-    "UnityTemplates.Localization",
-    "UnityTemplates.Settings",
-    "PlanetIO.Editor"
-  ],
-  "includePlatforms": [
-    "Editor"
-  ],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": false,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false,
-  "optionalUnityReferences": [
-    "TestAssemblies"
-  ]
+    "name": "PlanetIO.EditModeTests",
+    "rootNamespace": "PlanetIO.Tests",
+    "references": [
+        "PlanetIO.Application",
+        "PlanetIO.Core",
+        "PlanetIO.Gameplay",
+        "PlanetIO.Infrastructure",
+        "Unity.Addressables.Editor",
+        "Unity.Netcode.Runtime",
+        "PlanetIO.UI",
+        "Unity.Localization",
+        "Unity.Localization.Editor",
+        "RD.Localization",
+        "RD.Settings",
+        "PlanetIO.Editor",
+        "GUID:6efe087bdf83fde4394da70201de35cc"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
 }

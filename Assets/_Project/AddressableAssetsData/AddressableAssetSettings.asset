@@ -13,13 +13,11 @@ MonoBehaviour:
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetSettings
   m_DefaultGroup: f454bf3b2314e3a4c95609e6a11ded9e
-  m_currentHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
   m_ExtractTypeTreeData: 0
   m_DisableWriteTypeTree: 0
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
+  m_BundleLocalCatalog: 0
   m_CatalogRequestsTimeout: 0
   m_DisableCatalogUpdateOnStart: 0
   m_InternalIdNamingMode: 0
@@ -31,12 +29,22 @@ MonoBehaviour:
   m_AssetBundleProviderType:
     m_AssemblyName: Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     m_ClassName: UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider
+  m_GroupAssetEntryProviderType:
+    m_AssemblyName: Unity.Addressables
+    m_ClassName: UnityEngine.AddressableAssets.ResourceProviders.NativeContentAssetEntryProvider
+  m_ArchiveContentDirectories: 1
+  m_ContentDirectoryArchiveMode: 2
+  m_TargetArchiveSizeInMB: 2000
   m_IgnoreUnsupportedFilesInBuild: 0
   m_UniqueBundleIds: 1
   m_EnableJsonCatalog: 0
+  m_CatalogProviderType:
+    m_AssemblyName: Unity.Addressables
+    m_ClassName: UnityEngine.AddressableAssets.ResourceProviders.BinaryCatalogProvider
   m_NonRecursiveBuilding: 1
   m_AllowNestedBundleFolders: 0
   m_CCDEnabled: 0
+  m_ContentDirectoryGroupTemplateCreated: 1
   m_maxConcurrentWebRequests: 3
   m_UseUWRForLocalBundles: 0
   m_BundleTimeout: 0
@@ -46,20 +54,20 @@ MonoBehaviour:
   m_SharedBundleSettingsCustomGroupIndex: 0
   m_simulatedLoadDelay: 0.1
   m_ContiguousBundles: 1
-  m_StripUnityVersionFromBundleBuild: 0
+  mStripUnityVersion: 0
   m_DisableVisibleSubAssetRepresentations: 0
   m_BuiltInBundleNaming: 0
-  mBuiltInBundleCustomNaming: 
+  mBuiltInBundleCustomNaming:
   m_MonoScriptBundleNaming: 0
   m_CheckForContentUpdateRestrictionsOption: 0
-  m_MonoScriptBundleCustomNaming: 
+  m_MonoScriptBundleCustomNaming:
   m_RemoteCatalogBuildPath:
-    m_Id: 
+    m_Id: 772a7bdaff9ec804e94277c893381762
   m_RemoteCatalogLoadPath:
-    m_Id: 
-  m_ContentStateBuildPathProfileVariableName: 
-  m_CustomContentStateBuildPath: 
-  m_ContentStateBuildPath: 
+    m_Id:
+  m_ContentStateBuildPathProfileVariableName:
+  m_CustomContentStateBuildPath:
+  m_ContentStateBuildPath:
   m_BuildAddressablesWithPlayerBuild: 1
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
@@ -86,7 +94,7 @@ MonoBehaviour:
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
   m_ProfileSettings:
     m_Profiles:
-    - m_InheritedParent: 
+    - m_InheritedParent:
       m_Id: 0035ace7371353949bcff4a1bc6645df
       m_ProfileName: Default
       m_Values:
@@ -141,13 +149,18 @@ MonoBehaviour:
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 9946933a388f689439290a745e94457b, type: 2}
+  - {fileID: 11400000, guid: e481db82ab4cf9749b1b21faa4dedcf4, type: 2}
   m_InitializationObjects: []
   m_CertificateHandlerType:
-    m_AssemblyName: 
-    m_ClassName: 
+    m_AssemblyName:
+    m_ClassName:
   m_ActivePlayerDataBuilderIndex: 2
   m_DataBuilders:
   - {fileID: 11400000, guid: 04231a4ce4d0bf24894415b9d6f7efcd, type: 2}
   - {fileID: 11400000, guid: 716408ea857534149884e1f0336569fb, type: 2}
   - {fileID: 11400000, guid: f9755e5d1b7d5e84f91ac69bb8403e09, type: 2}
   m_ActiveProfileId: 0035ace7371353949bcff4a1bc6645df
+  m_ContentDirectoryCatalogNameMigrated: 1
+  m_CatalogFormatMigrated: 1
+  m_ContentDirectoryArchiveModeMigrated: 1
+  m_CrcCachedBundleFlagMigrated: 1

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RD.Localization;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,6 +33,10 @@ namespace PlanetIO.UI.Settings
     public sealed class SettingsView : MonoBehaviour, ISettingsView
     {
         private const string FillClass = "slider-fill";
+        private const string KnobClass = "toggle-knob";
+        private const string RowClass = "settings-row";
+
+        private readonly List<(VisualElement Row, EventCallback<ClickEvent> Callback)> _rowToggles = new();
 
         private ILocalizationService _localization;
         private LocalizedLabels _labels;
@@ -86,6 +91,10 @@ namespace PlanetIO.UI.Settings
 
             _musicFill = CreateFill(_musicSlider);
             _sfxFill = CreateFill(_sfxSlider);
+            AddToggleKnob(_hapticsToggle);
+            AddToggleKnob(_cometNamesToggle);
+            BindRowToggle(_hapticsToggle);
+            BindRowToggle(_cometNamesToggle);
             Hide();
 
             _musicSlider.RegisterValueChangedCallback(OnMusicChanged);
@@ -124,6 +133,12 @@ namespace PlanetIO.UI.Settings
             _privacyPolicyButton.clicked -= OnPrivacyPolicy;
             _closeButton.clicked -= OnClose;
             _backdrop.UnregisterCallback<ClickEvent>(OnBackdropClicked);
+            foreach ((VisualElement row, EventCallback<ClickEvent> callback) in _rowToggles)
+            {
+                row.UnregisterCallback(callback);
+            }
+
+            _rowToggles.Clear();
             _labels?.Dispose();
             _labels = null;
         }
@@ -160,6 +175,47 @@ namespace PlanetIO.UI.Settings
             fill.pickingMode = PickingMode.Ignore;
             tracker.Add(fill);
             return fill;
+        }
+
+        private void BindRowToggle(Toggle toggle)
+        {
+            VisualElement row = toggle.parent;
+            while (row != null && !row.ClassListContains(RowClass))
+            {
+                row = row.parent;
+            }
+
+            if (row == null)
+            {
+                return;
+            }
+
+            EventCallback<ClickEvent> callback = clickEvent =>
+            {
+                if (clickEvent.target is VisualElement target && (target == toggle || toggle.Contains(target)))
+                {
+                    return;
+                }
+
+                toggle.value = !toggle.value;
+            };
+
+            row.RegisterCallback(callback);
+            _rowToggles.Add((row, callback));
+        }
+
+        private static void AddToggleKnob(Toggle toggle)
+        {
+            VisualElement checkmark = toggle.Q<VisualElement>(className: "unity-toggle__checkmark");
+            if (checkmark == null || checkmark.Q<VisualElement>(className: KnobClass) != null)
+            {
+                return;
+            }
+
+            VisualElement knob = new();
+            knob.AddToClassList(KnobClass);
+            knob.pickingMode = PickingMode.Ignore;
+            checkmark.Add(knob);
         }
 
         private static void UpdateFill(VisualElement fill, Slider slider)

@@ -5,7 +5,8 @@
         "PlanetIO.Core",
         "VContainer",
         "Unity.Netcode.Runtime",
-        "Unity.Collections"
+        "Unity.Collections",
+        "RD.Attributes"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

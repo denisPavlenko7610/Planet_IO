@@ -1,8 +1,9 @@
+using RD.Foundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityTemplates.Localization;
-using UnityTemplates.Settings;
+using RD.Localization;
+using RD.Settings;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Settings
@@ -26,8 +27,6 @@ namespace PlanetIO.UI.Settings
             _adPrivacyService = adPrivacyService ?? throw new ArgumentNullException(nameof(adPrivacyService));
         }
 
-        public bool IsOpen => _view.IsVisible;
-
         public event Action Opened;
         public event Action Closed;
 
@@ -36,9 +35,11 @@ namespace PlanetIO.UI.Settings
             _view.MusicVolumeChanged += OnMusicVolumeChanged;
             _view.SfxVolumeChanged += OnSfxVolumeChanged;
             _view.HapticsChanged += OnHapticsChanged;
+            _view.CometNamesChanged += OnCometNamesChanged;
             _view.PreviousLanguageRequested += OnPreviousLanguage;
             _view.NextLanguageRequested += OnNextLanguage;
             _view.AdPrivacyRequested += OnAdPrivacyRequested;
+            _view.PrivacyPolicyRequested += OnPrivacyPolicyRequested;
             _view.CloseRequested += Close;
             _localization.LocaleChanged += OnLocaleChanged;
             _adPrivacyService.PrivacyOptionsChanged += Render;
@@ -50,9 +51,11 @@ namespace PlanetIO.UI.Settings
             _view.MusicVolumeChanged -= OnMusicVolumeChanged;
             _view.SfxVolumeChanged -= OnSfxVolumeChanged;
             _view.HapticsChanged -= OnHapticsChanged;
+            _view.CometNamesChanged -= OnCometNamesChanged;
             _view.PreviousLanguageRequested -= OnPreviousLanguage;
             _view.NextLanguageRequested -= OnNextLanguage;
             _view.AdPrivacyRequested -= OnAdPrivacyRequested;
+            _view.PrivacyPolicyRequested -= OnPrivacyPolicyRequested;
             _view.CloseRequested -= Close;
             _localization.LocaleChanged -= OnLocaleChanged;
             _adPrivacyService.PrivacyOptionsChanged -= Render;
@@ -88,7 +91,8 @@ namespace PlanetIO.UI.Settings
             _view.ShowValues(
                 _settings.Get(GameSettingKeys.MusicVolume),
                 _settings.Get(GameSettingKeys.SfxVolume),
-                _settings.Get(GameSettingKeys.HapticsEnabled));
+                _settings.Get(GameSettingKeys.HapticsEnabled),
+                _settings.Get(GameSettingKeys.ShowCometNames));
             _view.ShowLanguage(LanguageNames.GetNativeName(_localization.CurrentLocale));
             _view.SetAdPrivacyVisible(_adPrivacyService.IsPrivacyOptionsRequired);
         }
@@ -100,6 +104,8 @@ namespace PlanetIO.UI.Settings
         private void OnSfxVolumeChanged(float value) => _settings.Set(GameSettingKeys.SfxVolume, value);
 
         private void OnHapticsChanged(bool enabled) => _settings.Set(GameSettingKeys.HapticsEnabled, enabled);
+
+        private void OnCometNamesChanged(bool enabled) => _settings.Set(GameSettingKeys.ShowCometNames, enabled);
 
         private void OnPreviousLanguage() => _ = StepLanguageAsync(-1);
 
@@ -128,10 +134,12 @@ namespace PlanetIO.UI.Settings
             }
             catch (Exception exception)
             {
-                GameLogger.LogException(exception);
+                UnityLogger.LogException(exception);
             }
         }
 
         private void OnAdPrivacyRequested() => _adPrivacyService.ShowPrivacyOptions();
+
+        private static void OnPrivacyPolicyRequested() => UnityEngine.Application.OpenURL(LegalLinks.PrivacyPolicyUrl);
     }
 }

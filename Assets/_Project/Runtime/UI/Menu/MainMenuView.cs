@@ -25,6 +25,9 @@ namespace PlanetIO.UI.Menu
     public sealed class MainMenuView : MonoBehaviour, IMainMenuView
     {
         private const string ErrorClass = "status--error";
+        private const string PortraitClass = "menu--portrait";
+
+        private VisualElement _menuRoot;
 
         private ILocalizationService _localization;
         private LocalizedLabels _labels;
@@ -60,6 +63,8 @@ namespace PlanetIO.UI.Menu
             _roomCodeInput = root.Q<TextField>("room-code-input");
             _statusText = root.Q<Label>("status-text");
             _bestScoreText = root.Q<Label>("best-score");
+            _menuRoot = root.Q<VisualElement>("menu-root");
+            _menuRoot.RegisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
 
             _roomCodeInput.maxLength = RoomRules.MaximumRoomCodeLength;
             _roomCodeInput.RegisterValueChangedCallback(OnRoomCodeEdited);
@@ -95,6 +100,7 @@ namespace PlanetIO.UI.Menu
             _settingsButton.clicked -= OnSettings;
             _roomCodeInput.UnregisterValueChangedCallback(OnRoomCodeEdited);
             _roomCodeInput.UnregisterCallback<KeyDownEvent>(OnRoomCodeKeyDown);
+            _menuRoot.UnregisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
             _labels?.Dispose();
             _labels = null;
         }
@@ -123,6 +129,12 @@ namespace PlanetIO.UI.Menu
         public void ShowRoomCode(string roomCode)
         {
             _roomCodeInput.SetValueWithoutNotify(roomCode ?? string.Empty);
+        }
+
+        private void OnMenuGeometryChanged(GeometryChangedEvent geometryEvent)
+        {
+            Rect layout = _menuRoot.layout;
+            _menuRoot.EnableInClassList(PortraitClass, layout.height > layout.width);
         }
 
         private void OnRoomCodeEdited(ChangeEvent<string> changeEvent)

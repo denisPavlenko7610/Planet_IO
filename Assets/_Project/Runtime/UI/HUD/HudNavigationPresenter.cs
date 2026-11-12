@@ -1,8 +1,9 @@
+using RD.Foundation;
 using System;
 using PlanetIO.UI.Settings;
 using UnityEngine;
-using UnityTemplates.Localization;
-using UnityTemplates.Pause;
+using RD.Localization;
+using RD.Pause;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud
@@ -104,7 +105,7 @@ namespace PlanetIO.UI.Hud
             }
             catch (Exception exception)
             {
-                GameLogger.LogException(exception);
+                UnityLogger.LogException(exception);
                 _leaveInProgress = false;
                 _view.SetLeaveButtonInteractable(true);
             }

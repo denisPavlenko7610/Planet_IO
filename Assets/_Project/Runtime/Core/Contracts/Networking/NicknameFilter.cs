@@ -11,9 +11,19 @@ namespace PlanetIO
             "хуй", "хуе", "хуё", "пизд", "ебат", "ебан", "еблан", "бляд", "сука", "мудак", "пидор", "пидар", "залуп", "шлюх", "гандон"
         };
 
+        private static readonly string[] AllowedWords =
+        {
+            "scunthorpe", "dickson", "dickinson", "dickens", "matsushita", "grape", "crape", "drape", "scrape", "trapeze"
+        };
+
         public static bool IsAllowed(string nickname)
         {
             string compact = Compact(nickname);
+            foreach (string word in AllowedWords)
+            {
+                compact = compact.Replace(word, string.Empty);
+            }
+
             foreach (string fragment in BlockedFragments)
             {
                 if (compact.Contains(fragment))

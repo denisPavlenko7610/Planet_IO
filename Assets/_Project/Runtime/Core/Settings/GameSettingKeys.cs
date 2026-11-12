@@ -1,8 +1,10 @@
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
-using UnityTemplates.Settings;
+using RD.Settings;
 
 namespace PlanetIO
 {
+    [NoAutoStaticsCleanup]
     public static class GameSettingKeys
     {
         public const string StorePrefix = "PlanetIO.Settings.";
@@ -16,6 +18,12 @@ namespace PlanetIO
 
         public static readonly SettingKey<bool> HapticsEnabled =
             new("feedback.haptics", true, SettingCodecs.Boolean);
+
+        public static readonly SettingKey<bool> ShowCometNames =
+            new("gameplay.show-comet-names", false, SettingCodecs.Boolean);
+
+        public static readonly SettingKey<string> RoomCode =
+            new("network.room-code", RoomRules.DefaultRoomCode, SettingCodecs.String, RoomRules.NormalizeRoomCode);
 
         public static readonly SettingKey<bool> TutorialCompleted =
             new("onboarding.tutorial-completed", false, SettingCodecs.Boolean);

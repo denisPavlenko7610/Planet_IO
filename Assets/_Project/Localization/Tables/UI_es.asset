@@ -226,6 +226,14 @@ MonoBehaviour:
     m_Localized: Anuncio
     m_Metadata:
       m_Items: []
+  - m_Id: 16379358955941888
+    m_Localized: "Pol\xEDtica de privacidad"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16380462645096448
+    m_Localized: Nombres de cometas
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

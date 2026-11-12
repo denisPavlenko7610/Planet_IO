@@ -47,7 +47,7 @@ namespace PlanetIO.UI.Hud
                 }
                 else if (networkObject.TryGetComponent(out Enemy enemy))
                 {
-                    color = new Color(1f, 1f, 1f, 0.45f);
+                    color = new Color(0.8f, 0.72f, 1f, 0.9f);
                 }
                 else
                 {

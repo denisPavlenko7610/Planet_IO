@@ -228,6 +228,14 @@ MonoBehaviour:
     m_Localized: Werbung
     m_Metadata:
       m_Items: []
+  - m_Id: 16379358955941888
+    m_Localized: "Datenschutzerkl\xE4rung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16380462645096448
+    m_Localized: Kometennamen
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -1,4 +1,4 @@
-using PlanetIO.Core.Attributes;
+using RD.Attributes;
 using TMPro;
 using UnityEngine;
 

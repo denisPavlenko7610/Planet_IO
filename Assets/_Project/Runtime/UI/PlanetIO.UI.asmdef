@@ -8,10 +8,12 @@
         "Unity.Netcode.Runtime",
         "Unity.TextMeshPro",
         "VContainer",
-        "UnityTemplates.Localization",
-        "UnityTemplates.Settings",
-        "UnityTemplates.Haptics",
-        "UnityTemplates.Pause"
+        "RD.Localization",
+        "RD.Settings",
+        "RD.Haptics",
+        "RD.Pause",
+        "RD.Foundation",
+        "RD.Attributes"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

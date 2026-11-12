@@ -228,6 +228,14 @@ MonoBehaviour:
     m_Localized: Reklama
     m_Metadata:
       m_Items: []
+  - m_Id: 16379358955941888
+    m_Localized: "Polityka prywatno\u015Bci"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16380462645096448
+    m_Localized: Nazwy komet
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

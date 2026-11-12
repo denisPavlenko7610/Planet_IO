@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
-using UnityTemplates.Haptics;
-using UnityTemplates.Localization;
+using RD.Haptics;
+using RD.Localization;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud

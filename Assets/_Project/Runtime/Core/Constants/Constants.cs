@@ -9,6 +9,7 @@ namespace PlanetIO
         public const float MinimumDirectionSquaredMagnitude = 0.0001f;
         public const float MinimumDisplayCapacity = 0.01f;
         public const ulong UnassignedClientId = ulong.MaxValue;
+        public const string FoodLayerName = "Food";
 
         public static readonly Rect WorldBounds = new(-220f, -136f, 440f, 296f);
 

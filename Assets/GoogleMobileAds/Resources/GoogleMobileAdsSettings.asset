@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: GoogleMobileAdsSettings
   m_EditorClassIdentifier: GoogleMobileAds.Editor::GoogleMobileAds.Editor.GoogleMobileAdsSettings
   adMobAndroidAppId: ca-app-pub-7173647303121367~8143078815
-  adMobIOSAppId: 
+  adMobIOSAppId:
   enableKotlinXCoroutinesPackagingOption: 1
   enableGradleBuildPreProcessor: 1
   disableOptimizeInitialization: 0
   disableOptimizeAdLoading: 0
-  userTrackingUsageDescription: 
+  userTrackingUsageDescription:
   userLanguage: en
   overrideDefaultGmaAndroidSdk: 0
   selectedGmaAndroidSdk: 0
+  enableExternalDependencyManager: 0
+  edmPackageDetected: 0
+  addedEdmVersion:

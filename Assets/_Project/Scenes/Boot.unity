@@ -163,8 +163,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   m_ProtocolType: 0
   m_UseWebSockets: 0
   m_UseEncryption: 0
@@ -194,8 +194,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   NetworkManagerExpanded: 0
   NetworkConfig:
     ProtocolVersion: 0
@@ -205,9 +205,10 @@ MonoBehaviour:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: c37be6a37c90c08428abd739b70c6bbf, type: 2}
     TickRate: 30
+    AutoConfigureSnapshotSize: 1
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 1
-    ConnectionData: 
+    ConnectionData:
     EnableTimeResync: 1
     TimeResyncInterval: 30
     EnsureNetworkVariableLengthSafety: 0
@@ -236,18 +237,59 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a55abad64f669034aa4918b171068c82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   parentReference:
-    TypeName: 
+    TypeName:
   autoRun: 1
   autoInjectGameObjects: []
   _networkManager: {fileID: 103}
   _sceneCatalog: {fileID: 11400000, guid: a0541fb3dc8b40fc9b77ef4cf1a59a5a, type: 2}
   _sfxCatalog: {fileID: 11400000, guid: 4623ffb20aee3d04fb64b8ab26b45988, type: 2}
   _skinCatalog: {fileID: 11400000, guid: 46665df17207d4e4b9b3eae7d2bd3349, type: 2}
+--- !u!1 &646578173
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 646578175}
+  - component: {fileID: 646578174}
+  m_Layer: 0
+  m_Name: AudioListener
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!81 &646578174
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 646578173}
+  m_Enabled: 1
+--- !u!4 &646578175
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 646578173}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 101}
+  - {fileID: 646578175}

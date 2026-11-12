@@ -28,4 +28,6 @@ MonoBehaviour:
     m_Schemas:
     - {fileID: 11400000, guid: 29a898a6c61507b4d9a9b3dcc7fcf333, type: 2}
     - {fileID: 11400000, guid: 8bbaf7efc86a6b74798cfec1c292a496, type: 2}
-    - {fileID: 11400000, guid: d1de62204a7cdd04ea26b91e49b5ccef, type: 2}
+    m_SchemaDisplayOrder: []
+  m_IncludeInBuild: 1
+  m_IncludeInBuildMigrated: 1

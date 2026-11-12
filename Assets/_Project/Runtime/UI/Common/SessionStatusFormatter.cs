@@ -1,4 +1,4 @@
-using UnityTemplates.Localization;
+using RD.Localization;
 
 namespace PlanetIO.UI
 {

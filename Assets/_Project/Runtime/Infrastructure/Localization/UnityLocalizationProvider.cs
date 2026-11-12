@@ -4,9 +4,9 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Localization.SmartFormat.Core.Formatting;
+using Unity.SmartStrings.Core.Formatting;
 using UnityEngine.Localization.Tables;
-using UnityTemplates.Localization;
+using RD.Localization;
 
 namespace PlanetIO.Infrastructure.Localization
 {

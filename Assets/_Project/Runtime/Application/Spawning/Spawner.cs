@@ -18,7 +18,13 @@ namespace PlanetIO
 
         private ObjectPool<T> _objectPool;
 
-        public void Initialize(ObjectPool<T> objectPool)
+        protected Rect SpawnArea => Rect.MinMaxRect(
+            _horizontalSpawnRange.x,
+            _verticalSpawnRange.x,
+            _horizontalSpawnRange.y,
+            _verticalSpawnRange.y);
+
+        public virtual void Initialize(ObjectPool<T> objectPool)
         {
             _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
             _objectPool.Initialize();
@@ -27,7 +33,9 @@ namespace PlanetIO
         public T CreateObject()
         {
             float scale = GetRandomScale();
-            return CreateSpawnedObject(GetRandomPosition(), scale);
+            T spawnedObject = CreateSpawnedObject(GetRandomPosition(), scale);
+            OnRandomPlaced(spawnedObject);
+            return spawnedObject;
         }
 
         public T CreateObject(Transform spawnTransform)
@@ -63,15 +71,25 @@ namespace PlanetIO
             float randomScale = GetRandomScale();
             SetState(objectToRespawn, GetRandomPosition(), randomScale);
             objectToRespawn.gameObject.SetActive(true);
+            TeleportIfSpawned(objectToRespawn);
+            OnRandomPlaced(objectToRespawn);
+        }
 
-            if (objectToRespawn.TryGetComponent(out NetworkObject networkObject) &&
+        protected virtual void OnRandomPlaced(T placedObject)
+        {
+        }
+
+        protected static void TeleportIfSpawned(Component spawnedObject)
+        {
+            if (spawnedObject.TryGetComponent(out NetworkObject networkObject) &&
                 networkObject.IsSpawned &&
-                objectToRespawn.TryGetComponent(out NetworkTransform networkTransform))
+                spawnedObject.TryGetComponent(out NetworkTransform networkTransform))
             {
+                Transform spawnedTransform = spawnedObject.transform;
                 networkTransform.Teleport(
-                    objectToRespawn.transform.position,
-                    objectToRespawn.transform.rotation,
-                    objectToRespawn.transform.localScale);
+                    spawnedTransform.position,
+                    spawnedTransform.rotation,
+                    spawnedTransform.localScale);
             }
         }
 
@@ -110,7 +128,7 @@ namespace PlanetIO
                 ScaleDepth);
         }
 
-        private float GetRandomScale()
+        protected virtual float GetRandomScale()
         {
             float minimumScale = Mathf.Min(_minimumObjectScale, _maximumObjectScale);
             float maximumScale = Mathf.Max(_minimumObjectScale, _maximumObjectScale);

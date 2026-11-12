@@ -219,6 +219,14 @@ MonoBehaviour:
     m_Key: menu.skin_locked
     m_Metadata:
       m_Items: []
+  - m_Id: 16379358955941888
+    m_Key: settings.privacy_policy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16380462645096448
+    m_Key: settings.comet_names
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

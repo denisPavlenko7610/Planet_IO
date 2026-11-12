@@ -1,8 +1,10 @@
+using Unity.Scripting.LifecycleManagement;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlanetIO
 {
+    [NoAutoStaticsCleanup]
     public static class PlayerPalette
     {
         private static readonly List<Color32> ColorsList = new()

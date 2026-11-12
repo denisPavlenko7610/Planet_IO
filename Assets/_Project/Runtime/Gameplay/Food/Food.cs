@@ -15,12 +15,15 @@ namespace PlanetIO
         [SerializeField] private Color _effectColor = Color.white;
 
         private SpriteRenderer _spriteRenderer;
+        private Color _baseColor = Color.white;
 
         public float Capacity { get; set; }
         public float Nutrition { get; private set; }
         public bool IsDropped { get; private set; }
 
         public int LifecycleVersion { get; private set; }
+
+        public int DensityCell { get; set; } = -1;
 
         public float ValueMultiplier => _valueMultiplier.Value;
 
@@ -79,6 +82,7 @@ namespace PlanetIO
         {
             IsDropped = false;
             Nutrition = 0f;
+            DensityCell = -1;
             LifecycleVersion++;
         }
 
@@ -90,12 +94,20 @@ namespace PlanetIO
             }
         }
 
+        private void Awake()
+        {
+            _spriteRenderer = GetComponent<SpriteRenderer>();
+            if (_spriteRenderer != null)
+            {
+                _baseColor = _spriteRenderer.color;
+            }
+        }
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
 
             SceneContainers.Attach(transform, SceneContainers.Food);
-            _spriteRenderer = GetComponent<SpriteRenderer>();
             _valueMultiplier.OnValueChanged += OnValueMultiplierChanged;
             ApplyGoldenTint(_valueMultiplier.Value);
         }
@@ -113,14 +125,9 @@ namespace PlanetIO
 
         private void ApplyGoldenTint(float value)
         {
-            if (_spriteRenderer == null)
-            {
-                _spriteRenderer = GetComponent<SpriteRenderer>();
-            }
-
             if (_spriteRenderer != null)
             {
-                _spriteRenderer.color = value > 1f ? GoldenTint : Color.white;
+                _spriteRenderer.color = value > 1f ? GoldenTint : _baseColor;
             }
         }
     }

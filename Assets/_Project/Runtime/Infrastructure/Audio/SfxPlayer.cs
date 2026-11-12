@@ -1,7 +1,8 @@
+using Unity.Scripting.LifecycleManagement;
 using System;
 using UnityEngine;
-using UnityTemplates.Audio;
-using UnityTemplates.Settings;
+using RD.Audio;
+using RD.Settings;
 using Object = UnityEngine.Object;
 
 namespace PlanetIO.Infrastructure.Audio
@@ -79,6 +80,7 @@ namespace PlanetIO.Infrastructure.Audio
             }
         }
 
+        [NoAutoStaticsCleanup]
         private sealed class EmptyLoop : IDisposable
         {
             public static readonly EmptyLoop Instance = new();

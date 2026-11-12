@@ -1,9 +1,10 @@
+using RD.Foundation;
 using System;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
+using RD.AddressableAssets;
+using System.Threading;
 using UnityEngine.SceneManagement;
-using UnityTemplates.Settings;
+using RD.Settings;
 using VContainer.Unity;
 using Object = UnityEngine.Object;
 
@@ -11,15 +12,17 @@ namespace PlanetIO.Infrastructure.Audio
 {
     public sealed class AddressableMusicService : IStartable, IDisposable
     {
-        private const string MenuMusicAddress = "audio/mars";
-        private const string GameMusicAddress = "audio/map";
+        private const string MenuMusicAddress = "audio/menu-theme";
+        private const string GameMusicAddress = "audio/game-theme";
         private const float MaximumMusicVolume = 0.45f;
         private const float FadeDurationSeconds = 0.25f;
 
         private readonly IContentInitializationService _contentInitializationService;
         private readonly ISettingsService _settings;
         private AudioSource _audioSource;
-        private AsyncOperationHandle<AudioClip> _clipHandle;
+        private AddressableAssetLease<AudioClip> _clipLease;
+        private readonly AddressableService _addressables;
+        private readonly CancellationTokenSource _lifetime = new();
         private string _currentAddress = string.Empty;
         private string _requestedAddress = string.Empty;
         private int _playGeneration;
@@ -27,10 +30,12 @@ namespace PlanetIO.Infrastructure.Audio
 
         public AddressableMusicService(
             IContentInitializationService contentInitializationService,
-            ISettingsService settings)
+            ISettingsService settings,
+            AddressableService addressables)
         {
             _contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _addressables = addressables ?? throw new ArgumentNullException(nameof(addressables));
         }
 
         private float TargetVolume => MaximumMusicVolume * _settings.Get(GameSettingKeys.MusicVolume);
@@ -63,6 +68,8 @@ namespace PlanetIO.Infrastructure.Audio
             }
 
             _disposed = true;
+            _lifetime.Cancel();
+            _lifetime.Dispose();
             SceneManager.sceneLoaded -= OnSceneLoaded;
             _settings.Changed -= OnSettingsChanged;
             _playGeneration++;
@@ -117,7 +124,7 @@ namespace PlanetIO.Infrastructure.Audio
 
         private async Awaitable LoadAndPlayAsync(string address, int generation)
         {
-            AsyncOperationHandle<AudioClip> handle = default;
+            AddressableAssetLease<AudioClip> lease = null;
             bool ownershipTransferred = false;
 
             try
@@ -129,38 +136,24 @@ namespace PlanetIO.Infrastructure.Audio
                     return;
                 }
 
-                handle = Addressables.LoadAssetAsync<AudioClip>(address);
-
-                while (!handle.IsDone)
-                {
-                    await Awaitable.NextFrameAsync();
-                }
-
+                lease = await _addressables.LoadAssetAsync<AudioClip>(address, _lifetime.Token);
                 if (!IsCurrentRequest(generation))
-                {
-                    return;
-                }
+				{
+					return;
+				}
 
-                if (handle.Status != AsyncOperationStatus.Succeeded || handle.Result == null)
-                {
-                    GameLogger.LogWarning(
-                        $"Failed to load music '{address}': " +
-                        $"{handle.OperationException?.Message}");
-                    return;
-                }
-
-                await FadeToAsync(0f, generation);
+				await FadeToAsync(0f, generation);
                 if (!IsCurrentRequest(generation))
                 {
                     return;
                 }
 
                 ReleaseClip();
-                _clipHandle = handle;
+                _clipLease = lease;
                 ownershipTransferred = true;
                 _currentAddress = address;
                 _requestedAddress = address;
-                _audioSource.clip = handle.Result;
+                _audioSource.clip = lease.Asset;
                 _audioSource.volume = 0f;
                 _audioSource.Play();
                 await FadeToAsync(TargetVolume, generation);
@@ -170,16 +163,16 @@ namespace PlanetIO.Infrastructure.Audio
             }
             catch (Exception exception)
             {
-                GameLogger.LogException(exception);
+                UnityLogger.LogException(exception);
             }
             finally
             {
-                if (!ownershipTransferred && handle.IsValid())
-                {
-                    Addressables.Release(handle);
-                }
+                if (!ownershipTransferred)
+				{
+					lease?.Dispose();
+				}
 
-                if (!ownershipTransferred && generation == _playGeneration)
+				if (!ownershipTransferred && generation == _playGeneration)
                 {
                     _requestedAddress = _currentAddress;
                 }
@@ -240,11 +233,8 @@ namespace PlanetIO.Infrastructure.Audio
                 _audioSource.clip = null;
             }
 
-            if (_clipHandle.IsValid())
-            {
-                Addressables.Release(_clipHandle);
-                _clipHandle = default;
-            }
+            _clipLease?.Dispose();
+            _clipLease = null;
 
             _currentAddress = string.Empty;
         }

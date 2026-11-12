@@ -26,7 +26,9 @@ settings.music,Music,Музыка,音乐,音楽,음악,Musik,Musique,Música,Mú
 settings.sound,Sound effects,Звуки,音效,効果音,효과음,Soundeffekte,Effets sonores,Efectos de sonido,Efeitos sonoros,Effetti sonori,Efekty dźwiękowe,Звукові ефекти,Гукавыя эфекты,Ses efektleri
 settings.language,Language,Язык,语言,言語,언어,Sprache,Langue,Idioma,Idioma,Lingua,Język,Мова,Мова,Dil
 settings.haptics,Vibration,Вибрация,振动,振動,진동,Vibration,Vibration,Vibración,Vibração,Vibrazione,Wibracje,Вібрація,Вібрацыя,Titreşim
+settings.comet_names,Comet names,Названия комет,彗星名称,彗星の名前,혜성 이름,Kometennamen,Noms des comètes,Nombres de cometas,Nomes dos cometas,Nomi delle comete,Nazwy komet,Назви комет,Назвы камет,Kuyruklu yıldız adları
 settings.ad_privacy,Ad privacy,Конфиденциальность рекламы,广告隐私,広告のプライバシー,광고 개인정보,Werbe-Datenschutz,Confidentialité des pubs,Privacidad de anuncios,Privacidade de anúncios,Privacy annunci,Prywatność reklam,Конфіденційність реклами,Прыватнасць рэкламы,Reklam gizliliği
+settings.privacy_policy,Privacy policy,Политика конфиденциальности,隐私政策,プライバシーポリシー,개인정보 처리방침,Datenschutzerklärung,Politique de confidentialité,Política de privacidad,Política de privacidade,Informativa sulla privacy,Polityka prywatności,Політика конфіденційності,Палітыка прыватнасці,Gizlilik politikası
 settings.close,Close,Закрыть,关闭,閉じる,닫기,Schließen,Fermer,Cerrar,Fechar,Chiudi,Zamknij,Закрити,Закрыць,Kapat
 hud.single_player,Single player,Одиночная игра,单人游戏,シングルプレイ,싱글 플레이,Einzelspieler,Solo,Un jugador,Um jogador,Giocatore singolo,Gra solo,Одиночна гра,Адзіночная гульня,Tek oyuncu
 hud.room,Room {0},Комната {0},房间 {0},ルーム {0},방 {0},Raum {0},Salle {0},Sala {0},Sala {0},Stanza {0},Pokój {0},Кімната {0},Пакой {0},Oda {0}

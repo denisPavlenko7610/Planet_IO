@@ -1,3 +1,4 @@
+using RD.Foundation;
 using System;
 using System.Threading;
 using PlanetIO.Core.Contracts.Loading;
@@ -73,7 +74,7 @@ namespace PlanetIO.Application
 
         private void FailStartup(string reason)
         {
-            GameLogger.LogWarning(reason);
+            UnityLogger.LogWarning(reason);
             _loadingView.Hide();
             BeginShutdown();
         }
@@ -108,21 +109,14 @@ namespace PlanetIO.Application
 
         public void BeginShutdown()
         {
-            if (State != GameState.ShuttingDown)
-            {
-                TransitionTo(GameState.ShuttingDown);
-            }
+            TransitionTo(GameState.ShuttingDown);
         }
 
         public void Dispose()
         {
             _disposed = true;
             _loadingView.Hide();
-
-            if (State != GameState.ShuttingDown)
-            {
-                TransitionTo(GameState.ShuttingDown);
-            }
+            BeginShutdown();
         }
 
         private async Awaitable<bool> InitializeWorldAsync(CancellationToken cancellation)
@@ -146,7 +140,7 @@ namespace PlanetIO.Application
             _cometSpawner.Initialize(_cometsPool);
             _enemySpawner.Initialize(_enemyPool);
 
-            const int spawnBatchSize = 5;
+            const int spawnBatchSize = 20;
             int pointsCount = _foodsPool.Capacity;
             int cometsCount = _cometsPool.Capacity;
             int enemiesCount = _enemyPool.Capacity;

@@ -21,6 +21,10 @@ namespace PlanetIO
         }
 
         private const int NearbyColliderCapacity = 24;
+        private const int FoodColliderCapacity = 64;
+        private const float FoodSearchRadius = 16f;
+        private const float FieldSeekChance = 0.7f;
+        private const float FieldSeekMinimumDistance = 10f;
         private const float MinimumThinkInterval = 0.5f;
         private const float IdleCullDistance = 40f;
         private const float MinimumStateTime = 0.2f;
@@ -75,7 +79,12 @@ namespace PlanetIO
 
         private readonly Collider2D[] _nearbyColliders =
             new Collider2D[NearbyColliderCapacity];
+        private readonly Collider2D[] _foodColliders =
+            new Collider2D[FoodColliderCapacity];
+        private ContactFilter2D _nonFoodFilter;
+        private ContactFilter2D _foodFilter;
         private IGameStateService _gameStateService;
+        private IFoodFieldGuide _fieldGuide;
         private Vector2 _desiredDirection = Vector2.right;
         private Vector2 _separationForce;
         private float _stateTimeRemaining;
@@ -97,6 +106,12 @@ namespace PlanetIO
             _baseHuntSizeRatio = _huntSizeRatio;
             _baseThreatSizeRatio = _threatSizeRatio;
             _baseNormalSpeed = _normalSpeed;
+
+            int foodMask = LayerMask.GetMask(Constants.FoodLayerName);
+            _nonFoodFilter = ContactFilter2D.noFilter;
+            _nonFoodFilter.SetLayerMask(~foodMask);
+            _foodFilter = ContactFilter2D.noFilter;
+            _foodFilter.SetLayerMask(foodMask);
         }
 
         public BotPersonality Personality { get; private set; }
@@ -112,9 +127,10 @@ namespace PlanetIO
         }
 
         [Inject]
-        public void Construct(IGameStateService gameStateService)
+        public void Construct(IGameStateService gameStateService, IFoodFieldGuide fieldGuide)
         {
             _gameStateService = gameStateService ?? throw new ArgumentNullException(nameof(gameStateService));
+            _fieldGuide = fieldGuide ?? throw new ArgumentNullException(nameof(fieldGuide));
         }
 
         public override void OnNetworkSpawn()
@@ -159,18 +175,14 @@ namespace PlanetIO
 
             if (_thinkTimeRemaining <= 0f)
             {
-                if (IsPlayerNearby(IdleCullDistance))
+                if (PlayerRegistry.IsAnyPlayerWithinDistance(_enemyTransform.position, IdleCullDistance))
                 {
                     Think();
                 }
                 else
                 {
                     _separationForce = Vector2.zero;
-
-                    if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
-                    {
-                        EnterRoaming();
-                    }
+                    EnsureRoaming();
                 }
 
                 _thinkTimeRemaining = Mathf.Max(MinimumThinkInterval, _thinkInterval);
@@ -217,7 +229,7 @@ namespace PlanetIO
 
             StopMovement();
             _separationForce = Vector2.zero;
-            Direction = GetRandomDirection();
+            Direction = Constants.GetRandomDirection();
             _desiredDirection = Direction;
             _thinkTimeRemaining = Random.Range(0f, _thinkInterval);
             InitializeDashing();
@@ -234,7 +246,7 @@ namespace PlanetIO
             Vector2 directionAway = (Vector2)_enemyTransform.position - threatPosition;
             _desiredDirection = directionAway.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
                     ? directionAway.normalized
-                    : GetRandomDirection();
+                    : Constants.GetRandomDirection();
 
             State = MovementState.Evading;
             _stateTimeRemaining = _evasionDuration;
@@ -285,7 +297,7 @@ namespace PlanetIO
         private void Think()
         {
             Vector2 position = _enemyTransform.position;
-            int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, ContactFilter2D.noFilter, _nearbyColliders);
+            int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, _nonFoodFilter, _nearbyColliders);
 
             Player nearestPlayer = null;
             Food nearestFood = null;
@@ -334,22 +346,30 @@ namespace PlanetIO
                     continue;
                 }
 
-                if (candidate.TryGetComponent(out Food point))
-                {
-                    if (distanceSquared < foodDistanceSquared)
-                    {
-                        nearestFood = point;
-                        foodDistanceSquared = distanceSquared;
-                    }
-
-                    continue;
-                }
-
                 if (candidate.TryGetComponent(out Comet _) &&
                     distanceSquared < hazardDistanceSquared)
                 {
                     hazardPosition = candidatePosition;
                     hazardDistanceSquared = distanceSquared;
+                }
+            }
+
+            int foodHitCount = Physics2D.OverlapCircle(
+                position, Mathf.Min(_awarenessRadius, FoodSearchRadius), _foodFilter, _foodColliders);
+
+            for (int index = 0; index < foodHitCount; index++)
+            {
+                Collider2D candidate = _foodColliders[index];
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                float distanceSquared = ((Vector2)candidate.transform.position - position).sqrMagnitude;
+                if (distanceSquared < foodDistanceSquared && candidate.TryGetComponent(out Food point))
+                {
+                    nearestFood = point;
+                    foodDistanceSquared = distanceSquared;
                 }
             }
 
@@ -377,10 +397,7 @@ namespace PlanetIO
                     break;
 
                 default:
-                    if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
-                    {
-                        EnterRoaming();
-                    }
+                    EnsureRoaming();
                     break;
             }
         }
@@ -398,14 +415,38 @@ namespace PlanetIO
             _stateTimeRemaining = Mathf.Max(_thinkInterval * 2f, MinimumStateTime);
         }
 
+        private void EnsureRoaming()
+        {
+            if (State != MovementState.Roaming || _stateTimeRemaining <= 0f)
+            {
+                EnterRoaming();
+            }
+        }
+
         private void EnterRoaming()
         {
             State = MovementState.Roaming;
-            _desiredDirection = GetRandomDirection();
+            _desiredDirection = GetRoamDirection();
 
             float min = Mathf.Max(MinimumRoamTime, _minimumTimeToChangeDirection);
             float max = Mathf.Max(min, _maximumTimeToChangeDirection);
             _stateTimeRemaining = Random.Range(min, max);
+        }
+
+        private Vector2 GetRoamDirection()
+        {
+            if (_fieldGuide != null &&
+                Random.value < FieldSeekChance &&
+                _fieldGuide.TryGetFieldTarget(_enemyTransform.position, FieldSeekMinimumDistance, out Vector2 target))
+            {
+                Vector2 toTarget = target - (Vector2)_enemyTransform.position;
+                if (toTarget.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude)
+                {
+                    return toTarget.normalized;
+                }
+            }
+
+            return Constants.GetRandomDirection();
         }
 
         private void UpdateDirection(float deltaTime, float turnSpeed)
@@ -445,13 +486,6 @@ namespace PlanetIO
             {
                 _rigidbody2D.linearVelocity = Vector2.zero;
             }
-        }
-
-        private static Vector2 GetRandomDirection() => Constants.GetRandomDirection();
-
-        private bool IsPlayerNearby(float maxDistance)
-        {
-            return PlayerRegistry.IsAnyPlayerWithinDistance(_enemyTransform.position, maxDistance);
         }
 
 #if UNITY_EDITOR

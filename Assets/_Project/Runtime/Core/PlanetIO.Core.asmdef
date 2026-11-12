@@ -2,7 +2,7 @@
     "name": "PlanetIO.Core",
     "rootNamespace": "PlanetIO",
     "references": [
-        "UnityTemplates.Settings"
+        "RD.Settings"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

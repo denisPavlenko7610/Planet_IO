@@ -1,3 +1,4 @@
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 
 namespace PlanetIO
@@ -9,7 +10,8 @@ namespace PlanetIO
         void PlayImpact(Vector2 position, float size);
     }
 
-    public static class GameVfx
+    [AutoStaticsCleanup]
+    public static partial class GameVfx
     {
         public static IGameVfxPlayer Player { get; set; }
 

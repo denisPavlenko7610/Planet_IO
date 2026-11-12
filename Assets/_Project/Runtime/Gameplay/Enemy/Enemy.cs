@@ -1,5 +1,5 @@
 using System;
-using PlanetIO.Core.Attributes;
+using RD.Attributes;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;

@@ -3,7 +3,7 @@
     --panel-modal: rgba(41, 20, 82, 0.96);
     --outline: rgba(191, 153, 255, 0.28);
     --field: rgba(23, 11, 51, 0.95);
-    --muted: rgb(204, 230, 255);
+    --muted: rgb(222, 238, 255);
     --gold: rgb(255, 199, 51);
     --danger: rgb(255, 140, 140);
     -unity-font: url("/Assets/_Project/Art/Fonts/Nunito-Bold.ttf");
@@ -66,8 +66,31 @@
     -unity-text-align: middle-center;
     -unity-font-style: bold;
     color: white;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.55);
     transition-property: scale, opacity;
     transition-duration: 0.08s;
+}
+
+.btn-yellow {
+    -unity-text-outline-color: rgb(140, 66, 0);
+    text-shadow: 0 3px 0 rgba(140, 66, 0, 0.7);
+}
+
+.btn-green {
+    -unity-text-outline-color: rgb(28, 92, 10);
+    text-shadow: 0 3px 0 rgba(28, 92, 10, 0.7);
+}
+
+.btn-blue {
+    -unity-text-outline-color: rgb(6, 52, 140);
+    text-shadow: 0 3px 0 rgba(6, 52, 140, 0.7);
+}
+
+.btn-red {
+    -unity-text-outline-color: rgb(118, 12, 52);
+    text-shadow: 0 3px 0 rgba(118, 12, 52, 0.7);
 }
 
 .btn:hover {
@@ -102,6 +125,7 @@
     height: 110px;
     font-size: 30px;
     -unity-text-auto-size: best-fit 18px 30px;
+    -unity-text-outline-width: 2px;
 }
 
 .btn-hud {
@@ -109,6 +133,7 @@
     height: 104px;
     font-size: 30px;
     -unity-text-auto-size: best-fit 18px 30px;
+    -unity-text-outline-width: 2px;
 }
 
 .btn-yellow.btn-cta, .btn-yellow.btn-long {
@@ -168,6 +193,6 @@
 
 .unity-base-text-field__input--placeholder,
 .field .unity-base-text-field__input--placeholder {
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.62);
     font-size: 34px;
 }

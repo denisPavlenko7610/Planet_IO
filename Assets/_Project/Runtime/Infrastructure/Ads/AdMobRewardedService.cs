@@ -1,3 +1,4 @@
+using RD.Foundation;
 using System;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
@@ -20,17 +21,7 @@ namespace PlanetIO.Infrastructure.Ads
 
         private static bool UseEditorStub => UnityEngine.Application.isEditor;
 
-        private static string AdUnitId
-        {
-            get
-            {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                return TestAdUnitId;
-#else
-                return ReleaseAdUnitId;
-#endif
-            }
-        }
+        private static string AdUnitId => Debug.isDebugBuild ? TestAdUnitId : ReleaseAdUnitId;
 
         public event Action PrivacyOptionsChanged;
 
@@ -107,7 +98,7 @@ namespace PlanetIO.Infrastructure.Ads
             {
                 if (formError != null)
                 {
-                    GameLogger.LogWarning($"Privacy options form failed: {formError.Message}");
+                    UnityLogger.LogWarning($"Privacy options form failed: {formError.Message}");
                 }
 
                 PrivacyOptionsChanged?.Invoke();
@@ -119,14 +110,14 @@ namespace PlanetIO.Infrastructure.Ads
         {
             if (updateError != null)
             {
-                GameLogger.LogWarning($"Consent info update failed: {updateError.Message}");
+                UnityLogger.LogWarning($"Consent info update failed: {updateError.Message}");
             }
 
             ConsentForm.LoadAndShowConsentFormIfRequired(formError => MobileAdsEventExecutor.ExecuteInUpdate(() =>
             {
                 if (formError != null)
                 {
-                    GameLogger.LogWarning($"Consent form failed: {formError.Message}");
+                    UnityLogger.LogWarning($"Consent form failed: {formError.Message}");
                 }
 
                 PrivacyOptionsChanged?.Invoke();
@@ -144,7 +135,7 @@ namespace PlanetIO.Infrastructure.Ads
 
             if (error != null || ad == null)
             {
-                GameLogger.LogWarning($"Rewarded ad failed to load: {error?.GetMessage()}");
+                UnityLogger.LogWarning($"Rewarded ad failed to load: {error?.GetMessage()}");
                 _ = ReloadAfterDelayAsync();
                 return;
             }

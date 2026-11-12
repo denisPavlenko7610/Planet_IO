@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityTemplates.Localization;
+using RD.Localization;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Menu

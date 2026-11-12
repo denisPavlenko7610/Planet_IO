@@ -1,6 +1,6 @@
 using System;
 using VContainer.Unity;
-using UnityTemplates.Localization;
+using RD.Localization;
 
 namespace PlanetIO.UI.Loading
 {
