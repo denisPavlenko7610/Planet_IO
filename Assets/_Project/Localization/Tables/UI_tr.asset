@@ -236,6 +236,10 @@ MonoBehaviour:
     m_Localized: "Kuyruklu y\u0131ld\u0131z adlar\u0131"
     m_Metadata:
       m_Items: []
+  - m_Id: 17755957282484224
+    m_Localized: "Reklam kullan\u0131lam\u0131yor. Daha sonra tekrar deneyin."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

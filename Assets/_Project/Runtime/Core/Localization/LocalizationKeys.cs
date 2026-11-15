@@ -17,6 +17,7 @@ namespace PlanetIO
         public const string MenuColor = "menu.color";
         public const string MenuPlanet = "menu.planet";
         public const string MenuSkinLocked = "menu.skin_locked";
+        public const string MenuAdUnavailable = "menu.ad_unavailable";
 
         public const string StatusReady = "status.ready";
         public const string StatusCreatingRoom = "status.creating_room";
@@ -64,7 +65,7 @@ namespace PlanetIO
         public static readonly string[] All =
         {
             MenuNicknamePlaceholder, MenuRandomNickname, MenuPlayWithBots, MenuCreateRoom, MenuQuickPlay, MenuJoinRoom,
-            MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuColor, MenuPlanet, MenuSkinLocked,
+            MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuColor, MenuPlanet, MenuSkinLocked, MenuAdUnavailable,
             StatusReady, StatusCreatingRoom, StatusRoomCreated, StatusConnecting, StatusStartingSolo,
             StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
             SettingsTitle, SettingsMusic, SettingsSound, SettingsLanguage, SettingsHaptics, SettingsCometNames, SettingsAdPrivacy, SettingsPrivacyPolicy, SettingsClose,

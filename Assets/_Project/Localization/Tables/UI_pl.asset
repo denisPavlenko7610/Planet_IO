@@ -236,6 +236,10 @@ MonoBehaviour:
     m_Localized: Nazwy komet
     m_Metadata:
       m_Items: []
+  - m_Id: 17755957282484224
+    m_Localized: "Reklama niedost\u0119pna. Spr\xF3buj ponownie p\xF3\u017Aniej."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

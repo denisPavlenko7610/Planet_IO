@@ -236,6 +236,10 @@ MonoBehaviour:
     m_Localized: Nomi delle comete
     m_Metadata:
       m_Items: []
+  - m_Id: 17755957282484224
+    m_Localized: "Pubblicit\xE0 non disponibile. Riprova pi\xF9 tardi."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

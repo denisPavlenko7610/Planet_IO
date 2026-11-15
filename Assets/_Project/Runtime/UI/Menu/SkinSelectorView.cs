@@ -12,6 +12,7 @@ namespace PlanetIO.UI.Menu
         void Build(IReadOnlyList<Sprite> sprites, string lockedLabel);
         void SetLockedLabel(string lockedLabel);
         void SetState(int index, bool unlocked, bool selected);
+        void ShowAdStatus(string message, bool isError);
     }
 
     [DefaultExecutionOrder(100)]
@@ -60,6 +61,17 @@ namespace PlanetIO.UI.Menu
             }
         }
 
+        public void ShowAdStatus(string message, bool isError)
+        {
+            Label status = GetComponent<UIDocument>().rootVisualElement.Q<Label>("status-text");
+            if (status == null)
+            {
+                return;
+            }
+
+            status.text = message;
+            status.EnableInClassList("status--error", isError);
+        }
         public void SetState(int index, bool unlocked, bool selected)
         {
             if (index < 0 || index >= _cells.Count)

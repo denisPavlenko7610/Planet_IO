@@ -1,4 +1,3 @@
-using RD.Foundation;
 using System;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
@@ -21,7 +20,11 @@ namespace PlanetIO.Infrastructure.Ads
 
         private static bool UseEditorStub => UnityEngine.Application.isEditor;
 
+#if PLANETIO_TEST_ADS
+        private static string AdUnitId => TestAdUnitId;
+#else
         private static string AdUnitId => Debug.isDebugBuild ? TestAdUnitId : ReleaseAdUnitId;
+#endif
 
         public event Action PrivacyOptionsChanged;
 
@@ -33,12 +36,18 @@ namespace PlanetIO.Infrastructure.Ads
 
         public void Initialize()
         {
-            if (UseEditorStub || _initialized)
+            if (_initialized)
             {
                 return;
             }
 
+            MobileAdsEventExecutor.Initialize();
             _initialized = true;
+            if (UseEditorStub)
+            {
+                return;
+            }
+
             ConsentInformation.Update(
                 new ConsentRequestParameters(),
                 error => MobileAdsEventExecutor.ExecuteInUpdate(() => OnConsentInfoUpdated(error)));
@@ -98,7 +107,7 @@ namespace PlanetIO.Infrastructure.Ads
             {
                 if (formError != null)
                 {
-                    UnityLogger.LogWarning($"Privacy options form failed: {formError.Message}");
+                    Debug.LogWarning($"Privacy options form failed: {formError.Message}");
                 }
 
                 PrivacyOptionsChanged?.Invoke();
@@ -110,14 +119,14 @@ namespace PlanetIO.Infrastructure.Ads
         {
             if (updateError != null)
             {
-                UnityLogger.LogWarning($"Consent info update failed: {updateError.Message}");
+                Debug.LogWarning($"Consent info update failed: {updateError.Message}");
             }
 
             ConsentForm.LoadAndShowConsentFormIfRequired(formError => MobileAdsEventExecutor.ExecuteInUpdate(() =>
             {
                 if (formError != null)
                 {
-                    UnityLogger.LogWarning($"Consent form failed: {formError.Message}");
+                    Debug.LogWarning($"Consent form failed: {formError.Message}");
                 }
 
                 PrivacyOptionsChanged?.Invoke();
@@ -135,7 +144,7 @@ namespace PlanetIO.Infrastructure.Ads
 
             if (error != null || ad == null)
             {
-                UnityLogger.LogWarning($"Rewarded ad failed to load: {error?.GetMessage()}");
+                Debug.LogWarning($"Rewarded ad failed to load: {error?.GetMessage()}");
                 _ = ReloadAfterDelayAsync();
                 return;
             }

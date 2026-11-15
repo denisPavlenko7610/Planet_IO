@@ -79,16 +79,19 @@ namespace PlanetIO.UI.Menu
             }
 
             _adInProgress = true;
+            _view.ShowAdStatus(_localization.Get(LocalizationKeys.StatusLoading), false);
             _rewardedAds.Show(granted =>
             {
                 _adInProgress = false;
                 if (!granted)
                 {
+                    _view.ShowAdStatus(_localization.Get(LocalizationKeys.MenuAdUnavailable), true);
                     return;
                 }
 
                 _profile.UnlockSkin(index);
                 _profile.SelectSkin(index);
+                _view.ShowAdStatus(_localization.Get(LocalizationKeys.StatusReady), false);
             });
         }
     }
