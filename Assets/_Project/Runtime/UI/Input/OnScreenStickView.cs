@@ -10,13 +10,17 @@ namespace PlanetIO
     [RequireComponent(typeof(UIDocument))]
     public sealed class OnScreenStickView : OnScreenControl
     {
+        private const float MaxDeflection = 78f;
+        private const float DeadZone = 0.2f;
+        private const string ActiveClass = "stick-active";
+
         [InputControl(layout = "Vector2")]
         [SerializeField] private string _controlPath = "<Gamepad>/leftStick";
 
-        [SerializeField, Min(8f)] private float _movementRange = 100f;
-
+        private VisualElement _zone;
         private VisualElement _stick;
         private VisualElement _knob;
+        private Vector2 _anchor;
         private int _pointerId = -1;
 
         protected override string controlPathInternal
@@ -29,44 +33,50 @@ namespace PlanetIO
         {
             base.OnEnable();
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+            _zone = root.Q<VisualElement>("stick-zone");
             _stick = root.Q<VisualElement>("stick");
             _knob = root.Q<VisualElement>("stick-knob");
-            _stick.RegisterCallback<PointerDownEvent>(OnPointerDown);
-            _stick.RegisterCallback<PointerMoveEvent>(OnPointerMove);
-            _stick.RegisterCallback<PointerUpEvent>(OnPointerUp);
-            _stick.RegisterCallback<PointerCancelEvent>(OnPointerCancel);
-            _stick.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
+            _zone.RegisterCallback<PointerDownEvent>(OnPointerDown);
+            _zone.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+            _zone.RegisterCallback<PointerUpEvent>(OnPointerUp);
+            _zone.RegisterCallback<PointerCancelEvent>(OnPointerCancel);
+            _zone.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
         }
 
         protected override void OnDisable()
         {
-            _stick.UnregisterCallback<PointerDownEvent>(OnPointerDown);
-            _stick.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
-            _stick.UnregisterCallback<PointerUpEvent>(OnPointerUp);
-            _stick.UnregisterCallback<PointerCancelEvent>(OnPointerCancel);
-            _stick.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
+            _zone.UnregisterCallback<PointerDownEvent>(OnPointerDown);
+            _zone.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
+            _zone.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+            _zone.UnregisterCallback<PointerCancelEvent>(OnPointerCancel);
+            _zone.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
             Release();
             base.OnDisable();
         }
 
         private void OnPointerDown(PointerDownEvent pointerEvent)
         {
-            if (_pointerId >= 0)
+            if (_pointerId >= 0 || pointerEvent.button > 0)
             {
                 return;
             }
 
             _pointerId = pointerEvent.pointerId;
-            _stick.CapturePointer(_pointerId);
+            _zone.CapturePointer(_pointerId);
             pointerEvent.StopPropagation();
-            Drive(pointerEvent.localPosition);
+
+            Vector2 finger = _zone.WorldToLocal(pointerEvent.position);
+            _anchor = ClampAnchor(finger);
+            PlaceStick();
+            _stick.AddToClassList(ActiveClass);
+            Drive(finger);
         }
 
         private void OnPointerMove(PointerMoveEvent pointerEvent)
         {
             if (pointerEvent.pointerId == _pointerId)
             {
-                Drive(pointerEvent.localPosition);
+                Drive(_zone.WorldToLocal(pointerEvent.position));
             }
         }
 
@@ -77,7 +87,7 @@ namespace PlanetIO
                 return;
             }
 
-            _stick.ReleasePointer(_pointerId);
+            _zone.ReleasePointer(_pointerId);
             Release();
         }
 
@@ -97,19 +107,52 @@ namespace PlanetIO
             }
         }
 
-        private void Drive(Vector2 localPosition)
+        private void Drive(Vector2 finger)
         {
-            Vector2 center = _stick.contentRect.size * 0.5f;
-            Vector2 offset = localPosition - center;
-            offset = Vector2.ClampMagnitude(offset, _movementRange);
+            Vector2 offset = finger - _anchor;
+            float distance = offset.magnitude;
+            if (distance > MaxDeflection)
+            {
+                _anchor = ClampAnchor(_anchor + offset / distance * (distance - MaxDeflection));
+                PlaceStick();
+                offset = Vector2.ClampMagnitude(finger - _anchor, MaxDeflection);
+            }
 
             _knob.style.translate = new Translate(offset.x, offset.y);
-            SendValueToControl(new Vector2(offset.x, -offset.y) / _movementRange);
+
+            Vector2 shaped = StickResponse.ApplyDeadZone(new Vector2(offset.x, -offset.y) / MaxDeflection, DeadZone);
+            InputSettings settings = InputSystem.settings;
+            SendValueToControl(StickResponse.PreCompensate(shaped, settings.defaultDeadzoneMin, settings.defaultDeadzoneMax));
+        }
+
+        private Vector2 ClampAnchor(Vector2 point)
+        {
+            Vector2 half = _stick.layout.size * 0.5f;
+            Vector2 zoneSize = _zone.layout.size;
+            return new Vector2(
+                Mathf.Clamp(point.x, half.x, Mathf.Max(half.x, zoneSize.x - half.x)),
+                Mathf.Clamp(point.y, half.y, Mathf.Max(half.y, zoneSize.y - half.y)));
+        }
+
+        private void PlaceStick()
+        {
+            Vector2 half = _stick.layout.size * 0.5f;
+            _stick.style.left = _anchor.x - half.x;
+            _stick.style.top = _anchor.y - half.y;
+            _stick.style.bottom = StyleKeyword.Auto;
         }
 
         private void Release()
         {
             _pointerId = -1;
+            if (_stick != null)
+            {
+                _stick.RemoveFromClassList(ActiveClass);
+                _stick.style.left = StyleKeyword.Null;
+                _stick.style.top = StyleKeyword.Null;
+                _stick.style.bottom = StyleKeyword.Null;
+            }
+
             if (_knob != null)
             {
                 _knob.style.translate = new Translate(0f, 0f);

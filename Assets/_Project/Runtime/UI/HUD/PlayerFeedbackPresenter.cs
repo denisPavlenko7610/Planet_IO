@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using RD.Haptics;
 using RD.Localization;
-using RD.Settings;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud
@@ -14,43 +13,32 @@ namespace PlanetIO.UI.Hud
         private const float DamageThreshold = -0.005f;
         private const float BorderWarningDistance = 18f;
         private const float BorderWarningMaxAlpha = 0.75f;
-        private const float TutorialStepSeconds = 5f;
         private const float TierUpPitch = 1.3f;
         private const float TierUpVolume = 0.8f;
         private const float MoonStrikePitch = 1.5f;
         private const float MoonStrikeVolume = 0.6f;
-
-        private static readonly string[] TutorialSteps =
-        {
-            LocalizationKeys.TutorialEat,
-            LocalizationKeys.TutorialAvoid,
-            LocalizationKeys.TutorialBoost
-        };
+        private const float SlingshotPitch = 1.7f;
+        private const float SlingshotVolume = 0.7f;
 
         private readonly ISessionHudView _view;
         private readonly ILocalPlayerProvider _localPlayerProvider;
         private readonly ILocalizationService _localization;
-        private readonly ISettingsService _settings;
         private readonly ISfxPlayer _sfxPlayer;
         private Player _localPlayer;
         private float _lastCapacity;
         private int _lastTier = TierRules.MinTier;
         private float _mutedUntil;
         private bool _controlsHintShown;
-        private int _tutorialStep = -1;
-        private float _nextTutorialTime;
 
         public PlayerFeedbackPresenter(
             ISessionHudView view,
             ILocalPlayerProvider localPlayerProvider,
             ILocalizationService localization,
-            ISettingsService settings,
             ISfxPlayer sfxPlayer)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
             _localization = localization ?? throw new ArgumentNullException(nameof(localization));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _sfxPlayer = sfxPlayer ?? throw new ArgumentNullException(nameof(sfxPlayer));
         }
 
@@ -71,7 +59,6 @@ namespace PlanetIO.UI.Hud
         public void Tick()
         {
             UpdateBorderWarning();
-            UpdateTutorial();
         }
 
         private void BindPlayer(Player player)
@@ -83,6 +70,7 @@ namespace PlanetIO.UI.Hud
                 _localPlayer.CapacityChanged -= OnCapacityChanged;
                 _localPlayer.TierChanged -= OnTierChanged;
                 _localPlayer.MoonStruck -= OnMoonStruck;
+                _localPlayer.Slingshot -= OnSlingshot;
             }
 
             _localPlayer = player;
@@ -96,6 +84,7 @@ namespace PlanetIO.UI.Hud
             _localPlayer.CapacityChanged += OnCapacityChanged;
             _localPlayer.TierChanged += OnTierChanged;
             _localPlayer.MoonStruck += OnMoonStruck;
+            _localPlayer.Slingshot += OnSlingshot;
             _lastCapacity = _localPlayer.Capacity;
             _lastTier = _localPlayer.Tier;
             ShowControlsHint();
@@ -112,6 +101,17 @@ namespace PlanetIO.UI.Hud
 
             _sfxPlayer.Play(SfxId.Kill, TierUpPitch, TierUpVolume);
             Haptics.Play(HapticPreset.Success);
+        }
+
+        private void OnSlingshot()
+        {
+            if (_localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil)
+            {
+                return;
+            }
+
+            _sfxPlayer.Play(SfxId.Eat, SlingshotPitch, SlingshotVolume);
+            Haptics.Play(HapticPreset.LightImpact);
         }
 
         private void OnMoonStruck(Vector2 _)
@@ -134,31 +134,6 @@ namespace PlanetIO.UI.Hud
 
             _controlsHintShown = true;
             _view.ShowHint(_localization.Get(LocalizationKeys.HudHintTouch));
-
-            if (!_settings.Get(GameSettingKeys.TutorialCompleted))
-            {
-                _tutorialStep = 0;
-                _nextTutorialTime = Time.unscaledTime + TutorialStepSeconds;
-            }
-        }
-
-        private void UpdateTutorial()
-        {
-            if (_tutorialStep < 0 || Time.unscaledTime < _nextTutorialTime || _localPlayer == null || _localPlayer.IsDefeated)
-            {
-                return;
-            }
-
-            _view.ShowHint(_localization.Get(TutorialSteps[_tutorialStep]));
-            _tutorialStep++;
-            _nextTutorialTime = Time.unscaledTime + TutorialStepSeconds;
-
-            if (_tutorialStep >= TutorialSteps.Length)
-            {
-                _tutorialStep = -1;
-                _settings.Set(GameSettingKeys.TutorialCompleted, true);
-                _settings.Flush();
-            }
         }
 
         private void UpdateBorderWarning()

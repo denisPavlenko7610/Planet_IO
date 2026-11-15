@@ -22,7 +22,7 @@ namespace PlanetIO.UI.Menu
 
     [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(UIDocument))]
-    public sealed class MainMenuView : MonoBehaviour, IMainMenuView
+    public sealed partial class MainMenuView : MonoBehaviour, IMainMenuView
     {
         private const string ErrorClass = "status--error";
         private const string PortraitClass = "menu--portrait";
@@ -63,8 +63,11 @@ namespace PlanetIO.UI.Menu
             _roomCodeInput = root.Q<TextField>("room-code-input");
             _statusText = root.Q<Label>("status-text");
             _bestScoreText = root.Q<Label>("best-score");
+            root.Q<Label>("version-text").text = "v" + Application.version;
             _menuRoot = root.Q<VisualElement>("menu-root");
             _menuRoot.RegisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
+            EnableProgressView(root);
+            EnableModeView(root);
 
             _roomCodeInput.maxLength = RoomRules.MaximumRoomCodeLength;
             _roomCodeInput.RegisterValueChangedCallback(OnRoomCodeEdited);
@@ -101,6 +104,8 @@ namespace PlanetIO.UI.Menu
             _roomCodeInput.UnregisterValueChangedCallback(OnRoomCodeEdited);
             _roomCodeInput.UnregisterCallback<KeyDownEvent>(OnRoomCodeKeyDown);
             _menuRoot.UnregisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
+            DisableProgressView();
+            DisableModeView();
             _labels?.Dispose();
             _labels = null;
         }

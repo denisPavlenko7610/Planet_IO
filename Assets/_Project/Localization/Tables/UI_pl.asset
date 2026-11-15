@@ -240,6 +240,230 @@ MonoBehaviour:
     m_Localized: "Reklama niedost\u0119pna. Spr\xF3buj ponownie p\xF3\u017Aniej."
     m_Metadata:
       m_Items: []
+  - m_Id: 17768241810624512
+    m_Localized: Wybierz ulepszenie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093504
+    m_Localized: "Jonowy \u015Blad"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093505
+    m_Localized: "Turbo zostawia szkodliwy \u015Blad. Turbo kosztuje o 25% wi\u0119cej."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093506
+    m_Localized: Magnetosfera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093507
+    m_Localized: "Magnes jedzenia si\u0119ga o 50% dalej. Jeste\u015B o 8% wolniejszy."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093508
+    m_Localized: "Ci\u0119\u017Ckie ksi\u0119\u017Cyce"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093509
+    m_Localized: "+1 ksi\u0119\u017Cyc i +50% obra\u017Ce\u0144 ksi\u0119\u017Cyc\xF3w. Jeste\u015B o 5% wolniejszy."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093510
+    m_Localized: Ablacyjna skorupa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093511
+    m_Localized: "Prze\u017Cyj jedno \u015Bmiertelne trafienie z 30% masy."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093512
+    m_Localized: "\u017Bagiel s\u0142oneczny"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093513
+    m_Localized: "Jeste\u015B o 12% szybszy. Jedzenie daje o 10% mniej."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093514
+    m_Localized: Studnia grawitacyjna
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093515
+    m_Localized: "Strefa grawitacji szersza o 40%. Jeste\u015B o 6% wolniejszy."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093516
+    m_Localized: "Mg\u0142awicowa zas\u0142ona"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093517
+    m_Localized: Po turbo znikasz z minimap rywali na 10 s.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093518
+    m_Localized: "Je\u017Adziec komet"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093519
+    m_Localized: "Komety lecz\u0105 ci\u0119 zamiast rani\u0107."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093520
+    m_Localized: "Drapie\u017Cnik"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093521
+    m_Localized: "Zab\xF3jstwa daj\u0105 o 20% wi\u0119cej masy. Jedzenie daje o 10% mniej."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034084401152
+    m_Localized: 'Czas: {0}   Zjedzone: {1}   Poziom: {2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315712
+    m_Localized: Zjedzony przez {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315713
+    m_Localized: Ranga {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315714
+    m_Localized: "+{0} XP   +{1} py\u0142u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315715
+    m_Localized: Nowa ranga!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315716
+    m_Localized: "Podw\xF3jny py\u0142 (reklama)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315717
+    m_Localized: "Ranga {0}   Py\u0142 {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315718
+    m_Localized: Misje
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315719
+    m_Localized: Misje dnia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315720
+    m_Localized: 'Seria: {0} dni'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315721
+    m_Localized: "Bonus dzienny: +{0} py\u0142u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510016
+    m_Localized: Odbierz +{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510017
+    m_Localized: "Zmie\u0144"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510018
+    m_Localized: Gotowe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510019
+    m_Localized: 'Zjedz planet: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510020
+    m_Localized: "Osi\u0105gnij poziom {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510021
+    m_Localized: Przetrwaj {0} s w jednej grze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510022
+    m_Localized: "Zdob\u0105d\u017A {0} pkt w jednej grze"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510023
+    m_Localized: "Wybierz ulepsze\u0144: {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510024
+    m_Localized: Zagraj {0} gier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510025
+    m_Localized: Reklama / {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510026
+    m_Localized: "Przeci\u0105gnij palcem, aby sterowa\u0107 planet\u0105"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510027
+    m_Localized: "Czerwony pier\u015Bcie\u0144: wi\u0119ksza planeta. Uciekaj!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510028
+    m_Localized: "Zielony pier\u015Bcie\u0144: mniejsza planeta. Zjedz j\u0105!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510029
+    m_Localized: "Ro\u015Bnij, by zdoby\u0107 ksi\u0119\u017Cyce i pierwsze ulepszenie"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441010253824
+    m_Localized: "Nadci\u0105ga deszcz meteor\xF3w"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448128
+    m_Localized: "Deszcz meteor\xF3w!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448129
+    m_Localized: "Gwiazda si\u0119 budzi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448130
+    m_Localized: Gwiazda zaraz wybuchnie!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448131
+    m_Localized: Powstaje czarna dziura
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448132
+    m_Localized: Czarna dziura! Trzymaj dystans
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448133
+    m_Localized: "Dzi\u015B: niska grawitacja"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448134
+    m_Localized: "Dzi\u015B: wysoka grawitacja"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448135
+    m_Localized: "Dzi\u015B: gor\u0105czka z\u0142ota, wi\u0119cej \u0142up\xF3w"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448136
+    m_Localized: 'Blitz: mecz na 5 minut'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448137
+    m_Localized: Koniec czasu!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448138
+    m_Localized: Miejsce {0} z {1}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

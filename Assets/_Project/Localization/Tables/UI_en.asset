@@ -240,6 +240,230 @@ MonoBehaviour:
     m_Localized: Ad unavailable. Try again later.
     m_Metadata:
       m_Items: []
+  - m_Id: 17768241810624512
+    m_Localized: Choose a perk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093504
+    m_Localized: Ion Trail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093505
+    m_Localized: Boost leaves a damaging trail. Boost costs 25% more.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093506
+    m_Localized: Magnetosphere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093507
+    m_Localized: Food magnet reaches 50% farther. You are 8% slower.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093508
+    m_Localized: Heavy Moons
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093509
+    m_Localized: +1 moon and +50% moon damage. You are 5% slower.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093510
+    m_Localized: Ablative Crust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093511
+    m_Localized: Survive one deadly hit with 30% of your mass.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093512
+    m_Localized: Solar Sail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093513
+    m_Localized: You are 12% faster. Food gives 10% less.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093514
+    m_Localized: Gravity Well
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093515
+    m_Localized: Gravity zone is 40% wider. You are 6% slower.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093516
+    m_Localized: Nebula Veil
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093517
+    m_Localized: After a boost, vanish from rivals' minimaps for 10 s.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093518
+    m_Localized: Comet Rider
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093519
+    m_Localized: Comets heal you instead of hurting.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093520
+    m_Localized: Predator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093521
+    m_Localized: Kills give 20% more mass. Food gives 10% less.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034084401152
+    m_Localized: 'Time: {0}   Eaten: {1}   Tier: {2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315712
+    m_Localized: Eaten by {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315713
+    m_Localized: Rank {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315714
+    m_Localized: +{0} XP   +{1} dust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315715
+    m_Localized: New rank!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315716
+    m_Localized: Double dust (ad)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315717
+    m_Localized: Rank {0}   Dust {1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315718
+    m_Localized: Missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315719
+    m_Localized: Daily missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315720
+    m_Localized: 'Streak: {0} days'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315721
+    m_Localized: 'Daily bonus: +{0} dust'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510016
+    m_Localized: Claim +{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510017
+    m_Localized: Change
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510018
+    m_Localized: Done
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510019
+    m_Localized: Eat {0} planets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510020
+    m_Localized: Reach tier {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510021
+    m_Localized: Survive {0} seconds in one run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510022
+    m_Localized: Reach {0} points in one run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510023
+    m_Localized: Pick {0} perks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510024
+    m_Localized: Play {0} runs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510025
+    m_Localized: Ad / {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510026
+    m_Localized: Drag your finger to steer your planet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510027
+    m_Localized: 'Red ring: bigger planet. Run away!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510028
+    m_Localized: 'Green ring: smaller planet. Eat it!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510029
+    m_Localized: Grow to get moons and your first perk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441010253824
+    m_Localized: Meteor shower incoming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448128
+    m_Localized: Meteor shower!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448129
+    m_Localized: A star is waking up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448130
+    m_Localized: A star is about to explode!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448131
+    m_Localized: Black hole forming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448132
+    m_Localized: Black hole! Keep your distance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448133
+    m_Localized: 'Today: low gravity'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448134
+    m_Localized: 'Today: heavy gravity'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448135
+    m_Localized: 'Today: gold rush, richer loot'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448136
+    m_Localized: 'Blitz: 5-minute match'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448137
+    m_Localized: Time's up!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448138
+    m_Localized: Rank {0} of {1}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

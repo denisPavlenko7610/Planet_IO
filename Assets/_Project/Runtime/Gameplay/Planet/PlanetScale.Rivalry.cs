@@ -1,4 +1,5 @@
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 
 namespace PlanetIO
@@ -12,7 +13,7 @@ namespace PlanetIO
 
         public bool IsLeader => IsSpawned && _networkLeader.Value;
 
-        public virtual bool IsHiddenFromRivals => false;
+        public virtual bool IsHiddenFromRivals => MapFeatureField.IsInNebula(transform.position);
 
         internal virtual bool IsGravitySimulatedHere => IsServer;
 
@@ -39,6 +40,43 @@ namespace PlanetIO
         public bool Pulls(PlanetScale body)
         {
             return body != null && body != this && GravityRules.Affects(Capacity, body.Capacity);
+        }
+
+        public virtual void Teleport(Vector2 position)
+        {
+            TeleportLocal(position);
+        }
+
+        protected void TeleportLocal(Vector2 position)
+        {
+            if (TryGetComponent(out Rigidbody2D body))
+            {
+                body.linearVelocity = Vector2.zero;
+                body.position = position;
+            }
+
+            if (TryGetComponent(out NetworkTransform networkTransform))
+            {
+                networkTransform.Teleport(position, transform.rotation, transform.localScale);
+            }
+            else
+            {
+                transform.position = position;
+            }
+        }
+
+        public bool TryApplyHazard(float massFraction, out float dealt)
+        {
+            dealt = 0f;
+            if (!IsServer || !IsSpawned || !IsCombatActive || IsHarmImmune)
+            {
+                return false;
+            }
+
+            float before = Capacity;
+            Shrink(before * massFraction);
+            dealt = Mathf.Max(0f, before - Capacity);
+            return true;
         }
 
         private void RefreshLeaderServer()

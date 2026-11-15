@@ -22,6 +22,7 @@ namespace PlanetIO
         private float _offerRemaining;
         private int _pendingOffers;
         private int _highestTier = TierRules.MinTier;
+        private float _pendingCapacityRestore;
 
         public ushort PerkMask => IsSpawned ? _networkPerks.Value : (ushort)0;
 
@@ -65,7 +66,7 @@ namespace PlanetIO
 
         public bool HasPerk(PerkId id) => PerkRules.Has(PerkMask, id);
 
-        public bool TryConsumeAblativeCrust()
+        public bool TryConsumeAblativeCrust(bool deferRestore = false)
         {
             if (!IsServer || IsDefeated || !HasPerk(PerkId.AblativeCrust))
             {
@@ -74,8 +75,33 @@ namespace PlanetIO
 
             _networkPerks.Value = (ushort)(_networkPerks.Value & ~PerkRules.Bit(PerkId.AblativeCrust));
             _invincibilityTimeRemaining = _spawnInvincibilityTime;
-            Capacity = Mathf.Max(InitialCapacity, Capacity * PerkRules.AblativeSurvivalFraction);
+
+            float restored = Mathf.Max(InitialCapacity, Capacity * PerkRules.AblativeSurvivalFraction);
+            if (deferRestore)
+            {
+                _pendingCapacityRestore = restored;
+            }
+            else
+            {
+                Capacity = restored;
+            }
+
             return true;
+        }
+
+        private void ApplyPendingCapacityRestore()
+        {
+            if (_pendingCapacityRestore <= 0f)
+            {
+                return;
+            }
+
+            float restored = _pendingCapacityRestore;
+            _pendingCapacityRestore = 0f;
+            if (!IsDefeated)
+            {
+                Capacity = restored;
+            }
         }
 
         public void ChoosePerk(int index)
@@ -204,6 +230,7 @@ namespace PlanetIO
         private void ResetPerksForNewLife()
         {
             ClearOffers();
+            _pendingCapacityRestore = 0f;
             _highestTier = TierRules.MinTier;
             _networkPerks.Value = 0;
             ResetAbilitiesForNewLife();

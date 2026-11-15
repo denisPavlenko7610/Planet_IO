@@ -6,6 +6,14 @@ using VContainer;
 
 namespace PlanetIO.UI.Hud
 {
+    public enum PingQuality
+    {
+        Hidden,
+        Good,
+        Fair,
+        Poor
+    }
+
     public interface ISessionHudView
     {
         event Action LeaveRequested;
@@ -24,12 +32,48 @@ namespace PlanetIO.UI.Hud
         void ShowScorePopup(Vector2 screenPosition, int score);
         void ShowHint(string message);
         void SetBorderWarning(float strength);
+        void SetPing(int milliseconds, PingQuality quality);
+    }
+
+    public interface IRunResultView
+    {
+        event Action DoubleDustRequested;
+
+        void ShowRunResult(
+            string details,
+            string rankText,
+            float fromProgress,
+            float toProgress,
+            bool rankedUp,
+            string rewardText);
+
+        void SetRewardText(string rewardText);
+        void SetDoubleDust(bool visible, string label);
+    }
+
+    public interface IWorldHudView
+    {
+        void ShowEventBanner(string text);
+        void SetBlitzTimer(string text, bool visible);
+    }
+
+    public interface IPerkView
+    {
+        event Action<int> PerkChosen;
+
+        void ShowPerkOffer(string title, string[] names, string[] descriptions);
+        void SetPerkTimer(float fraction);
+        void HidePerkOffer();
     }
 
     [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(UIDocument))]
-    public sealed class SessionHudView : MonoBehaviour, ISessionHudView
+    public sealed class SessionHudView : MonoBehaviour, ISessionHudView, IPerkView, IRunResultView, IWorldHudView
     {
+        private const int PerkCardCount = PerkRules.OfferSize;
+        private const float RankAnimationSeconds = 1.2f;
+        private const float EventBannerSeconds = 5f;
+
         private const float KillFeedFadeSeconds = 3f;
         private const float ScorePopupSeconds = 0.9f;
         private const float ScorePopupRiseSpeed = 80f;
@@ -47,11 +91,31 @@ namespace PlanetIO.UI.Hud
         private Label _killFeedText;
         private Label _scorePopupText;
         private Label _hintText;
+        private Label _pingText;
         private Button _leaveButton;
         private Button _settingsButton;
         private Button _playAgainButton;
         private Button _continueButton;
         private Button _defeatLeaveButton;
+        private Label _eventBannerText;
+        private Label _blitzTimerText;
+        private float _eventBannerRemaining;
+        private Label _resultDetails;
+        private Label _rankText;
+        private Label _rewardText;
+        private VisualElement _rankFill;
+        private Button _doubleDustButton;
+        private float _rankFrom;
+        private float _rankTo;
+        private float _rankAnimationTime;
+        private bool _rankUp;
+        private bool _rankAnimating;
+        private VisualElement _perkPanel;
+        private VisualElement _perkTimerFill;
+        private Label _perkTitle;
+        private readonly VisualElement[] _perkCards = new VisualElement[PerkCardCount];
+        private readonly Label[] _perkNames = new Label[PerkCardCount];
+        private readonly Label[] _perkDescriptions = new Label[PerkCardCount];
 
         private float _killFeedTimeRemaining;
         private float _scorePopupTimeRemaining;
@@ -63,6 +127,8 @@ namespace PlanetIO.UI.Hud
         public event Action PlayAgainRequested;
         public event Action ContinueRequested;
         public event Action SettingsRequested;
+        public event Action<int> PerkChosen;
+        public event Action DoubleDustRequested;
 
         public bool IsDefeatVisible => _defeatVisible;
 
@@ -84,12 +150,40 @@ namespace PlanetIO.UI.Hud
             _killFeedText = _root.Q<Label>("kill-feed");
             _scorePopupText = _root.Q<Label>("score-popup");
             _hintText = _root.Q<Label>("hint-text");
+            _pingText = _root.Q<Label>("ping-text");
+            _pingText.style.display = DisplayStyle.None;
             _leaveButton = _root.Q<Button>("leave-button");
             _settingsButton = _root.Q<Button>("settings-button");
             _playAgainButton = _root.Q<Button>("play-again");
             _continueButton = _root.Q<Button>("continue-button");
             _defeatLeaveButton = _root.Q<Button>("defeat-leave");
 
+            _eventBannerText = _root.Q<Label>("event-banner");
+            _blitzTimerText = _root.Q<Label>("blitz-timer");
+            _eventBannerText.style.opacity = 0f;
+            _blitzTimerText.style.display = DisplayStyle.None;
+            _eventBannerRemaining = 0f;
+            _resultDetails = _root.Q<Label>("result-details");
+            _rankText = _root.Q<Label>("rank-text");
+            _rewardText = _root.Q<Label>("reward-text");
+            _rankFill = _root.Q<VisualElement>("rank-fill");
+            _doubleDustButton = _root.Q<Button>("double-dust");
+            _doubleDustButton.clicked += OnDoubleDustClicked;
+            _rankAnimating = false;
+
+            _perkPanel = _root.Q<VisualElement>("perk-panel");
+            _perkTitle = _root.Q<Label>("perk-title");
+            _perkTimerFill = _root.Q<VisualElement>("perk-timer-fill");
+            for (int index = 0; index < PerkCardCount; index++)
+            {
+                _perkCards[index] = _root.Q<VisualElement>($"perk-card-{index}");
+                _perkNames[index] = _root.Q<Label>($"perk-name-{index}");
+                _perkDescriptions[index] = _root.Q<Label>($"perk-desc-{index}");
+                _perkCards[index].userData = index;
+                _perkCards[index].RegisterCallback<ClickEvent>(OnPerkCardClicked);
+            }
+
+            _perkPanel.style.display = DisplayStyle.None;
             _defeatPanel.style.display = DisplayStyle.None;
             _defeatVisible = false;
             _killFeedText.style.opacity = 0f;
@@ -116,6 +210,12 @@ namespace PlanetIO.UI.Hud
             _defeatLeaveButton.clicked -= OnLeaveClicked;
             _playAgainButton.clicked -= OnPlayAgainClicked;
             _continueButton.clicked -= OnContinueClicked;
+            _doubleDustButton.clicked -= OnDoubleDustClicked;
+            for (int index = 0; index < PerkCardCount; index++)
+            {
+                _perkCards[index]?.UnregisterCallback<ClickEvent>(OnPerkCardClicked);
+            }
+
             _labels?.Dispose();
             _labels = null;
         }
@@ -123,6 +223,13 @@ namespace PlanetIO.UI.Hud
         private void Update()
         {
             float deltaTime = Time.unscaledDeltaTime;
+            UpdateRankAnimation(deltaTime);
+
+            if (_eventBannerRemaining > 0f)
+            {
+                _eventBannerRemaining -= deltaTime;
+                _eventBannerText.style.opacity = Mathf.Clamp01(_eventBannerRemaining / (EventBannerSeconds * 0.4f));
+            }
 
             if (_killFeedTimeRemaining > 0f)
             {
@@ -222,6 +329,133 @@ namespace PlanetIO.UI.Hud
         public void SetBorderWarning(float strength)
         {
             _borderWarning.style.opacity = Mathf.Clamp01(strength);
+        }
+
+        public void SetPing(int milliseconds, PingQuality quality)
+        {
+            bool visible = quality != PingQuality.Hidden;
+            _pingText.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            _pingText.EnableInClassList("ping-good", quality == PingQuality.Good);
+            _pingText.EnableInClassList("ping-fair", quality == PingQuality.Fair);
+            _pingText.EnableInClassList("ping-poor", quality == PingQuality.Poor);
+            if (visible)
+            {
+                _pingText.text = $"{milliseconds} ms";
+            }
+        }
+
+        public void ShowEventBanner(string text)
+        {
+            _eventBannerText.text = text;
+            _eventBannerText.style.opacity = 1f;
+            _eventBannerRemaining = EventBannerSeconds;
+        }
+
+        public void SetBlitzTimer(string text, bool visible)
+        {
+            _blitzTimerText.text = text ?? string.Empty;
+            _blitzTimerText.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        public void ShowRunResult(
+            string details,
+            string rankText,
+            float fromProgress,
+            float toProgress,
+            bool rankedUp,
+            string rewardText)
+        {
+            _resultDetails.text = details;
+            _rankText.text = rankText;
+            _rewardText.text = rewardText;
+            _rankFrom = Mathf.Clamp01(fromProgress);
+            _rankTo = Mathf.Clamp01(toProgress);
+            _rankUp = rankedUp;
+            _rankAnimationTime = 0f;
+            _rankAnimating = true;
+            SetRankFill(_rankFrom);
+        }
+
+        public void SetRewardText(string rewardText)
+        {
+            _rewardText.text = rewardText;
+        }
+
+        public void SetDoubleDust(bool visible, string label)
+        {
+            _doubleDustButton.text = label;
+            _doubleDustButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void UpdateRankAnimation(float deltaTime)
+        {
+            if (!_rankAnimating)
+            {
+                return;
+            }
+
+            _rankAnimationTime += deltaTime;
+            float t = Mathf.Clamp01(_rankAnimationTime / RankAnimationSeconds);
+            float value;
+            if (_rankUp)
+            {
+                value = t < 0.5f
+                    ? Mathf.Lerp(_rankFrom, 1f, t / 0.5f)
+                    : Mathf.Lerp(0f, _rankTo, (t - 0.5f) / 0.5f);
+            }
+            else
+            {
+                value = Mathf.Lerp(_rankFrom, _rankTo, t);
+            }
+
+            SetRankFill(value);
+            if (t >= 1f)
+            {
+                _rankAnimating = false;
+            }
+        }
+
+        private void SetRankFill(float progress)
+        {
+            _rankFill.style.width = Length.Percent(Mathf.Clamp01(progress) * 100f);
+        }
+
+        private void OnDoubleDustClicked() => DoubleDustRequested?.Invoke();
+
+        public void ShowPerkOffer(string title, string[] names, string[] descriptions)
+        {
+            _perkTitle.text = title;
+            for (int index = 0; index < PerkCardCount; index++)
+            {
+                bool available = index < names.Length;
+                _perkCards[index].style.display = available ? DisplayStyle.Flex : DisplayStyle.None;
+                if (available)
+                {
+                    _perkNames[index].text = names[index];
+                    _perkDescriptions[index].text = descriptions[index];
+                }
+            }
+
+            SetPerkTimer(1f);
+            _perkPanel.style.display = DisplayStyle.Flex;
+        }
+
+        public void SetPerkTimer(float fraction)
+        {
+            _perkTimerFill.style.width = Length.Percent(Mathf.Clamp01(fraction) * 100f);
+        }
+
+        public void HidePerkOffer()
+        {
+            _perkPanel.style.display = DisplayStyle.None;
+        }
+
+        private void OnPerkCardClicked(ClickEvent evt)
+        {
+            if (evt.currentTarget is VisualElement { userData: int index })
+            {
+                PerkChosen?.Invoke(index);
+            }
         }
 
         private void OnLeaveClicked() => LeaveRequested?.Invoke();

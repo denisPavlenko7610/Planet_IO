@@ -222,6 +222,7 @@ namespace PlanetIO
                 return;
             }
 
+            ApplyPendingCapacityRestore();
             UpdateBoost(Time.deltaTime);
             UpdatePerkOffers(Time.deltaTime);
             UpdateAbilities(Time.deltaTime);

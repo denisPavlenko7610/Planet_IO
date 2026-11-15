@@ -240,6 +240,230 @@ MonoBehaviour:
     m_Localized: "Werbung nicht verf\xFCgbar. Bitte sp\xE4ter erneut versuchen."
     m_Metadata:
       m_Items: []
+  - m_Id: 17768241810624512
+    m_Localized: "W\xE4hle einen Perk"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093504
+    m_Localized: Ionenspur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093505
+    m_Localized: "Boost hinterl\xE4sst eine sch\xE4dliche Spur. Boost kostet 25% mehr."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093506
+    m_Localized: "Magnetosph\xE4re"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093507
+    m_Localized: Nahrungsmagnet reicht 50% weiter. Du bist 8% langsamer.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093508
+    m_Localized: Schwere Monde
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093509
+    m_Localized: +1 Mond und +50% Mondschaden. Du bist 5% langsamer.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093510
+    m_Localized: Ablative Kruste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093511
+    m_Localized: "\xDCberlebe einen t\xF6dlichen Treffer mit 30% deiner Masse."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093512
+    m_Localized: Sonnensegel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093513
+    m_Localized: Du bist 12% schneller. Nahrung gibt 10% weniger.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093514
+    m_Localized: Gravitationsbrunnen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093515
+    m_Localized: "Gravitationszone 40% gr\xF6\xDFer. Du bist 6% langsamer."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093516
+    m_Localized: Nebelschleier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093517
+    m_Localized: Nach einem Boost verschwindest du 10 s von den Minikarten der Gegner.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093518
+    m_Localized: Kometenreiter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093519
+    m_Localized: Kometen heilen dich, statt zu schaden.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093520
+    m_Localized: Raubtier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093521
+    m_Localized: "Absch\xFCsse geben 20% mehr Masse. Nahrung gibt 10% weniger."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034084401152
+    m_Localized: 'Zeit: {0}   Gefressen: {1}   Stufe: {2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315712
+    m_Localized: Gefressen von {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315713
+    m_Localized: Rang {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315714
+    m_Localized: +{0} EP   +{1} Staub
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315715
+    m_Localized: Neuer Rang!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315716
+    m_Localized: Doppelter Staub (Werbung)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315717
+    m_Localized: Rang {0}   Staub {1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315718
+    m_Localized: Aufgaben
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315719
+    m_Localized: "T\xE4gliche Aufgaben"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315720
+    m_Localized: 'Serie: {0} Tage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315721
+    m_Localized: 'Tagesbonus: +{0} Staub'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510016
+    m_Localized: Abholen +{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510017
+    m_Localized: Tauschen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510018
+    m_Localized: Erledigt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510019
+    m_Localized: Friss {0} Planeten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510020
+    m_Localized: Erreiche Stufe {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510021
+    m_Localized: "\xDCberlebe {0} Sekunden in einer Runde"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510022
+    m_Localized: Erreiche {0} Punkte in einer Runde
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510023
+    m_Localized: "W\xE4hle {0} Perks"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510024
+    m_Localized: Spiele {0} Runden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510025
+    m_Localized: Werbung / {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510026
+    m_Localized: Ziehe mit dem Finger, um deinen Planeten zu steuern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510027
+    m_Localized: "Roter Ring: gr\xF6\xDFerer Planet. Lauf weg!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510028
+    m_Localized: "Gr\xFCner Ring: kleinerer Planet. Friss ihn!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510029
+    m_Localized: "Wachse f\xFCr Monde und deinen ersten Perk"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441010253824
+    m_Localized: Meteorschauer im Anflug
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448128
+    m_Localized: Meteorschauer!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448129
+    m_Localized: Ein Stern erwacht
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448130
+    m_Localized: Ein Stern explodiert gleich!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448131
+    m_Localized: Ein Schwarzes Loch entsteht
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448132
+    m_Localized: Schwarzes Loch! Halte Abstand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448133
+    m_Localized: 'Heute: geringe Schwerkraft'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448134
+    m_Localized: 'Heute: hohe Schwerkraft'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448135
+    m_Localized: 'Heute: Goldrausch, mehr Beute'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448136
+    m_Localized: 'Blitz: 5-Minuten-Match'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448137
+    m_Localized: Zeit ist um!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448138
+    m_Localized: Platz {0} von {1}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

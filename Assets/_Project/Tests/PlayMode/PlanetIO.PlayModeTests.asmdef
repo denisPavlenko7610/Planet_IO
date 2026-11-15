@@ -9,7 +9,9 @@
         "PlanetIO.Bootstrap",
         "PlanetIO.UI",
         "Unity.Netcode.Runtime",
-        "VContainer"
+        "VContainer",
+        "RD.Settings",
+        "RD.Localization"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

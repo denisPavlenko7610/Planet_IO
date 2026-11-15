@@ -6,8 +6,14 @@
     <ui:VisualElement name="hud-root" class="screen" picking-mode="Ignore">
         <ui:VisualElement name="border-warning" class="screen" picking-mode="Ignore" />
         <ui:VisualElement name="safe-area" class="safe" picking-mode="Ignore">
+            <ui:VisualElement name="stick-zone">
+                <ui:VisualElement name="stick" class="control" picking-mode="Ignore">
+                    <ui:VisualElement name="stick-knob" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
             <ui:Label name="score-text" text="0" picking-mode="Ignore" />
             <ui:Label name="session-text" picking-mode="Ignore" />
+            <ui:Label name="ping-text" picking-mode="Ignore" />
             <ui:VisualElement name="tier-panel" class="tier-1" picking-mode="Ignore">
                 <ui:Label name="tier-text" text="I" picking-mode="Ignore" />
                 <ui:VisualElement name="tier-bar" picking-mode="Ignore">
@@ -23,19 +29,49 @@
                 <ui:Label name="leaderboard-text" enable-rich-text="true" picking-mode="Ignore" />
             </ui:VisualElement>
             <ui:Label name="kill-feed" picking-mode="Ignore" />
+            <ui:Label name="event-banner" picking-mode="Ignore" />
+            <ui:Label name="blitz-timer" picking-mode="Ignore" />
             <ui:Label name="hint-text" picking-mode="Ignore" />
             <ui:Label name="score-popup" picking-mode="Ignore" />
-            <ui:VisualElement name="stick" class="control">
-                <ui:VisualElement name="stick-knob" picking-mode="Ignore" />
-            </ui:VisualElement>
             <ui:VisualElement name="boost-button" class="control">
                 <ui:VisualElement name="boost-icon" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="perk-panel" class="screen" picking-mode="Ignore">
+            <ui:VisualElement name="perk-box" picking-mode="Ignore">
+                <ui:Label name="perk-title" picking-mode="Ignore" />
+                <ui:VisualElement name="perk-timer" picking-mode="Ignore">
+                    <ui:VisualElement name="perk-timer-fill" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement name="perk-cards" picking-mode="Ignore">
+                    <ui:VisualElement name="perk-card-0" class="perk-card">
+                        <ui:Label name="perk-name-0" class="perk-name" picking-mode="Ignore" />
+                        <ui:Label name="perk-desc-0" class="perk-desc" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="perk-card-1" class="perk-card">
+                        <ui:Label name="perk-name-1" class="perk-name" picking-mode="Ignore" />
+                        <ui:Label name="perk-desc-1" class="perk-desc" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="perk-card-2" class="perk-card">
+                        <ui:Label name="perk-name-2" class="perk-name" picking-mode="Ignore" />
+                        <ui:Label name="perk-desc-2" class="perk-desc" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="defeat-panel" class="screen">
             <ui:VisualElement name="defeat-card" class="card">
                 <ui:Label name="defeat-title" />
                 <ui:Label name="defeat-body" />
+                <ui:Label name="result-details" />
+                <ui:VisualElement name="rank-row">
+                    <ui:Label name="rank-text" />
+                    <ui:VisualElement name="rank-bar">
+                        <ui:VisualElement name="rank-fill" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label name="reward-text" />
+                <ui:Button name="double-dust" class="btn btn-long btn-blue" />
                 <ui:Button name="play-again" class="btn btn-cta btn-yellow" />
                 <ui:Button name="continue-button" class="btn btn-long btn-green" />
                 <ui:Button name="defeat-leave" class="btn btn-hud btn-red" />

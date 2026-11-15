@@ -18,14 +18,8 @@ namespace PlanetIO.UI
         {
             _document = GetComponent<UIDocument>();
             _target = _document.rootVisualElement.Q<VisualElement>(_elementName);
-            UiPointerBlocker.Register(_document);
             _applied = default;
             Apply();
-        }
-
-        private void OnDisable()
-        {
-            UiPointerBlocker.Unregister(_document);
         }
 
         private void LateUpdate()

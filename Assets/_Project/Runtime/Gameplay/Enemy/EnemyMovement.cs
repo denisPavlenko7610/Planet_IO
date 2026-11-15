@@ -380,7 +380,7 @@ namespace PlanetIO
                 if (candidate.TryGetComponent(out Player player))
                 {
                     if (!player.IsDefeated &&
-                        !player.IsStealthed &&
+                        !player.IsHiddenFromRivals &&
                         distanceSquared < playerDistanceSquared)
                     {
                         nearestPlayer = player;

@@ -6,6 +6,7 @@ using RD.AddressableAssets;
 using RD.Attributes;
 using PlanetIO.Application;
 using PlanetIO.Infrastructure.Ads;
+using PlanetIO.Infrastructure.Analytics;
 using PlanetIO.Infrastructure.Audio;
 using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
@@ -77,6 +78,8 @@ namespace PlanetIO.Bootstrap
                 .As<ISceneFlow>();
             builder.Register<SaveStore>(_ => new SaveStore(Path.Combine(UnityEngine.Application.persistentDataPath, "Saves")), Lifetime.Singleton);
             builder.Register<PlayerProfileService>(Lifetime.Singleton).AsSelf().As<IPlayerProfileService>();
+            builder.Register<LocalAnalyticsService>(Lifetime.Singleton).AsSelf().As<IAnalyticsService>();
+            builder.Register<ProgressionService>(Lifetime.Singleton).AsSelf().As<IProgressionService>();
             builder.Register<AddressableService>(Lifetime.Singleton);
             builder.Register<ISettingsStore>(_ => new PlayerPrefsSettingsStore(GameSettingKeys.StorePrefix), Lifetime.Singleton);
             builder.Register<SettingsService>(Lifetime.Singleton).As<ISettingsService>();
@@ -106,7 +109,11 @@ namespace PlanetIO.Bootstrap
         private async void OnApplicationPause(bool paused)
         {
             if (!paused || Container == null) return;
-            try { await Container.Resolve<PlayerProfileService>().FlushAsync(); }
+            try
+            {
+                await Container.Resolve<PlayerProfileService>().FlushAsync();
+                await Container.Resolve<ProgressionService>().FlushAsync();
+            }
             catch (Exception exception) { UnityLogger.LogException(exception); }
         }
 

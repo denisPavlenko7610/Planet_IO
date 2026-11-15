@@ -5,7 +5,7 @@
     opacity: 0;
 }
 
-#score-text, #session-text, #kill-feed, #hint-text, #score-popup {
+#score-text, #session-text, #ping-text, #kill-feed, #hint-text, #score-popup {
     -unity-text-outline-width: 2px;
     -unity-text-outline-color: rgb(21, 10, 51);
     text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
@@ -31,6 +31,31 @@
     white-space: normal;
     margin: 0;
     padding: 0;
+}
+
+#ping-text {
+    position: absolute;
+    right: 490px;
+    top: 44px;
+    width: 180px;
+    font-size: 28px;
+    color: white;
+    -unity-text-align: middle-right;
+    margin: 0;
+    padding: 0;
+    display: none;
+}
+
+#ping-text.ping-good {
+    color: rgb(153, 255, 128);
+}
+
+#ping-text.ping-fair {
+    color: rgb(255, 214, 102);
+}
+
+#ping-text.ping-poor {
+    color: rgb(255, 96, 96);
 }
 
 #tier-panel {
@@ -141,6 +166,34 @@
     opacity: 0;
 }
 
+#event-banner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 104px;
+    font-size: 44px;
+    color: rgb(255, 170, 80);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
+    opacity: 0;
+}
+
+#blitz-timer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 164px;
+    font-size: 40px;
+    color: white;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
+    display: none;
+}
+
 #hint-text {
     position: absolute;
     left: 0;
@@ -178,18 +231,37 @@
     transition-duration: 0.08s;
 }
 
+#stick-zone {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 55%;
+}
+
 #stick {
-    left: 180px;
+    left: 148px;
+    bottom: 38px;
+    width: 264px;
+    height: 264px;
+    border-radius: 132px;
+    border-width: 5px;
+    scale: 1 1;
+}
+
+#stick.stick-active {
+    background-color: rgba(120, 70, 220, 0.45);
 }
 
 #boost-button {
     right: 180px;
+    scale: 0.95 0.95;
 }
 
 #stick-knob {
-    width: 104px;
-    height: 104px;
-    border-radius: 52px;
+    width: 108px;
+    height: 108px;
+    border-radius: 54px;
     background-color: rgba(191, 153, 255, 0.22);
     background-image: url("/Assets/_Project/Sprites/Buttons/StickRing.png");
     -unity-background-scale-mode: scale-to-fit;
@@ -204,8 +276,92 @@
 }
 
 #boost-button:active {
-    scale: 0.72 0.72;
+    scale: 0.88 0.88;
     background-color: rgba(120, 70, 220, 0.6);
+}
+
+#perk-panel {
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#perk-box {
+    width: 94%;
+    max-width: 1180px;
+    padding: 20px 24px 28px 24px;
+    align-items: center;
+    background-color: rgba(21, 10, 51, 0.88);
+    border-radius: 32px;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.55);
+}
+
+#perk-title {
+    font-size: 44px;
+    color: white;
+    margin: 0 0 12px 0;
+    padding: 0;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+}
+
+#perk-timer {
+    width: 100%;
+    height: 14px;
+    margin-bottom: 18px;
+    border-radius: 7px;
+    background-color: rgba(8, 3, 22, 0.8);
+    overflow: hidden;
+}
+
+#perk-timer-fill {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(153, 255, 128);
+}
+
+#perk-cards {
+    flex-direction: row;
+    width: 100%;
+}
+
+.perk-card {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin: 0 8px;
+    min-height: 230px;
+    padding: 18px 16px;
+    align-items: center;
+    border-radius: 24px;
+    border-width: 3px;
+    border-color: rgba(191, 153, 255, 0.7);
+    background-color: rgba(41, 20, 82, 0.96);
+}
+
+.perk-card:active {
+    background-color: rgba(86, 48, 160, 0.98);
+    border-color: rgb(255, 230, 115);
+}
+
+.perk-name {
+    font-size: 34px;
+    color: rgb(255, 230, 115);
+    margin: 0 0 10px 0;
+    padding: 0;
+    white-space: normal;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.perk-desc {
+    font-size: 26px;
+    color: white;
+    margin: 0;
+    padding: 0;
+    white-space: normal;
+    -unity-text-align: upper-center;
 }
 
 #defeat-panel {
@@ -235,6 +391,60 @@
     -unity-text-align: middle-center;
     white-space: normal;
     margin: 0 0 22px 0;
+}
+
+#result-details {
+    font-size: 28px;
+    color: rgb(200, 190, 230);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 0 0 14px 0;
+    padding: 0;
+}
+
+#rank-row {
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    margin-bottom: 8px;
+}
+
+#rank-text {
+    min-width: 170px;
+    font-size: 34px;
+    color: rgb(255, 230, 115);
+    margin: 0 14px 0 0;
+    padding: 0;
+    -unity-font-style: bold;
+}
+
+#rank-bar {
+    flex-grow: 1;
+    height: 22px;
+    border-radius: 11px;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.55);
+    background-color: rgba(8, 3, 22, 0.8);
+    overflow: hidden;
+}
+
+#rank-fill {
+    width: 0;
+    height: 100%;
+    background-color: rgb(153, 255, 128);
+}
+
+#reward-text {
+    font-size: 30px;
+    color: rgb(153, 255, 128);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 0 0 14px 0;
+    padding: 0;
+}
+
+#double-dust {
+    margin-bottom: 14px;
 }
 
 #continue-button {

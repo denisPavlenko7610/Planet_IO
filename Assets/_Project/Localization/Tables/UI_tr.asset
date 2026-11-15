@@ -240,6 +240,230 @@ MonoBehaviour:
     m_Localized: "Reklam kullan\u0131lam\u0131yor. Daha sonra tekrar deneyin."
     m_Metadata:
       m_Items: []
+  - m_Id: 17768241810624512
+    m_Localized: "Bir yetenek se\xE7"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093504
+    m_Localized: "\u0130yon \u0130zi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093505
+    m_Localized: "H\u0131z, zarar veren bir iz b\u0131rak\u0131r. H\u0131z %25 daha pahal\u0131."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093506
+    m_Localized: Manyetosfer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093507
+    m_Localized: "Yiyecek m\u0131knat\u0131s\u0131 %50 daha uza\u011Fa ula\u015F\u0131r. %8 daha yava\u015Fs\u0131n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093508
+    m_Localized: "A\u011F\u0131r Aylar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093509
+    m_Localized: "+1 ay ve %50 daha fazla ay hasar\u0131. %5 daha yava\u015Fs\u0131n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093510
+    m_Localized: Ablatif Kabuk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093511
+    m_Localized: "\xD6l\xFCmc\xFCl bir darbeden k\xFCtlenin %30'u ile kurtul."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093512
+    m_Localized: "G\xFCne\u015F Yelkeni"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093513
+    m_Localized: "%12 daha h\u0131zl\u0131s\u0131n. Yiyecek %10 daha az verir."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093514
+    m_Localized: "K\xFCtle\xE7ekim Kuyusu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093515
+    m_Localized: "\xC7ekim alan\u0131 %40 daha geni\u015F. %6 daha yava\u015Fs\u0131n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093516
+    m_Localized: Bulutsu Perdesi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093517
+    m_Localized: "H\u0131zdan sonra 10 sn rakiplerin mini haritas\u0131ndan kaybolursun."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093518
+    m_Localized: "Kuyruklu Y\u0131ld\u0131z S\xFCr\xFCc\xFCs\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093519
+    m_Localized: "Kuyruklu y\u0131ld\u0131zlar zarar vermek yerine seni iyile\u015Ftirir."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093520
+    m_Localized: "Y\u0131rt\u0131c\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093521
+    m_Localized: "\xD6ld\xFCrmeler %20 daha fazla k\xFCtle verir. Yiyecek %10 daha az verir."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034084401152
+    m_Localized: "S\xFCre: {0}   Yenen: {1}   Kademe: {2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315712
+    m_Localized: "{0} taraf\u0131ndan yenildin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315713
+    m_Localized: "R\xFCtbe {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315714
+    m_Localized: +{0} XP   +{1} toz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315715
+    m_Localized: "Yeni r\xFCtbe!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315716
+    m_Localized: "\xC7ift toz (reklam)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315717
+    m_Localized: "R\xFCtbe {0}   Toz {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315718
+    m_Localized: "G\xF6revler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315719
+    m_Localized: "G\xFCnl\xFCk g\xF6revler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315720
+    m_Localized: "Seri: {0} g\xFCn"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315721
+    m_Localized: "G\xFCnl\xFCk bonus: +{0} toz"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510016
+    m_Localized: Al +{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510017
+    m_Localized: "De\u011Fi\u015Ftir"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510018
+    m_Localized: Tamam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510019
+    m_Localized: '{0} gezegen ye'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510020
+    m_Localized: "{0}. kademeye ula\u015F"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510021
+    m_Localized: Tek oyunda {0} saniye hayatta kal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510022
+    m_Localized: "Tek oyunda {0} puana ula\u015F"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510023
+    m_Localized: "{0} yetenek se\xE7"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510024
+    m_Localized: '{0} oyun oyna'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510025
+    m_Localized: Reklam / {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510026
+    m_Localized: "Gezegenini y\xF6nlendirmek i\xE7in parma\u011F\u0131n\u0131 s\xFCr\xFCkle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510027
+    m_Localized: "K\u0131rm\u0131z\u0131 halka: daha b\xFCy\xFCk gezegen. Ka\xE7!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510028
+    m_Localized: "Ye\u015Fil halka: daha k\xFC\xE7\xFCk gezegen. Onu ye!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510029
+    m_Localized: "Aylar ve ilk yetene\u011Fin i\xE7in b\xFCy\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441010253824
+    m_Localized: "Meteor ya\u011Fmuru yakla\u015F\u0131yor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448128
+    m_Localized: "Meteor ya\u011Fmuru!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448129
+    m_Localized: "Bir y\u0131ld\u0131z uyan\u0131yor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448130
+    m_Localized: "Bir y\u0131ld\u0131z patlamak \xFCzere!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448131
+    m_Localized: "Kara delik olu\u015Fuyor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448132
+    m_Localized: Kara delik! Uzak dur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448133
+    m_Localized: "Bug\xFCn: d\xFC\u015F\xFCk yer\xE7ekimi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448134
+    m_Localized: "Bug\xFCn: y\xFCksek yer\xE7ekimi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448135
+    m_Localized: "Bug\xFCn: alt\u0131na h\xFCcum, bol ganimet"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448136
+    m_Localized: "Blitz: 5 dakikal\u0131k ma\xE7"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448137
+    m_Localized: "S\xFCre doldu!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448138
+    m_Localized: "{1} oyuncu aras\u0131nda {0}."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

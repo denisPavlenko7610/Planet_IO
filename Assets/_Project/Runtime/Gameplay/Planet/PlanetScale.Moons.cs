@@ -52,6 +52,17 @@ namespace PlanetIO
             return baseSlots > 0 ? Mathf.Min(MoonLoadout.MaxSlots, baseSlots + MoonSlotBonus) : 0;
         }
 
+        protected void ResetMoons()
+        {
+            if (!IsServer || !IsSpawned)
+            {
+                return;
+            }
+
+            _moons.Reset();
+            PublishMoonMask();
+        }
+
         protected void RefreshMoonSlots()
         {
             if (IsServer && IsSpawned && _moons.SetSlots(SlotsForTier(_networkTier.Value)))

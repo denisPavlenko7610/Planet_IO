@@ -240,6 +240,230 @@ MonoBehaviour:
     m_Localized: "Pubblicit\xE0 non disponibile. Riprova pi\xF9 tardi."
     m_Metadata:
       m_Items: []
+  - m_Id: 17768241810624512
+    m_Localized: Scegli un potenziamento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093504
+    m_Localized: Scia ionica
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093505
+    m_Localized: "Il boost lascia una scia dannosa. Il boost costa il 25% in pi\xF9."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093506
+    m_Localized: Magnetosfera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093507
+    m_Localized: "Il magnete del cibo arriva il 50% pi\xF9 lontano. Sei l'8% pi\xF9 lento."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093508
+    m_Localized: Lune pesanti
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093509
+    m_Localized: "+1 luna e +50% di danno delle lune. Sei il 5% pi\xF9 lento."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093510
+    m_Localized: Crosta ablativa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093511
+    m_Localized: Sopravvivi a un colpo mortale con il 30% della tua massa.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093512
+    m_Localized: Vela solare
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093513
+    m_Localized: "Sei il 12% pi\xF9 veloce. Il cibo d\xE0 il 10% in meno."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093514
+    m_Localized: Pozzo gravitazionale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093515
+    m_Localized: "Zona di gravit\xE0 pi\xF9 ampia del 40%. Sei il 6% pi\xF9 lento."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093516
+    m_Localized: Velo di nebulosa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093517
+    m_Localized: Dopo un boost, sparisci dalle minimappe rivali per 10 s.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093518
+    m_Localized: Cavalcacomete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093519
+    m_Localized: Le comete ti curano invece di ferirti.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093520
+    m_Localized: Predatore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093521
+    m_Localized: "Le uccisioni danno il 20% di massa in pi\xF9. Il cibo d\xE0 il 10% in meno."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034084401152
+    m_Localized: 'Tempo: {0}   Mangiati: {1}   Livello: {2}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315712
+    m_Localized: Mangiato da {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315713
+    m_Localized: Grado {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315714
+    m_Localized: +{0} XP   +{1} polvere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315715
+    m_Localized: Nuovo grado!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315716
+    m_Localized: Polvere doppia (video)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315717
+    m_Localized: Grado {0}   Polvere {1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315718
+    m_Localized: Missioni
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315719
+    m_Localized: Missioni giornaliere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315720
+    m_Localized: 'Serie: {0} giorni'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315721
+    m_Localized: 'Bonus giornaliero: +{0} polvere'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510016
+    m_Localized: Ritira +{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510017
+    m_Localized: Cambia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510018
+    m_Localized: Fatto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510019
+    m_Localized: Mangia {0} pianeti
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510020
+    m_Localized: Raggiungi il livello {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510021
+    m_Localized: Sopravvivi {0} secondi in una partita
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510022
+    m_Localized: Raggiungi {0} punti in una partita
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510023
+    m_Localized: Scegli {0} potenziamenti
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510024
+    m_Localized: Gioca {0} partite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510025
+    m_Localized: Video / {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510026
+    m_Localized: Trascina il dito per guidare il pianeta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510027
+    m_Localized: "Anello rosso: pianeta pi\xF9 grande. Scappa!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510028
+    m_Localized: "Anello verde: pianeta pi\xF9 piccolo. Mangialo!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510029
+    m_Localized: Cresci per ottenere lune e il primo potenziamento
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441010253824
+    m_Localized: In arrivo una pioggia di meteore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448128
+    m_Localized: Pioggia di meteore!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448129
+    m_Localized: Una stella si sta risvegliando
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448130
+    m_Localized: Una stella sta per esplodere!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448131
+    m_Localized: Si sta formando un buco nero
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448132
+    m_Localized: Buco nero! Stai lontano
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448133
+    m_Localized: "Oggi: gravit\xE0 bassa"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448134
+    m_Localized: "Oggi: gravit\xE0 alta"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448135
+    m_Localized: 'Oggi: corsa all''oro, bottino ricco'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448136
+    m_Localized: 'Blitz: partita da 5 minuti'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448137
+    m_Localized: Tempo scaduto!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448138
+    m_Localized: Posto {0} su {1}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

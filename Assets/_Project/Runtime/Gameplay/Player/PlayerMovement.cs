@@ -14,6 +14,7 @@ namespace PlanetIO
         [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0.35f;
         [SerializeField, Range(0.1f, 1f)] private float _minimumSpeedMultiplier = 0.55f;
         [SerializeField, Min(1f)] private float _turnSpeed = 540f;
+        [SerializeField, Range(0.01f, 0.5f)] private float _turnSmoothTime = 0.09f;
 
         [Header("Speed")]
         [SerializeField, Min(0f)] private float _normalSpeed = 4f;
@@ -26,6 +27,7 @@ namespace PlanetIO
         private IBoostInput _boostInput;
         private IGameStateService _gameStateService;
         private float _currentSpeed;
+        private float _turnVelocity;
         private bool _boostInputSubscribed;
         private bool _isBoosting;
 
@@ -107,6 +109,7 @@ namespace PlanetIO
                 _gameStateService?.IsGameplayActive != true)
             {
                 _rigidbody2D.linearVelocity = Vector2.zero;
+                _turnVelocity = 0f;
                 return;
             }
 
@@ -137,14 +140,12 @@ namespace PlanetIO
 
         private void UpdateDirection()
         {
-            if (Vector2.Angle(Direction, _desiredDirection) < 0.1f)
-            {
-                Direction = _desiredDirection;
-                return;
-            }
-
-            Direction = Vector3.RotateTowards(Direction, _desiredDirection,
-				_turnSpeed * Mathf.Deg2Rad * Time.fixedDeltaTime, 0f).normalized;
+            float current = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
+            float target = Mathf.Atan2(_desiredDirection.y, _desiredDirection.x) * Mathf.Rad2Deg;
+            float next = Mathf.SmoothDampAngle(current, target, ref _turnVelocity, _turnSmoothTime, _turnSpeed,
+                Time.fixedDeltaTime);
+            float radians = next * Mathf.Deg2Rad;
+            Direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
         }
 
         private void SubscribeBoostInput()

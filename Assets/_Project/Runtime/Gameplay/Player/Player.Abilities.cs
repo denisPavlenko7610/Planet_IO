@@ -32,7 +32,18 @@ namespace PlanetIO
 
         public float TrailRadius => Mathf.Max(TrailMinimumRadius, BodyRadius * TrailRadiusFactor);
 
-        public override bool IsHiddenFromRivals => IsStealthed;
+        public override bool IsHiddenFromRivals => IsStealthed || base.IsHiddenFromRivals;
+
+        public override void Teleport(Vector2 position)
+        {
+            TeleportRpc(position);
+        }
+
+        [Rpc(SendTo.Owner)]
+        private void TeleportRpc(Vector2 position)
+        {
+            TeleportLocal(position);
+        }
 
         private void InitializeAbilities()
         {

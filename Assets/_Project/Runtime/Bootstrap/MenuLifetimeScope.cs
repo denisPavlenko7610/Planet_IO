@@ -10,7 +10,9 @@ namespace PlanetIO.Bootstrap
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterComponentInHierarchy<MainMenuView>()
-                .As<IMainMenuView>();
+                .As<IMainMenuView>()
+                .As<IProgressView>()
+                .As<IModeView>();
 
             builder.RegisterComponentInHierarchy<NicknameInputView>()
                 .As<INicknameInputView>();
@@ -25,6 +27,8 @@ namespace PlanetIO.Bootstrap
 
             builder.RegisterEntryPoint<SettingsPresenter>().AsSelf();
             builder.RegisterEntryPoint<MenuPresenter>();
+            builder.RegisterEntryPoint<ProgressMenuPresenter>();
+            builder.RegisterEntryPoint<ModeMenuPresenter>();
         }
     }
 }

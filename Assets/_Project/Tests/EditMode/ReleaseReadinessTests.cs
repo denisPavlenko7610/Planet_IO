@@ -100,6 +100,7 @@ namespace PlanetIO.Tests
         [TestCase("ContinueRpc")]
         [TestCase("SetSkinRpc")]
         [TestCase("RespawnRpc")]
+        [TestCase("ChoosePerkRpc")]
         public void PlayerServerRpc_OnlyAcceptsCallsFromOwner(string methodName)
         {
             MethodInfo method = typeof(Player).GetMethod(

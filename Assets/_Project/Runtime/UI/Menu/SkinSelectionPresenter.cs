@@ -13,6 +13,8 @@ namespace PlanetIO.UI.Menu
         private readonly PlanetSkinCatalog _catalog;
         private readonly IRewardedAdsService _rewardedAds;
         private readonly ILocalizationService _localization;
+        private readonly IProgressionService _progression;
+        private readonly IAnalyticsService _analytics;
         private bool _adInProgress;
 
         public SkinSelectionPresenter(
@@ -20,8 +22,12 @@ namespace PlanetIO.UI.Menu
             IPlayerProfileService profile,
             PlanetSkinCatalog catalog,
             IRewardedAdsService rewardedAds,
-            ILocalizationService localization)
+            ILocalizationService localization,
+            IProgressionService progression,
+            IAnalyticsService analytics)
         {
+            _progression = progression ?? throw new ArgumentNullException(nameof(progression));
+            _analytics = analytics ?? throw new ArgumentNullException(nameof(analytics));
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _profile = profile ?? throw new ArgumentNullException(nameof(profile));
             _catalog = catalog ? catalog : throw new ArgumentNullException(nameof(catalog));
@@ -37,7 +43,7 @@ namespace PlanetIO.UI.Menu
                 sprites.Add(_catalog.Get(index).Sprite);
             }
 
-            _view.Build(sprites, _localization.Get(LocalizationKeys.MenuSkinLocked));
+            _view.Build(sprites, LockedLabel());
             _view.SkinClicked += OnSkinClicked;
             _profile.SkinChanged += OnProfileSkinsChanged;
             _profile.SkinsUnlocked += Render;
@@ -53,7 +59,9 @@ namespace PlanetIO.UI.Menu
             _localization.LocaleChanged -= OnLocaleChanged;
         }
 
-        private void OnLocaleChanged(LocaleChanged _) => _view.SetLockedLabel(_localization.Get(LocalizationKeys.MenuSkinLocked));
+        private string LockedLabel() => _localization.Get(LocalizationKeys.MenuSkinLockedPrice, DustRules.SkinPrice);
+
+        private void OnLocaleChanged(LocaleChanged _) => _view.SetLockedLabel(LockedLabel());
 
         private void OnProfileSkinsChanged(int _) => Render();
 
@@ -75,6 +83,17 @@ namespace PlanetIO.UI.Menu
 
             if (_adInProgress)
             {
+                return;
+            }
+
+            if (_progression.TrySpendDust(DustRules.SkinPrice))
+            {
+                _profile.UnlockSkin(index);
+                _profile.SelectSkin(index);
+                _analytics.Track(
+                    AnalyticsEvents.ShopPurchase,
+                    ("item_id", _catalog.Get(index).Id),
+                    ("currency", "dust"));
                 return;
             }
 

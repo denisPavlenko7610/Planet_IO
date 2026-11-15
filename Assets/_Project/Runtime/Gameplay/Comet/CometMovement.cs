@@ -64,6 +64,34 @@ namespace PlanetIO
             Move();
         }
 
+        public void Randomize()
+        {
+            if (IsServer)
+            {
+                ResetMovement();
+            }
+        }
+
+        public void Launch(Vector2 position, Vector2 direction, float speed)
+        {
+            if (!IsServer)
+            {
+                return;
+            }
+
+            _direction = direction.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
+                ? direction.normalized
+                : Vector2.right;
+            _normalSpeed = Mathf.Max(0f, speed);
+            _cometTransform.rotation = Constants.DirectionToRotation(_direction);
+            transform.position = position;
+
+            if (IsSpawned && TryGetComponent(out Unity.Netcode.Components.NetworkTransform networkTransform))
+            {
+                networkTransform.Teleport(position, _cometTransform.rotation, transform.localScale);
+            }
+        }
+
         public void Move()
         {
             _rigidbody2D.linearVelocity = _direction * _normalSpeed;

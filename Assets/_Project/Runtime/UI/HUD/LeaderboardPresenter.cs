@@ -11,7 +11,7 @@ namespace PlanetIO.UI.Hud
     public sealed class LeaderboardPresenter : IStartable, ITickable, IDisposable
     {
         private const float RefreshIntervalSeconds = 0.5f;
-        private const int VisibleEntries = 6;
+        private const int VisibleEntries = 7;
         private const string LocalEntryColor = "#FFE066";
 
         private readonly NetworkManager _networkManager;

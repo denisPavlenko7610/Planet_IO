@@ -231,6 +231,230 @@ MonoBehaviour:
     m_Key: menu.ad_unavailable
     m_Metadata:
       m_Items: []
+  - m_Id: 17768241810624512
+    m_Key: perk.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093504
+    m_Key: perk.ion_trail.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093505
+    m_Key: perk.ion_trail.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093506
+    m_Key: perk.magnetosphere.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093507
+    m_Key: perk.magnetosphere.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093508
+    m_Key: perk.heavy_moons.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093509
+    m_Key: perk.heavy_moons.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093510
+    m_Key: perk.ablative_crust.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093511
+    m_Key: perk.ablative_crust.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093512
+    m_Key: perk.solar_sail.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093513
+    m_Key: perk.solar_sail.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093514
+    m_Key: perk.gravity_well.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093515
+    m_Key: perk.gravity_well.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093516
+    m_Key: perk.nebula_veil.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093517
+    m_Key: perk.nebula_veil.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093518
+    m_Key: perk.comet_rider.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093519
+    m_Key: perk.comet_rider.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093520
+    m_Key: perk.predator.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093521
+    m_Key: perk.predator.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034084401152
+    m_Key: result.details
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315712
+    m_Key: result.killed_by
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315713
+    m_Key: result.rank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315714
+    m_Key: result.reward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315715
+    m_Key: result.rank_up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315716
+    m_Key: result.double_dust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315717
+    m_Key: progress.rank_dust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315718
+    m_Key: missions.button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315719
+    m_Key: missions.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315720
+    m_Key: missions.streak
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315721
+    m_Key: missions.streak_bonus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510016
+    m_Key: missions.claim
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510017
+    m_Key: missions.reroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510018
+    m_Key: missions.done
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510019
+    m_Key: mission.kills
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510020
+    m_Key: mission.peak_tier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510021
+    m_Key: mission.survive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510022
+    m_Key: mission.peak_score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510023
+    m_Key: mission.perks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510024
+    m_Key: mission.runs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510025
+    m_Key: menu.skin_locked_price
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510026
+    m_Key: ftue.move
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510027
+    m_Key: ftue.avoid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510028
+    m_Key: ftue.hunt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510029
+    m_Key: ftue.tier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441010253824
+    m_Key: event.meteor.warn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448128
+    m_Key: event.meteor.now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448129
+    m_Key: event.supernova.warn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448130
+    m_Key: event.supernova.now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448131
+    m_Key: event.blackhole.warn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448132
+    m_Key: event.blackhole.now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448133
+    m_Key: modifier.low_gravity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448134
+    m_Key: modifier.heavy_gravity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448135
+    m_Key: modifier.gold_rush
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448136
+    m_Key: mode.blitz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448137
+    m_Key: blitz.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448138
+    m_Key: blitz.rank
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

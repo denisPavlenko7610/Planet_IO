@@ -10,7 +10,7 @@ namespace PlanetIO
         {
             if (IsServer && capacity <= MinCapacity)
             {
-                if (TryConsumeAblativeCrust())
+                if (TryConsumeAblativeCrust(true))
                 {
                     return;
                 }
@@ -40,6 +40,7 @@ namespace PlanetIO
                 _rigidbody2D.linearVelocity = Vector2.zero;
             }
 
+            ResetMoons();
             _networkDefeated.Value = true;
         }
 
@@ -131,8 +132,8 @@ namespace PlanetIO
             _continueUsedThisLife = false;
             _lootDrop = null;
             ResetBoost();
-            ResetPerksForNewLife();
             Revive(_spawnInvincibilityTime, InitialCapacity);
+            ResetPerksForNewLife();
         }
 
         private void Revive(float protectionTime, float capacity)
@@ -140,6 +141,7 @@ namespace PlanetIO
             _invincibilityTimeRemaining = protectionTime;
             Capacity = capacity;
             _networkDefeated.Value = false;
+            RefreshMoonSlots();
         }
     }
 }

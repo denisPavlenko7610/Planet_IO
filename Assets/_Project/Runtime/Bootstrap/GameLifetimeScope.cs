@@ -102,11 +102,21 @@ namespace PlanetIO.Bootstrap
             builder.RegisterEntryPoint<LocalPlayerProvider>()
                 .As<ILocalPlayerProvider>();
 
+            builder.RegisterEntryPoint<RunStatsTracker>()
+                .As<IRunStats>();
+            builder.RegisterEntryPoint<WorldDirector>()
+                .As<IWorldEvents>();
             builder.RegisterEntryPoint<ScorePresenter>();
             builder.RegisterEntryPoint<DirectionArrowPresenter>();
             builder.RegisterEntryPoint<LeaderboardPresenter>();
+            builder.RegisterEntryPoint<PingPresenter>();
             builder.RegisterEntryPoint<DefeatPresenter>();
             builder.RegisterEntryPoint<PlayerFeedbackPresenter>();
+            builder.RegisterEntryPoint<PerkPresenter>();
+            builder.RegisterEntryPoint<FtuePresenter>();
+            builder.RegisterEntryPoint<EventBannerPresenter>();
+            builder.RegisterEntryPoint<BlitzDirector>()
+                .As<IBlitzMatch>();
             builder.RegisterEntryPoint<HudNavigationPresenter>();
             builder.RegisterComponentInHierarchy<SettingsView>()
                 .As<ISettingsView>();
@@ -127,7 +137,10 @@ namespace PlanetIO.Bootstrap
             }
 
             builder.RegisterComponent(_sessionHudView)
-                .As<ISessionHudView>();
+                .As<ISessionHudView>()
+                .As<IPerkView>()
+                .As<IRunResultView>()
+                .As<IWorldHudView>();
 
             builder.RegisterInstance<IPlayerRegistry>(new PlayerRegistryService());
         }

@@ -105,3 +105,5 @@ unity-android-build.log
 unity-android-build2.log
 Assets/netcode-build-assets-temp
 Assets/netcode-build-assets-temp.meta
+Assets/InitTestScene*.unity
+Assets/InitTestScene*.unity.meta

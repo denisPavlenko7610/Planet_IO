@@ -163,3 +163,132 @@
 #status-text.status--error {
     color: rgb(255, 150, 150);
 }
+
+#version-text {
+    position: absolute;
+    right: 24px;
+    bottom: 8px;
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.45);
+    -unity-text-align: lower-right;
+    margin: 0;
+    padding: 0;
+}
+
+#rank-dust {
+    font-size: 32px;
+    color: white;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
+    margin: 0;
+    padding: 0;
+}
+
+#missions-button {
+    position: absolute;
+    top: 25px;
+    left: 40px;
+}
+
+#missions-overlay {
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#missions-backdrop {
+    background-color: rgba(8, 3, 22, 0.78);
+}
+
+#missions-card {
+    width: 900px;
+    max-width: 96%;
+    padding: 30px 36px 30px 36px;
+    align-items: stretch;
+    background-color: var(--panel-modal);
+    border-radius: 40px;
+}
+
+#missions-title {
+    font-size: 54px;
+    color: white;
+    -unity-text-align: middle-center;
+    text-shadow: 0 4px 0 rgba(10, 4, 30, 0.9);
+    margin: 0 0 6px 0;
+    padding: 0;
+}
+
+#missions-streak {
+    font-size: 30px;
+    color: var(--gold);
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+}
+
+#missions-bonus {
+    font-size: 28px;
+    color: rgb(153, 255, 128);
+    -unity-text-align: middle-center;
+    margin: 0 0 8px 0;
+    padding: 0;
+}
+
+#mission-list {
+    margin: 12px 0 18px 0;
+}
+
+.mission-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    border-radius: 24px;
+    background-color: rgba(21, 10, 51, 0.7);
+}
+
+.mission-text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    margin-right: 12px;
+}
+
+.mission-name {
+    font-size: 30px;
+    color: white;
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+}
+
+.mission-progress {
+    font-size: 26px;
+    color: rgb(200, 190, 230);
+    margin: 4px 0 0 0;
+    padding: 0;
+}
+
+.mission-row .btn-small {
+    margin-left: 8px;
+}
+
+#missions-close {
+    align-self: center;
+}
+
+#blitz-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+#blitz-label {
+    font-size: 28px;
+    color: white;
+    margin: 0 0 0 14px;
+    padding: 0;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+}

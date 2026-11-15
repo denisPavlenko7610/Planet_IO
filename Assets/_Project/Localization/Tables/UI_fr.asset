@@ -240,6 +240,230 @@ MonoBehaviour:
     m_Localized: "Publicit\xE9 indisponible. R\xE9essayez plus tard."
     m_Metadata:
       m_Items: []
+  - m_Id: 17768241810624512
+    m_Localized: Choisis un atout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093504
+    m_Localized: "Tra\xEEn\xE9e ionique"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093505
+    m_Localized: "Le boost laisse une tra\xEEn\xE9e nuisible. Le boost co\xFBte 25% de plus."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093506
+    m_Localized: "Magn\xE9tosph\xE8re"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093507
+    m_Localized: "L'aimant \xE0 nourriture porte 50% plus loin. Tu es 8% plus lent."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093508
+    m_Localized: Lunes lourdes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093509
+    m_Localized: "+1 lune et +50% de d\xE9g\xE2ts des lunes. Tu es 5% plus lent."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093510
+    m_Localized: "Cro\xFBte ablative"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093511
+    m_Localized: "Survis \xE0 un coup mortel avec 30% de ta masse."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093512
+    m_Localized: Voile solaire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093513
+    m_Localized: Tu es 12% plus rapide. La nourriture rapporte 10% de moins.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093514
+    m_Localized: Puits gravitationnel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093515
+    m_Localized: "Zone de gravit\xE9 40% plus large. Tu es 6% plus lent."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093516
+    m_Localized: "Voile de n\xE9buleuse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093517
+    m_Localized: "Apr\xE8s un boost, disparais des minicartes rivales pendant 10 s."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093518
+    m_Localized: "Chevaucheur de com\xE8tes"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093519
+    m_Localized: "Les com\xE8tes te soignent au lieu de te blesser."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093520
+    m_Localized: "Pr\xE9dateur"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17768241907093521
+    m_Localized: "Les \xE9liminations donnent 20% de masse en plus. La nourriture rapporte 10% de moins."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034084401152
+    m_Localized: "Temps : {0}   Mang\xE9es : {1}   Palier : {2}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315712
+    m_Localized: "Mang\xE9 par {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315713
+    m_Localized: Rang {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315714
+    m_Localized: "+{0} XP   +{1} poussi\xE8re"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315715
+    m_Localized: Nouveau rang !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315716
+    m_Localized: "Poussi\xE8re x2 (pub)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315717
+    m_Localized: "Rang {0}   Poussi\xE8re {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315718
+    m_Localized: Missions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315719
+    m_Localized: Missions du jour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315720
+    m_Localized: "S\xE9rie : {0} jours"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034147315721
+    m_Localized: "Bonus du jour : +{0} poussi\xE8re"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510016
+    m_Localized: "R\xE9cup\xE9rer +{0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510017
+    m_Localized: Changer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510018
+    m_Localized: "Termin\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510019
+    m_Localized: "Mange {0} plan\xE8tes"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510020
+    m_Localized: Atteins le palier {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510021
+    m_Localized: Survis {0} secondes en une partie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510022
+    m_Localized: Atteins {0} points en une partie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510023
+    m_Localized: Choisis {0} atouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510024
+    m_Localized: Joue {0} parties
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510025
+    m_Localized: Pub / {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510026
+    m_Localized: "Fais glisser ton doigt pour diriger ta plan\xE8te"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510027
+    m_Localized: "Anneau rouge : plan\xE8te plus grosse. Fuis !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510028
+    m_Localized: "Anneau vert : plan\xE8te plus petite. Mange-la !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17778034151510029
+    m_Localized: Grandis pour obtenir des lunes et ton premier atout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441010253824
+    m_Localized: "Pluie de m\xE9t\xE9ores imminente"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448128
+    m_Localized: "Pluie de m\xE9t\xE9ores !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448129
+    m_Localized: "Une \xE9toile se r\xE9veille"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448130
+    m_Localized: "Une \xE9toile va exploser !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448131
+    m_Localized: Un trou noir se forme
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448132
+    m_Localized: Trou noir ! Garde tes distances
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448133
+    m_Localized: "Aujourd'hui : faible gravit\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448134
+    m_Localized: "Aujourd'hui : forte gravit\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448135
+    m_Localized: "Aujourd'hui : ru\xE9e vers l'or, butin plus riche"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448136
+    m_Localized: 'Blitz : partie de 5 minutes'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448137
+    m_Localized: "Temps \xE9coul\xE9 !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17782441014448138
+    m_Localized: Rang {0} sur {1}
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

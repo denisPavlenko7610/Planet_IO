@@ -66,7 +66,39 @@ namespace PlanetIO
                     continue;
                 }
 
-                float speed = GravityRules.PullSpeed(distance, well.BodyRadius, well.GravityZoneRadius);
+                float speed = GravityRules.PullSpeed(distance, well.BodyRadius, well.GravityZoneRadius) *
+                              MapFeatureField.GravityScale;
+                if (speed <= 0f)
+                {
+                    continue;
+                }
+
+                pull += toward / distance * speed;
+                if (speed > strongestPull)
+                {
+                    strongestPull = speed;
+                    strongestDirection = toward;
+                }
+            }
+
+            MapFeatureField.Anchor[] anchors = MapFeatureField.Anchors;
+            for (int index = 0; index < anchors.Length; index++)
+            {
+                MapFeatureField.Anchor anchor = anchors[index];
+                if (anchor.Strength <= 0f)
+                {
+                    continue;
+                }
+
+                Vector2 toward = anchor.Position - position;
+                float distance = toward.magnitude;
+                if (distance < 0.01f)
+                {
+                    continue;
+                }
+
+                float speed = GravityRules.PullSpeed(distance, anchor.Radius, anchor.ZoneRadius) *
+                              anchor.Strength * MapFeatureField.GravityScale;
                 if (speed <= 0f)
                 {
                     continue;

@@ -2,7 +2,6 @@ using RD.Attributes;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 
 namespace PlanetIO
 {
@@ -11,7 +10,6 @@ namespace PlanetIO
         [SerializeField, Assign] private PlayerMovement _playerMovement;
 
         private PlayerControls _controls;
-        private Camera _camera;
 
         public override void OnNetworkSpawn()
         {
@@ -35,94 +33,6 @@ namespace PlanetIO
         }
 
         private void OnDisable() => ReleaseInput();
-
-        private void Update()
-        {
-            if (!IsSpawned || !IsOwner || _playerMovement == null)
-            {
-                return;
-            }
-
-            if (TryGetTouchScreenPosition(out Vector2 touchPosition))
-            {
-                SteerTo(touchPosition);
-                return;
-            }
-
-            if (TryGetHeldMousePosition(out Vector2 mousePosition))
-            {
-                SteerTo(mousePosition);
-            }
-        }
-
-        private bool TryGetHeldMousePosition(out Vector2 position)
-        {
-            position = default;
-
-            Mouse mouse = Mouse.current;
-            if (mouse == null || !mouse.leftButton.isPressed)
-            {
-                return false;
-            }
-
-            Vector2 mousePosition = mouse.position.ReadValue();
-            if (IsOverInteractiveUi(mousePosition))
-            {
-                return false;
-            }
-
-            position = mousePosition;
-            return true;
-        }
-
-        private bool TryGetTouchScreenPosition(out Vector2 position)
-        {
-            position = default;
-            Touchscreen touchscreen = Touchscreen.current;
-            if (touchscreen == null)
-            {
-                return false;
-            }
-
-            foreach (TouchControl touch in touchscreen.touches)
-            {
-                if (!touch.isInProgress)
-                {
-                    continue;
-                }
-
-                Vector2 touchPosition = touch.position.ReadValue();
-                if (IsOverInteractiveUi(touchPosition))
-                {
-                    continue;
-                }
-
-                position = touchPosition;
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool IsOverInteractiveUi(Vector2 screenPosition)
-        {
-            return UiPointerBlocker.IsOverUi(screenPosition);
-        }
-
-        private void SteerTo(Vector2 screenPosition)
-        {
-            _camera ??= Camera.main;
-            if (_camera == null)
-            {
-                return;
-            }
-
-            Vector3 playerPosition = _playerMovement.Player.transform.position;
-            Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y,
-                -_camera.transform.position.z));
-
-            _playerMovement.SetDirection(worldPosition - playerPosition);
-        }
 
         private void UpdateInput(InputAction.CallbackContext context)
         {

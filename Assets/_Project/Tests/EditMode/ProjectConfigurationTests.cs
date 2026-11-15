@@ -154,7 +154,7 @@ namespace PlanetIO.Tests
         }
 
         [Test]
-        public void AndroidRelease_UsesApi37Il2CppAndArm64()
+        public void AndroidRelease_UsesApi36Il2CppAndArm64()
         {
             Assert.That(
                 PlayerSettings.GetApplicationIdentifier(
@@ -162,7 +162,7 @@ namespace PlanetIO.Tests
                 Is.EqualTo("com.rd.planetio"));
             Assert.That(
                 PlayerSettings.Android.targetSdkVersion,
-                Is.EqualTo(AndroidSdkVersions.AndroidApiLevel37));
+                Is.EqualTo(AndroidSdkVersions.AndroidApiLevel36));
             Assert.That(
                 PlayerSettings.GetScriptingBackend(
                     NamedBuildTarget.Android),
