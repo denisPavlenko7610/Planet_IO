@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Localization-Assets-Shared_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
   m_Group: {fileID: 11400000, guid: a3560e665cc49dc4b904b21c27bf1518, type: 2}
+  m_SchemaIsEnabled: 0
   m_InternalBundleIdMode: 1
   m_Compression: 1
   m_IncludeAddressInCatalog: 1

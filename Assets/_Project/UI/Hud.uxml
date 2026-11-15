@@ -8,6 +8,12 @@
         <ui:VisualElement name="safe-area" class="safe" picking-mode="Ignore">
             <ui:Label name="score-text" text="0" picking-mode="Ignore" />
             <ui:Label name="session-text" picking-mode="Ignore" />
+            <ui:VisualElement name="tier-panel" class="tier-1" picking-mode="Ignore">
+                <ui:Label name="tier-text" text="I" picking-mode="Ignore" />
+                <ui:VisualElement name="tier-bar" picking-mode="Ignore">
+                    <ui:VisualElement name="tier-fill" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
             <ui:VisualElement name="minimap" picking-mode="Ignore" />
             <ui:VisualElement name="top-buttons" picking-mode="Ignore">
                 <ui:Button name="settings-button" class="btn btn-hud btn-blue" />

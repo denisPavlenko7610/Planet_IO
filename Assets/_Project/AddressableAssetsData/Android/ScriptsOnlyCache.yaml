@@ -1,0 +1,24 @@
+ScriptsOnlyBuild:
+  usedScripts:
+    Unity.Addressables.dll:
+    - UnityEngine.AddressableAssets.ResourceProviders.AddressableRootAsset
+    Unity.Localization.dll:
+    - UnityEngine.Localization.Locale
+    - UnityEngine.Localization.Tables.SharedTableData
+    - UnityEngine.Localization.Tables.StringTable
+  serializedClasses:
+    Unity.Localization:
+    - UnityEngine.Localization.LocaleIdentifier
+    - UnityEngine.Localization.Metadata.MetadataCollection
+    - UnityEngine.Localization.Tables.DistributedUIDGenerator
+    - UnityEngine.Localization.Tables.SharedTableData/SharedTableEntry
+    - UnityEngine.Localization.Tables.TableEntryData
+    UnityEngine.CoreModule:
+    - Unity.Loading.LoadableObjectId
+  methodsToPreserve: []
+  sceneClasses: {}
+  scriptHashData: []
+  platform: 13
+  scenePathNames: []
+  nativeClasses: 0000000012000000730000003100000082000000020000007200000008000000530000007de237150f010000i
+  playerPath: 

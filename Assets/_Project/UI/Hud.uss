@@ -33,6 +33,55 @@
     padding: 0;
 }
 
+#tier-panel {
+    position: absolute;
+    left: 40px;
+    top: 226px;
+    width: 420px;
+    height: 56px;
+    flex-direction: row;
+    align-items: center;
+}
+
+#tier-text {
+    min-width: 80px;
+    font-size: 48px;
+    color: white;
+    margin: 0;
+    padding: 0;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+}
+
+#tier-bar {
+    flex-grow: 1;
+    height: 20px;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.55);
+    background-color: rgba(21, 10, 51, 0.8);
+    overflow: hidden;
+}
+
+#tier-fill {
+    width: 0;
+    height: 100%;
+    background-color: rgb(153, 255, 128);
+}
+
+.tier-2 #tier-fill {
+    background-color: rgb(115, 217, 255);
+}
+
+.tier-3 #tier-fill {
+    background-color: rgb(255, 214, 102);
+}
+
+.tier-4 #tier-fill {
+    background-color: rgb(255, 128, 77);
+}
+
 #minimap {
     position: absolute;
     left: 40px;

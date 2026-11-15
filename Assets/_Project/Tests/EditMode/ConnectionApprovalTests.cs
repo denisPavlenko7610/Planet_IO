@@ -1,4 +1,10 @@
 using System.Text;
+using System.Reflection;
+using PlanetIO.Application;
+using RD.Save;
+using RD.SceneFlow;
+using UnityEditor;
+using UnityEngine.SceneManagement;
 using NUnit.Framework;
 using PlanetIO.Infrastructure.Networking;
 using Unity.Netcode;
@@ -27,6 +33,59 @@ namespace PlanetIO.Tests
         public void TearDown()
         {
             Object.DestroyImmediate(_networkObject);
+        }
+
+        [Test]
+        public void LateJoinSynchronization_CompletesForLocalClientAndKeepsInGameState()
+        {
+            Scene previousScene = SceneManager.GetActiveScene();
+            string previousName = previousScene.name;
+            previousScene.name = SceneNames.Game;
+            NetworkSessionService session = null;
+            try
+            {
+                NetworkManager manager = _networkObject.GetComponent<NetworkManager>();
+                PlanetSkinCatalog skins = AssetDatabase.LoadAssetAtPath<PlanetSkinCatalog>(
+                    "Assets/_Project/ScriptableObjects/Skins/PlanetSkins.asset");
+                SceneCatalog scenes = AssetDatabase.LoadAssetAtPath<SceneCatalog>(
+                    "Assets/_Project/ScriptableObjects/SceneCatalog.asset");
+                session = new NetworkSessionService(manager,
+                    new PlayerProfileService(skins, new SaveStore(System.IO.Path.GetTempPath())),
+                    new SceneFlow(scenes));
+                MethodInfo sceneEvent = typeof(NetworkSessionService).GetMethod("OnSceneEvent",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                sceneEvent.Invoke(session, new object[] { new SceneEvent
+                {
+                    SceneEventType = SceneEventType.Load,
+                    SceneName = SceneNames.Game,
+                    ClientId = manager.LocalClientId
+                } });
+                sceneEvent.Invoke(session, new object[] { new SceneEvent
+                {
+                    SceneEventType = SceneEventType.SynchronizeComplete,
+                    ClientId = manager.LocalClientId + 1
+                } });
+                Assert.That(session.State, Is.EqualTo(NetworkSessionState.Loading));
+
+                sceneEvent.Invoke(session, new object[] { new SceneEvent
+                {
+                    SceneEventType = SceneEventType.SynchronizeComplete,
+                    ClientId = manager.LocalClientId
+                } });
+                Assert.That(session.State, Is.EqualTo(NetworkSessionState.InGame));
+                Assert.That(session.IsSceneEventInProgress, Is.False);
+                Assert.That(session.LoadingProgress, Is.EqualTo(1f));
+
+                typeof(NetworkSessionService).GetMethod("OnClientConnected",
+                    BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(session, new object[] { manager.LocalClientId });
+                Assert.That(session.State, Is.EqualTo(NetworkSessionState.InGame));
+            }
+            finally
+            {
+                session?.Dispose();
+                previousScene.name = previousName;
+            }
         }
 
         [Test]

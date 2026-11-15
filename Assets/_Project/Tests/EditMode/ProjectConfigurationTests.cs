@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using PlanetIO;
 using UnityEditor;
@@ -15,6 +16,23 @@ namespace PlanetIO.Tests
 {
     public sealed class ProjectConfigurationTests
     {
+        [TestCase("Assets/_Project/Scenes/Boot.unity")]
+        [TestCase("Assets/_Project/Scenes/MainMenu.unity")]
+        [TestCase("Assets/_Project/Scenes/Loading.unity")]
+        [TestCase("Assets/_Project/Scenes/Game.unity")]
+        [TestCase("Assets/_Project/Prefabs/Player.prefab")]
+        public void SceneAndPlayerScripts_ResolveToCompiledTypes(string assetPath)
+        {
+            foreach (Match match in Regex.Matches(File.ReadAllText(assetPath),
+                         @"m_Script: \{fileID: 11500000, guid: ([a-f0-9]{32})"))
+            {
+                string scriptPath = AssetDatabase.GUIDToAssetPath(match.Groups[1].Value);
+                MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptPath);
+                Assert.That(script, Is.Not.Null, $"Missing script {match.Groups[1].Value} in {assetPath}");
+                Assert.That(script.GetClass(), Is.Not.Null, $"Uncompiled script {scriptPath} in {assetPath}");
+            }
+        }
+
         private static readonly string[] StreamingMusicPaths =
         {
             "Assets/_Project/Audio/MenuTheme.ogg",
@@ -94,18 +112,45 @@ namespace PlanetIO.Tests
             AddressableAssetGroup group =
                 settings.FindGroup("PlanetIO_Audio");
             Assert.That(group, Is.Not.Null);
-            Assert.That(
-                group.GetSchema<BundledAssetGroupSchema>(),
-                Is.Not.Null);
-            Assert.That(
-                group.GetSchema<ContentUpdateGroupSchema>(),
-                Is.Not.Null);
+            ContentDirectoryGroupSchema contentDirectory =
+                group.GetSchema<ContentDirectoryGroupSchema>();
+            Assert.That(contentDirectory, Is.Not.Null);
+            Assert.That(contentDirectory.IsEnabled, Is.True);
             Assert.That(group.entries, Is.Not.Empty);
             Assert.That(
                 group.entries.All(
                     entry => entry.labels.Contains("audio") &&
                              entry.labels.Contains("preload")),
                 Is.True);
+        }
+
+        [Test]
+        public void Addressables_AllGroupsBuildAsContentDirectories()
+        {
+            AddressableAssetSettings settings =
+                AddressableAssetSettingsDefaultObject.Settings;
+            Assert.That(settings, Is.Not.Null);
+
+            foreach (AddressableAssetGroup group in settings.groups)
+            {
+                ContentDirectoryGroupSchema contentDirectory =
+                    group.GetSchema<ContentDirectoryGroupSchema>();
+                Assert.That(
+                    contentDirectory,
+                    Is.Not.Null,
+                    group.Name);
+                Assert.That(
+                    contentDirectory.IsEnabled,
+                    Is.True,
+                    group.Name);
+
+                BundledAssetGroupSchema bundled =
+                    group.GetSchema<BundledAssetGroupSchema>();
+                Assert.That(
+                    bundled == null || !bundled.IsEnabled,
+                    Is.True,
+                    group.Name);
+            }
         }
 
         [Test]

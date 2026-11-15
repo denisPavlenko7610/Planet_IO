@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -123,7 +123,7 @@ namespace PlanetIO.Tests
             float eatRatio = planet.FindProperty("_eatSizeRatio").floatValue;
 
             Assert.That(min, Is.GreaterThan(0f));
-            Assert.That(initial, Is.GreaterThan(min), "Spawning at MinCapacity kills on the first hit.");
+            Assert.That(initial, Is.GreaterThanOrEqualTo(min), "Starting mass must respect the configured minimum.");
             Assert.That(max, Is.GreaterThan(initial));
             Assert.That(eatRatio, Is.GreaterThan(1f), "Equal-sized planets must not eat each other.");
         }

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Localization-String-Tables-Ukrainian_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
   m_Group: {fileID: 11400000, guid: 4a0040e2f9dd93642ac2a2e6dc2e1d9a, type: 2}
+  m_SchemaIsEnabled: 0
   m_InternalBundleIdMode: 1
   m_Compression: 1
   m_IncludeAddressInCatalog: 1

@@ -14,6 +14,7 @@ namespace PlanetIO.UI.Camera
         [SerializeField, Min(0f)] private float _zoomPerCapacityUnit = 5f;
         [SerializeField, Min(1f)] private float _maximumOrthographicSize = 30f;
         [SerializeField, Min(0.1f)] private float _minimumOrthographicSize = 2f;
+        [SerializeField, Min(1f)] private float _moonViewMargin = 1.45f;
         [SerializeField, Min(0f)] private float _killShake = 0.25f;
         [SerializeField, Min(0f)] private float _deathShake = 0.6f;
         [SerializeField, Min(0.01f)] private float _shakeDuration = 0.35f;
@@ -90,6 +91,7 @@ namespace PlanetIO.UI.Camera
 
             _baseCapacity = Mathf.Max(_player.Capacity, Constants.MinimumDisplayCapacity);
             _player.CapacityChanged += OnCapacityChanged;
+            _player.TierChanged += OnTierChanged;
             _player.Defeated += OnPlayerDefeated;
             _player.Killed += OnPlayerKilled;
             OnCapacityChanged(_player.Capacity);
@@ -103,9 +105,18 @@ namespace PlanetIO.UI.Camera
             }
 
             _player.CapacityChanged -= OnCapacityChanged;
+            _player.TierChanged -= OnTierChanged;
             _player.Defeated -= OnPlayerDefeated;
             _player.Killed -= OnPlayerKilled;
             _player = null;
+        }
+
+        private void OnTierChanged(int _)
+        {
+            if (_player != null)
+            {
+                OnCapacityChanged(_player.Capacity);
+            }
         }
 
         private void OnPlayerDefeated() => Shake(_deathShake);
@@ -139,8 +150,15 @@ namespace PlanetIO.UI.Camera
         private void OnCapacityChanged(float capacity)
         {
             float additionalZoom = (capacity - _baseCapacity) * _zoomPerCapacityUnit;
-            _targetOrthographicSize = Mathf.Clamp(_baseOrthographicSize + additionalZoom,
-                _minimumOrthographicSize, _maximumOrthographicSize);
+            float target = _baseOrthographicSize + additionalZoom;
+
+            if (_player != null && _player.MoonSlots > 0)
+            {
+                float moonRingSize = MoonRules.OuterExtent(_player.BodyRadius) * _moonViewMargin;
+                target = Mathf.Max(target, moonRingSize);
+            }
+
+            _targetOrthographicSize = Mathf.Clamp(target, _minimumOrthographicSize, _maximumOrthographicSize);
         }
     }
 }

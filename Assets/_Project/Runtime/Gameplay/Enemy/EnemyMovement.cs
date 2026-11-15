@@ -299,81 +299,9 @@ namespace PlanetIO
         private void Think()
         {
             Vector2 position = _enemyTransform.position;
-            int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, _nonFoodFilter, _nearbyColliders);
-
-            Player nearestPlayer = null;
-            Food nearestFood = null;
-            Vector2 hazardPosition = default;
-            Vector2 separationAccum = Vector2.zero;
-            float playerDistanceSquared = float.PositiveInfinity;
-            float foodDistanceSquared = float.PositiveInfinity;
-            float hazardDistanceSquared = float.PositiveInfinity;
-            float separationRadiusSquared = (_enemy.Capacity * SeparationRadiusPerUnit) *
-                                            (_enemy.Capacity * SeparationRadiusPerUnit);
-
-            for (int index = 0; index < hitCount; index++)
-            {
-                Collider2D candidate = _nearbyColliders[index];
-                if (candidate == null || candidate.transform == _enemyTransform)
-                {
-                    continue;
-                }
-
-                Vector2 candidatePosition = candidate.transform.position;
-                float distanceSquared = (candidatePosition - position).sqrMagnitude;
-
-                if (candidate.TryGetComponent(out Enemy _))
-                {
-                    if (distanceSquared < separationRadiusSquared &&
-                        distanceSquared > 0.001f)
-                    {
-                        Vector2 push = position - candidatePosition;
-                        float distance = Mathf.Sqrt(distanceSquared);
-                        separationAccum +=
-                            push / (distance * Mathf.Max(distance, 0.3f));
-                    }
-
-                    continue;
-                }
-
-                if (candidate.TryGetComponent(out Player player))
-                {
-                    if (!player.IsDefeated &&
-                        distanceSquared < playerDistanceSquared)
-                    {
-                        nearestPlayer = player;
-                        playerDistanceSquared = distanceSquared;
-                    }
-
-                    continue;
-                }
-
-                if (candidate.TryGetComponent(out Comet _) &&
-                    distanceSquared < hazardDistanceSquared)
-                {
-                    hazardPosition = candidatePosition;
-                    hazardDistanceSquared = distanceSquared;
-                }
-            }
-
-            int foodHitCount = Physics2D.OverlapCircle(
-                position, Mathf.Min(_awarenessRadius, FoodSearchRadius), _foodFilter, _foodColliders);
-
-            for (int index = 0; index < foodHitCount; index++)
-            {
-                Collider2D candidate = _foodColliders[index];
-                if (candidate == null)
-                {
-                    continue;
-                }
-
-                float distanceSquared = ((Vector2)candidate.transform.position - position).sqrMagnitude;
-                if (distanceSquared < foodDistanceSquared && candidate.TryGetComponent(out Food point))
-                {
-                    nearestFood = point;
-                    foodDistanceSquared = distanceSquared;
-                }
-            }
+            (Player nearestPlayer, Vector2 hazardPosition, float hazardDistanceSquared, Vector2 separationAccum) =
+                ScanSurroundings(position);
+            Food nearestFood = FindNearestFood(position);
 
             _separationForce = separationAccum;
 
@@ -402,6 +330,101 @@ namespace PlanetIO
                     EnsureRoaming();
                     break;
             }
+        }
+
+        private (Player NearestPlayer, Vector2 HazardPosition, float HazardDistanceSquared, Vector2 SeparationForce)
+            ScanSurroundings(Vector2 position)
+        {
+            int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, _nonFoodFilter, _nearbyColliders);
+
+            Player nearestPlayer = null;
+            Vector2 hazardPosition = default;
+            Vector2 separationAccum = Vector2.zero;
+            float playerDistanceSquared = float.PositiveInfinity;
+            float hazardDistanceSquared = float.PositiveInfinity;
+            float separationRadiusSquared = (_enemy.Capacity * SeparationRadiusPerUnit) *
+                                            (_enemy.Capacity * SeparationRadiusPerUnit);
+
+            for (int index = 0; index < hitCount; index++)
+            {
+                Collider2D candidate = _nearbyColliders[index];
+                if (candidate == null || candidate.transform == _enemyTransform)
+                {
+                    continue;
+                }
+
+                Vector2 candidatePosition = candidate.transform.position;
+                float distanceSquared = (candidatePosition - position).sqrMagnitude;
+
+                if (candidate.TryGetComponent(out PlanetScale otherPlanet) &&
+                    otherPlanet.IsMoonThreat(position, _enemy.BodyRadius, out Vector2 moonPosition))
+                {
+                    hazardPosition = moonPosition;
+                    hazardDistanceSquared = 0f;
+                }
+
+                if (candidate.TryGetComponent(out Enemy _))
+                {
+                    if (distanceSquared < separationRadiusSquared &&
+                        distanceSquared > 0.001f)
+                    {
+                        Vector2 push = position - candidatePosition;
+                        float distance = Mathf.Sqrt(distanceSquared);
+                        separationAccum +=
+                            push / (distance * Mathf.Max(distance, 0.3f));
+                    }
+
+                    continue;
+                }
+
+                if (candidate.TryGetComponent(out Player player))
+                {
+                    if (!player.IsDefeated &&
+                        !player.IsStealthed &&
+                        distanceSquared < playerDistanceSquared)
+                    {
+                        nearestPlayer = player;
+                        playerDistanceSquared = distanceSquared;
+                    }
+
+                    continue;
+                }
+
+                if (candidate.TryGetComponent(out Comet _) &&
+                    distanceSquared < hazardDistanceSquared)
+                {
+                    hazardPosition = candidatePosition;
+                    hazardDistanceSquared = distanceSquared;
+                }
+            }
+
+            return (nearestPlayer, hazardPosition, hazardDistanceSquared, separationAccum);
+        }
+
+        private Food FindNearestFood(Vector2 position)
+        {
+            Food nearestFood = null;
+            float foodDistanceSquared = float.PositiveInfinity;
+            int foodHitCount = Physics2D.OverlapCircle(
+                position, Mathf.Min(_awarenessRadius, FoodSearchRadius), _foodFilter, _foodColliders);
+
+            for (int index = 0; index < foodHitCount; index++)
+            {
+                Collider2D candidate = _foodColliders[index];
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                float distanceSquared = ((Vector2)candidate.transform.position - position).sqrMagnitude;
+                if (distanceSquared < foodDistanceSquared && candidate.TryGetComponent(out Food point))
+                {
+                    nearestFood = point;
+                    foodDistanceSquared = distanceSquared;
+                }
+            }
+
+            return nearestFood;
         }
 
         private void SetTarget(Vector2 targetPosition, MovementState state)

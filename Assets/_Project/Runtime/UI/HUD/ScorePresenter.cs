@@ -37,16 +37,19 @@ namespace PlanetIO.UI.Hud
             if (_boundPlayer != null)
             {
                 _boundPlayer.CapacityChanged -= OnCapacityChanged;
+                _boundPlayer.TierChanged -= OnTierChanged;
             }
 
             _boundPlayer = player;
             if (_boundPlayer == null)
             {
                 _scoreView.ShowScore(0);
+                _scoreView.ShowTier(TierRules.MinTier, 0f);
                 return;
             }
 
             _boundPlayer.CapacityChanged += OnCapacityChanged;
+            _boundPlayer.TierChanged += OnTierChanged;
             OnCapacityChanged(_boundPlayer.Capacity);
         }
 
@@ -54,6 +57,21 @@ namespace PlanetIO.UI.Hud
         {
             int score = Constants.CapacityToScore(capacity);
             _scoreView.ShowScore(score);
+            ShowTier(capacity);
+        }
+
+        private void OnTierChanged(int _)
+        {
+            if (_boundPlayer != null)
+            {
+                ShowTier(_boundPlayer.Capacity);
+            }
+        }
+
+        private void ShowTier(float capacity)
+        {
+            int tier = _boundPlayer.Tier;
+            _scoreView.ShowTier(tier, TierRules.Progress(capacity, tier));
         }
     }
 }

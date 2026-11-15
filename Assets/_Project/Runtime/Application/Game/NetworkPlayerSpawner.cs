@@ -1,8 +1,8 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
-using Object = UnityEngine.Object;
 
 namespace PlanetIO.Application
 {
@@ -17,15 +17,19 @@ namespace PlanetIO.Application
         private readonly NetworkManager _networkManager;
         private readonly NetworkObject _playerPrefab;
         private readonly LayerMask _spawnBlockingLayers;
+        private readonly IObjectResolver _resolver;
 
         public NetworkPlayerSpawner(
             NetworkManager networkManager,
             NetworkObject playerPrefab,
-            LayerMask spawnBlockingLayers)
+            LayerMask spawnBlockingLayers,
+            IObjectResolver resolver
+        )
         {
             _networkManager = networkManager ?? throw new ArgumentNullException(nameof(networkManager));
             _playerPrefab = playerPrefab ? playerPrefab : throw new ArgumentNullException(nameof(playerPrefab));
             _spawnBlockingLayers = spawnBlockingLayers;
+            _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
         }
 
         public void Start()
@@ -53,15 +57,19 @@ namespace PlanetIO.Application
 
         private void SpawnPlayer(ulong clientId)
         {
-            if (!_networkManager.IsServer
-				|| _playerPrefab == null
-				|| !_networkManager.ConnectedClients.TryGetValue(clientId, out NetworkClient client)
-				|| client.PlayerObject != null)
+            if (!_networkManager.IsServer ||
+                _playerPrefab == null ||
+                !_networkManager.ConnectedClients.TryGetValue(clientId, out NetworkClient client) ||
+                client.PlayerObject != null)
             {
                 return;
             }
 
-            NetworkObject player = Object.Instantiate(_playerPrefab, FindSafeSpawnPosition(clientId), Quaternion.identity);
+            NetworkObject player = _resolver.Instantiate(
+                _playerPrefab,
+                FindSafeSpawnPosition(clientId),
+                Quaternion.identity
+            );
 
             player.SpawnAsPlayerObject(clientId, true);
         }

@@ -148,6 +148,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2309773930887081032}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -284,6 +285,7 @@ MonoBehaviour:
   checkPaddingRequired: 0
   m_isRichText: 1
   m_EmojiFallbackSupport: 1
+  m_EnableAdvancedText: 0
   m_parseCtrlCharacters: 1
   m_isOrthographic: 0
   m_isCullingEnabled: 0
@@ -639,6 +641,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1859849639
   InScenePlacedSourceGlobalObjectIdHash: 0
+  GhostObject: {fileID: 0}
+  HasGhost: 0
+  HadBridge: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -652,6 +657,7 @@ MonoBehaviour:
   AutoObjectParentSync: 0
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+  NetworkObjectBridge: {fileID: 0}
 --- !u!114 &8517843457492819226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -667,18 +673,18 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _minCapacity: 0.08
   _maxCapacity: 2
+  _initialCapacity: 0.08
   _killAbsorbFraction: 0.4
+  _eatSizeRatio: 1.08
   _foodGrowthFalloff: 1
   _playerFoodGrowthMultiplier: 0.015
   _playerCometDamageMultiplier: 0.02
   _boostMassCost: 0.004
   _boostMassConsumptionInterval: 0.15
   _borderMassLoss: 0.08
-  _eatSizeRatio: 1.08
   _pointSpawnTransform: {fileID: 82095068}
   _spawnInvincibilityTime: 2
   _continueProtectionTime: 5
-  _initialCapacity: 0.1
   _continueMassFraction: 0.5
   _foodAttractionRadius: 0.3
   _foodAttractionSpeed: 5
@@ -788,7 +794,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8045643209477139654}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11e299ed76ccfa44084008b5a2c6314c, type: 3}
+  m_Script: {fileID: 11500000, guid: 49545c2fc1bcc4345a433da821db4bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
@@ -805,6 +811,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PlanetIO.UI::PlanetIO.UI.Hud.EntityNameplate
   _label: {fileID: 734240606109772843}
+  _entityRenderer: {fileID: 0}
   _edgePadding: 0.35
 --- !u!114 &4579248558706267416
 MonoBehaviour:
@@ -821,5 +828,3 @@ MonoBehaviour:
   _boostPulseSpeed: 8
   _protectionBlinkSpeed: 14
   _protectionBlinkAmount: 0.7
-  _boostTrail: {fileID: 2247901119292796519}
-  _trailWidthPerScale: 0.8

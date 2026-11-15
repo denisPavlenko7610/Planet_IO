@@ -22,7 +22,7 @@ namespace PlanetIO.Editor
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel36;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Minimal);
 
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
@@ -40,7 +40,7 @@ namespace PlanetIO.Editor
             AndroidSigning.ApplyFromEnvironment();
 
             AssetDatabase.SaveAssets();
-            Debug.Log("Planet IO Android settings applied: API 36, IL2CPP, ARMv7 + ARM64, AAB, release flags.");
+            Debug.Log("Planet IO Android settings applied: API 36, IL2CPP, ARM64, AAB, release flags.");
         }
 
         [MenuItem("Planet IO/Android/Validate release")]
@@ -85,7 +85,8 @@ namespace PlanetIO.Editor
             Debug.Log(
                 $"Android App Bundle created: " +
                 $"{options.locationPathName} " +
-                $"({report.summary.totalSize / 1048576f:0.0} MB).");
+                $"({report.summary.totalSize / 1048576f:0.0} MB)."
+            );
         }
 
         private static string GetValidationError()
@@ -132,6 +133,40 @@ namespace PlanetIO.Editor
             }
 
             return AndroidSigning.GetValidationError();
+        }
+    }
+
+    internal sealed class AndroidBurstCacheCleanup : IPreprocessBuildWithReport
+    {
+        public int callbackOrder => int.MinValue;
+
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            if (report.summary.platform != BuildTarget.Android ||
+                UnityEngine.Application.unityVersion != "7000.0.0a16")
+            {
+                return;
+            }
+
+            // This Editor reused an ARM32 pointer-list specialization in an ARM64 Burst library:
+            // EndStructuralChanges advanced 8-byte pointers by 4 bytes and crashed at startup.
+            // CleanBuildCache does not clear the separate Burst AOT cache. Keep Burst enabled,
+            // but rebuild its Android code until this Editor's cache issue is resolved.
+            string projectDirectory = Directory.GetParent(UnityEngine.Application.dataPath).FullName;
+            string cacheDirectory = Path.Combine(projectDirectory, "Library", "BurstCache", "Android-Arm");
+            if (Directory.Exists(cacheDirectory))
+            {
+                Directory.Delete(cacheDirectory, recursive: true);
+            }
+
+            // The incremental Player build also tracks this generated plugin as an output.
+            // Removing it makes Unity invoke Burst again even when player scripts are unchanged.
+            string outputDirectory = Path.Combine(projectDirectory, "Temp", "BurstOutput");
+            if (Directory.Exists(outputDirectory))
+            {
+                Directory.Delete(outputDirectory, recursive: true);
+            }
+            Debug.Log("Cleared Android Burst AOT cache and generated plugin to prevent stale pointer-size specializations.");
         }
     }
 }

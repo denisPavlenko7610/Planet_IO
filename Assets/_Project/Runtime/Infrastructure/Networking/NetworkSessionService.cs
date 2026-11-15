@@ -114,7 +114,10 @@ namespace PlanetIO.Infrastructure.Networking
 
                 if (!handler.IsHost)
                 {
-                    SetState(NetworkSessionState.Connecting, $"Joined room {CurrentRoom.RoomCode}");
+                    if (State != NetworkSessionState.InGame)
+                    {
+                        SetState(NetworkSessionState.Connecting, $"Joined room {CurrentRoom.RoomCode}");
+                    }
                     return true;
                 }
 
@@ -390,6 +393,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             _networkManager.OnClientConnectedCallback += OnClientConnected;
+            _networkManager.OnClientStarted += SubscribeSceneManager;
             _networkManager.OnClientDisconnectCallback += OnClientDisconnected;
             _networkManager.OnClientStopped += OnSessionStopped;
             _networkManager.OnServerStopped += OnSessionStopped;
@@ -406,6 +410,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             _networkManager.OnClientConnectedCallback -= OnClientConnected;
+            _networkManager.OnClientStarted -= SubscribeSceneManager;
             _networkManager.OnClientDisconnectCallback -= OnClientDisconnected;
             _networkManager.OnClientStopped -= OnSessionStopped;
             _networkManager.OnServerStopped -= OnSessionStopped;
@@ -444,7 +449,7 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void OnClientConnected(ulong clientId)
         {
-            if (clientId == _networkManager.LocalClientId && !_networkManager.IsServer)
+            if (clientId == _networkManager.LocalClientId && !_networkManager.IsServer && State != NetworkSessionState.InGame)
             {
                 SetState(NetworkSessionState.Connecting, $"Room {CurrentRoom.RoomCode} accepted connection");
             }
@@ -501,6 +506,15 @@ namespace PlanetIO.Infrastructure.Networking
         {
             switch (sceneEvent.SceneEventType)
             {
+                case SceneEventType.SynchronizeComplete when sceneEvent.ClientId == _networkManager.LocalClientId && !_networkManager.IsServer:
+                    IsSceneEventInProgress = false;
+                    SetProgress(1f);
+                    if (SceneManager.GetActiveScene().name == SceneNames.Game)
+                    {
+                        SetState(NetworkSessionState.InGame, $"Room {CurrentRoom.RoomCode}: game synchronized");
+                    }
+                    break;
+
                 case SceneEventType.Load:
                     IsSceneEventInProgress = true;
                     SetProgress(ProgressSceneLoading);

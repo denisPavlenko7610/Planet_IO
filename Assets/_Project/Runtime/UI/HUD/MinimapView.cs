@@ -8,11 +8,13 @@ namespace PlanetIO.UI.Hud
     {
         public readonly Vector2 NormalizedPosition;
         public readonly Color Color;
+        public readonly bool IsLeader;
 
-        public MinimapBlip(Vector2 normalizedPosition, Color color)
+        public MinimapBlip(Vector2 normalizedPosition, Color color, bool isLeader = false)
         {
             NormalizedPosition = normalizedPosition;
             Color = color;
+            IsLeader = isLeader;
         }
     }
 
@@ -21,6 +23,7 @@ namespace PlanetIO.UI.Hud
     public sealed class MinimapView : MonoBehaviour
     {
         private const float BlipSize = 7f;
+        private const float LeaderBlipSize = 13f;
         private const float FallbackSize = 180f;
 
         private readonly List<VisualElement> _blips = new();
@@ -65,10 +68,17 @@ namespace PlanetIO.UI.Hud
                 }
 
                 MinimapBlip data = blips[index];
+                float blipSize = data.IsLeader ? LeaderBlipSize : BlipSize;
                 blip.style.display = DisplayStyle.Flex;
                 blip.style.backgroundColor = data.Color;
-                blip.style.left = data.NormalizedPosition.x * size.x - BlipSize * 0.5f;
-                blip.style.top = (1f - data.NormalizedPosition.y) * size.y - BlipSize * 0.5f;
+                blip.style.width = blipSize;
+                blip.style.height = blipSize;
+                blip.style.borderTopLeftRadius = blipSize * 0.5f;
+                blip.style.borderTopRightRadius = blipSize * 0.5f;
+                blip.style.borderBottomLeftRadius = blipSize * 0.5f;
+                blip.style.borderBottomRightRadius = blipSize * 0.5f;
+                blip.style.left = data.NormalizedPosition.x * size.x - blipSize * 0.5f;
+                blip.style.top = (1f - data.NormalizedPosition.y) * size.y - blipSize * 0.5f;
             }
         }
     }

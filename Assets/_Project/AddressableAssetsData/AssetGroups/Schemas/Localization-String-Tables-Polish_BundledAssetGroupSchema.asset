@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Localization-String-Tables-Polish_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
   m_Group: {fileID: 11400000, guid: d95f72f87131a3c4d8278c6cf7e7fedf, type: 2}
+  m_SchemaIsEnabled: 0
   m_InternalBundleIdMode: 1
   m_Compression: 1
   m_IncludeAddressInCatalog: 1

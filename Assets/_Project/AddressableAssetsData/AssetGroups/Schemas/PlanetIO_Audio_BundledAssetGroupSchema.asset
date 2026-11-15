@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PlanetIO_Audio_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
   m_Group: {fileID: 11400000, guid: e7b22416fb5fc544a8c3d9ea83e63532, type: 2}
+  m_SchemaIsEnabled: 0
   m_InternalBundleIdMode: 1
   m_Compression: 1
   m_IncludeAddressInCatalog: 1

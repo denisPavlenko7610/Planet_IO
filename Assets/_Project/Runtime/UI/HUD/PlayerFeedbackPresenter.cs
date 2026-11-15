@@ -15,6 +15,10 @@ namespace PlanetIO.UI.Hud
         private const float BorderWarningDistance = 18f;
         private const float BorderWarningMaxAlpha = 0.75f;
         private const float TutorialStepSeconds = 5f;
+        private const float TierUpPitch = 1.3f;
+        private const float TierUpVolume = 0.8f;
+        private const float MoonStrikePitch = 1.5f;
+        private const float MoonStrikeVolume = 0.6f;
 
         private static readonly string[] TutorialSteps =
         {
@@ -30,6 +34,7 @@ namespace PlanetIO.UI.Hud
         private readonly ISfxPlayer _sfxPlayer;
         private Player _localPlayer;
         private float _lastCapacity;
+        private int _lastTier = TierRules.MinTier;
         private float _mutedUntil;
         private bool _controlsHintShown;
         private int _tutorialStep = -1;
@@ -76,6 +81,8 @@ namespace PlanetIO.UI.Hud
                 _localPlayer.Killed -= OnLocalKill;
                 _localPlayer.Revived -= OnRevived;
                 _localPlayer.CapacityChanged -= OnCapacityChanged;
+                _localPlayer.TierChanged -= OnTierChanged;
+                _localPlayer.MoonStruck -= OnMoonStruck;
             }
 
             _localPlayer = player;
@@ -87,8 +94,35 @@ namespace PlanetIO.UI.Hud
             _localPlayer.Killed += OnLocalKill;
             _localPlayer.Revived += OnRevived;
             _localPlayer.CapacityChanged += OnCapacityChanged;
+            _localPlayer.TierChanged += OnTierChanged;
+            _localPlayer.MoonStruck += OnMoonStruck;
             _lastCapacity = _localPlayer.Capacity;
+            _lastTier = _localPlayer.Tier;
             ShowControlsHint();
+        }
+
+        private void OnTierChanged(int tier)
+        {
+            bool tierUp = tier > _lastTier;
+            _lastTier = tier;
+            if (!tierUp || _localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil)
+            {
+                return;
+            }
+
+            _sfxPlayer.Play(SfxId.Kill, TierUpPitch, TierUpVolume);
+            Haptics.Play(HapticPreset.Success);
+        }
+
+        private void OnMoonStruck(Vector2 _)
+        {
+            if (_localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil)
+            {
+                return;
+            }
+
+            _sfxPlayer.Play(SfxId.Hit, MoonStrikePitch, MoonStrikeVolume);
+            Haptics.Play(HapticPreset.LightImpact);
         }
 
         private void ShowControlsHint()
@@ -143,6 +177,7 @@ namespace PlanetIO.UI.Hud
         {
             _mutedUntil = Time.unscaledTime + MuteAfterReviveSeconds;
             _lastCapacity = _localPlayer != null ? _localPlayer.Capacity : 0f;
+            _lastTier = _localPlayer != null ? _localPlayer.Tier : TierRules.MinTier;
         }
 
         private void OnCapacityChanged(float capacity)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -6,14 +6,12 @@ using UnityEngine.Serialization;
 
 namespace PlanetIO
 {
-    public abstract class PlanetScale : NetworkBehaviour, ICapacity
+    public abstract partial class PlanetScale : NetworkBehaviour, ICapacity
     {
         private const float MinAllowedCapacity = 0.01f;
         private const float ScaleDepth = 1f;
         private const int DisplayNameMaximumLength = 32;
 
-        // Display names are embedded into TMP rich-text strings (leaderboard, kill feed),
-        // so angle brackets must never survive server validation.
         private static readonly char[] RichTextCharacters = { '<', '>' };
 
         [Header("Capacity")]
@@ -21,7 +19,9 @@ namespace PlanetIO
         [SerializeField, Min(MinAllowedCapacity)] private float _minCapacity = 0.08f;
         [FormerlySerializedAs("_maximumCapacity")]
         [SerializeField, Min(MinAllowedCapacity)] private float _maxCapacity = 1f;
+        [SerializeField, Min(MinAllowedCapacity)] private float _initialCapacity = 0.1f;
         [SerializeField, Range(0f, 1f)] private float _killAbsorbFraction = 0.4f;
+        [SerializeField, Min(1f)] private float _eatSizeRatio = CombatRules.DefaultEatSizeRatio;
         [SerializeField, Min(0f)] private float _foodGrowthFalloff = 1f;
 
         private readonly NetworkVariable<float> _networkCapacity = new(
@@ -37,6 +37,8 @@ namespace PlanetIO
         private float _localCapacity;
 
         public float MinCapacity => _minCapacity;
+        public float InitialCapacity => _initialCapacity;
+        public float EatSizeRatio => _eatSizeRatio;
 
         public float Capacity
         {
@@ -56,6 +58,8 @@ namespace PlanetIO
         {
             NormalizeCapacityBounds();
             ApplyCapacity(_minCapacity, false);
+            Capacity = _initialCapacity;
+            InitializeMoons();
         }
 
         public override void OnNetworkSpawn()
@@ -69,7 +73,10 @@ namespace PlanetIO
 
             _networkCapacity.OnValueChanged += OnNetworkCapacityChanged;
             _networkDisplayName.OnValueChanged += OnDisplayNameValueChanged;
+            SubscribeMoons();
+            PlanetDirectory.Register(this);
             ApplyCapacity(_networkCapacity.Value, true);
+            AttachMoonViews();
         }
 
         public override void OnNetworkDespawn()
@@ -77,6 +84,8 @@ namespace PlanetIO
             float lastCapacity = _networkCapacity.Value;
             _networkCapacity.OnValueChanged -= OnNetworkCapacityChanged;
             _networkDisplayName.OnValueChanged -= OnDisplayNameValueChanged;
+            UnsubscribeMoons();
+            PlanetDirectory.Unregister(this);
             _localCapacity = ClampCapacity(lastCapacity);
             base.OnNetworkDespawn();
         }
@@ -118,9 +127,9 @@ namespace PlanetIO
             return ChangeCapacity(-Mathf.Abs(amount));
         }
 
-        protected void AbsorbVictim(float victimCapacity)
+        public bool CanDevour(PlanetScale victim)
         {
-            Grow(victimCapacity * _killAbsorbFraction);
+            return victim != null && CombatRules.CanDevour(Capacity, victim.Capacity, _eatSizeRatio);
         }
 
         protected virtual void DeathCheck(float capacity)
@@ -147,7 +156,16 @@ namespace PlanetIO
             }
             else if (other.TryGetComponent(out Comet comet))
             {
-                Shrink(comet.Capacity * CometDamageMultiplier);
+                float cometMass = comet.Capacity * CometDamageMultiplier;
+                if (CometHealFraction > 0f)
+                {
+                    Grow(cometMass * CometHealFraction);
+                }
+                else
+                {
+                    Shrink(cometMass);
+                }
+
                 comet.PlayImpactEffect();
                 CometRespawnService?.Respawn(comet);
             }
@@ -168,6 +186,11 @@ namespace PlanetIO
             float clamped = ClampCapacity(value);
             if (Capacity == clamped)
             {
+                if (value < clamped)
+                {
+                    DeathCheck(clamped);
+                }
+
                 return false;
             }
 
@@ -195,13 +218,18 @@ namespace PlanetIO
 
         private void ApplyCapacity(float capacity, bool notify)
         {
+            float previousCapacity = _localCapacity;
             _localCapacity = capacity;
             transform.localScale = new Vector3(capacity, capacity, ScaleDepth);
 
             if (notify)
             {
+                RefreshTierServer(capacity);
                 CapacityChanged?.Invoke(capacity);
-                DeathCheck(capacity);
+                if (capacity < previousCapacity)
+                {
+                    DeathCheck(capacity);
+                }
             }
         }
 

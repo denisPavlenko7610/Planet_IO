@@ -73,6 +73,23 @@ namespace PlanetIO
             SubscribeBoostInput();
         }
 
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            _player.Defeated += ResetBoostInput;
+            _player.Revived += ResetBoostInput;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            _player.Defeated -= ResetBoostInput;
+            _player.Revived -= ResetBoostInput;
+            ResetBoostInput();
+            base.OnNetworkDespawn();
+        }
+
+        private void ResetBoostInput() => _isBoosting = false;
+
         private void OnDisable()
         {
             _isBoosting = false;
@@ -95,11 +112,11 @@ namespace PlanetIO
 
             UpdateDirection();
 
-            float targetSpeed = _isBoosting ? _boostSpeed : _normalSpeed;
+            float targetSpeed = _isBoosting && _player.IsBoosting && _player.CanBoost ? _boostSpeed : _normalSpeed;
             float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(_player.Capacity, _player.MinCapacity,
                 _massSpeedPenalty, _minimumSpeedMultiplier);
 
-            _currentSpeed = targetSpeed * speedMultiplier;
+            _currentSpeed = targetSpeed * speedMultiplier * _player.SpeedMultiplier;
             Move();
         }
 

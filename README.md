@@ -18,8 +18,8 @@ Players grow only by eating points, become slower as they get larger, and must t
 
 ## Design
 
-- [Food system GDD](Docs/Food-GDD.md): pellet density, food fields, size tiers and bot behaviour.
+- [GDD and development plan](docs/GDD.md): vision, moons, gravity, evolution tiers, progression and roadmap.
 
 ## Shared modules
 
-Planet_IO links selected runtime/editor folders from the sibling UnityTemplates checkout through Windows junctions. Run `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Link-UnityTemplates.ps1` before opening a fresh checkout. See [integration and migration details](Docs/Template-Sources.md).
+Planet_IO links selected runtime/editor folders from the sibling UnityTemplates checkout through Windows junctions. Run `powershell -NoProfile -ExecutionPolicy Bypass -File Tools/Link-UnityTemplates.ps1` before opening a fresh checkout.

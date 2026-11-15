@@ -17,16 +17,12 @@ namespace PlanetIO
         [Header("Balance")]
         [SerializeField, Min(0f)] private float _enemyFoodGrowthMultiplier = 0.01f;
         [SerializeField, Min(0f)] private float _enemyCometDamageMultiplier = 0.02f;
-        [SerializeField, Min(1f)] private float _eatSizeRatio = 1.08f;
-
-        [Header("Spawn")]
-        [SerializeField, Min(0.01f)] private float _initialCapacity = 0.1f;
 
         private IGameStateService _gameStateService;
         private IRespawnService<Enemy> _enemyRespawnService;
         private bool _servicesReady;
 
-        public float InitialCapacity => _initialCapacity;
+        protected override bool IsCombatActive => _servicesReady && _gameStateService.IsGameplayActive;
 
         protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
         protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
@@ -50,7 +46,6 @@ namespace PlanetIO
         {
             base.Awake();
             _spriteRenderer ??= GetComponent<SpriteRenderer>();
-            Capacity = _initialCapacity;
         }
 
         public override void OnNetworkSpawn()
@@ -107,9 +102,9 @@ namespace PlanetIO
                     return;
                 }
 
-                if (Capacity >= otherEnemy.Capacity * _eatSizeRatio)
+                if (CanDevour(otherEnemy))
                 {
-                    AbsorbVictim(otherEnemy.Capacity);
+                    AbsorbVictim(otherEnemy);
                     _enemyRespawnService.Respawn(otherEnemy);
                 }
             }
@@ -117,9 +112,10 @@ namespace PlanetIO
             {
                 if (!player.IsDefeated &&
                     !player.IsSpawnProtected &&
-                    Capacity >= player.Capacity * _eatSizeRatio)
+                    CanDevour(player) &&
+                    !player.TryConsumeAblativeCrust())
                 {
-                    AbsorbVictim(player.Capacity);
+                    AbsorbVictim(player);
                     player.Defeat(DisplayName);
                 }
             }

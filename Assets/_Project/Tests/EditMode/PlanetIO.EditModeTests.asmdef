@@ -14,6 +14,7 @@
         "Unity.Localization.Editor",
         "RD.Localization",
         "RD.Settings",
+        "RD.SceneFlow",
         "PlanetIO.Editor",
         "GUID:6efe087bdf83fde4394da70201de35cc"
     ],

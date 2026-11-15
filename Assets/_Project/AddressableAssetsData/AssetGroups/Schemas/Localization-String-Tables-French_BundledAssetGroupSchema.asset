@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Localization-String-Tables-French_BundledAssetGroupSchema
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.GroupSchemas.BundledAssetGroupSchema
   m_Group: {fileID: 11400000, guid: 4315b8c3512ba6e45883de39c1b3621f, type: 2}
+  m_SchemaIsEnabled: 0
   m_InternalBundleIdMode: 1
   m_Compression: 1
   m_IncludeAddressInCatalog: 1
