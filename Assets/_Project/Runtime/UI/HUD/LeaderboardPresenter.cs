@@ -11,7 +11,8 @@ namespace PlanetIO.UI.Hud
     public sealed class LeaderboardPresenter : IStartable, ITickable, IDisposable
     {
         private const float RefreshIntervalSeconds = 0.5f;
-        private const int VisibleEntries = 7;
+        private const int VisibleEntries = 5;
+        private const int MaxNameLength = 10;
         private const string LocalEntryColor = "#FFE066";
 
         private readonly NetworkManager _networkManager;
@@ -138,12 +139,22 @@ namespace PlanetIO.UI.Hud
                 _builder.Append("<color=").Append(LocalEntryColor).Append('>');
             }
 
-            _builder.Append(rank).Append(". ").Append(name).Append("  ").Append(score.ToString("N0"));
+            _builder.Append(rank).Append(". ").Append(Shorten(name)).Append("  ").Append(score.ToString("N0"));
 
             if (highlight)
             {
                 _builder.Append("</color>");
             }
+        }
+
+        private static string Shorten(string name)
+        {
+            if (string.IsNullOrEmpty(name) || name.Length <= MaxNameLength)
+            {
+                return name;
+            }
+
+            return name.Substring(0, MaxNameLength) + "…";
         }
 
         private void CollectEntries(Player localPlayer)

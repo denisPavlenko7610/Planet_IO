@@ -464,6 +464,10 @@ MonoBehaviour:
     m_Localized: Rank {0} of {1}
     m_Metadata:
       m_Items: []
+  - m_Id: 17797599656923136
+    m_Localized: Joystick on the right
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

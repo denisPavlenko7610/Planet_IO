@@ -139,6 +139,7 @@ namespace PlanetIO
             Vector2 half = _stick.layout.size * 0.5f;
             _stick.style.left = _anchor.x - half.x;
             _stick.style.top = _anchor.y - half.y;
+            _stick.style.right = StyleKeyword.Auto;
             _stick.style.bottom = StyleKeyword.Auto;
         }
 
@@ -150,6 +151,7 @@ namespace PlanetIO
                 _stick.RemoveFromClassList(ActiveClass);
                 _stick.style.left = StyleKeyword.Null;
                 _stick.style.top = StyleKeyword.Null;
+                _stick.style.right = StyleKeyword.Null;
                 _stick.style.bottom = StyleKeyword.Null;
             }
 

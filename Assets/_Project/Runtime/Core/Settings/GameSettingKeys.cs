@@ -22,6 +22,9 @@ namespace PlanetIO
         public static readonly SettingKey<bool> ShowCometNames =
             new("gameplay.show-comet-names", false, SettingCodecs.Boolean);
 
+        public static readonly SettingKey<bool> ControlsSwapped =
+            new("gameplay.controls-swapped", false, SettingCodecs.Boolean);
+
         public static readonly SettingKey<bool> BlitzMode =
             new("gameplay.blitz-mode", false, SettingCodecs.Boolean);
 

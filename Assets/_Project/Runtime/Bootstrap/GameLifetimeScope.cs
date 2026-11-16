@@ -118,6 +118,7 @@ namespace PlanetIO.Bootstrap
             builder.RegisterEntryPoint<BlitzDirector>()
                 .As<IBlitzMatch>();
             builder.RegisterEntryPoint<HudNavigationPresenter>();
+            builder.RegisterEntryPoint<ControlsLayoutPresenter>();
             builder.RegisterComponentInHierarchy<SettingsView>()
                 .As<ISettingsView>();
             builder.RegisterEntryPoint<SettingsPresenter>().AsSelf();

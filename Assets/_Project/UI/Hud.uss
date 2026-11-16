@@ -137,18 +137,45 @@
     margin-left: 12px;
 }
 
+#top-buttons .btn-icon {
+    width: 104px;
+    height: 104px;
+    padding: 0 0 10px 0;
+    align-items: center;
+    justify-content: center;
+    -unity-slice-left: 60;
+    -unity-slice-right: 60;
+    -unity-slice-top: 55;
+    -unity-slice-bottom: 70;
+    -unity-slice-scale: 0.7px;
+}
+
+.btn-glyph {
+    width: 60px;
+    height: 60px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#settings-glyph {
+    background-image: url("/Assets/_Project/Sprites/Buttons/IconSettings.png");
+}
+
+#leave-glyph {
+    background-image: url("/Assets/_Project/Sprites/Buttons/IconHome.png");
+}
+
 #leaderboard-panel {
     position: absolute;
     right: 30px;
     top: 130px;
-    width: 430px;
-    min-height: 330px;
-    padding: 14px 22px;
-    background-color: rgba(21, 10, 51, 0.82);
+    width: 300px;
+    padding: 10px 16px 12px 16px;
+    border-radius: 24px;
+    background-color: rgba(21, 10, 51, 0.78);
 }
 
 #leaderboard-text {
-    font-size: 30px;
+    font-size: 22px;
     color: white;
     white-space: normal;
     margin: 0;
@@ -278,6 +305,21 @@
 #boost-button:active {
     scale: 0.88 0.88;
     background-color: rgba(120, 70, 220, 0.6);
+}
+
+.controls-swapped #stick-zone {
+    left: auto;
+    right: 0;
+}
+
+.controls-swapped #stick {
+    left: auto;
+    right: 148px;
+}
+
+.controls-swapped #boost-button {
+    right: auto;
+    left: 180px;
 }
 
 #perk-panel {

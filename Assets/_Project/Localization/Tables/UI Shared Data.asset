@@ -455,6 +455,10 @@ MonoBehaviour:
     m_Key: blitz.rank
     m_Metadata:
       m_Items: []
+  - m_Id: 17797599656923136
+    m_Key: settings.controls_swapped
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

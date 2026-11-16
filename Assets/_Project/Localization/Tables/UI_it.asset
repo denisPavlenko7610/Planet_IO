@@ -464,6 +464,10 @@ MonoBehaviour:
     m_Localized: Posto {0} su {1}
     m_Metadata:
       m_Items: []
+  - m_Id: 17797599656923136
+    m_Localized: Joystick a destra
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

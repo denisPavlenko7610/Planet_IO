@@ -36,6 +36,7 @@ namespace PlanetIO.UI.Settings
             _view.SfxVolumeChanged += OnSfxVolumeChanged;
             _view.HapticsChanged += OnHapticsChanged;
             _view.CometNamesChanged += OnCometNamesChanged;
+            _view.ControlsSwappedChanged += OnControlsSwappedChanged;
             _view.PreviousLanguageRequested += OnPreviousLanguage;
             _view.NextLanguageRequested += OnNextLanguage;
             _view.AdPrivacyRequested += OnAdPrivacyRequested;
@@ -52,6 +53,7 @@ namespace PlanetIO.UI.Settings
             _view.SfxVolumeChanged -= OnSfxVolumeChanged;
             _view.HapticsChanged -= OnHapticsChanged;
             _view.CometNamesChanged -= OnCometNamesChanged;
+            _view.ControlsSwappedChanged -= OnControlsSwappedChanged;
             _view.PreviousLanguageRequested -= OnPreviousLanguage;
             _view.NextLanguageRequested -= OnNextLanguage;
             _view.AdPrivacyRequested -= OnAdPrivacyRequested;
@@ -92,7 +94,8 @@ namespace PlanetIO.UI.Settings
                 _settings.Get(GameSettingKeys.MusicVolume),
                 _settings.Get(GameSettingKeys.SfxVolume),
                 _settings.Get(GameSettingKeys.HapticsEnabled),
-                _settings.Get(GameSettingKeys.ShowCometNames));
+                _settings.Get(GameSettingKeys.ShowCometNames),
+                _settings.Get(GameSettingKeys.ControlsSwapped));
             _view.ShowLanguage(LanguageNames.GetNativeName(_localization.CurrentLocale));
             _view.SetAdPrivacyVisible(_adPrivacyService.IsPrivacyOptionsRequired);
         }
@@ -106,6 +109,8 @@ namespace PlanetIO.UI.Settings
         private void OnHapticsChanged(bool enabled) => _settings.Set(GameSettingKeys.HapticsEnabled, enabled);
 
         private void OnCometNamesChanged(bool enabled) => _settings.Set(GameSettingKeys.ShowCometNames, enabled);
+
+        private void OnControlsSwappedChanged(bool swapped) => _settings.Set(GameSettingKeys.ControlsSwapped, swapped);
 
         private void OnPreviousLanguage() => _ = StepLanguageAsync(-1);
 

@@ -13,6 +13,7 @@ namespace PlanetIO.UI.Settings
         event Action<float> SfxVolumeChanged;
         event Action<bool> HapticsChanged;
         event Action<bool> CometNamesChanged;
+        event Action<bool> ControlsSwappedChanged;
         event Action PreviousLanguageRequested;
         event Action NextLanguageRequested;
         event Action AdPrivacyRequested;
@@ -23,7 +24,7 @@ namespace PlanetIO.UI.Settings
 
         void Show();
         void Hide();
-        void ShowValues(float music, float sfx, bool haptics, bool cometNames);
+        void ShowValues(float music, float sfx, bool haptics, bool cometNames, bool controlsSwapped);
         void ShowLanguage(string languageName);
         void SetAdPrivacyVisible(bool visible);
     }
@@ -48,6 +49,7 @@ namespace PlanetIO.UI.Settings
         private VisualElement _sfxFill;
         private Toggle _hapticsToggle;
         private Toggle _cometNamesToggle;
+        private Toggle _controlsSwappedToggle;
         private Button _previousLanguageButton;
         private Button _nextLanguageButton;
         private Label _languageText;
@@ -59,6 +61,7 @@ namespace PlanetIO.UI.Settings
         public event Action<float> SfxVolumeChanged;
         public event Action<bool> HapticsChanged;
         public event Action<bool> CometNamesChanged;
+        public event Action<bool> ControlsSwappedChanged;
         public event Action PreviousLanguageRequested;
         public event Action NextLanguageRequested;
         public event Action AdPrivacyRequested;
@@ -82,6 +85,7 @@ namespace PlanetIO.UI.Settings
             _sfxSlider = root.Q<Slider>("sound-slider");
             _hapticsToggle = root.Q<Toggle>("haptics-toggle");
             _cometNamesToggle = root.Q<Toggle>("comet-names-toggle");
+            _controlsSwappedToggle = root.Q<Toggle>("controls-swapped-toggle");
             _previousLanguageButton = root.Q<Button>("previous-language");
             _nextLanguageButton = root.Q<Button>("next-language");
             _languageText = root.Q<Label>("language-value");
@@ -93,14 +97,17 @@ namespace PlanetIO.UI.Settings
             _sfxFill = CreateFill(_sfxSlider);
             AddToggleKnob(_hapticsToggle);
             AddToggleKnob(_cometNamesToggle);
+            AddToggleKnob(_controlsSwappedToggle);
             BindRowToggle(_hapticsToggle);
             BindRowToggle(_cometNamesToggle);
+            BindRowToggle(_controlsSwappedToggle);
             Hide();
 
             _musicSlider.RegisterValueChangedCallback(OnMusicChanged);
             _sfxSlider.RegisterValueChangedCallback(OnSfxChanged);
             _hapticsToggle.RegisterValueChangedCallback(OnHapticsChanged);
             _cometNamesToggle.RegisterValueChangedCallback(OnCometNamesChanged);
+            _controlsSwappedToggle.RegisterValueChangedCallback(OnControlsSwappedChanged);
             _previousLanguageButton.clicked += OnPreviousLanguage;
             _nextLanguageButton.clicked += OnNextLanguage;
             _adPrivacyButton.clicked += OnAdPrivacy;
@@ -115,6 +122,7 @@ namespace PlanetIO.UI.Settings
             _labels.Bind(root.Q<Label>("sound-label"), LocalizationKeys.SettingsSound);
             _labels.Bind(root.Q<Label>("haptics-label"), LocalizationKeys.SettingsHaptics);
             _labels.Bind(root.Q<Label>("comet-names-label"), LocalizationKeys.SettingsCometNames);
+            _labels.Bind(root.Q<Label>("controls-swapped-label"), LocalizationKeys.SettingsControlsSwapped);
             _labels.Bind(root.Q<Label>("language-label"), LocalizationKeys.SettingsLanguage);
             _labels.Bind(_adPrivacyButton, LocalizationKeys.SettingsAdPrivacy);
             _labels.Bind(_privacyPolicyButton, LocalizationKeys.SettingsPrivacyPolicy);
@@ -127,6 +135,7 @@ namespace PlanetIO.UI.Settings
             _sfxSlider.UnregisterValueChangedCallback(OnSfxChanged);
             _hapticsToggle.UnregisterValueChangedCallback(OnHapticsChanged);
             _cometNamesToggle.UnregisterValueChangedCallback(OnCometNamesChanged);
+            _controlsSwappedToggle.UnregisterValueChangedCallback(OnControlsSwappedChanged);
             _previousLanguageButton.clicked -= OnPreviousLanguage;
             _nextLanguageButton.clicked -= OnNextLanguage;
             _adPrivacyButton.clicked -= OnAdPrivacy;
@@ -147,12 +156,13 @@ namespace PlanetIO.UI.Settings
 
         public void Hide() => _overlay.style.display = DisplayStyle.None;
 
-        public void ShowValues(float music, float sfx, bool haptics, bool cometNames)
+        public void ShowValues(float music, float sfx, bool haptics, bool cometNames, bool controlsSwapped)
         {
             _musicSlider.SetValueWithoutNotify(music);
             _sfxSlider.SetValueWithoutNotify(sfx);
             _hapticsToggle.SetValueWithoutNotify(haptics);
             _cometNamesToggle.SetValueWithoutNotify(cometNames);
+            _controlsSwappedToggle.SetValueWithoutNotify(controlsSwapped);
             UpdateFill(_musicFill, _musicSlider);
             UpdateFill(_sfxFill, _sfxSlider);
         }
@@ -239,6 +249,8 @@ namespace PlanetIO.UI.Settings
         private void OnHapticsChanged(ChangeEvent<bool> changeEvent) => HapticsChanged?.Invoke(changeEvent.newValue);
 
         private void OnCometNamesChanged(ChangeEvent<bool> changeEvent) => CometNamesChanged?.Invoke(changeEvent.newValue);
+
+        private void OnControlsSwappedChanged(ChangeEvent<bool> changeEvent) => ControlsSwappedChanged?.Invoke(changeEvent.newValue);
 
         private void OnPreviousLanguage() => PreviousLanguageRequested?.Invoke();
 

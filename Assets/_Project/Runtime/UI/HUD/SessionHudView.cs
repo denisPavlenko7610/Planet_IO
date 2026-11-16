@@ -33,6 +33,7 @@ namespace PlanetIO.UI.Hud
         void ShowHint(string message);
         void SetBorderWarning(float strength);
         void SetPing(int milliseconds, PingQuality quality);
+        void SetControlsSwapped(bool swapped);
     }
 
     public interface IRunResultView
@@ -78,6 +79,7 @@ namespace PlanetIO.UI.Hud
         private const float ScorePopupSeconds = 0.9f;
         private const float ScorePopupRiseSpeed = 80f;
         private const float HintFadeSeconds = 4f;
+        private const string ControlsSwappedClass = "controls-swapped";
 
         private ILocalizationService _localization;
         private LocalizedLabels _labels;
@@ -199,7 +201,6 @@ namespace PlanetIO.UI.Hud
             _labels?.Dispose();
             _labels = new LocalizedLabels(_localization);
             _labels.BindLanguageClass(_root);
-            _labels.Bind(_settingsButton, LocalizationKeys.MenuSettings);
             _labels.Bind(_root.Q<Label>("loading-title"), LocalizationKeys.StatusLoading);
         }
 
@@ -279,7 +280,6 @@ namespace PlanetIO.UI.Hud
 
         public void SetButtonLabels(string leave, string playAgain, string watchAd)
         {
-            _leaveButton.text = leave;
             _defeatLeaveButton.text = leave;
             _playAgainButton.text = playAgain;
             _continueButton.text = watchAd;
@@ -329,6 +329,11 @@ namespace PlanetIO.UI.Hud
         public void SetBorderWarning(float strength)
         {
             _borderWarning.style.opacity = Mathf.Clamp01(strength);
+        }
+
+        public void SetControlsSwapped(bool swapped)
+        {
+            _root.EnableInClassList(ControlsSwappedClass, swapped);
         }
 
         public void SetPing(int milliseconds, PingQuality quality)
