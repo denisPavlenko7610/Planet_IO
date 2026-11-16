@@ -10,6 +10,7 @@ namespace PlanetIO.UI.Hud
         private const float MinimumParentScale = 0.0001f;
         private const float MinimumLabelScale = 0.45f;
         private const float MaximumLabelScale = 1.6f;
+        private const float LabelReach = 3f;
 
         [SerializeField] private TextMeshPro _label;
         [SerializeField, Assign] private SpriteRenderer _entityRenderer;
@@ -61,6 +62,11 @@ namespace PlanetIO.UI.Hud
 
         private void LateUpdate()
         {
+            if (!ViewBounds.IsVisible(transform.position, _entity.BodyRadius + LabelReach))
+            {
+                return;
+            }
+
             bool visible = _entity is not Player { IsDefeated: true };
             if (_label.enabled != visible)
             {

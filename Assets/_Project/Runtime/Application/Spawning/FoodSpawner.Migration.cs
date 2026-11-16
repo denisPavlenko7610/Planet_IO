@@ -18,6 +18,11 @@ namespace PlanetIO
         public FoodMigrationState CaptureFoodMigration(Food food)
         {
             var state = food.CaptureMigration();
+            if (food.IsDropped)
+            {
+                state.Remaining = Mathf.Max(0f, food.DropExpiresAt - _dropClock);
+            }
+
             if (_cometFood.TryGetValue(food, out float remaining))
             {
                 state.CometTrail = true;
@@ -32,7 +37,7 @@ namespace PlanetIO
             food.RestoreMigration(state);
             if (state.Dropped)
             {
-                _ = ReleaseAfterLifetimeAsync(food, food.LifecycleVersion, state.Remaining);
+                ScheduleRelease(food, food.LifecycleVersion, state.Remaining);
             }
             else
             {

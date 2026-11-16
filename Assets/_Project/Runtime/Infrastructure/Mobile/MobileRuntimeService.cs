@@ -27,9 +27,10 @@ namespace PlanetIO.Infrastructure.Mobile
 
         public void Start()
         {
-            if (UnityEngine.Application.isMobilePlatform && QualitySettings.names.Length > 1)
+            if (UnityEngine.Application.isMobilePlatform)
             {
-                QualitySettings.SetQualityLevel(1, true);
+                DeviceTier tier = DeviceTierRules.Resolve(SystemInfo.systemMemorySize, SystemInfo.processorCount);
+                QualitySettings.SetQualityLevel(DeviceTierRules.QualityLevel(tier, QualitySettings.names.Length), true);
             }
 
             QualitySettings.vSyncCount = 0;

@@ -62,6 +62,7 @@ namespace PlanetIO.UI.Camera
         {
             if (_player == null || !_player.IsSpawned)
             {
+                ViewBounds.Clear();
                 return;
             }
 
@@ -108,10 +109,20 @@ namespace PlanetIO.UI.Camera
                 smoothTime
             ));
             FoodViewScale.SetZoomRatio(Camera.orthographicSize / _baseOrthographicSize);
+            PublishViewBounds();
+        }
+
+        private void PublishViewBounds()
+        {
+            float halfHeight = Camera.orthographicSize;
+            float halfWidth = halfHeight * Camera.aspect;
+            Vector3 center = transform.position;
+            ViewBounds.Set(new Rect(center.x - halfWidth, center.y - halfHeight, halfWidth * 2f, halfHeight * 2f));
         }
 
         private void OnDestroy()
         {
+            ViewBounds.Clear();
             if (_localPlayerProvider != null)
             {
                 _localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;

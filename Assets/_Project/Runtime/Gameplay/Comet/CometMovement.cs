@@ -16,6 +16,7 @@ namespace PlanetIO
         [SerializeField, Min(0f)] private float _maximumSpeed = CometRules.MaximumSpeed;
 
         private IGameStateService _gameStateService;
+        private Collider2D _collider;
         private Vector2 _direction = Vector2.right;
         private float _normalSpeed;
         private ICometFoodTrail _foodSpawner;
@@ -35,6 +36,7 @@ namespace PlanetIO
         {
             _rigidbody2D ??= GetComponent<Rigidbody2D>();
             _cometTransform ??= transform;
+            _collider = GetComponent<Collider2D>();
         }
 
         [Inject]
@@ -83,7 +85,7 @@ namespace PlanetIO
             if (_foodTimer <= 0f)
             {
                 _foodTimer = CometRules.TrailInterval;
-                float radius = GetComponent<Collider2D>().bounds.extents.magnitude;
+                float radius = _collider.bounds.extents.magnitude;
                 _foodSpawner?.TryLeaveCometFood(CometRules.FoodPosition(transform.position, _direction, radius));
             }
         }

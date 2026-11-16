@@ -615,6 +615,16 @@ Ad consent (UMP) is already implemented through `IAdPrivacyService`.
    Step 2, if that is not enough: pellets as data (structs + delta events) without `NetworkObject`. The measurement is
    in
    phase 5, with a 55 FPS threshold on a weak Android; the pool is currently 1800.
+   Performance pass (November 16, 2026, from a code read, not yet measured on a device): the HUD reads
+   `PlanetDirectory` instead of scanning every spawned `NetworkObject`; the minimap refreshes at 10 Hz and writes only
+   changed styles; dropped food expires from one heap-based queue in `FoodSpawner.Update` instead of one async loop
+   per item; the eat-effect RPC goes only to clients whose player is within `EatEffectRules` range; moon, threat and
+   nameplate views skip planets outside the camera rectangle (`ViewBounds`); the host migration snapshot is taken every
+   2 s (was 1 s) with fast gzip, so the rollback window after an abrupt host loss is up to 2 s; weak devices
+   (`DeviceTierRules`) start on the Low quality level (no HDR, render scale 0.85); `NetworkRigidbody2D` is removed
+   from the food prefab. Deliberately not done, reasons recorded in section 15: distance-based food visibility and
+   ambient food as data (both need a two-client check), tick alignment (tunneling at boost speed), a higher
+   `NetworkTransform` threshold (bodies always move, so it saves nothing).
 8. **Anti-cheat before leaderboards.** Server-side validation of speed, bounds and teleports of the owner-authoritative
    transform. Deferred together with global leaderboards (phase 8).
 9. **Analytics:** `run_start`, `run_end{cause, tier, mass_peak, duration, killer_tier}`, `perk_offered/picked`,
@@ -706,6 +716,7 @@ Target hypotheses (not guarantees; recheck against test data):
 |-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | Too many mechanics for a 5-second pitch | Disclosure by tier, FTUE, threat ring                                                                                                  |
 | Network load                            | Moons are computed analytically, perks sit in a bit mask, events are one `NetworkVariable`; food (1800 objects) is measured in phase 5 |
+| Food network cost (deferred)            | Distance-based food visibility needs show/hide on every respawn and a two-client check; ambient food as data touches the magnet, comet trail and migration. Decide after the phase 5 measurement. Aligning the 30 Hz network tick with 50 Hz physics risks tunneling at boost speed (9.6 u/s); a larger `NetworkTransform` threshold saves nothing because bodies never stand still |
 | Leader snowball                         | Bounty, burnout above 1.2 if needed                                                                                                    |
 | Perk imbalance                          | A pick-rate table in analytics, a downside on every perk, all numbers in a `ScriptableObject`                                          |
 | Localization cost                       | Icons and numbers instead of phrases, ≤ 20 strings per phase                                                                           |

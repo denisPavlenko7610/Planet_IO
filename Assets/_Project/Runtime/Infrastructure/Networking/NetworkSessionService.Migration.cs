@@ -53,7 +53,7 @@ namespace PlanetIO.Infrastructure.Networking
                         Debug.LogWarning("Migration snapshot upload failed: " + error.Message);
                     }
                 }
-                float next = Time.realtimeSinceStartup + 1f;
+                float next = Time.realtimeSinceStartup + MatchMigrationStore.SnapshotIntervalSeconds;
                 while (!_shutdownRequested && generation == _uploadGeneration && Time.realtimeSinceStartup < next)
                 {
                     await Awaitable.NextFrameAsync();

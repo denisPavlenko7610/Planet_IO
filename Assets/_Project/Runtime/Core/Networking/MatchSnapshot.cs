@@ -113,7 +113,7 @@ namespace PlanetIO
             }
 
             using var output = new MemoryStream();
-            using (var gzip = new GZipStream(output, System.IO.Compression.CompressionLevel.Optimal, true))
+            using (var gzip = new GZipStream(output, System.IO.Compression.CompressionLevel.Fastest, true))
                 gzip.Write(json, 0, json.Length);
             byte[] bytes = output.ToArray();
             if (bytes.Length > MaximumCompressedBytes)

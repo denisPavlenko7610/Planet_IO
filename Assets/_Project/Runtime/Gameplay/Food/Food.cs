@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -53,14 +54,34 @@ namespace PlanetIO
 
         public void PlayEatenEffect()
         {
-            if (IsServer && IsSpawned)
+            if (!IsServer || !IsSpawned)
             {
-                PlayEatenEffectRpc(transform.position, transform.localScale.x);
+                return;
             }
+
+            Vector2 position = transform.position;
+            var clients = NetworkManager.ConnectedClientsList;
+            var targets = new NativeList<ulong>(clients.Count, Allocator.Temp);
+            for (int index = 0; index < clients.Count; index++)
+            {
+                NetworkClient client = clients[index];
+                NetworkObject playerObject = client.PlayerObject;
+                if (playerObject == null || EatEffectRules.IsRelevant(position, playerObject.transform.position))
+                {
+                    targets.Add(client.ClientId);
+                }
+            }
+
+            if (targets.Length > 0)
+            {
+                PlayEatenEffectRpc(position, transform.localScale.x, RpcTarget.Group(targets, RpcTargetUse.Temp));
+            }
+
+            targets.Dispose();
         }
 
-        [Rpc(SendTo.Everyone)]
-        private void PlayEatenEffectRpc(Vector2 position, float size)
+        [Rpc(SendTo.SpecifiedInParams)]
+        private void PlayEatenEffectRpc(Vector2 position, float size, RpcParams rpcParams = default)
         {
             Color color = ValueMultiplier > 1f ? GoldenTint : _effectColor;
             GameVfx.Eat(position, color, size * FoodViewScale.Factor);

@@ -60,10 +60,15 @@ namespace PlanetIO
                 return;
             }
 
+            float bodyRadius = _planet.BodyRadius;
+            if (!ViewBounds.IsVisible(transform.position, MoonRules.OuterExtent(bodyRadius)))
+            {
+                return;
+            }
+
             EnsureRoot();
 
             Sprite sprite = _body.sprite;
-            float bodyRadius = _planet.BodyRadius;
             float moonRadius = MoonRules.MoonRadius(bodyRadius);
             float moonScale = 2f * moonRadius / Mathf.Max(0.0001f, sprite.bounds.size.x);
             float phase = _planet.MoonPhaseDegrees;
@@ -95,11 +100,34 @@ namespace PlanetIO
                 _appear[index] = Mathf.MoveTowards(_appear[index], 1f, step);
                 Vector2 position = MoonRules.Position(center, bodyRadius, index, slots, time, phase);
 
-                moon.enabled = true;
-                moon.sprite = sprite;
-                moon.color = _body.color;
-                moon.sortingLayerID = _body.sortingLayerID;
-                moon.sortingOrder = _body.sortingOrder + 1;
+                if (!moon.enabled)
+                {
+                    moon.enabled = true;
+                }
+
+                if (moon.sprite != sprite)
+                {
+                    moon.sprite = sprite;
+                }
+
+                Color bodyColor = _body.color;
+                if (moon.color != bodyColor)
+                {
+                    moon.color = bodyColor;
+                }
+
+                int sortingLayerId = _body.sortingLayerID;
+                if (moon.sortingLayerID != sortingLayerId)
+                {
+                    moon.sortingLayerID = sortingLayerId;
+                }
+
+                int sortingOrder = _body.sortingOrder + 1;
+                if (moon.sortingOrder != sortingOrder)
+                {
+                    moon.sortingOrder = sortingOrder;
+                }
+
                 moon.transform.SetPositionAndRotation(
                     new Vector3(position.x, position.y, center.z),
                     Quaternion.identity);

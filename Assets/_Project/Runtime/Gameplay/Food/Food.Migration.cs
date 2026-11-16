@@ -5,7 +5,7 @@ namespace PlanetIO
 {
     public sealed partial class Food
     {
-        public float MigrationExpiresAt { get; set; }
+        public float DropExpiresAt { get; set; }
 
         public FoodMigrationState CaptureMigration()
         {
@@ -14,7 +14,7 @@ namespace PlanetIO
                 ObjectId = NetworkObjectId, Position = transform.position, Scale = Capacity,
                 Nutrition = Nutrition, Value = ValueMultiplier, Dropped = IsDropped, Cell = DensityCell,
                 DropperId = _dropperObjectId, Immunity = Mathf.Max(0f, _magnetImmuneUntil - Time.time),
-                Remaining = IsDropped ? Mathf.Max(0f, MigrationExpiresAt - Time.time) : 0f
+                Remaining = 0f
             };
         }
 

@@ -167,16 +167,23 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            foreach (NetworkObject networkObject in _networkManager.SpawnManager.SpawnedObjectsList)
+            IReadOnlyList<PlanetScale> planets = PlanetDirectory.All;
+            for (int index = 0; index < planets.Count; index++)
             {
-                if (networkObject.TryGetComponent(out Player player))
+                PlanetScale planet = planets[index];
+                if (planet == null || !planet.IsSpawned)
+                {
+                    continue;
+                }
+
+                if (planet is Player player)
                 {
                     if (!player.IsDefeated)
                     {
                         _entries.Add((player.DisplayName, Constants.CapacityToScore(player.Capacity), player == localPlayer));
                     }
                 }
-                else if (networkObject.TryGetComponent(out Enemy enemy))
+                else if (planet is Enemy enemy)
                 {
                     _entries.Add((enemy.DisplayName, Constants.CapacityToScore(enemy.Capacity), false));
                 }

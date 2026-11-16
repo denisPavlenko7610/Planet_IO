@@ -1,4 +1,3 @@
-using RD.Foundation;
 using UnityEngine;
 using System;
 using System.Linq;
@@ -40,6 +39,8 @@ namespace PlanetIO
         private readonly List<Food> _ambientFood = new();
         private readonly Dictionary<Food, float> _cometFood = new();
         private readonly List<Food> _expiredCometFood = new();
+        private readonly ExpiryQueue<Food> _dropExpiry = new();
+        private float _dropClock;
         private IGameStateService _gameState;
         private VContainer.IObjectResolver _resolver;
 
@@ -105,7 +106,7 @@ namespace PlanetIO
             point.SetNutrition(nutrition);
             point.SetValueMultiplier(1f);
 
-            _ = ReleaseAfterLifetimeAsync(point, lifecycleVersion, _droppedPointLifetime);
+            ScheduleRelease(point, lifecycleVersion, _droppedPointLifetime);
             return point;
         }
 
@@ -136,7 +137,7 @@ namespace PlanetIO
                 loot.SetValueMultiplier(LootTintMultiplier);
 
                 drop.Add(loot, lifecycleVersion);
-                _ = ReleaseAfterLifetimeAsync(loot, lifecycleVersion, _lootLifetime);
+                ScheduleRelease(loot, lifecycleVersion, _lootLifetime);
             }
 
             return drop;
@@ -220,6 +221,8 @@ namespace PlanetIO
 
         private void Update()
         {
+            ReleaseExpiredDrops();
+
             if (_resolver != null) _gameState ??= VContainer.IObjectResolverExtensions.Resolve<IGameStateService>(_resolver);
             if (_gameState?.IsGameplayActive != true)
             {
@@ -305,31 +308,36 @@ namespace PlanetIO
             }
         }
 
-        private async Awaitable ReleaseAfterLifetimeAsync(Food point, int lifecycleVersion, float lifetime)
+        private void ScheduleRelease(Food point, int lifecycleVersion, float lifetime)
         {
-            try
-            {
-                float remaining = lifetime;
-                while (remaining > 0f && point != null && point.IsDropped && point.LifecycleVersion == lifecycleVersion)
-                {
-                    point.MigrationExpiresAt = Time.time + remaining;
-                    await Awaitable.NextFrameAsync(destroyCancellationToken);
-                    if (_migration?.IsRecovering != true) remaining -= Time.deltaTime;
-                }
+            float expiresAt = _dropClock + Mathf.Max(0f, lifetime);
+            point.DropExpiresAt = expiresAt;
+            _dropExpiry.Enqueue(point, lifecycleVersion, expiresAt);
+        }
 
+        private void ReleaseExpiredDrops()
+        {
+            if (_migration?.IsRecovering != true)
+            {
+                _dropClock += Time.deltaTime;
+            }
+
+            while (_dropExpiry.TryDequeueExpired(_dropClock, out Food point, out int lifecycleVersion))
+            {
                 if (point == null ||
                     !point.IsDropped ||
                     point.LifecycleVersion != lifecycleVersion)
                 {
-                    return;
+                    continue;
                 }
 
                 ReturnDroppedPoint(point);
             }
-            catch (OperationCanceledException)
-            {
-                UnityLogger.Log("Dropped point lifetime cancelled.");
-            }
+        }
+
+        private void OnDestroy()
+        {
+            _dropExpiry.Clear();
         }
     }
 }

@@ -48,7 +48,8 @@ namespace PlanetIO
 
         private void LateUpdate()
         {
-            if (_ring == null)
+            if (_ring == null ||
+                !ViewBounds.IsVisible(transform.position, _planet.GravityZoneRadius))
             {
                 return;
             }

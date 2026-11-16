@@ -8,13 +8,18 @@ namespace PlanetIO.UI.Hud
 {
     public sealed class MinimapPresenter : ITickable
     {
+        private const float RefreshIntervalSeconds = 0.1f;
+
         private static readonly Color LeaderColor = new(1f, 0.82f, 0.25f);
+        private static readonly Color LocalColor = new(0.55f, 1f, 0.5f);
+        private static readonly Color BotColor = new(0.8f, 0.72f, 1f, 0.9f);
 
         private readonly NetworkManager _networkManager;
         private readonly ILocalPlayerProvider _localPlayerProvider;
         private readonly List<MinimapBlip> _blips = new();
         private readonly MinimapView _view;
         private readonly IWorldEvents _events;
+        private float _refreshTimeRemaining;
 
         public MinimapPresenter(
             MinimapView view,
@@ -35,41 +40,52 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            _blips.Clear();
-            foreach (NetworkObject networkObject in _networkManager.SpawnManager.SpawnedObjectsList)
+            _refreshTimeRemaining -= Time.unscaledDeltaTime;
+            if (_refreshTimeRemaining > 0f)
             {
-                Color color;
-                bool isLeader;
-                if (networkObject.TryGetComponent(out Player player))
+                return;
+            }
+
+            _refreshTimeRemaining = RefreshIntervalSeconds;
+            _blips.Clear();
+            Player localPlayer = _localPlayerProvider.LocalPlayer;
+            Rect bounds = Constants.WorldBounds;
+            IReadOnlyList<PlanetScale> planets = PlanetDirectory.All;
+            for (int index = 0; index < planets.Count; index++)
+            {
+                PlanetScale planet = planets[index];
+                if (planet == null || !planet.IsSpawned)
                 {
-                    bool isLocal = player == _localPlayerProvider.LocalPlayer;
+                    continue;
+                }
+
+                Color color;
+                if (planet is Player player)
+                {
+                    bool isLocal = player == localPlayer;
                     if (player.IsDefeated || player.IsHiddenFromRivals && !isLocal)
                     {
                         continue;
                     }
 
-                    isLeader = player.IsLeader;
-                    color = isLocal
-                        ? new Color(0.55f, 1f, 0.5f)
-                        : Color.white;
+                    color = isLocal ? LocalColor : Color.white;
                 }
-                else if (networkObject.TryGetComponent(out Enemy enemy))
+                else if (planet is Enemy)
                 {
-                    isLeader = enemy.IsLeader;
-                    color = new Color(0.8f, 0.72f, 1f, 0.9f);
+                    color = BotColor;
                 }
                 else
                 {
                     continue;
                 }
 
+                bool isLeader = planet.IsLeader;
                 if (isLeader)
                 {
                     color = LeaderColor;
                 }
 
-                Vector2 position = networkObject.transform.position;
-                Rect bounds = Constants.WorldBounds;
+                Vector2 position = planet.transform.position;
                 Vector2 normalized = new(
                     (position.x - bounds.xMin) / bounds.width,
                     (position.y - bounds.yMin) / bounds.height);

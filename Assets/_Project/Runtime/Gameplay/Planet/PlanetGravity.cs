@@ -64,13 +64,20 @@ namespace PlanetIO
                 }
 
                 Vector2 toward = (Vector2)well.transform.position - position;
-                float distance = toward.magnitude;
+                float zoneRadius = well.GravityZoneRadius;
+                float squaredDistance = toward.sqrMagnitude;
+                if (squaredDistance >= zoneRadius * zoneRadius)
+                {
+                    continue;
+                }
+
+                float distance = Mathf.Sqrt(squaredDistance);
                 if (distance < 0.01f)
                 {
                     continue;
                 }
 
-                float speed = GravityRules.PullSpeed(distance, well.BodyRadius, well.GravityZoneRadius) *
+                float speed = GravityRules.PullSpeed(distance, well.BodyRadius, zoneRadius) *
                               MapFeatureField.GravityScale;
                 if (speed <= 0f)
                 {

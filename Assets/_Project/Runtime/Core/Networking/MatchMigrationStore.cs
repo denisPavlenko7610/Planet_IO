@@ -7,6 +7,8 @@ namespace PlanetIO
 {
     public sealed class MatchMigrationStore
     {
+        public const float SnapshotIntervalSeconds = 2f;
+
         public string MatchId { get; private set; }
         public string LocalIdentity { get; set; } = "solo";
         public bool IsRecovering { get; private set; }
