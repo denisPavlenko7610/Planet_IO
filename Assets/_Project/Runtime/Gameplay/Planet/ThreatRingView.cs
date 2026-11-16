@@ -88,6 +88,12 @@ namespace PlanetIO
                 color.a *= 0.6f + 0.4f * Mathf.Sin(Time.unscaledTime * DangerPulseSpeed);
             }
 
+            Sprite shape = _level == ThreatLevel.Danger ? OverlaySprites.ThickRing : OverlaySprites.Ring;
+            if (_ring.sprite != shape)
+            {
+                _ring.sprite = shape;
+            }
+
             _ring.enabled = true;
             _ring.color = color;
             _ring.sortingLayerID = _body.sortingLayerID;

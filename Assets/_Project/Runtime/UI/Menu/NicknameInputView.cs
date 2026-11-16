@@ -31,6 +31,7 @@ namespace PlanetIO.UI.Menu
         private LocalizedLabels _labels;
         private TextField _inputField;
         private Button _setRandomNicknameButton;
+        private Label _profileName;
 
         public event Action<string> NicknameChanged;
         public event Action RandomNicknameRequested;
@@ -47,6 +48,7 @@ namespace PlanetIO.UI.Menu
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
             _inputField = root.Q<TextField>("nickname-input");
             _setRandomNicknameButton = root.Q<Button>("random-nickname");
+            _profileName = root.Q<Label>("profile-name");
             VisualElement swatchContainer = root.Q<VisualElement>("swatches");
 
             if (_inputField == null || _setRandomNicknameButton == null)
@@ -83,7 +85,12 @@ namespace PlanetIO.UI.Menu
 
         public void ShowNickname(string nickname)
         {
-            _inputField?.SetValueWithoutNotify(NicknameRules.Normalize(nickname));
+            string normalized = NicknameRules.Normalize(nickname);
+            _inputField?.SetValueWithoutNotify(normalized);
+            if (_profileName != null)
+            {
+                _profileName.text = normalized;
+            }
         }
 
         public void ShowSelectedColor(Color32 color)

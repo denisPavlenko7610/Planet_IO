@@ -6,7 +6,7 @@
         <ui:VisualElement name="settings-panel" class="card settings-panel">
             <ui:Label name="settings-title" />
             <ui:VisualElement class="settings-divider" />
-            <ui:VisualElement class="settings-list">
+            <ui:ScrollView class="settings-list" horizontal-scroller-visibility="Hidden">
                 <ui:VisualElement class="settings-row">
                     <ui:Label name="music-label" class="settings-label" />
                     <ui:VisualElement class="settings-control">
@@ -37,6 +37,12 @@
                         <ui:Toggle name="controls-swapped-toggle" class="settings-toggle" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement class="settings-row">
+                    <ui:Label name="fixed-joystick-label" class="settings-label" />
+                    <ui:VisualElement class="settings-control settings-control--end settings-control--toggle">
+                        <ui:Toggle name="fixed-joystick-toggle" class="settings-toggle" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
                 <ui:VisualElement class="settings-row settings-row--last">
                     <ui:Label name="language-label" class="settings-label" />
                     <ui:VisualElement class="settings-control">
@@ -47,7 +53,7 @@
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
-            </ui:VisualElement>
+            </ui:ScrollView>
             <ui:VisualElement class="settings-footer">
                 <ui:Button name="ad-privacy" class="btn btn-long btn-blue" />
                 <ui:Button name="settings-close" class="btn btn-small btn-red" />

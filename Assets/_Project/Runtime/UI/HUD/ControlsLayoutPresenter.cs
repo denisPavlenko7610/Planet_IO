@@ -28,6 +28,10 @@ namespace PlanetIO.UI.Hud
 
         private void OnSettingChanged(SettingChanged _) => Apply();
 
-        private void Apply() => _view.SetControlsSwapped(_settings.Get(GameSettingKeys.ControlsSwapped));
+        private void Apply()
+        {
+            _view.SetControlsSwapped(_settings.Get(GameSettingKeys.ControlsSwapped));
+            _view.SetFixedJoystick(_settings.Get(GameSettingKeys.FixedJoystick));
+        }
     }
 }

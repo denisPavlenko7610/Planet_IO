@@ -10,7 +10,22 @@ namespace PlanetIO
         public const int StreakStepReward = 5;
         public const int StreakMaxReward = 50;
 
+        public const int RankUpBase = 5;
+
         public static int RunDust(int xp) => xp <= 0 ? 0 : Mathf.Max(1, xp / 4);
+
+        public static int RankUp(int rank) => RankUpBase + Mathf.Max(1, rank);
+
+        public static int RankUpDust(int rankBefore, int rankAfter)
+        {
+            int total = 0;
+            for (int rank = rankBefore + 1; rank <= rankAfter; rank++)
+            {
+                total += RankUp(rank);
+            }
+
+            return total;
+        }
 
         public static int StreakReward(int streakDays)
         {

@@ -68,6 +68,7 @@ namespace PlanetIO.UI.Menu
             _menuRoot.RegisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
             EnableProgressView(root);
             EnableModeView(root);
+            EnableScreens(root);
 
             _roomCodeInput.maxLength = RoomRules.MaximumRoomCodeLength;
             _roomCodeInput.RegisterValueChangedCallback(OnRoomCodeEdited);
@@ -86,11 +87,12 @@ namespace PlanetIO.UI.Menu
             _labels.Bind(_createRoomButton, LocalizationKeys.MenuCreateRoom);
             _labels.Bind(_quickPlayButton, LocalizationKeys.MenuQuickPlay);
             _labels.Bind(_joinRoomButton, LocalizationKeys.MenuJoinRoom);
-            _labels.Bind(_settingsButton, LocalizationKeys.MenuSettings);
             _labels.Bind(root.Q<Button>("random-nickname"), LocalizationKeys.MenuRandomNickname);
             _labels.Bind(root.Q<Label>("color-label"), LocalizationKeys.MenuColor);
             _labels.Bind(root.Q<Label>("planet-label"), LocalizationKeys.MenuPlanet);
-            _labels.Bind(root.Q<Label>("online-label"), LocalizationKeys.MenuOnline);
+            _labels.Bind(_onlineButton, LocalizationKeys.MenuOnline);
+            _labels.Bind(_customizeClose, LocalizationKeys.SettingsClose);
+            _labels.Bind(_onlineClose, LocalizationKeys.SettingsClose);
             _labels.BindPlaceholder(_roomCodeInput, LocalizationKeys.MenuRoomCodePlaceholder);
         }
 
@@ -106,6 +108,7 @@ namespace PlanetIO.UI.Menu
             _menuRoot.UnregisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
             DisableProgressView();
             DisableModeView();
+            DisableScreens();
             _labels?.Dispose();
             _labels = null;
         }
@@ -123,6 +126,7 @@ namespace PlanetIO.UI.Menu
         {
             _statusText.text = status ?? string.Empty;
             _statusText.EnableInClassList(ErrorClass, isError);
+            MirrorStatus(status, isError);
         }
 
         public void ShowBestScore(string text)

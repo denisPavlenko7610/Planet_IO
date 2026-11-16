@@ -1,0 +1,52 @@
+using UnityEngine;
+
+namespace PlanetIO
+{
+    public sealed partial class Player
+    {
+        private readonly float[] _respawnScores = new float[RespawnRules.CandidateCount];
+        private readonly Vector2[] _respawnCandidates = new Vector2[RespawnRules.CandidateCount];
+
+        private Vector2 PickRespawnPosition()
+        {
+            for (int index = 0; index < RespawnRules.CandidateCount; index++)
+            {
+                Vector2 candidate = Constants.RandomWorldPosition();
+                _respawnCandidates[index] = candidate;
+                _respawnScores[index] = RespawnRules.Score(CountFoodAround(candidate), NearestThreatEdgeDistance(candidate));
+            }
+
+            int best = RespawnRules.PickBest(_respawnScores);
+            return best >= 0 ? _respawnCandidates[best] : Constants.RandomWorldPosition();
+        }
+
+        private int CountFoodAround(Vector2 position)
+        {
+            return Physics2D.OverlapCircle(position, RespawnRules.FoodSearchRadius, _foodFilter, _foodBuffer);
+        }
+
+        private float NearestThreatEdgeDistance(Vector2 position)
+        {
+            float nearest = float.PositiveInfinity;
+            var planets = PlanetDirectory.All;
+            for (int index = 0; index < planets.Count; index++)
+            {
+                PlanetScale planet = planets[index];
+                if (planet == null || planet == this || !planet.IsSpawned || !planet.CanDevour(this))
+                {
+                    continue;
+                }
+
+                if (planet is Player { IsDefeated: true })
+                {
+                    continue;
+                }
+
+                float edgeDistance = Vector2.Distance(position, planet.transform.position) - planet.BodyRadius;
+                nearest = Mathf.Min(nearest, edgeDistance);
+            }
+
+            return nearest;
+        }
+    }
+}

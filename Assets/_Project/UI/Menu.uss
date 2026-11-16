@@ -12,7 +12,7 @@
 }
 
 #game-title {
-    font-size: 104px;
+    font-size: 92px;
     color: white;
     -unity-text-align: middle-center;
     text-shadow: 0 4px 0 rgba(10, 4, 30, 0.9);
@@ -32,38 +32,116 @@
 
 #settings-button {
     position: absolute;
-    top: 25px;
-    right: 40px;
+    top: 24px;
+    right: 32px;
 }
 
 #columns {
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     flex-grow: 1;
-    margin-top: 170px;
-    margin-bottom: 110px;
-}
-
-.menu-card {
-    width: 620px;
-    height: 640px;
-    margin: 0 20px;
-    justify-content: space-between;
+    margin-top: 190px;
+    margin-bottom: 100px;
 }
 
 .menu--portrait #columns {
     flex-direction: column;
-    margin-top: 200px;
+    margin-top: 220px;
     margin-bottom: 150px;
 }
 
-.menu--portrait .menu-card {
-    margin: 14px 0;
+.menu-item {
+    margin: 12px 0;
 }
 
-.menu-card.centered {
+.profile-chip {
+    flex-direction: row;
     align-items: center;
+    width: 520px;
+    height: 116px;
+    padding: 0 28px 0 16px;
+    border-radius: 58px;
+    border-width: 2px;
+    border-color: var(--outline);
+    background-color: var(--panel);
+    transition-property: scale;
+    transition-duration: 0.08s;
+}
+
+.profile-chip:hover {
+    background-color: var(--panel);
+}
+
+.profile-chip:active {
+    scale: 0.96 0.96;
+    background-color: var(--panel);
+}
+
+#profile-skin {
+    width: 88px;
+    height: 88px;
+    margin-right: 22px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#profile-name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    font-size: 42px;
+    color: white;
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.overlay {
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.overlay-backdrop {
+    background-color: rgba(8, 3, 22, 0.78);
+}
+
+.overlay-card {
+    width: 820px;
+    max-width: 96%;
+    padding: 30px 36px;
+    align-items: stretch;
+    background-color: var(--panel-modal);
+    border-radius: 40px;
+}
+
+.overlay-section {
+    margin: 18px 0 8px 0;
+}
+
+.overlay-item {
+    align-self: center;
+    margin: 8px 0;
+}
+
+.overlay-close {
+    align-self: center;
+    margin-top: 12px;
+}
+
+.overlay-status {
+    min-height: 40px;
+    margin: 10px 0 0 0;
+    padding: 0;
+    font-size: 30px;
+    color: rgb(226, 242, 255);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.overlay-status.status--error {
+    color: rgb(255, 150, 150);
 }
 
 .row {
@@ -106,15 +184,15 @@
     flex-wrap: wrap;
     justify-content: center;
     align-content: center;
-    height: 200px;
+    height: 230px;
 }
 
 .skin {
-    width: 76px;
-    height: 76px;
-    margin: 4px 5px;
+    width: 88px;
+    height: 88px;
+    margin: 5px 6px;
     -unity-background-scale-mode: scale-to-fit;
-    border-radius: 38px;
+    border-radius: 44px;
     transition-property: scale;
     transition-duration: 0.1s;
 }
@@ -187,8 +265,8 @@
 
 #missions-button {
     position: absolute;
-    top: 25px;
-    left: 40px;
+    top: 24px;
+    left: 32px;
 }
 
 #missions-overlay {

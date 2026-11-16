@@ -64,18 +64,43 @@ namespace PlanetIO.UI.Hud
                 _localPlayer.PerkOfferShown -= OnOfferShown;
                 _localPlayer.PerkOfferClosed -= OnOfferClosed;
                 _localPlayer.Defeated -= OnOfferClosed;
+                _localPlayer.PerksChanged -= OnPerksChanged;
             }
 
             HideOffer();
             _localPlayer = player;
             if (_localPlayer == null)
             {
+                _view.SetActivePerks(Array.Empty<int>(), Array.Empty<string>());
                 return;
             }
 
             _localPlayer.PerkOfferShown += OnOfferShown;
             _localPlayer.PerkOfferClosed += OnOfferClosed;
             _localPlayer.Defeated += OnOfferClosed;
+            _localPlayer.PerksChanged += OnPerksChanged;
+            OnPerksChanged(_localPlayer.PerkMask);
+        }
+
+        private void OnPerksChanged(ushort mask)
+        {
+            var ids = new int[PerkRules.OwnedCount(mask)];
+            var names = new string[ids.Length];
+            int count = 0;
+            for (int index = 0; index < PerkRules.Count; index++)
+            {
+                var id = (PerkId)index;
+                if (!PerkRules.Has(mask, id))
+                {
+                    continue;
+                }
+
+                ids[count] = index;
+                names[count] = _localization.Get(LocalizationKeys.PerkName(id));
+                count++;
+            }
+
+            _view.SetActivePerks(ids, names);
         }
 
         private void OnOfferShown(PerkId[] perks, float seconds)

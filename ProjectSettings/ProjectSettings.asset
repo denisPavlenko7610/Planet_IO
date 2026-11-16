@@ -80,13 +80,13 @@ PlayerSettings:
       overlapping: 0
       appearance: 0
     2:
-      overlapping: 0
+      overlapping: 1
       appearance: 0
     1:
-      overlapping: 0
+      overlapping: 1
       appearance: 0
   androidSystemBarsBehavior: 2
-  androidSystemBarsBackground: 0
+  androidSystemBarsBackground: 1
   androidDisplayOptions: 1
   androidBlitType: 0
   androidResizeableActivity: 0

@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud

@@ -76,8 +76,7 @@ namespace PlanetIO.UI.Menu
         private void Render()
         {
             _view.ShowRankAndDust(_localization.Get(LocalizationKeys.ProgressRankDust, _progression.Rank, _progression.Dust));
-            string missions = _localization.Get(LocalizationKeys.MissionsButton);
-            _view.SetMissionsButton(_progression.HasClaimableMission ? missions + " !" : missions);
+            _view.SetMissionsAlert(_progression.HasClaimableMission);
 
             if (_missionsOpen)
             {

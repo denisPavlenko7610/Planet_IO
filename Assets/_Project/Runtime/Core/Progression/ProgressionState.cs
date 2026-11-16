@@ -99,11 +99,11 @@ namespace PlanetIO
 
             int runXp = XpRules.RunXp(summary);
             int xpGain = Mathf.Max(0, runXp - LedgerXp);
-            int dustGain = DustRules.RunDust(xpGain);
             int xpBefore = Xp;
             int rankBefore = Rank;
 
             Xp += xpGain;
+            int dustGain = DustRules.RunDust(xpGain) + DustRules.RankUpDust(rankBefore, Rank);
             Dust += dustGain;
             LedgerXp = Mathf.Max(LedgerXp, runXp);
 

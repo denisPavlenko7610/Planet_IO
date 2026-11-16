@@ -14,8 +14,13 @@ namespace PlanetIO
 
         [SerializeField] private Color _effectColor = Color.white;
 
+        private const string ViewName = "View";
+
         private SpriteRenderer _spriteRenderer;
+        private Transform _viewTransform;
         private Color _baseColor = Color.white;
+        private ulong _dropperObjectId = ulong.MaxValue;
+        private float _magnetImmuneUntil;
 
         public float Capacity { get; set; }
         public float Nutrition { get; private set; }
@@ -57,7 +62,18 @@ namespace PlanetIO
         private void PlayEatenEffectRpc(Vector2 position, float size)
         {
             Color color = ValueMultiplier > 1f ? GoldenTint : _effectColor;
-            GameVfx.Eat(position, color, size);
+            GameVfx.Eat(position, color, size * FoodViewScale.Factor);
+        }
+
+        public void SetDropper(ulong dropperObjectId, float magnetImmunitySeconds)
+        {
+            _dropperObjectId = dropperObjectId;
+            _magnetImmuneUntil = Time.time + magnetImmunitySeconds;
+        }
+
+        public bool IsMagnetImmuneFor(ulong objectId)
+        {
+            return _dropperObjectId == objectId && Time.time < _magnetImmuneUntil;
         }
 
         public void SetNutrition(float nutrition)
@@ -83,6 +99,8 @@ namespace PlanetIO
             IsDropped = false;
             Nutrition = 0f;
             DensityCell = -1;
+            _dropperObjectId = ulong.MaxValue;
+            _magnetImmuneUntil = 0f;
             LifecycleVersion++;
         }
 
@@ -96,10 +114,48 @@ namespace PlanetIO
 
         private void Awake()
         {
-            _spriteRenderer = GetComponent<SpriteRenderer>();
-            if (_spriteRenderer != null)
+            if (TryGetComponent(out SpriteRenderer source))
             {
-                _baseColor = _spriteRenderer.color;
+                _baseColor = source.color;
+                _spriteRenderer = CreateView(source);
+            }
+        }
+
+        private void OnEnable()
+        {
+            FoodViewScale.Changed += ApplyViewScale;
+            ApplyViewScale(FoodViewScale.Factor);
+        }
+
+        private void OnDisable()
+        {
+            FoodViewScale.Changed -= ApplyViewScale;
+        }
+
+        private SpriteRenderer CreateView(SpriteRenderer source)
+        {
+            var viewObject = new GameObject(ViewName) { layer = gameObject.layer };
+            _viewTransform = viewObject.transform;
+            _viewTransform.SetParent(transform, false);
+
+            SpriteRenderer view = viewObject.AddComponent<SpriteRenderer>();
+            view.sprite = source.sprite;
+            view.color = source.color;
+            view.sharedMaterial = source.sharedMaterial;
+            view.flipX = source.flipX;
+            view.flipY = source.flipY;
+            view.sortingLayerID = source.sortingLayerID;
+            view.sortingOrder = source.sortingOrder;
+            view.maskInteraction = source.maskInteraction;
+            source.enabled = false;
+            return view;
+        }
+
+        private void ApplyViewScale(float factor)
+        {
+            if (_viewTransform != null)
+            {
+                _viewTransform.localScale = new Vector3(factor, factor, 1f);
             }
         }
 

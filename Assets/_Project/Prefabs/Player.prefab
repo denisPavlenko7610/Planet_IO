@@ -686,7 +686,7 @@ MonoBehaviour:
   _spawnInvincibilityTime: 2
   _continueProtectionTime: 5
   _continueMassFraction: 0.5
-  _foodAttractionRadius: 0.3
+  _foodAttractionRadius: 0.2
   _foodAttractionSpeed: 5
 --- !u!114 &8517843457492819222
 MonoBehaviour:
@@ -703,11 +703,11 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _player: {fileID: 8517843457492819226}
   _rigidbody2D: {fileID: 8517843457492819217}
-  _massSpeedPenalty: 0.35
-  _minimumSpeedMultiplier: 0.55
+  _massSpeedPenalty: 0
+  _minimumSpeedMultiplier: 1
   _turnSpeed: 540
-  _normalSpeed: 4
-  _boostSpeed: 8
+  _normalSpeed: 4.8
+  _boostSpeed: 9.6
 --- !u!114 &8045643209960618507
 MonoBehaviour:
   m_ObjectHideFlags: 0

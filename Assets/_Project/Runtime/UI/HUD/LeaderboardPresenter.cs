@@ -14,6 +14,7 @@ namespace PlanetIO.UI.Hud
         private const int VisibleEntries = 5;
         private const int MaxNameLength = 10;
         private const string LocalEntryColor = "#FFE066";
+        private const string HeaderColor = "#CDBBFF";
 
         private readonly NetworkManager _networkManager;
         private readonly INetworkSessionService _networkSessionService;
@@ -114,7 +115,8 @@ namespace PlanetIO.UI.Hud
         private void RenderLeaderboard(int localRank, Player localPlayer)
         {
             _builder.Clear();
-            _builder.Append("<b>").Append(_localization.Get(LocalizationKeys.HudLeaders)).Append("</b>");
+            _builder.Append("<color=").Append(HeaderColor).Append("><b>")
+                .Append(_localization.Get(LocalizationKeys.HudLeaders)).Append("</b></color>");
 
             int visibleCount = Mathf.Min(VisibleEntries, _entries.Count);
             for (int index = 0; index < visibleCount; index++)

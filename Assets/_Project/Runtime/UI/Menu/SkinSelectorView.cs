@@ -25,12 +25,17 @@ namespace PlanetIO.UI.Menu
         private const string BadgeClass = "skin__badge";
 
         private readonly List<(VisualElement Planet, Label Badge)> _cells = new();
+        private IReadOnlyList<Sprite> _sprites;
+        private VisualElement _profileSkin;
 
         public event Action<int> SkinClicked;
 
         public void Build(IReadOnlyList<Sprite> sprites, string lockedLabel)
         {
-            VisualElement container = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("skins");
+            VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+            VisualElement container = root.Q<VisualElement>("skins");
+            _profileSkin = root.Q<VisualElement>("profile-skin");
+            _sprites = sprites;
             container.Clear();
             _cells.Clear();
 
@@ -63,7 +68,13 @@ namespace PlanetIO.UI.Menu
 
         public void ShowAdStatus(string message, bool isError)
         {
-            Label status = GetComponent<UIDocument>().rootVisualElement.Q<Label>("status-text");
+            VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+            ApplyStatus(root.Q<Label>("status-text"), message, isError);
+            ApplyStatus(root.Q<Label>("customize-status"), message, isError);
+        }
+
+        private static void ApplyStatus(Label status, string message, bool isError)
+        {
             if (status == null)
             {
                 return;
@@ -72,6 +83,7 @@ namespace PlanetIO.UI.Menu
             status.text = message;
             status.EnableInClassList("status--error", isError);
         }
+
         public void SetState(int index, bool unlocked, bool selected)
         {
             if (index < 0 || index >= _cells.Count)
@@ -83,6 +95,11 @@ namespace PlanetIO.UI.Menu
             planet.EnableInClassList(LockedClass, !unlocked);
             planet.EnableInClassList(SelectedClass, selected);
             badge.style.display = unlocked ? DisplayStyle.None : DisplayStyle.Flex;
+
+            if (selected && unlocked && _profileSkin != null && _sprites != null && index < _sprites.Count)
+            {
+                _profileSkin.style.backgroundImage = new StyleBackground(_sprites[index]);
+            }
         }
     }
 }

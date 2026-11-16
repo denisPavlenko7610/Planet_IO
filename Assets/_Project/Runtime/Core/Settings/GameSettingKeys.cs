@@ -25,6 +25,9 @@ namespace PlanetIO
         public static readonly SettingKey<bool> ControlsSwapped =
             new("gameplay.controls-swapped", false, SettingCodecs.Boolean);
 
+        public static readonly SettingKey<bool> FixedJoystick =
+            new("gameplay.fixed-joystick", false, SettingCodecs.Boolean);
+
         public static readonly SettingKey<bool> BlitzMode =
             new("gameplay.blitz-mode", false, SettingCodecs.Boolean);
 

@@ -49,7 +49,7 @@ namespace PlanetIO
             _relocateTimer = 0f;
         }
 
-        public void SpawnAt(Transform spawnTransform, float nutrition)
+        public Food SpawnAt(Transform spawnTransform, float nutrition)
         {
             if (spawnTransform == null)
             {
@@ -63,6 +63,7 @@ namespace PlanetIO
             point.SetValueMultiplier(1f);
 
             _ = ReleaseAfterLifetimeAsync(point, lifecycleVersion, _droppedPointLifetime);
+            return point;
         }
 
         public ILootDrop SpawnLoot(Vector2 position, float sourceCapacity)

@@ -32,6 +32,12 @@ namespace PlanetIO.Editor
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.Android.optimizedFramePacing = true;
             PlayerSettings.Android.renderOutsideSafeArea = true;
+            PlayerSettings.Android.requestedVisibleInsets = AndroidWindowInsetsType.None;
+            PlayerSettings.Android.requestedOverlappingInsets =
+                AndroidWindowInsetsType.StatusBars | AndroidWindowInsetsType.NavigationBars;
+            PlayerSettings.Android.systemBarsBackground = AndroidSystemBarsBackground.Transparent;
+            PlayerSettings.Android.systemBarsBehavior = AndroidSystemBarsBehavior.ShowTransientBarsBySwipe;
+            PlayerSettings.Android.minifyRelease = true;
             EditorUserBuildSettings.buildAppBundle = true;
             EditorUserBuildSettings.development = false;
             UserBuildSettings.DebugSymbols.level = Unity.Android.Types.DebugSymbolLevel.SymbolTable;
@@ -114,6 +120,22 @@ namespace PlanetIO.Editor
             if (EditorUserBuildSettings.development)
             {
                 return "Development build is on: rewarded ads would use test ad unit IDs.";
+            }
+
+            if (!PlayerSettings.Android.minifyRelease)
+            {
+                return "Android release must enable Minify Release (R8).";
+            }
+
+            AndroidWindowInsetsType systemBars =
+                AndroidWindowInsetsType.StatusBars | AndroidWindowInsetsType.NavigationBars;
+            if (!PlayerSettings.Android.renderOutsideSafeArea ||
+                (PlayerSettings.Android.requestedOverlappingInsets & systemBars) != systemBars ||
+                PlayerSettings.Android.requestedVisibleInsets != AndroidWindowInsetsType.None ||
+                PlayerSettings.Android.systemBarsBackground != AndroidSystemBarsBackground.Transparent ||
+                PlayerSettings.Android.systemBarsBehavior != AndroidSystemBarsBehavior.ShowTransientBarsBySwipe)
+            {
+                return "Android release must use immersive edge-to-edge rendering. Apply release settings first.";
             }
 
             if (PlayerSettings.Android.bundleVersionCode < 1)

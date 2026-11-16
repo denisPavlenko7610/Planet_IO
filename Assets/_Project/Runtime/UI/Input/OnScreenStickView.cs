@@ -22,6 +22,18 @@ namespace PlanetIO
         private VisualElement _knob;
         private Vector2 _anchor;
         private int _pointerId = -1;
+        private bool _fixedJoystick;
+
+        public void SetFixedJoystick(bool fixedJoystick)
+        {
+            if (_fixedJoystick == fixedJoystick)
+            {
+                return;
+            }
+
+            Release();
+            _fixedJoystick = fixedJoystick;
+        }
 
         protected override string controlPathInternal
         {
@@ -66,8 +78,15 @@ namespace PlanetIO
             pointerEvent.StopPropagation();
 
             Vector2 finger = _zone.WorldToLocal(pointerEvent.position);
-            _anchor = ClampAnchor(finger);
-            PlaceStick();
+            if (_fixedJoystick)
+            {
+                _anchor = _zone.WorldToLocal(_stick.LocalToWorld(_stick.contentRect.center));
+            }
+            else
+            {
+                _anchor = ClampAnchor(finger);
+                PlaceStick();
+            }
             _stick.AddToClassList(ActiveClass);
             Drive(finger);
         }
@@ -113,8 +132,12 @@ namespace PlanetIO
             float distance = offset.magnitude;
             if (distance > MaxDeflection)
             {
-                _anchor = ClampAnchor(_anchor + offset / distance * (distance - MaxDeflection));
-                PlaceStick();
+                if (!_fixedJoystick)
+                {
+                    _anchor = ClampAnchor(_anchor + offset / distance * (distance - MaxDeflection));
+                    PlaceStick();
+                }
+
                 offset = Vector2.ClampMagnitude(finger - _anchor, MaxDeflection);
             }
 
@@ -122,7 +145,9 @@ namespace PlanetIO
 
             Vector2 shaped = StickResponse.ApplyDeadZone(new Vector2(offset.x, -offset.y) / MaxDeflection, DeadZone);
             InputSettings settings = InputSystem.settings;
-            SendValueToControl(StickResponse.PreCompensate(shaped, settings.defaultDeadzoneMin, settings.defaultDeadzoneMax));
+            SendValueToControl(
+                StickResponse.PreCompensate(shaped, settings.defaultDeadzoneMin, settings.defaultDeadzoneMax)
+            );
         }
 
         private Vector2 ClampAnchor(Vector2 point)
@@ -131,7 +156,8 @@ namespace PlanetIO
             Vector2 zoneSize = _zone.layout.size;
             return new Vector2(
                 Mathf.Clamp(point.x, half.x, Mathf.Max(half.x, zoneSize.x - half.x)),
-                Mathf.Clamp(point.y, half.y, Mathf.Max(half.y, zoneSize.y - half.y)));
+                Mathf.Clamp(point.y, half.y, Mathf.Max(half.y, zoneSize.y - half.y))
+            );
         }
 
         private void PlaceStick()
@@ -145,7 +171,13 @@ namespace PlanetIO
 
         private void Release()
         {
+            int pointerId = _pointerId;
             _pointerId = -1;
+            if (pointerId >= 0 && _zone != null && _zone.HasPointerCapture(pointerId))
+            {
+                _zone.ReleasePointer(pointerId);
+            }
+
             if (_stick != null)
             {
                 _stick.RemoveFromClassList(ActiveClass);

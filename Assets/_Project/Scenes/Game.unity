@@ -1024,7 +1024,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe45e0ce95a477eb69e9653421fc72a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _capacity: 1800
+  _capacity: 2250
   _prefabs:
   - {fileID: 4853672857700494642, guid: 87f85e5d20ec99d469707d5221dcd379, type: 3}
   - {fileID: 3309487184033392244, guid: b21edc5983c318f4a9e5eb127676d133, type: 3}

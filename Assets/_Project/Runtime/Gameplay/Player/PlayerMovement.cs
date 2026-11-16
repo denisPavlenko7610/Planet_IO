@@ -11,14 +11,14 @@ namespace PlanetIO
     {
         [SerializeField, Assign] private Player _player;
         [SerializeField, Assign] private Rigidbody2D _rigidbody2D;
-        [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0.35f;
-        [SerializeField, Range(0.1f, 1f)] private float _minimumSpeedMultiplier = 0.55f;
+        [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0f;
+        [SerializeField, Range(0.1f, 1f)] private float _minimumSpeedMultiplier = 1f;
         [SerializeField, Min(1f)] private float _turnSpeed = 540f;
         [SerializeField, Range(0.01f, 0.5f)] private float _turnSmoothTime = 0.09f;
 
         [Header("Speed")]
-        [SerializeField, Min(0f)] private float _normalSpeed = 4f;
-        [SerializeField, Min(0f)] private float _boostSpeed = 8f;
+        [SerializeField, Min(0f)] private float _normalSpeed = 4.8f;
+        [SerializeField, Min(0f)] private float _boostSpeed = 9.6f;
 
         public Player Player => _player;
         public Vector2 Direction { get; private set; } = Vector2.right;

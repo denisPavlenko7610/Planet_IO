@@ -131,7 +131,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3660316690
-    m_Localized: 'Rang : #{0}/{1}'
+    m_Localized: 'Place : #{0}/{1}'
     m_Metadata:
       m_Items: []
   - m_Id: 3660316691
@@ -461,11 +461,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17782441014448138
-    m_Localized: Rang {0} sur {1}
+    m_Localized: Place {0} sur {1}
     m_Metadata:
       m_Items: []
   - m_Id: 17797599656923136
     m_Localized: "Joystick \xE0 droite"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18109183573741568
+    m_Localized: Joystick fixe
     m_Metadata:
       m_Items: []
   references:

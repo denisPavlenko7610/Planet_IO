@@ -1,5 +1,4 @@
 using Unity.Netcode;
-using Unity.Netcode.Components;
 using UnityEngine;
 
 namespace PlanetIO
@@ -67,26 +66,8 @@ namespace PlanetIO
 
             if (IsOwner)
             {
-                TeleportTo(Constants.RandomWorldPosition());
+                TeleportLocal(PickRespawnPosition());
                 Revived?.Invoke();
-            }
-        }
-
-        private void TeleportTo(Vector2 position)
-        {
-            if (_rigidbody2D != null)
-            {
-                _rigidbody2D.linearVelocity = Vector2.zero;
-                _rigidbody2D.position = position;
-            }
-
-            if (TryGetComponent(out NetworkTransform networkTransform))
-            {
-                networkTransform.Teleport(position, transform.rotation, transform.localScale);
-            }
-            else
-            {
-                transform.position = position;
             }
         }
 

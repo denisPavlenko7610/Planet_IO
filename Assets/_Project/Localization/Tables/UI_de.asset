@@ -468,6 +468,10 @@ MonoBehaviour:
     m_Localized: Joystick rechts
     m_Metadata:
       m_Items: []
+  - m_Id: 18109183573741568
+    m_Localized: Fester Joystick
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

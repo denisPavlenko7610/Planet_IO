@@ -27,17 +27,19 @@ namespace PlanetIO
 
         private void AttractFood()
         {
-            int hitCount = Physics2D.OverlapCircle(
-                transform.position,
-                Capacity * 0.5f + _foodAttractionRadius * PerkRules.MagnetRadiusMultiplier(PerkMask),
-                _foodFilter,
-                _foodBuffer);
+            float reach = FoodMagnetRules.Reach(
+                BodyRadius,
+                _foodAttractionRadius,
+                PerkRules.MagnetRadiusMultiplier(PerkMask));
+            int hitCount = Physics2D.OverlapCircle(transform.position, reach, _foodFilter, _foodBuffer);
             float pullStep = _foodAttractionSpeed * Time.deltaTime;
 
             for (int index = 0; index < hitCount; index++)
             {
                 Collider2D hit = _foodBuffer[index];
-                if (hit == null || !hit.TryGetComponent(out Food food))
+                if (hit == null ||
+                    !hit.TryGetComponent(out Food food) ||
+                    food.IsMagnetImmuneFor(NetworkObjectId))
                 {
                     continue;
                 }

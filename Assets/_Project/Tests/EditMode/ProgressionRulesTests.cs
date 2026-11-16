@@ -213,7 +213,10 @@ namespace PlanetIO.Tests
             int expectedXp = XpRules.RunXp(Run(1, 200f, 100, 3, 2));
             Assert.That(reward.XpGained, Is.EqualTo(expectedXp));
             Assert.That(state.Xp, Is.EqualTo(expectedXp));
-            Assert.That(state.Dust, Is.EqualTo(dustBefore + DustRules.RunDust(expectedXp)));
+            int expectedDust = DustRules.RunDust(expectedXp) +
+                DustRules.RankUpDust(XpRules.RankForXp(0), XpRules.RankForXp(expectedXp));
+            Assert.That(reward.DustGained, Is.EqualTo(expectedDust));
+            Assert.That(state.Dust, Is.EqualTo(dustBefore + expectedDust));
             Assert.That(reward.RankedUp, Is.EqualTo(reward.RankAfter > reward.RankBefore));
             Assert.That(reward.RankAfter, Is.EqualTo(XpRules.RankForXp(expectedXp)));
         }

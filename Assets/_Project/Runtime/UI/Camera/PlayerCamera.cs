@@ -11,10 +11,14 @@ namespace PlanetIO.UI.Camera
     {
         [SerializeField, Min(0.01f)] private float _positionSmoothTime = 0.08f;
         [SerializeField, Min(0.01f)] private float _zoomSmoothTime = 0.2f;
-        [SerializeField, Min(0f)] private float _zoomPerCapacityUnit = 5f;
+        [SerializeField, Min(0.1f)] private float _baseOrthographicSize = 3.6f;
+        [SerializeField, Range(0f, 1f)] private float _zoomExponent = 0.28f;
         [SerializeField, Min(1f)] private float _maximumOrthographicSize = 30f;
         [SerializeField, Min(0.1f)] private float _minimumOrthographicSize = 2f;
         [SerializeField, Min(1f)] private float _moonViewMargin = 1.45f;
+        [SerializeField, Range(0f, 0.5f)] private float _lookAheadFactor = 0.16f;
+        [SerializeField, Min(0.01f)] private float _lookAheadSmoothTime = 0.35f;
+        [SerializeField, Min(1f)] private float _boostZoom = 1.08f;
         [SerializeField, Min(0f)] private float _killShake = 0.25f;
         [SerializeField, Min(0f)] private float _deathShake = 0.6f;
         [SerializeField, Min(0.01f)] private float _shakeDuration = 0.35f;
@@ -22,10 +26,10 @@ namespace PlanetIO.UI.Camera
         private Player _player;
         private ILocalPlayerProvider _localPlayerProvider;
         private Vector3 _positionVelocity;
+        private Vector2 _lookAhead;
+        private Vector2 _lookAheadVelocity;
         private float _zoomVelocity;
         private float _cameraDepth;
-        private float _baseOrthographicSize;
-        private float _baseCapacity;
         private float _targetOrthographicSize;
         private float _shakeStrength;
         private float _shakeTimeRemaining;
@@ -37,8 +41,9 @@ namespace PlanetIO.UI.Camera
         {
             Camera = GetComponent<UnityEngine.Camera>();
             _cameraDepth = transform.position.z;
-            _baseOrthographicSize = Camera.orthographicSize;
             _targetOrthographicSize = _baseOrthographicSize;
+            Camera.orthographicSize = _baseOrthographicSize;
+            FoodViewScale.SetZoomRatio(1f);
         }
 
         [Inject]
@@ -58,13 +63,18 @@ namespace PlanetIO.UI.Camera
             }
 
             Vector3 playerPosition = _player.transform.position;
-            Vector3 targetPosition = new(playerPosition.x, playerPosition.y, _cameraDepth);
+            UpdateLookAhead();
+            Vector3 targetPosition = new(
+                playerPosition.x + _lookAhead.x,
+                playerPosition.y + _lookAhead.y,
+                _cameraDepth);
             Vector3 basePosition = transform.position - _lastShakeOffset;
             Vector3 smoothed = Vector3.SmoothDamp(basePosition, targetPosition, ref _positionVelocity, _positionSmoothTime);
             _lastShakeOffset = GetShakeOffset();
             transform.position = smoothed + _lastShakeOffset;
 
-            Camera.orthographicSize = Mathf.SmoothDamp(Camera.orthographicSize, _targetOrthographicSize, ref _zoomVelocity,
+            float zoomTarget = _player.IsBoosting ? _targetOrthographicSize * _boostZoom : _targetOrthographicSize;
+            Camera.orthographicSize = Mathf.SmoothDamp(Camera.orthographicSize, zoomTarget, ref _zoomVelocity,
                 _zoomSmoothTime);
         }
 
@@ -76,6 +86,15 @@ namespace PlanetIO.UI.Camera
             }
 
             UnbindPlayer();
+            FoodViewScale.SetZoomRatio(1f);
+        }
+
+        private void UpdateLookAhead()
+        {
+            Vector2 desired = _player.IsDefeated
+                ? Vector2.zero
+                : (Vector2)_player.transform.right * (Camera.orthographicSize * _lookAheadFactor);
+            _lookAhead = Vector2.SmoothDamp(_lookAhead, desired, ref _lookAheadVelocity, _lookAheadSmoothTime);
         }
 
         private void OnLocalPlayerChanged(Player player)
@@ -83,13 +102,14 @@ namespace PlanetIO.UI.Camera
             UnbindPlayer();
             _player = player;
             _positionVelocity = Vector3.zero;
+            _lookAhead = Vector2.zero;
+            _lookAheadVelocity = Vector2.zero;
 
             if (_player == null)
             {
                 return;
             }
 
-            _baseCapacity = Mathf.Max(_player.Capacity, Constants.MinimumDisplayCapacity);
             _player.CapacityChanged += OnCapacityChanged;
             _player.TierChanged += OnTierChanged;
             _player.Defeated += OnPlayerDefeated;
@@ -149,8 +169,7 @@ namespace PlanetIO.UI.Camera
 
         private void OnCapacityChanged(float capacity)
         {
-            float additionalZoom = (capacity - _baseCapacity) * _zoomPerCapacityUnit;
-            float target = _baseOrthographicSize + additionalZoom;
+            float target = _baseOrthographicSize * CameraZoomRules.Ratio(capacity, _zoomExponent);
 
             if (_player != null && _player.MoonSlots > 0)
             {
@@ -159,6 +178,7 @@ namespace PlanetIO.UI.Camera
             }
 
             _targetOrthographicSize = Mathf.Clamp(target, _minimumOrthographicSize, _maximumOrthographicSize);
+            FoodViewScale.SetZoomRatio(_targetOrthographicSize / _baseOrthographicSize);
         }
     }
 }

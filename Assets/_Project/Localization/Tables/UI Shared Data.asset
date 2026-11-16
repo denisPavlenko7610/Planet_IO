@@ -459,6 +459,10 @@ MonoBehaviour:
     m_Key: settings.controls_swapped
     m_Metadata:
       m_Items: []
+  - m_Id: 18109183573741568
+    m_Key: settings.fixed_joystick
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

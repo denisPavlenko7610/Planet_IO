@@ -9,7 +9,7 @@ namespace PlanetIO
 {
     public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour, ICapacity
 	{
-        private const float ScaleDepth = 1f;
+        protected const float ScaleDepth = 1f;
 
         [SerializeField, Min(0.01f)] private float _minimumObjectScale = 0.1f;
         [SerializeField, Min(0.01f)] private float _maximumObjectScale = 1f;
@@ -37,16 +37,6 @@ namespace PlanetIO
             OnRandomPlaced(spawnedObject);
             return spawnedObject;
         }
-
-        public T CreateObject(Transform spawnTransform)
-		{
-			if (spawnTransform == null)
-            {
-                throw new ArgumentNullException(nameof(spawnTransform));
-            }
-
-			return CreateSpawnedObject(spawnTransform.position, _minimumObjectScale);
-		}
 
         public T CreateObject(Vector2 position, float capacity)
         {
@@ -115,17 +105,18 @@ namespace PlanetIO
                 Random.Range(_verticalSpawnRange.x, _verticalSpawnRange.y));
         }
 
-        private static void SetState(T spawnedObject, Vector2 position, float capacity)
+        private void SetState(T spawnedObject, Vector2 position, float capacity)
         {
             spawnedObject.Capacity = capacity;
 
             Transform spawnedTransform = spawnedObject.transform;
             spawnedTransform.position = position;
-            float actualCapacity = spawnedObject.Capacity;
-            spawnedTransform.localScale = new Vector3(
-                actualCapacity,
-                actualCapacity,
-                ScaleDepth);
+            spawnedTransform.localScale = ResolveScale(spawnedObject.Capacity);
+        }
+
+        protected virtual Vector3 ResolveScale(float capacity)
+        {
+            return new Vector3(capacity, capacity, ScaleDepth);
         }
 
         protected virtual float GetRandomScale()

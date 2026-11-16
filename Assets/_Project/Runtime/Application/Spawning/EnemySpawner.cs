@@ -43,6 +43,12 @@ namespace PlanetIO
             TeleportIfSpawned(enemy);
         }
 
+        protected override Vector3 ResolveScale(float capacity)
+        {
+            float scale = PlanetSizeRules.Scale(capacity);
+            return new Vector3(scale, scale, ScaleDepth);
+        }
+
         protected override Vector2 GetRandomPosition()
         {
             if (_playerRegistry.Count == 0)

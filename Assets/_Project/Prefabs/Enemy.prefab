@@ -227,15 +227,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _normalSpeed: 3
+  _normalSpeed: 3.6
   _smoothTurnSpeed: 260
   _dashTurnSpeed: 900
   _dashChance: 0.45
   _dashDuration: 0.3
   _minimumDashInterval: 3
   _maximumDashInterval: 9
-  _massSpeedPenalty: 0.28
-  _minimumSpeedMultiplier: 0.58
+  _massSpeedPenalty: 0
+  _minimumSpeedMultiplier: 1
   _huntSpeedMultiplier: 1.12
   _evadeSpeedMultiplier: 1.3
   _awarenessRadius: 22

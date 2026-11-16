@@ -131,7 +131,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3660316690
-    m_Localized: 'Rank: #{0}/{1}'
+    m_Localized: 'Place: #{0}/{1}'
     m_Metadata:
       m_Items: []
   - m_Id: 3660316691
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: Change
+    m_Localized: Swap
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -461,11 +461,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17782441014448138
-    m_Localized: Rank {0} of {1}
+    m_Localized: Place {0} of {1}
     m_Metadata:
       m_Items: []
   - m_Id: 17797599656923136
     m_Localized: Joystick on the right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18109183573741568
+    m_Localized: Fixed joystick
     m_Metadata:
       m_Items: []
   references:

@@ -45,7 +45,7 @@ namespace PlanetIO.UI.Menu
         event Action<int> MissionRerollRequested;
 
         void ShowRankAndDust(string text);
-        void SetMissionsButton(string label);
+        void SetMissionsAlert(bool visible);
         void ShowMissions(string title, string streak, string bonus, string close, MissionRow[] rows);
         void SetMissionsVisible(bool visible);
     }
@@ -66,6 +66,7 @@ namespace PlanetIO.UI.Menu
         private Label _missionsStreak;
         private Label _missionsBonus;
         private Button _missionsButton;
+        private Label _missionsBadge;
         private Button _missionsClose;
 
         public event Action MissionsRequested;
@@ -81,6 +82,7 @@ namespace PlanetIO.UI.Menu
             _missionsStreak = root.Q<Label>("missions-streak");
             _missionsBonus = root.Q<Label>("missions-bonus");
             _missionsButton = root.Q<Button>("missions-button");
+            _missionsBadge = root.Q<Label>("missions-badge");
             _missionsClose = root.Q<Button>("missions-close");
             _missionsOverlay.style.display = DisplayStyle.None;
 
@@ -117,9 +119,9 @@ namespace PlanetIO.UI.Menu
             _rankDustText.text = text ?? string.Empty;
         }
 
-        public void SetMissionsButton(string label)
+        public void SetMissionsAlert(bool visible)
         {
-            _missionsButton.text = label;
+            _missionsBadge.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         public void ShowMissions(string title, string streak, string bonus, string close, MissionRow[] rows)

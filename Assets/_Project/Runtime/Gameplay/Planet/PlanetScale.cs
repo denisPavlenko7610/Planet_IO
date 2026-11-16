@@ -220,7 +220,8 @@ namespace PlanetIO
         {
             float previousCapacity = _localCapacity;
             _localCapacity = capacity;
-            transform.localScale = new Vector3(capacity, capacity, ScaleDepth);
+            float scale = PlanetSizeRules.Scale(capacity);
+            transform.localScale = new Vector3(scale, scale, ScaleDepth);
 
             if (notify)
             {

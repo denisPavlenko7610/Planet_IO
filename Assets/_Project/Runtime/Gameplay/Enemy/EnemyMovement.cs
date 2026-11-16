@@ -31,10 +31,10 @@ namespace PlanetIO
         private const float MinimumRoamTime = 0.1f;
 
         [Header("Movement")]
-        [SerializeField, Min(0f)] private float _normalSpeed = 3.2f;
-        [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0.28f;
+        [SerializeField, Min(0f)] private float _normalSpeed = 3.6f;
+        [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0f;
         [SerializeField, Range(0.1f, 1f)]
-        private float _minimumSpeedMultiplier = 0.58f;
+        private float _minimumSpeedMultiplier = 1f;
         [SerializeField, Min(1f)] private float _huntSpeedMultiplier = 1.12f;
         [SerializeField, Min(1f)] private float _evadeSpeedMultiplier = 1.3f;
 

@@ -34,6 +34,7 @@ namespace PlanetIO.UI.Hud
         void SetBorderWarning(float strength);
         void SetPing(int milliseconds, PingQuality quality);
         void SetControlsSwapped(bool swapped);
+        void SetFixedJoystick(bool fixedJoystick);
     }
 
     public interface IRunResultView
@@ -65,6 +66,7 @@ namespace PlanetIO.UI.Hud
         void ShowPerkOffer(string title, string[] names, string[] descriptions);
         void SetPerkTimer(float fraction);
         void HidePerkOffer();
+        void SetActivePerks(int[] ids, string[] names);
     }
 
     [DefaultExecutionOrder(100)]
@@ -113,6 +115,7 @@ namespace PlanetIO.UI.Hud
         private bool _rankUp;
         private bool _rankAnimating;
         private VisualElement _perkPanel;
+        private VisualElement _perkStrip;
         private VisualElement _perkTimerFill;
         private Label _perkTitle;
         private readonly VisualElement[] _perkCards = new VisualElement[PerkCardCount];
@@ -174,6 +177,7 @@ namespace PlanetIO.UI.Hud
             _rankAnimating = false;
 
             _perkPanel = _root.Q<VisualElement>("perk-panel");
+            _perkStrip = _root.Q<VisualElement>("perk-strip");
             _perkTitle = _root.Q<Label>("perk-title");
             _perkTimerFill = _root.Q<VisualElement>("perk-timer-fill");
             for (int index = 0; index < PerkCardCount; index++)
@@ -336,6 +340,11 @@ namespace PlanetIO.UI.Hud
             _root.EnableInClassList(ControlsSwappedClass, swapped);
         }
 
+        public void SetFixedJoystick(bool fixedJoystick)
+        {
+            GetComponent<OnScreenStickView>().SetFixedJoystick(fixedJoystick);
+        }
+
         public void SetPing(int milliseconds, PingQuality quality)
         {
             bool visible = quality != PingQuality.Hidden;
@@ -453,6 +462,22 @@ namespace PlanetIO.UI.Hud
         public void HidePerkOffer()
         {
             _perkPanel.style.display = DisplayStyle.None;
+        }
+
+        public void SetActivePerks(int[] ids, string[] names)
+        {
+            _perkStrip.Clear();
+            for (int index = 0; index < ids.Length; index++)
+            {
+                string name = names[index];
+                Label chip = new(string.IsNullOrEmpty(name) ? "?" : name[..1].ToUpperInvariant())
+                {
+                    pickingMode = PickingMode.Ignore
+                };
+                chip.AddToClassList("perk-chip");
+                chip.AddToClassList($"perk-chip--{ids[index]}");
+                _perkStrip.Add(chip);
+            }
         }
 
         private void OnPerkCardClicked(ClickEvent evt)

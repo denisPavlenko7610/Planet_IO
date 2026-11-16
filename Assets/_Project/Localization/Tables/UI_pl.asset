@@ -468,6 +468,10 @@ MonoBehaviour:
     m_Localized: Joystick po prawej
     m_Metadata:
       m_Items: []
+  - m_Id: 18109183573741568
+    m_Localized: "Sta\u0142y joystick"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

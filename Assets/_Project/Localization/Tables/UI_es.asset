@@ -466,6 +466,10 @@ MonoBehaviour:
     m_Localized: Joystick a la derecha
     m_Metadata:
       m_Items: []
+  - m_Id: 18109183573741568
+    m_Localized: Joystick fijo
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

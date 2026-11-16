@@ -45,7 +45,7 @@ namespace PlanetIO
         [SerializeField, Range(0f, 1f)] private float _continueMassFraction = 0.5f;
 
         [Header("Food magnet")]
-        [SerializeField, Min(0f)] private float _foodAttractionRadius = 0.3f;
+        [SerializeField, Min(0f)] private float _foodAttractionRadius = 0.2f;
         [SerializeField, Min(0f)] private float _foodAttractionSpeed = 5f;
 
         private const int FoodAttractionBuffer = 64;

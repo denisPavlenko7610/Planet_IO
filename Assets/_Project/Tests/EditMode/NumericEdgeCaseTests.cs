@@ -61,8 +61,10 @@ namespace PlanetIO.Tests
         {
             _planet.Capacity = MaxCapacity() * 100f;
 
-            Assert.That(_planet.transform.localScale.x, Is.EqualTo(MaxCapacity()).Within(1e-6f));
-            Assert.That(_planet.transform.localScale.y, Is.EqualTo(MaxCapacity()).Within(1e-6f));
+            float expected = PlanetSizeRules.Scale(MaxCapacity());
+
+            Assert.That(_planet.transform.localScale.x, Is.EqualTo(expected).Within(1e-6f));
+            Assert.That(_planet.transform.localScale.y, Is.EqualTo(expected).Within(1e-6f));
         }
 
         [TestCase(0.01f, 0f, 1f)]

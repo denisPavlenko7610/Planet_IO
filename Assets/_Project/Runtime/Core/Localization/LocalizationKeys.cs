@@ -40,6 +40,7 @@ namespace PlanetIO
         public const string SettingsHaptics = "settings.haptics";
         public const string SettingsCometNames = "settings.comet_names";
         public const string SettingsControlsSwapped = "settings.controls_swapped";
+        public const string SettingsFixedJoystick = "settings.fixed_joystick";
         public const string SettingsAdPrivacy = "settings.ad_privacy";
         public const string SettingsPrivacyPolicy = "settings.privacy_policy";
         public const string SettingsClose = "settings.close";
@@ -186,7 +187,7 @@ namespace PlanetIO
             MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuColor, MenuPlanet, MenuSkinLocked, MenuAdUnavailable,
             StatusReady, StatusCreatingRoom, StatusRoomCreated, StatusConnecting, StatusStartingSolo,
             StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
-            SettingsTitle, SettingsMusic, SettingsSound, SettingsLanguage, SettingsHaptics, SettingsCometNames, SettingsControlsSwapped, SettingsAdPrivacy, SettingsPrivacyPolicy, SettingsClose,
+            SettingsTitle, SettingsMusic, SettingsSound, SettingsLanguage, SettingsHaptics, SettingsCometNames, SettingsControlsSwapped, SettingsFixedJoystick, SettingsAdPrivacy, SettingsPrivacyPolicy, SettingsClose,
             HudSinglePlayer, HudRoom, HudPlayers, HudRank, HudLeaders, HudHintTouch,
             HudYouAte, HudYouLost, HudFinalScore, HudPlayAgain, HudWatchAd, HudLeave, HudBoost, HudBackToLeave,
             HudKillFeed, TutorialEat, TutorialAvoid, TutorialBoost,
