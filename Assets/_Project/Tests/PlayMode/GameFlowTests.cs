@@ -343,6 +343,11 @@ namespace PlanetIO.Tests
 
 			Player player = FindLocalPlayer();
 			PlayerMovement movement = player.GetComponent<PlayerMovement>();
+			foreach (Food food in Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude))
+			{
+				food.GetComponent<Collider2D>().enabled = false;
+			}
+
 			player.Capacity = player.MinCapacity + 0.001f;
 			movement.SendMessage("OnBoostChanged", true);
 			yield return new WaitForFixedUpdate();

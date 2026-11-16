@@ -448,16 +448,35 @@
 }
 
 #defeat-card {
-    width: 720px;
+    width: 1180px;
     max-width: 94%;
     max-height: 96%;
-    padding: 26px 40px 28px 40px;
+    padding: 30px 44px 32px 44px;
+    flex-direction: row;
     align-items: center;
     background-color: rgba(41, 20, 82, 0.96);
 }
 
 #defeat-card .btn {
     flex-shrink: 0;
+    padding-left: 34px;
+    padding-right: 34px;
+}
+
+#defeat-results {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    min-width: 0;
+    align-items: center;
+    margin-right: 44px;
+}
+
+#defeat-actions {
+    width: 460px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 #defeat-title {
@@ -524,16 +543,16 @@
     padding: 0;
 }
 
-#double-dust {
-    margin-bottom: 8px;
+#continue-button {
+    margin-top: 10px;
 }
 
-#continue-button {
-    margin-top: 8px;
+#double-dust {
+    margin-top: 10px;
 }
 
 #defeat-leave {
-    margin-top: 10px;
+    margin-top: 14px;
 }
 
 #loading-overlay {
