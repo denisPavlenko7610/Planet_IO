@@ -260,7 +260,7 @@ namespace PlanetIO.Tests
 			}
 			else
 			{
-				Assert.That(localPlayer.Capacity, Is.LessThan(capacityBefore));
+				Assert.That(localPlayer.Capacity, Is.EqualTo(capacityBefore * 0.5f).Within(1e-5f));
 			}
 
 			yield return LeaveToMenu();

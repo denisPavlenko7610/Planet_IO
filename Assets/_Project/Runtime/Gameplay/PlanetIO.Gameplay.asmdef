@@ -6,7 +6,8 @@
         "VContainer",
         "Unity.Netcode.Runtime",
         "Unity.Collections",
-        "RD.Attributes"
+        "RD.Attributes",
+        "RD.Settings"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -30,7 +30,7 @@ namespace PlanetIO
 
         [Header("Mass balance")]
         [SerializeField, Min(0.001f)] private float _playerFoodGrowthMultiplier = 0.015f;
-        [SerializeField, Min(0.001f)] private float _playerCometDamageMultiplier = 0.02f;
+        [SerializeField, Min(0.001f)] private float _playerCometDamageMultiplier = CometRules.DefaultDamageFraction;
         [SerializeField, Min(0.001f)] private float _boostMassCost = 0.004f;
         [SerializeField, Min(0.05f)] private float _boostMassConsumptionInterval = 0.15f;
         [SerializeField, Range(0f, 0.5f)] private float _borderMassLoss = 0.08f;
@@ -106,6 +106,9 @@ namespace PlanetIO
         public static event Action<DefeatAnnouncement> DefeatAnnounced;
         public event Action<string, int> Killed;
 
+        protected override float IncomingDamageMultiplier =>
+            BotDifficultyRules.PlayerIncomingDamage(DifficultyLevel, DifficultySessionMode);
+
         protected override float FoodGrowthMultiplier =>
             _playerFoodGrowthMultiplier * PerkRules.FoodMultiplier(PerkMask);
         protected override float CometDamageMultiplier => _playerCometDamageMultiplier;
@@ -170,7 +173,7 @@ namespace PlanetIO
             SubscribePerks();
             AttachAbilityViews();
 
-            if (IsServer)
+            if (IsServer && _pendingMigration == null)
             {
                 _highestTier = TierRules.MinTier;
                 _networkDefeated.Value = false;
@@ -187,11 +190,13 @@ namespace PlanetIO
                 _playerRegistry.SetLocal(this);
             }
 
+            ApplyPendingMigration();
             _visualEffects = GetComponent<PlayerVisualEffects>();
             _visualEffects?.SetLocalAudio(IsOwner);
             ApplyVisualState();
+            SetBodyActive(!IsDefeated);
 
-            if (IsOwner)
+            if (IsOwner && !WasMigrationRestored)
             {
                 SubmitNicknameRpc(_playerProfileService.Nickname);
                 SetColorRpc(_playerProfileService.PreferredColor);
@@ -217,7 +222,7 @@ namespace PlanetIO
 
         private void Update()
         {
-            if (!IsServer)
+            if (!IsServer || _migration?.IsRecovering == true)
             {
                 return;
             }

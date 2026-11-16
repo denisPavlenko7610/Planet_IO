@@ -6,7 +6,7 @@ using VContainer.Unity;
 
 namespace PlanetIO.Application
 {
-    public sealed class NetworkPlayerSpawner : IStartable, IDisposable
+    public sealed class NetworkPlayerSpawner : IStartable, ITickable, IDisposable
     {
         private const float SpawnRadius = 6f;
         private const float SpawnRadiusStep = 2.5f;
@@ -32,6 +32,13 @@ namespace PlanetIO.Application
             _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
         }
 
+        private MatchMigrationStore _migration;
+        [Inject] public void ConfigureMigration(MatchMigrationStore migration) => _migration = migration;
+        public void Tick()
+        {
+            if (!_networkManager.IsServer || _migration?.HasPendingWorld == true) return;
+            foreach (var client in _networkManager.ConnectedClientsList) SpawnPlayer(client.ClientId);
+        }
         public void Start()
         {
             if (!_networkManager.IsServer)
@@ -58,6 +65,7 @@ namespace PlanetIO.Application
         private void SpawnPlayer(ulong clientId)
         {
             if (!_networkManager.IsServer ||
+                _migration?.HasPendingWorld == true ||
                 _playerPrefab == null ||
                 !_networkManager.ConnectedClients.TryGetValue(clientId, out NetworkClient client) ||
                 client.PlayerObject != null)
@@ -71,6 +79,9 @@ namespace PlanetIO.Application
                 Quaternion.identity
             );
 
+            string identity = _migration != null && _migration.Clients.TryGetValue(clientId, out string member) ? member : "solo-" + clientId;
+            var saved = _migration?.TakePlayer(identity);
+            player.GetComponent<Player>().PrepareMigration(identity, saved);
             player.SpawnAsPlayerObject(clientId, true);
         }
 
@@ -90,8 +101,6 @@ namespace PlanetIO.Application
             return fallback;
         }
 
-        // An empty mask means "nothing blocks the spawn"; never fall back to an unmasked query,
-        // which would treat every collider as blocking.
         private bool IsPositionBlocked(Vector2 candidate)
         {
             return _spawnBlockingLayers.value != 0 &&

@@ -205,13 +205,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _minCapacity: 0.08
-  _maxCapacity: 2
+  _maxCapacity: 8
   _killAbsorbFraction: 0.4
   _foodGrowthFalloff: 1
   _enemyConfig: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
   _spriteRenderer: {fileID: 163752541173436847}
   _enemyFoodGrowthMultiplier: 0.01
-  _enemyCometDamageMultiplier: 0.02
+  _enemyCometDamageMultiplier: 0.5
   _eatSizeRatio: 1.08
   _initialCapacity: 0.1
 --- !u!114 &2383583056927174933

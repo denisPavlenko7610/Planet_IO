@@ -28,6 +28,7 @@ namespace PlanetIO
         public const string StatusLeaving = "status.leaving";
         public const string StatusFailed = "status.failed";
         public const string StatusEnterRoomCode = "status.enter_room_code";
+        public const string StatusMigrating = "status.migrating";
         public const string StatusHostLeft = "status.host_left";
         public const string StatusSearching = "status.searching";
         public const string StatusRoomFull = "status.room_full";
@@ -36,6 +37,11 @@ namespace PlanetIO
         public const string SettingsTitle = "settings.title";
         public const string SettingsMusic = "settings.music";
         public const string SettingsSound = "settings.sound";
+        public const string SettingsBotDifficulty = "settings.bot_difficulty";
+        public const string SettingsBotsOnly = "settings.bots_only";
+        public const string DifficultyEasy = "difficulty.easy";
+        public const string DifficultyMedium = "difficulty.medium";
+        public const string DifficultyHard = "difficulty.hard";
         public const string SettingsLanguage = "settings.language";
         public const string SettingsHaptics = "settings.haptics";
         public const string SettingsControlsSwapped = "settings.controls_swapped";
@@ -185,7 +191,8 @@ namespace PlanetIO
             MenuNicknamePlaceholder, MenuRandomNickname, MenuPlayWithBots, MenuCreateRoom, MenuQuickPlay, MenuJoinRoom,
             MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuColor, MenuPlanet, MenuSkinLocked, MenuAdUnavailable,
             StatusReady, StatusCreatingRoom, StatusRoomCreated, StatusConnecting, StatusStartingSolo,
-            StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
+            StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusMigrating, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
+            SettingsBotDifficulty, SettingsBotsOnly, DifficultyEasy, DifficultyMedium, DifficultyHard,
             SettingsTitle, SettingsMusic, SettingsSound, SettingsLanguage, SettingsHaptics, SettingsControlsSwapped, SettingsFixedJoystick, SettingsAdPrivacy, SettingsPrivacyPolicy, SettingsClose,
             HudSinglePlayer, HudRoom, HudPlayers, HudRank, HudLeaders, HudHintTouch,
             HudYouAte, HudYouLost, HudFinalScore, HudPlayAgain, HudWatchAd, HudLeave, HudBoost, HudBackToLeave,

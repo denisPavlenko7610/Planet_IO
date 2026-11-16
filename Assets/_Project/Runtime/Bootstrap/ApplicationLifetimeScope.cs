@@ -71,12 +71,19 @@ namespace PlanetIO.Bootstrap
             }
 
             builder.RegisterComponent(_networkManager);
+            builder.Register<MatchMigrationStore>(Lifetime.Singleton);
             builder.RegisterInstance(_sceneCatalog);
             builder.Register<SceneFlow>(resolver => new SceneFlow(
                     resolver.Resolve<SceneCatalog>()),
                 Lifetime.Singleton)
                 .As<ISceneFlow>();
-            builder.Register<SaveStore>(_ => new SaveStore(Path.Combine(UnityEngine.Application.persistentDataPath, "Saves")), Lifetime.Singleton);
+            builder.Register<SaveStore>(_ => new SaveStore(
+#if UNITY_EDITOR || PLANET_IO_MIGRATION_PROBE
+                HostMigrationPeerProbe.StoragePath(Path.Combine(UnityEngine.Application.persistentDataPath, "Saves"))
+#else
+                Path.Combine(UnityEngine.Application.persistentDataPath, "Saves")
+#endif
+                ), Lifetime.Singleton);
             builder.Register<PlayerProfileService>(Lifetime.Singleton).AsSelf().As<IPlayerProfileService>();
             builder.Register<LocalAnalyticsService>(Lifetime.Singleton).AsSelf().As<IAnalyticsService>();
             builder.Register<ProgressionService>(Lifetime.Singleton).AsSelf().As<IProgressionService>();

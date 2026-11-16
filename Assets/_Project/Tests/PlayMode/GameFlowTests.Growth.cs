@@ -40,8 +40,8 @@ namespace PlanetIO.Tests
             float start = Time.time;
             float oldScale = Time.timeScale;
             float oldMaximum = Time.maximumDeltaTime;
-            float[] thresholds = { 0.35f, 0.8f, 1.4f, 2f };
-            float[] reached = { -1f, -1f, -1f, -1f };
+            float[] thresholds = { 0.35f, 0.8f, 1.4f, 2f, 4f, 8f };
+            float[] reached = { -1f, -1f, -1f, -1f, -1f, -1f };
             int[] sampleTimes = { 60, 180, 240, 360, 480, 600 };
             int sample = 0;
             var report = new System.Text.StringBuilder("Automated nearest-food pilot; no boosts, opponents or events; no perks; 8x simulation.\n");
@@ -63,7 +63,6 @@ namespace PlanetIO.Tests
                     target = foods.Where(food => !food.IsDropped && food.gameObject.activeInHierarchy)
                         .OrderBy(food => (food.transform.position - player.transform.position).sqrMagnitude).First();
                     movement.SetDirection(target.transform.position - player.transform.position);
-                    // Suppress offers so the probe keeps identical multipliers for the whole run.
                     SetMoonField(player, "_pendingOffers", 0);
                     SetMoonField(player, "_offerCount", 0);
                     yield return new WaitForFixedUpdate();
@@ -90,9 +89,10 @@ namespace PlanetIO.Tests
             PlayerMovement movement = player.GetComponent<PlayerMovement>();
             Rigidbody2D body = player.GetComponent<Rigidbody2D>();
             MethodInfo step = typeof(PlayerMovement).GetMethod("FixedUpdate", BindingFlags.Instance | BindingFlags.NonPublic);
-            foreach (float mass in new[] { 0.1f, 0.35f, 0.8f, 2f })
+            foreach (float mass in new[] { 0.1f, 0.35f, 0.8f, 2f, 4f, 8f })
             {
                 player.Capacity = mass;
+                Assert.That(player.Capacity, Is.EqualTo(mass));
                 player.SetBoostRpc(false);
                 step.Invoke(movement, null);
                 Assert.That(body.linearVelocity.magnitude, Is.EqualTo(4.8f).Within(0.001f));
@@ -124,14 +124,24 @@ namespace PlanetIO.Tests
             player.GetComponent<PlanetGravity>().enabled = false;
             Camera camera = Camera.main;
             float baseline = 0f;
-            foreach (float mass in new[] { 0.081f, 0.35f, 0.8f, 2f })
+            float previousMaximumDiameter = 0f;
+            foreach (float mass in new[] { 0.081f, 0.35f, 0.8f, 2f, 8f })
             {
                 player.Capacity = mass;
                 yield return new WaitForSeconds(3.5f);
                 float diameter = player.GetComponent<SpriteRenderer>().bounds.size.x / (2f * camera.orthographicSize);
                 if (baseline == 0f) baseline = diameter;
                 Debug.Log($"Growth view: mass={mass:F2}, zoom={camera.orthographicSize:F3}, relative diameter={diameter / baseline:F3}");
-                if (mass == 2f) Assert.That(diameter / baseline, Is.GreaterThan(2.7f));
+                if (mass == 2f)
+                {
+                    Assert.That(diameter / baseline, Is.GreaterThan(2.7f));
+                    previousMaximumDiameter = diameter;
+                }
+                if (mass == 8f)
+                {
+                    Assert.That(player.Capacity, Is.EqualTo(8f));
+                    Assert.That(diameter, Is.GreaterThan(previousMaximumDiameter));
+                }
             }
             SessionHudView hud = Object.FindFirstObjectByType<SessionHudView>();
             hud.SetPerkIcons(new[] { 0, 4, 2 });

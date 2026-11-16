@@ -1,4 +1,6 @@
 using System;
+using RD.Settings;
+using VContainer;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -18,7 +20,7 @@ namespace PlanetIO
         [FormerlySerializedAs("_minimumCapacity")]
         [SerializeField, Min(MinAllowedCapacity)] private float _minCapacity = 0.08f;
         [FormerlySerializedAs("_maximumCapacity")]
-        [SerializeField, Min(MinAllowedCapacity)] private float _maxCapacity = 1f;
+        [SerializeField, Min(MinAllowedCapacity)] private float _maxCapacity = PlanetSizeRules.MaximumCapacity;
         [SerializeField, Min(MinAllowedCapacity)] private float _initialCapacity = 0.1f;
         [SerializeField, Range(0f, 1f)] private float _killAbsorbFraction = 0.4f;
         [SerializeField, Min(1f)] private float _eatSizeRatio = CombatRules.DefaultEatSizeRatio;
@@ -35,6 +37,20 @@ namespace PlanetIO
             NetworkVariableWritePermission.Server);
 
         private float _localCapacity;
+        private ISettingsService _difficultySettings;
+        private INetworkSessionService _difficultySession;
+        protected NetworkSessionMode DifficultySessionMode => _difficultySession?.Mode ?? NetworkSessionMode.None;
+        public BotDifficulty DifficultyLevel => BotDifficultyRules.Resolve(
+            _difficultySettings?.Get(GameSettingKeys.BotDifficulty) ?? 1, DifficultySessionMode,
+            _difficultySession?.CurrentRoom.Difficulty ?? BotDifficulty.Medium);
+        protected virtual float IncomingDamageMultiplier => 1f;
+
+        [Inject]
+        public void ConstructDifficultySettings(ISettingsService settings, INetworkSessionService session)
+        {
+            _difficultySettings = settings;
+            _difficultySession = session;
+        }
 
         public float MinCapacity => _minCapacity;
         public float InitialCapacity => _initialCapacity;
@@ -156,14 +172,14 @@ namespace PlanetIO
             }
             else if (other.TryGetComponent(out Comet comet))
             {
-                float cometMass = comet.Capacity * CometDamageMultiplier;
+                float cometMass = CometRules.Damage(Capacity, CometDamageMultiplier);
                 if (CometHealFraction > 0f)
                 {
                     Grow(cometMass * CometHealFraction);
                 }
                 else
                 {
-                    Shrink(cometMass);
+                    Shrink(cometMass * IncomingDamageMultiplier);
                 }
 
                 comet.PlayImpactEffect();

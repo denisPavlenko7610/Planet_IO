@@ -14,6 +14,7 @@ namespace PlanetIO.UI.Settings
         event Action<bool> HapticsChanged;
         event Action<bool> ControlsSwappedChanged;
         event Action<bool> FixedJoystickChanged;
+        event Action<int> BotDifficultyChanged;
         event Action PreviousLanguageRequested;
         event Action NextLanguageRequested;
         event Action AdPrivacyRequested;
@@ -26,6 +27,8 @@ namespace PlanetIO.UI.Settings
         void Hide();
         void ShowValues(float music, float sfx, bool haptics, bool controlsSwapped);
         void ShowFixedJoystick(bool fixedJoystick);
+        void ShowBotDifficulty(int difficulty);
+        void SetDifficultyEditable(bool editable);
         void ShowLanguage(string languageName);
         void SetAdPrivacyVisible(bool visible);
     }
@@ -51,6 +54,10 @@ namespace PlanetIO.UI.Settings
         private Toggle _hapticsToggle;
         private Toggle _controlsSwappedToggle;
         private Toggle _fixedJoystickToggle;
+        private Button _previousDifficultyButton;
+        private Button _nextDifficultyButton;
+        private Label _difficultyText;
+        private int _difficulty;
         private Button _previousLanguageButton;
         private Button _nextLanguageButton;
         private Label _languageText;
@@ -63,6 +70,7 @@ namespace PlanetIO.UI.Settings
         public event Action<bool> HapticsChanged;
         public event Action<bool> ControlsSwappedChanged;
         public event Action<bool> FixedJoystickChanged;
+        public event Action<int> BotDifficultyChanged;
         public event Action PreviousLanguageRequested;
         public event Action NextLanguageRequested;
         public event Action AdPrivacyRequested;
@@ -87,6 +95,9 @@ namespace PlanetIO.UI.Settings
             _hapticsToggle = root.Q<Toggle>("haptics-toggle");
             _controlsSwappedToggle = root.Q<Toggle>("controls-swapped-toggle");
             _fixedJoystickToggle = root.Q<Toggle>("fixed-joystick-toggle");
+            _previousDifficultyButton = root.Q<Button>("previous-difficulty");
+            _nextDifficultyButton = root.Q<Button>("next-difficulty");
+            _difficultyText = root.Q<Label>("difficulty-value");
             _previousLanguageButton = root.Q<Button>("previous-language");
             _nextLanguageButton = root.Q<Button>("next-language");
             _languageText = root.Q<Label>("language-value");
@@ -109,6 +120,8 @@ namespace PlanetIO.UI.Settings
             _hapticsToggle.RegisterValueChangedCallback(OnHapticsChanged);
             _controlsSwappedToggle.RegisterValueChangedCallback(OnControlsSwappedChanged);
             _fixedJoystickToggle.RegisterValueChangedCallback(OnFixedJoystickChanged);
+            _previousDifficultyButton.clicked += OnPreviousDifficulty;
+            _nextDifficultyButton.clicked += OnNextDifficulty;
             _previousLanguageButton.clicked += OnPreviousLanguage;
             _nextLanguageButton.clicked += OnNextLanguage;
             _adPrivacyButton.clicked += OnAdPrivacy;
@@ -124,6 +137,8 @@ namespace PlanetIO.UI.Settings
             _labels.Bind(root.Q<Label>("haptics-label"), LocalizationKeys.SettingsHaptics);
             _labels.Bind(root.Q<Label>("controls-swapped-label"), LocalizationKeys.SettingsControlsSwapped);
             _labels.Bind(root.Q<Label>("fixed-joystick-label"), LocalizationKeys.SettingsFixedJoystick);
+            _labels.Bind(root.Q<Label>("difficulty-label"), LocalizationKeys.SettingsBotDifficulty);
+            _labels.Bind(root.Q<Label>("difficulty-hint"), LocalizationKeys.SettingsBotsOnly);
             _labels.Bind(root.Q<Label>("language-label"), LocalizationKeys.SettingsLanguage);
             _labels.Bind(_adPrivacyButton, LocalizationKeys.SettingsAdPrivacy);
             _labels.Bind(_privacyPolicyButton, LocalizationKeys.SettingsPrivacyPolicy);
@@ -137,6 +152,8 @@ namespace PlanetIO.UI.Settings
             _hapticsToggle.UnregisterValueChangedCallback(OnHapticsChanged);
             _controlsSwappedToggle.UnregisterValueChangedCallback(OnControlsSwappedChanged);
             _fixedJoystickToggle.UnregisterValueChangedCallback(OnFixedJoystickChanged);
+            _previousDifficultyButton.clicked -= OnPreviousDifficulty;
+            _nextDifficultyButton.clicked -= OnNextDifficulty;
             _previousLanguageButton.clicked -= OnPreviousLanguage;
             _nextLanguageButton.clicked -= OnNextLanguage;
             _adPrivacyButton.clicked -= OnAdPrivacy;
@@ -168,6 +185,27 @@ namespace PlanetIO.UI.Settings
         }
 
         public void ShowFixedJoystick(bool fixedJoystick) => _fixedJoystickToggle.SetValueWithoutNotify(fixedJoystick);
+
+        public void SetDifficultyEditable(bool editable)
+        {
+            _previousDifficultyButton.SetEnabled(editable);
+            _nextDifficultyButton.SetEnabled(editable);
+        }
+
+        public void ShowBotDifficulty(int difficulty)
+        {
+            _difficulty = BotDifficultyRules.Normalize(difficulty);
+            string key = _difficulty switch
+            {
+                0 => LocalizationKeys.DifficultyEasy,
+                2 => LocalizationKeys.DifficultyHard,
+                _ => LocalizationKeys.DifficultyMedium
+            };
+            _difficultyText.text = _localization.Get(key);
+        }
+
+        private void OnPreviousDifficulty() => BotDifficultyChanged?.Invoke((_difficulty + 2) % 3);
+        private void OnNextDifficulty() => BotDifficultyChanged?.Invoke((_difficulty + 1) % 3);
 
         public void ShowLanguage(string languageName)
         {

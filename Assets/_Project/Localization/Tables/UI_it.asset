@@ -472,6 +472,30 @@ MonoBehaviour:
     m_Localized: Joystick fisso
     m_Metadata:
       m_Items: []
+  - m_Id: 18134015178821632
+    m_Localized: "Difficolt\xE0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541888
+    m_Localized: Bot e danni in solitaria; sceglie l'host
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541889
+    m_Localized: Facile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541890
+    m_Localized: Media
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541891
+    m_Localized: Difficile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18145445231841280
+    m_Localized: "Riconnessione alla partita\u2026"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

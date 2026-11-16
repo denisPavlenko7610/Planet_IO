@@ -1,5 +1,6 @@
 using RD.Foundation;
 using System;
+using VContainer;
 using System.Collections.Generic;
 using System.Linq;
 using RD.Localization;
@@ -14,6 +15,11 @@ namespace PlanetIO.UI.Settings
         private readonly ISettingsService _settings;
         private readonly ILocalizationService _localization;
         private readonly IAdPrivacyService _adPrivacyService;
+        private INetworkSessionService _session;
+        private bool IsOnline => _session?.Mode is NetworkSessionMode.Host or NetworkSessionMode.Client;
+
+        [Inject]
+        public void ConfigureSession(INetworkSessionService session) => _session = session;
 
         public SettingsPresenter(
             ISettingsView view,
@@ -37,6 +43,7 @@ namespace PlanetIO.UI.Settings
             _view.HapticsChanged += OnHapticsChanged;
             _view.ControlsSwappedChanged += OnControlsSwappedChanged;
             _view.FixedJoystickChanged += OnFixedJoystickChanged;
+            _view.BotDifficultyChanged += OnBotDifficultyChanged;
             _view.PreviousLanguageRequested += OnPreviousLanguage;
             _view.NextLanguageRequested += OnNextLanguage;
             _view.AdPrivacyRequested += OnAdPrivacyRequested;
@@ -54,6 +61,7 @@ namespace PlanetIO.UI.Settings
             _view.HapticsChanged -= OnHapticsChanged;
             _view.ControlsSwappedChanged -= OnControlsSwappedChanged;
             _view.FixedJoystickChanged -= OnFixedJoystickChanged;
+            _view.BotDifficultyChanged -= OnBotDifficultyChanged;
             _view.PreviousLanguageRequested -= OnPreviousLanguage;
             _view.NextLanguageRequested -= OnNextLanguage;
             _view.AdPrivacyRequested -= OnAdPrivacyRequested;
@@ -96,6 +104,8 @@ namespace PlanetIO.UI.Settings
                 _settings.Get(GameSettingKeys.HapticsEnabled),
                 _settings.Get(GameSettingKeys.ControlsSwapped));
             _view.ShowFixedJoystick(_settings.Get(GameSettingKeys.FixedJoystick));
+            _view.ShowBotDifficulty(IsOnline ? (int)_session.CurrentRoom.Difficulty : _settings.Get(GameSettingKeys.BotDifficulty));
+            _view.SetDifficultyEditable(!IsOnline);
             _view.ShowLanguage(LanguageNames.GetNativeName(_localization.CurrentLocale));
             _view.SetAdPrivacyVisible(_adPrivacyService.IsPrivacyOptionsRequired);
         }
@@ -111,6 +121,14 @@ namespace PlanetIO.UI.Settings
         private void OnControlsSwappedChanged(bool swapped) => _settings.Set(GameSettingKeys.ControlsSwapped, swapped);
 
         private void OnFixedJoystickChanged(bool fixedJoystick) => _settings.Set(GameSettingKeys.FixedJoystick, fixedJoystick);
+
+        private void OnBotDifficultyChanged(int difficulty)
+        {
+            if (IsOnline) return;
+            _settings.Set(GameSettingKeys.BotDifficulty, difficulty);
+            _settings.Flush();
+            Render();
+        }
 
         private void OnPreviousLanguage() => _ = StepLanguageAsync(-1);
 

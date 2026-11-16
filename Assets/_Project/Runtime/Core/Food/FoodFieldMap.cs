@@ -79,6 +79,22 @@ namespace PlanetIO
             RebuildTargets();
         }
 
+        public FoodFieldMigrationState CaptureMigration()
+        {
+            var state = new FoodFieldMigrationState { Centers = new Vector2[_fields.Count], Radii = new float[_fields.Count], Counts = (int[])_counts.Clone() };
+            for (int i = 0; i < _fields.Count; i++) { state.Centers[i] = _fields[i].Center; state.Radii[i] = _fields[i].Radius; }
+            return state;
+        }
+        public void RestoreMigration(FoodFieldMigrationState state)
+        {
+            if (state.Centers.Length != _fields.Count || state.Counts.Length != _counts.Length)
+                throw new System.IO.InvalidDataException("Food field configuration changed during migration.");
+            _placed = 0;
+            for (int i = 0; i < _fields.Count; i++) { _fields[i].Center = state.Centers[i]; _fields[i].Radius = state.Radii[i]; }
+            for (int i = 0; i < _counts.Length; i++) { _counts[i] = state.Counts[i]; _placed += _counts[i]; }
+            RebuildTargets();
+        }
+
         public int CellCount => _targets.Length;
         public int PlacedCount => _placed;
         public int FieldCount => _fields.Count;

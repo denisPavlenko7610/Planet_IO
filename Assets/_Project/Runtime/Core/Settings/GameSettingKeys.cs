@@ -28,6 +28,10 @@ namespace PlanetIO
         public static readonly SettingKey<bool> BlitzMode =
             new("gameplay.blitz-mode", false, SettingCodecs.Boolean);
 
+        public static readonly SettingKey<int> BotDifficulty =
+            new("gameplay.bot-difficulty", (int)PlanetIO.BotDifficulty.Medium,
+                SettingCodecs.Int32, BotDifficultyRules.Normalize);
+
         public static readonly SettingKey<string> RoomCode =
             new("network.room-code", RoomRules.DefaultRoomCode, SettingCodecs.String, RoomRules.NormalizeRoomCode);
 

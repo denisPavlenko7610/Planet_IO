@@ -472,6 +472,30 @@ MonoBehaviour:
     m_Localized: Sabit joystick
     m_Metadata:
       m_Items: []
+  - m_Id: 18134015178821632
+    m_Localized: Zorluk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541888
+    m_Localized: "Botlar ve solo hasar\u0131; oda sahibi se\xE7er"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541889
+    m_Localized: Kolay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541890
+    m_Localized: Orta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541891
+    m_Localized: Zor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18145445231841280
+    m_Localized: "Ma\xE7a yeniden ba\u011Flan\u0131l\u0131yor\u2026"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -1,14 +1,15 @@
 using RD.Foundation;
 using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using PlanetIO.Pooling;
 using Random = UnityEngine.Random;
 
 namespace PlanetIO
 {
-    public sealed class FoodSpawner
-        : Spawner<Food>, IRespawnService<Food>, ISpawnService<Food>, ILootSpawnService, IFoodFieldGuide, ICometFoodTrail
+    public sealed partial class FoodSpawner
+        : Spawner<Food>, IRespawnService<Food>, ISpawnService<Food>, ILootSpawnService, IFoodFieldGuide, ICometFoodTrail, IMigrationLootFactory
     {
         public const float LootMassFraction = 0.6f;
         private const float LootItemsPerCapacity = 20f;
@@ -271,7 +272,7 @@ namespace PlanetIO
             ReleaseObject(point);
         }
 
-        private sealed class LootDrop : ILootDrop
+        private sealed class LootDrop : ILootDrop, IMigrationLootDrop
         {
             private readonly FoodSpawner _spawner;
             private readonly List<(Food Food, int LifecycleVersion)> _items;
@@ -286,6 +287,9 @@ namespace PlanetIO
             {
                 _items.Add((food, lifecycleVersion));
             }
+
+            public ulong[] CaptureFoodIds() => _items.Where(item => item.Food != null && item.Food.IsSpawned &&
+                item.Food.IsDropped && item.Food.LifecycleVersion == item.LifecycleVersion).Select(item => item.Food.NetworkObjectId).ToArray();
 
             public void Discard()
             {
@@ -305,7 +309,13 @@ namespace PlanetIO
         {
             try
             {
-                await Awaitable.WaitForSecondsAsync(lifetime, destroyCancellationToken);
+                float remaining = lifetime;
+                while (remaining > 0f && point != null && point.IsDropped && point.LifecycleVersion == lifecycleVersion)
+                {
+                    point.MigrationExpiresAt = Time.time + remaining;
+                    await Awaitable.NextFrameAsync(destroyCancellationToken);
+                    if (_migration?.IsRecovering != true) remaining -= Time.deltaTime;
+                }
 
                 if (point == null ||
                     !point.IsDropped ||

@@ -472,6 +472,30 @@ MonoBehaviour:
     m_Localized: "Sta\u0142y joystick"
     m_Metadata:
       m_Items: []
+  - m_Id: 18134015178821632
+    m_Localized: "Trudno\u015B\u0107"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541888
+    m_Localized: "Boty i obra\u017Cenia solo; wybiera gospodarz"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541889
+    m_Localized: "\u0141atwy"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541890
+    m_Localized: "\u015Aredni"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541891
+    m_Localized: Trudny
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18145445231841280
+    m_Localized: "Ponowne \u0142\u0105czenie z rozgrywk\u0105\u2026"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

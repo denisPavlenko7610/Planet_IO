@@ -102,6 +102,7 @@ namespace PlanetIO.Infrastructure.Networking
         [Serializable]
         public sealed class RoomConnectionPayload
         {
+            public string PlayerId;
             public string Protocol;
             public string Nickname;
         }

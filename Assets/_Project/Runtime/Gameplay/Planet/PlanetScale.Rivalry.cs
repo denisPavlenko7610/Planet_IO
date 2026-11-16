@@ -74,7 +74,7 @@ namespace PlanetIO
             }
 
             float before = Capacity;
-            Shrink(before * massFraction);
+            Shrink(before * massFraction * IncomingDamageMultiplier);
             dealt = Mathf.Max(0f, before - Capacity);
             return true;
         }

@@ -80,6 +80,25 @@ namespace PlanetIO
             return changed;
         }
 
+        public void CaptureMigration(PlanetMigrationState state)
+        {
+            state.MoonSlots = Slots;
+            state.Durability = (byte[])_durability.Clone();
+            state.Regrow = (float[])_regrow.Clone();
+        }
+
+        public void RestoreMigration(PlanetMigrationState state)
+        {
+            Reset();
+            Slots = state.MoonSlots;
+            for (int i = 0; i < MaxSlots; i++)
+            {
+                _durability[i] = state.Durability[i];
+                _regrow[i] = state.Regrow[i];
+                if (i < Slots && _durability[i] > 0) AliveMask |= (byte)(1 << i);
+            }
+        }
+
         public void Reset()
         {
             Slots = 0;

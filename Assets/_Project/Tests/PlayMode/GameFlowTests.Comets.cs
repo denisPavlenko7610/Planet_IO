@@ -12,6 +12,48 @@ namespace PlanetIO.Tests
 {
     public sealed partial class GameFlowTests
     {
+        [UnityTest, Timeout(45000)]
+        public IEnumerator Comets_HalvePlayerAndBotMassAndCurrentScoreAtAnyCometSize()
+        {
+            yield return StartMoonGame();
+            Player player = PrepareMoonPlayer();
+            Enemy enemy = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
+            Comet comet = Object.FindObjectsByType<Comet>(FindObjectsInactive.Exclude).First();
+            Collider2D cometCollider = comet.GetComponent<Collider2D>();
+            MethodInfo enemyTouch = typeof(Enemy).GetMethod("OnTriggerEnter2D", BindingFlags.Instance | BindingFlags.NonPublic);
+            foreach (float cometMass in new[] { 0.1f, 2f })
+            {
+                foreach (float planetMass in new[] { 0.2f, 0.8f, 2f })
+                {
+                    comet.Capacity = cometMass;
+                    player.Capacity = planetMass;
+                    int scoreBefore = Constants.CapacityToScore(player.Capacity);
+                    TouchWith(player, cometCollider);
+                    Assert.That(player.Capacity, Is.EqualTo(planetMass * 0.5f).Within(1e-5f));
+                    Assert.That(Constants.CapacityToScore(player.Capacity), Is.EqualTo(scoreBefore / 2));
+                    Assert.That(player.IsDefeated, Is.False);
+
+                    comet.Capacity = cometMass;
+                    enemy.Capacity = planetMass;
+                    enemyTouch.Invoke(enemy, new object[] { cometCollider });
+                    Assert.That(enemy.Capacity, Is.EqualTo(planetMass * 0.5f).Within(1e-5f));
+                }
+            }
+        }
+
+        [UnityTest, Timeout(45000)]
+        public IEnumerator Comets_AtMinimumMassRetainExistingDefeatRule()
+        {
+            yield return StartMoonGame();
+            Player player = PrepareMoonPlayer();
+            player.Capacity = player.MinCapacity * 1.5f;
+            Comet comet = Object.FindObjectsByType<Comet>(FindObjectsInactive.Exclude).First();
+
+            TouchWith(player, comet.GetComponent<Collider2D>());
+
+            Assert.That(player.IsDefeated, Is.True);
+        }
+
         [UnityTest, Timeout(60000)]
         public IEnumerator Comets_MoveShowNamesAndClearTailOnRespawn()
         {
@@ -23,7 +65,6 @@ namespace PlanetIO.Tests
             Vector2 start = comet.transform.position;
             Assert.That(CometRules.IsOutsideView(start, player.transform.position), Is.True);
 
-            // A clear test lane avoids incidental collisions with bots during the movement assertion.
             movement.Launch(new Vector2(150f, 100f), Vector2.right, 3f);
             yield return new WaitForSeconds(0.4f);
             Assert.That(comet.GetComponent<Rigidbody2D>().linearVelocity.magnitude, Is.EqualTo(3f).Within(0.01f));

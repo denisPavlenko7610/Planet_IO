@@ -20,6 +20,9 @@ namespace PlanetIO.Infrastructure.Networking
             _beforeStart = beforeStart ?? throw new ArgumentNullException(nameof(beforeStart));
         }
 
+        public Action MigrationStarting { get; set; }
+        public Func<bool, Task> Restarted { get; set; }
+        private bool _started;
         public bool IsHost { get; private set; }
 
         public async Task StartAsync(NetworkConfiguration configuration)
@@ -40,6 +43,8 @@ namespace PlanetIO.Infrastructure.Networking
                     throw new InvalidOperationException("NetworkManager rejected host start.");
                 }
 
+                if (_started && Restarted != null) await Restarted(true);
+                _started = true;
                 return;
             }
 
@@ -61,16 +66,24 @@ namespace PlanetIO.Infrastructure.Networking
 
                 await Awaitable.NextFrameAsync();
             }
+            if (_started && Restarted != null) await Restarted(false);
+            _started = true;
         }
 
-        public Task StopAsync()
+        public async Task StopAsync()
         {
+            MigrationStarting?.Invoke();
             if (_networkManager.IsListening && !_networkManager.ShutdownInProgress)
             {
                 _networkManager.Shutdown();
             }
 
-            return Task.CompletedTask;
+            float deadline = Time.realtimeSinceStartup + 10f;
+            while (_networkManager.ShutdownInProgress || _networkManager.IsListening)
+            {
+                if (Time.realtimeSinceStartup > deadline) throw new TimeoutException("NGO shutdown timed out before migration.");
+                await Awaitable.NextFrameAsync();
+            }
         }
     }
 }

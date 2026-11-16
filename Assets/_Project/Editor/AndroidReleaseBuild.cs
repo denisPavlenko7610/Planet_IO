@@ -170,10 +170,6 @@ namespace PlanetIO.Editor
                 return;
             }
 
-            // This Editor reused an ARM32 pointer-list specialization in an ARM64 Burst library:
-            // EndStructuralChanges advanced 8-byte pointers by 4 bytes and crashed at startup.
-            // CleanBuildCache does not clear the separate Burst AOT cache. Keep Burst enabled,
-            // but rebuild its Android code until this Editor's cache issue is resolved.
             string projectDirectory = Directory.GetParent(UnityEngine.Application.dataPath).FullName;
             string cacheDirectory = Path.Combine(projectDirectory, "Library", "BurstCache", "Android-Arm");
             if (Directory.Exists(cacheDirectory))
@@ -181,8 +177,6 @@ namespace PlanetIO.Editor
                 Directory.Delete(cacheDirectory, recursive: true);
             }
 
-            // The incremental Player build also tracks this generated plugin as an output.
-            // Removing it makes Unity invoke Burst again even when player scripts are unchanged.
             string outputDirectory = Path.Combine(projectDirectory, "Temp", "BurstOutput");
             if (Directory.Exists(outputDirectory))
             {

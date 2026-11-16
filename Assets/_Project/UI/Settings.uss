@@ -188,7 +188,8 @@
     background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/11Button_Midl_Blue.png");
 }
 
-#language-value {
+#language-value,
+#difficulty-value {
     font-size: 34px;
     color: white;
     -unity-text-align: middle-center;
@@ -232,3 +233,7 @@
     background-color: rgba(0, 0, 0, 0);
     color: var(--gold);
 }
+
+.difficulty-heading { justify-content: center; }
+.difficulty-hint { font-size: 24px; color: rgb(196, 184, 224); white-space: normal; }
+#difficulty-value { font-size: 30px; white-space: normal; }

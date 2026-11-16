@@ -54,6 +54,7 @@ namespace PlanetIO.Bootstrap
 
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.Register<MigrationWorldService>(Lifetime.Scoped);
             builder.RegisterComponent(_foodsPool).As<ObjectPool<Food>>();
             builder.RegisterComponent(_cometsPool).As<ObjectPool<Comet>>();
             builder.RegisterComponent(_enemyPool).As<ObjectPool<Enemy>>();

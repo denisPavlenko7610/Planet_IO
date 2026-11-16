@@ -200,7 +200,6 @@ namespace PlanetIO.UI.Menu
             }
             catch (OperationCanceledException)
             {
-                // Session start was cancelled (e.g. scene teardown): unblock the menu unless it is being destroyed too.
                 _sessionRequestInProgress = false;
                 if (_menuView is UnityEngine.Object menuView && menuView)
                 {

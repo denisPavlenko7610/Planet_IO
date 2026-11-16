@@ -37,6 +37,19 @@
                         <ui:Toggle name="fixed-joystick-toggle" class="settings-toggle" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement class="settings-row">
+                    <ui:VisualElement class="settings-label difficulty-heading">
+                        <ui:Label name="difficulty-label" />
+                        <ui:Label name="difficulty-hint" class="difficulty-hint" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="settings-control">
+                        <ui:VisualElement class="language-stepper">
+                            <ui:Button name="previous-difficulty" class="btn btn-blue stepper-button" text="&lt;" />
+                            <ui:Label name="difficulty-value" />
+                            <ui:Button name="next-difficulty" class="btn btn-blue stepper-button" text="&gt;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
                 <ui:VisualElement class="settings-row settings-row--last">
                     <ui:Label name="language-label" class="settings-label" />
                     <ui:VisualElement class="settings-control">

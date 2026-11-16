@@ -1,4 +1,5 @@
 using System;
+using RD.Settings;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -9,7 +10,7 @@ namespace PlanetIO
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Rigidbody2D), typeof(Enemy))]
-    public sealed class EnemyMovement : NetworkBehaviour
+    public sealed partial class EnemyMovement : NetworkBehaviour
     {
         public enum MovementState : byte
         {
@@ -25,7 +26,7 @@ namespace PlanetIO
         private const float FoodSearchRadius = 16f;
         private const float FieldSeekChance = 0.7f;
         private const float FieldSeekMinimumDistance = 10f;
-        private const float MinimumThinkInterval = 0.5f;
+        private const float MinimumThinkInterval = 0.1f;
         private const float IdleCullDistance = 40f;
         private const float MinimumStateTime = 0.2f;
         private const float MinimumRoamTime = 0.1f;
@@ -35,8 +36,6 @@ namespace PlanetIO
         [SerializeField, Range(0f, 1f)] private float _massSpeedPenalty = 0f;
         [SerializeField, Range(0.1f, 1f)]
         private float _minimumSpeedMultiplier = 1f;
-        [SerializeField, Min(1f)] private float _huntSpeedMultiplier = 1.12f;
-        [SerializeField, Min(1f)] private float _evadeSpeedMultiplier = 1.3f;
 
         [Header("Turning")]
         [SerializeField, Min(0f), FormerlySerializedAs("_turnSpeed")]
@@ -94,6 +93,40 @@ namespace PlanetIO
         private float _dashTimeRemaining;
         private float _nextDashDelay;
 
+        private ISettingsService _settings;
+        private INetworkSessionService _session;
+        private ISpawnService<Food> _foodSpawner;
+        private BotDifficultyTuning _difficultyTuning;
+        private PlanetScale _targetPlanet;
+        private Transform _boostDropPoint;
+        private float _boostRemaining;
+        private float _boostCooldown;
+        private float _boostTick;
+        public BotDifficulty Difficulty { get; private set; } = BotDifficulty.Medium;
+        public bool IsBoosting => _enemy != null && _enemy.IsBoosting;
+
+        [Inject]
+        public void ConstructDifficulty(ISettingsService settings, INetworkSessionService session, ISpawnService<Food> foodSpawner)
+        {
+            _settings = settings;
+            _session = session;
+            _foodSpawner = foodSpawner;
+        }
+
+        private void ApplyDifficulty()
+        {
+            Difficulty = BotDifficultyRules.Resolve(_settings?.Get(GameSettingKeys.BotDifficulty) ?? 1,
+                _session?.Mode ?? NetworkSessionMode.None, _session?.CurrentRoom.Difficulty ?? BotDifficulty.Medium);
+            _difficultyTuning = BotDifficultyRules.For(Difficulty);
+            BotTuning personality = BotTuning.For(Personality);
+            _awarenessRadius = _baseAwarenessRadius * personality.Awareness * _difficultyTuning.Awareness;
+            _huntSizeRatio = Mathf.Max(CombatRules.DefaultEatSizeRatio,
+                _baseHuntSizeRatio * personality.HuntRatio * _difficultyTuning.HuntRatio / 1.16f);
+            _threatSizeRatio = Mathf.Min(CombatRules.DefaultEatSizeRatio,
+                _baseThreatSizeRatio * personality.ThreatRatio);
+            _thinkInterval = _difficultyTuning.ReactionSeconds;
+        }
+
         public Vector2 Direction { get; private set; } = Vector2.right;
         public MovementState State { get; private set; } =
             MovementState.Inactive;
@@ -142,6 +175,7 @@ namespace PlanetIO
             if (IsServer)
             {
                 ApplyPersonality(BotTuning.PersonalityFor(NetworkObjectId));
+                ApplyDifficulty();
                 _thinkTimeRemaining = Random.Range(0f, _thinkInterval);
                 InitializeDashing();
                 EnterRoaming();
@@ -151,6 +185,7 @@ namespace PlanetIO
         public override void OnNetworkDespawn()
         {
             StopMovement();
+            StopBoost();
             State = MovementState.Inactive;
             base.OnNetworkDespawn();
         }
@@ -165,9 +200,11 @@ namespace PlanetIO
                 return;
             }
 
+            if (_migration?.IsRecovering == true) { StopMovement(); return; }
             if (_gameStateService?.IsGameplayActive != true)
             {
                 StopMovement();
+                StopBoost();
                 return;
             }
 
@@ -199,6 +236,7 @@ namespace PlanetIO
                 Think();
             }
 
+            UpdateBoost(deltaTime);
             float turnSpeed = UpdateTurnSpeed(deltaTime);
             UpdateDirection(deltaTime, turnSpeed);
             Move();
@@ -211,15 +249,70 @@ namespace PlanetIO
                 EnemyDecisionRules.GetCapacitySpeedMultiplier(_enemy.Capacity, _enemy.MinCapacity, _massSpeedPenalty,
                     _minimumSpeedMultiplier);
 
-            float stateMultiplier = State switch
-            {
-                MovementState.Hunting => _huntSpeedMultiplier,
-                MovementState.Evading => _evadeSpeedMultiplier,
-                _ => 1f
-            };
-
+            float boostMultiplier = IsBoosting ? BotDifficultyRules.BoostSpeedMultiplier : 1f;
             _rigidbody2D.linearVelocity = WorldBounds.KeepInside(_rigidbody2D.position,
-                Direction * (_normalSpeed * speedMultiplier * stateMultiplier));
+                Direction * (_normalSpeed * speedMultiplier * boostMultiplier));
+        }
+
+        private void StopBoost()
+        {
+            _boostRemaining = 0f;
+            _boostTick = 0f;
+            _enemy?.SetBoosting(false);
+        }
+
+        private void UpdateBoost(float deltaTime)
+        {
+            _boostCooldown = Mathf.Max(0f, _boostCooldown - deltaTime);
+            bool evading = State == MovementState.Evading;
+            bool hunting = State == MovementState.Hunting && _targetPlanet != null &&
+                _targetPlanet.IsSpawned && !_targetPlanet.IsHiddenFromRivals && _enemy.CanDevour(_targetPlanet);
+            float distance = hunting ? Vector2.Distance(transform.position, _targetPlanet.transform.position) : 0f;
+            bool wanted = BotDifficultyRules.ShouldBoost(Difficulty, evading, hunting, _enemy.Capacity,
+                Mathf.Max(_enemy.InitialCapacity, _enemy.MinCapacity), hunting ? _targetPlanet.Capacity : 0f,
+                distance, Vector2.Dot(Direction, _desiredDirection));
+            if (_boostRemaining <= 0f && _boostCooldown <= 0f && wanted)
+            {
+                _boostRemaining = _difficultyTuning.BoostSeconds;
+                _boostCooldown = _boostRemaining + _difficultyTuning.BoostCooldown;
+                _boostTick = 0f;
+            }
+            if (!wanted || _boostRemaining <= 0f)
+            {
+                StopBoost();
+                return;
+            }
+            _boostRemaining = Mathf.Max(0f, _boostRemaining - deltaTime);
+            _boostTick -= deltaTime;
+            if (_boostTick <= 0f)
+            {
+                if (!_enemy.TrySpendBoostMass())
+                {
+                    StopBoost();
+                    return;
+                }
+                _boostTick += BotDifficultyRules.BoostTickSeconds;
+                DropBoostFood();
+            }
+            _enemy.SetBoosting(_boostRemaining > 0f);
+        }
+
+        private void DropBoostFood()
+        {
+            if (_foodSpawner == null)
+            {
+                return;
+            }
+            if (_boostDropPoint == null)
+            {
+                _boostDropPoint = new GameObject("BoostDropPoint").transform;
+                _boostDropPoint.SetParent(transform, false);
+            }
+            _boostDropPoint.position = Constants.ClampToWorld(BoostDropRules.SpawnPosition(
+                transform.position, Direction, _enemy.BodyRadius));
+            Food food = _foodSpawner.SpawnAt(_boostDropPoint,
+                BotDifficultyRules.BoostCost * BotDifficultyRules.BoostFoodFraction);
+            food?.SetDropper(NetworkObjectId, FoodMagnetRules.OwnDropGraceSeconds);
         }
 
         public void ResetForRespawn()
@@ -230,6 +323,10 @@ namespace PlanetIO
             }
 
             StopMovement();
+            StopBoost();
+            _boostCooldown = 0f;
+            _targetPlanet = null;
+            ApplyDifficulty();
             _separationForce = Vector2.zero;
             Direction = Constants.GetRandomDirection();
             _desiredDirection = Direction;
@@ -298,14 +395,16 @@ namespace PlanetIO
 
         private void Think()
         {
+            ApplyDifficulty();
             Vector2 position = _enemyTransform.position;
-            (Player nearestPlayer, Vector2 hazardPosition, float hazardDistanceSquared, Vector2 separationAccum) =
+            (PlanetScale nearestPlayer, Vector2 hazardPosition, float hazardDistanceSquared, Vector2 separationAccum) =
                 ScanSurroundings(position);
             Food nearestFood = FindNearestFood(position);
 
             _separationForce = separationAccum;
 
             bool hasImmediateHazard = hazardDistanceSquared <= _hazardDistance * _hazardDistance;
+            _targetPlanet = nearestPlayer;
             EnemyIntent intent = EnemyDecisionRules.ChooseIntent(_enemy.Capacity, nearestPlayer?.Capacity ?? 0f,
                 nearestFood != null, hasImmediateHazard, _huntSizeRatio, _threatSizeRatio);
 
@@ -319,7 +418,10 @@ namespace PlanetIO
                     break;
 
                 case EnemyIntent.Hunt:
-                    SetTarget(nearestPlayer.transform.position, MovementState.Hunting);
+                    Vector2 velocity = nearestPlayer.TryGetComponent(out Rigidbody2D targetBody)
+                        ? targetBody.linearVelocity : Vector2.zero;
+                    SetTarget(Constants.ClampToWorld(BotDifficultyRules.PursuitPoint(nearestPlayer.transform.position,
+                        velocity, _difficultyTuning.PredictionSeconds)), MovementState.Hunting);
                     break;
 
                 case EnemyIntent.Forage:
@@ -332,12 +434,12 @@ namespace PlanetIO
             }
         }
 
-        private (Player NearestPlayer, Vector2 HazardPosition, float HazardDistanceSquared, Vector2 SeparationForce)
+        private (PlanetScale NearestPlayer, Vector2 HazardPosition, float HazardDistanceSquared, Vector2 SeparationForce)
             ScanSurroundings(Vector2 position)
         {
             int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, _nonFoodFilter, _nearbyColliders);
 
-            Player nearestPlayer = null;
+            PlanetScale nearestPlayer = null;
             Vector2 hazardPosition = default;
             Vector2 separationAccum = Vector2.zero;
             float playerDistanceSquared = float.PositiveInfinity;
@@ -356,37 +458,31 @@ namespace PlanetIO
                 Vector2 candidatePosition = candidate.transform.position;
                 float distanceSquared = (candidatePosition - position).sqrMagnitude;
 
-                if (candidate.TryGetComponent(out PlanetScale otherPlanet) &&
-                    otherPlanet.IsMoonThreat(position, _enemy.BodyRadius, out Vector2 moonPosition))
+                if (candidate.TryGetComponent(out PlanetScale otherPlanet))
                 {
-                    hazardPosition = moonPosition;
-                    hazardDistanceSquared = 0f;
-                }
-
-                if (candidate.TryGetComponent(out Enemy _))
-                {
-                    if (distanceSquared < separationRadiusSquared &&
-                        distanceSquared > 0.001f)
+                    if (otherPlanet.IsHiddenFromRivals || otherPlanet is Player { IsDefeated: true } ||
+                        otherPlanet is Player { IsSpawnProtected: true })
+                    {
+                        continue;
+                    }
+                    if (otherPlanet.IsMoonThreat(position, _enemy.BodyRadius, out Vector2 moonPosition))
+                    {
+                        hazardPosition = moonPosition;
+                        hazardDistanceSquared = 0f;
+                    }
+                    if (otherPlanet is Enemy && distanceSquared < separationRadiusSquared && distanceSquared > 0.001f)
                     {
                         Vector2 push = position - candidatePosition;
                         float distance = Mathf.Sqrt(distanceSquared);
-                        separationAccum +=
-                            push / (distance * Mathf.Max(distance, 0.3f));
+                        separationAccum += push / (distance * Mathf.Max(distance, 0.3f));
                     }
-
-                    continue;
-                }
-
-                if (candidate.TryGetComponent(out Player player))
-                {
-                    if (!player.IsDefeated &&
-                        !player.IsHiddenFromRivals &&
-                        distanceSquared < playerDistanceSquared)
+                    bool threat = otherPlanet.CanDevour(_enemy);
+                    bool selectedThreat = nearestPlayer != null && nearestPlayer.CanDevour(_enemy);
+                    if (nearestPlayer == null || threat && !selectedThreat || threat == selectedThreat && distanceSquared < playerDistanceSquared)
                     {
-                        nearestPlayer = player;
+                        nearestPlayer = otherPlanet;
                         playerDistanceSquared = distanceSquared;
                     }
-
                     continue;
                 }
 
@@ -417,10 +513,14 @@ namespace PlanetIO
                 }
 
                 float distanceSquared = ((Vector2)candidate.transform.position - position).sqrMagnitude;
-                if (distanceSquared < foodDistanceSquared && candidate.TryGetComponent(out Food point))
+                if (candidate.TryGetComponent(out Food point) && !point.IsMagnetImmuneFor(NetworkObjectId))
                 {
-                    nearestFood = point;
-                    foodDistanceSquared = distanceSquared;
+                    float score = distanceSquared / Mathf.Max(0.0001f, point.GetGrowth(1f));
+                    if (score < foodDistanceSquared)
+                    {
+                        nearestFood = point;
+                        foodDistanceSquared = score;
+                    }
                 }
             }
 
@@ -476,7 +576,9 @@ namespace PlanetIO
 
         private void UpdateDirection(float deltaTime, float turnSpeed)
         {
-            Vector2 target = _desiredDirection;
+            Vector2 border = BotDifficultyRules.BorderAvoidance(_enemyTransform.position, Constants.WorldBounds,
+                _enemy.BodyRadius + 3f);
+            Vector2 target = border != Vector2.zero ? border : _desiredDirection;
 
             if (_separationForce.sqrMagnitude > 0.0001f)
             {

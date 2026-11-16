@@ -16,7 +16,6 @@ namespace PlanetIO.Bootstrap
         public void Construct(IObjectResolver container)
         {
             _container = container;
-            // InjectGameObject is already injecting all components in this path.
             _injected = true;
         }
 
@@ -38,8 +37,6 @@ namespace PlanetIO.Bootstrap
                 return;
             }
 
-            // NGO instantiates client replicas outside VContainer. Resolve the scene
-            // scope before the other components run Awake/OnEnable.
             GameLifetimeScope scope = UnityEngine.Object.FindAnyObjectByType<GameLifetimeScope>();
             _container = scope != null ? scope.Container : null;
             if (_container == null)

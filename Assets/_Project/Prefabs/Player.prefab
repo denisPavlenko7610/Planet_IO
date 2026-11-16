@@ -672,13 +672,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _minCapacity: 0.08
-  _maxCapacity: 2
+  _maxCapacity: 8
   _initialCapacity: 0.08
   _killAbsorbFraction: 0.4
   _eatSizeRatio: 1.08
   _foodGrowthFalloff: 1
   _playerFoodGrowthMultiplier: 0.015
-  _playerCometDamageMultiplier: 0.02
+  _playerCometDamageMultiplier: 0.5
   _boostMassCost: 0.004
   _boostMassConsumptionInterval: 0.15
   _borderMassLoss: 0.08

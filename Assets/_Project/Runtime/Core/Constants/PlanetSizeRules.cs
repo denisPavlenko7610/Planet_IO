@@ -5,6 +5,7 @@ namespace PlanetIO
     public static class PlanetSizeRules
     {
         public const float ReferenceCapacity = 0.08f;
+        public const float MaximumCapacity = 8f;
         public const float AreaExponent = 0.5f;
         private const float MinimumCapacity = 0.0001f;
 

@@ -8,7 +8,7 @@ namespace PlanetIO
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D), typeof(EnemyMovement))]
-    public sealed class Enemy : PlanetScale
+    public sealed partial class Enemy : PlanetScale
     {
         [Header("Presentation")]
         [SerializeField] private EnemyConfig _enemyConfig;
@@ -16,13 +16,35 @@ namespace PlanetIO
 
         [Header("Balance")]
         [SerializeField, Min(0f)] private float _enemyFoodGrowthMultiplier = 0.01f;
-        [SerializeField, Min(0f)] private float _enemyCometDamageMultiplier = 0.02f;
+        [SerializeField, Min(0f)] private float _enemyCometDamageMultiplier = CometRules.DefaultDamageFraction;
 
         private IGameStateService _gameStateService;
         private IRespawnService<Enemy> _enemyRespawnService;
         private bool _servicesReady;
 
+        private readonly NetworkVariable<bool> _networkBoosting = new(false);
+        public bool IsBoosting => IsSpawned && _networkBoosting.Value;
+
+        internal void SetBoosting(bool value)
+        {
+            if (IsServer && IsSpawned)
+            {
+                _networkBoosting.Value = value;
+            }
+        }
+
+        internal bool TrySpendBoostMass()
+        {
+            return IsServer &&
+                IsSpawned &&
+                BotDifficultyRules.CanAffordBoost(Capacity, Mathf.Max(InitialCapacity, MinCapacity)) &&
+                Shrink(BotDifficultyRules.BoostCost);
+        }
+
         protected override bool IsCombatActive => _servicesReady && _gameStateService.IsGameplayActive;
+
+        protected override float IncomingDamageMultiplier => BotDifficultyRules.BotIncomingDamage(DifficultyLevel);
+        protected override float MoonDamageMultiplier => BotDifficultyRules.BotOutgoingDamage(DifficultyLevel);
 
         protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
         protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
@@ -55,11 +77,34 @@ namespace PlanetIO
 
             if (IsServer)
             {
+                _appearanceSeed.Value = NetworkObjectId;
                 SetDisplayName(BotNames.Get(NetworkObjectId));
+                _networkBoosting.Value = false;
             }
 
             SetDeterministicSprite();
             ApplyDeterministicTint();
+            _appearanceSeed.OnValueChanged += AppearanceChanged;
+            _networkBoosting.OnValueChanged += OnBoostChanged;
+            OnBoostChanged(false, _networkBoosting.Value);
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            _appearanceSeed.OnValueChanged -= AppearanceChanged;
+            _networkBoosting.OnValueChanged -= OnBoostChanged;
+            base.OnNetworkDespawn();
+        }
+
+        private void OnBoostChanged(bool _, bool boosting)
+        {
+            if (_spriteRenderer == null)
+            {
+                return;
+            }
+
+            Color color = PlayerPalette.GetColor((int)AppearanceSeed);
+            _spriteRenderer.color = boosting ? Color.Lerp(color, new Color(1f, 0.85f, 0.4f), 0.65f) : color;
         }
 
         public void PlayDeathEffect()
@@ -81,7 +126,7 @@ namespace PlanetIO
         {
             if (_spriteRenderer != null)
             {
-                _spriteRenderer.color = PlayerPalette.GetColor((int)NetworkObjectId);
+                _spriteRenderer.color = PlayerPalette.GetColor((int)AppearanceSeed);
             }
         }
 
@@ -132,7 +177,7 @@ namespace PlanetIO
                 return;
             }
 
-            Sprite sprite = _enemyConfig.GetSprite(NetworkObjectId);
+            Sprite sprite = _enemyConfig.GetSprite(AppearanceSeed);
             if (sprite != null)
             {
                 _spriteRenderer.sprite = sprite;

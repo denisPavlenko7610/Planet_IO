@@ -6,7 +6,7 @@ using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud
 {
-    public sealed class DefeatPresenter : IStartable, IDisposable
+    public sealed partial class DefeatPresenter : IStartable, IDisposable
     {
         private readonly ISessionHudView _view;
         private readonly ILocalPlayerProvider _localPlayerProvider;
@@ -57,6 +57,7 @@ namespace PlanetIO.UI.Hud
 
         public void Start()
         {
+            RegisterMigrationDefeat();
             _view.PlayAgainRequested += OnPlayAgainRequested;
             _view.ContinueRequested += OnContinueRequested;
             _resultView.DoubleDustRequested += OnDoubleDustRequested;
@@ -67,6 +68,7 @@ namespace PlanetIO.UI.Hud
 
         public void Dispose()
         {
+            _migration?.UnregisterLocal("defeat");
             _view.PlayAgainRequested -= OnPlayAgainRequested;
             _view.ContinueRequested -= OnContinueRequested;
             _resultView.DoubleDustRequested -= OnDoubleDustRequested;
@@ -90,6 +92,7 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
+            if (_localPlayer.WasMigrationRestored) _continueUsedThisLife = _localPlayer.ContinueUsed;
             _localPlayer.Defeated += OnDefeated;
             _localPlayer.Revived += OnRevived;
             _localPlayer.CapacityChanged += OnCapacityChanged;
@@ -165,8 +168,9 @@ namespace PlanetIO.UI.Hud
         private void ShowRunResult()
         {
             RunSummary summary = _runStats.Current;
-            _lastReward = _progression.ApplyRun(summary);
-            _doubleDustClaimed = false;
+            if (!_restoredReward) _lastReward = _progression.ApplyRun(summary);
+            if (!_restoredReward) _doubleDustClaimed = false;
+            _restoredReward = false;
 
             string details = _localization.Get(
                 LocalizationKeys.ResultDetails, FormatDuration(summary.DurationSeconds), summary.Kills, summary.PeakTier);

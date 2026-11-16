@@ -84,6 +84,7 @@ namespace PlanetIO.Application
 
         public void Tick()
         {
+            ApplyMigratedEntityTimers();
             if (_root == null)
             {
                 return;

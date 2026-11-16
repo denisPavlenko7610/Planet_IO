@@ -1,4 +1,10 @@
 key,en,ru,zh-Hans,ja,ko,de,fr,es,pt-BR,it,pl,uk,be,tr
+status.migrating,Reconnecting to the match…,Переподключение к матчу…,正在重新连接对局…,試合に再接続中…,경기에 다시 연결 중…,Verbindung zum Spiel wird wiederhergestellt…,Reconnexion à la partie…,Reconectando a la partida…,Reconectando à partida…,Riconnessione alla partita…,Ponowne łączenie z rozgrywką…,Перепідключення до матчу…,Паўторнае падключэнне да матчу…,Maça yeniden bağlanılıyor…
+settings.bot_difficulty,Difficulty,Сложность,难度,難易度,난이도,Schwierigkeit,Difficulté,Dificultad,Dificuldade,Difficoltà,Trudność,Складність,Складанасць,Zorluk
+settings.bots_only,Bots and solo damage; room host chooses,Боты и урон в соло; в комнате выбирает хост,影响机器人和单人伤害；房主选择,ボットとソロのダメージ：ルームはホストが選択,봇 및 솔로 피해량; 방장이 선택,Bots und Solo-Schaden; Raumhost wählt,Bots et dégâts solo ; choix de l'hôte,Bots y daño en solitario; decide el anfitrión,Bots e dano solo; escolha do anfitrião,Bot e danni in solitaria; sceglie l'host,Boty i obrażenia solo; wybiera gospodarz,Боти й шкода в соло; у кімнаті обирає хост,Боты і ўрон у сола; у пакоі выбірае хост,Botlar ve solo hasarı; oda sahibi seçer
+difficulty.easy,Easy,Лёгкая,简单,かんたん,쉬움,Leicht,Facile,Fácil,Fácil,Facile,Łatwy,Легка,Лёгкая,Kolay
+difficulty.medium,Medium,Средняя,中等,ふつう,보통,Mittel,Moyenne,Media,Média,Media,Średni,Середня,Сярэдняя,Orta
+difficulty.hard,Hard,Тяжёлая,困难,むずかしい,어려움,Schwer,Difficile,Difícil,Difícil,Difficile,Trudny,Важка,Цяжкая,Zor
 menu.nickname_placeholder,Enter nickname,Введите ник,输入昵称,ニックネームを入力,닉네임 입력,Spitzname eingeben,Entrez un pseudo,Escribe tu apodo,Digite seu apelido,Inserisci nickname,Wpisz nick,Введіть нік,Увядзіце нік,Takma ad gir
 menu.random_nickname,Random,Случайный ник,随机,ランダム,랜덤,Zufällig,Aléatoire,Aleatorio,Aleatório,Casuale,Losowy,Випадковий нік,Выпадковы нік,Rastgele
 menu.play_with_bots,Play with bots,Играть с ботами,与机器人对战,ボットと遊ぶ,봇과 플레이,Mit Bots spielen,Jouer contre des bots,Jugar con bots,Jogar com bots,Gioca con i bot,Graj z botami,Грати з ботами,Гуляць з ботамі,Botlarla oyna

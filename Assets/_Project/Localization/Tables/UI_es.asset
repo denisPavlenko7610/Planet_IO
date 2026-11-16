@@ -470,6 +470,30 @@ MonoBehaviour:
     m_Localized: Joystick fijo
     m_Metadata:
       m_Items: []
+  - m_Id: 18134015178821632
+    m_Localized: Dificultad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541888
+    m_Localized: "Bots y da\xF1o en solitario; decide el anfitri\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541889
+    m_Localized: "F\xE1cil"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541890
+    m_Localized: Media
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541891
+    m_Localized: "Dif\xEDcil"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18145445231841280
+    m_Localized: "Reconectando a la partida\u2026"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

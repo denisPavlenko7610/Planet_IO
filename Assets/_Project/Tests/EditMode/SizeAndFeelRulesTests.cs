@@ -165,6 +165,17 @@ namespace PlanetIO.Tests
 
         [TestCase(PlayerPrefabPath)]
         [TestCase(EnemyPrefabPath)]
+        public void Growth_MaximumMassAllowsTwiceThePreviousMaximumDiameter(string prefabPath)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            SerializedObject planet = new(prefab.GetComponent<PlanetScale>());
+            float maximum = planet.FindProperty("_maxCapacity").floatValue;
+            Assert.That(maximum, Is.EqualTo(PlanetSizeRules.MaximumCapacity));
+            Assert.That(PlanetSizeRules.Scale(maximum) / PlanetSizeRules.Scale(2f), Is.EqualTo(2f).Within(1e-5f));
+        }
+
+        [TestCase(PlayerPrefabPath)]
+        [TestCase(EnemyPrefabPath)]
         public void Speed_BigPlanetsAreNeverFasterThanSmallOnes(string prefabPath)
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);

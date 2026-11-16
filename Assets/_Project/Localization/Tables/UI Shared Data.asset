@@ -459,6 +459,30 @@ MonoBehaviour:
     m_Key: settings.fixed_joystick
     m_Metadata:
       m_Items: []
+  - m_Id: 18134015178821632
+    m_Key: settings.bot_difficulty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541888
+    m_Key: settings.bots_only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541889
+    m_Key: difficulty.easy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541890
+    m_Key: difficulty.medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541891
+    m_Key: difficulty.hard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18145445231841280
+    m_Key: status.migrating
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

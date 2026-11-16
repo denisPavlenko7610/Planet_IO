@@ -472,6 +472,30 @@ MonoBehaviour:
     m_Localized: Fester Joystick
     m_Metadata:
       m_Items: []
+  - m_Id: 18134015178821632
+    m_Localized: Schwierigkeit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541888
+    m_Localized: "Bots und Solo-Schaden; Raumhost w\xE4hlt"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541889
+    m_Localized: Leicht
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541890
+    m_Localized: Mittel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18134015237541891
+    m_Localized: Schwer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18145445231841280
+    m_Localized: "Verbindung zum Spiel wird wiederhergestellt\u2026"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

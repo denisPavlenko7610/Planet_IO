@@ -4,6 +4,11 @@ namespace PlanetIO
 {
     public static class CometRules
     {
+        public const float DefaultDamageFraction = 0.5f;
+
+        public static float Damage(float planetCapacity, float fraction) =>
+            Mathf.Max(0f, planetCapacity) * Mathf.Clamp01(fraction);
+
         public const float MinimumSpeed = 2.5f;
         public const float MaximumSpeed = 3.5f;
         public const float SpawnClearance = 55f;

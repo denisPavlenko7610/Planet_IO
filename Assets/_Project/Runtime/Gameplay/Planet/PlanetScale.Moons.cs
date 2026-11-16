@@ -71,7 +71,8 @@ namespace PlanetIO
             }
         }
 
-        public float MoonPhaseDegrees => (float)(NetworkObjectId % 1000UL) * 137.5f % 360f;
+        private readonly NetworkVariable<float> _migrationMoonPhase = new(-1f);
+        public float MoonPhaseDegrees => _migrationMoonPhase.Value >= 0f ? _migrationMoonPhase.Value : (float)(NetworkObjectId % 1000UL) * 137.5f % 360f;
 
         public float BodyRadius
         {
@@ -392,7 +393,7 @@ namespace PlanetIO
 
             LastAttackerName = attacker.DisplayName;
             LastAttackerClientId = attacker.AttributionClientId;
-            Shrink(MoonRules.Damage(before) * damageScale);
+            Shrink(MoonRules.Damage(before) * damageScale * IncomingDamageMultiplier);
             LastAttackerName = null;
             LastAttackerClientId = Constants.UnassignedClientId;
 

@@ -7,7 +7,7 @@ using VContainer;
 namespace PlanetIO
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class PlayerMovement : NetworkBehaviour
+    public sealed partial class PlayerMovement : NetworkBehaviour
     {
         [SerializeField, Assign] private Player _player;
         [SerializeField, Assign] private Rigidbody2D _rigidbody2D;
@@ -78,6 +78,7 @@ namespace PlanetIO
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            RestoreOwnerMovement();
             _player.Defeated += ResetBoostInput;
             _player.Revived += ResetBoostInput;
         }

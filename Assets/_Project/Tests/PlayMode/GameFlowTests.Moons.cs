@@ -10,8 +10,6 @@ namespace PlanetIO.Tests
 {
     public sealed partial class GameFlowTests
     {
-        // GDD 6.2/6.3. Run contacts in a single frame so motion, food and random
-        // bot decisions cannot change the independently calculated expectations.
         [UnityTest, Timeout(45000)]
         public IEnumerator Moons_ServerPublishesSlotsWhenCrossingTiers()
         {

@@ -4,7 +4,7 @@ using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud
 {
-    public sealed class RunStatsTracker : IRunStats, IStartable, ITickable, IDisposable
+    public sealed partial class RunStatsTracker : IRunStats, IStartable, ITickable, IDisposable
     {
         private readonly ILocalPlayerProvider _localPlayerProvider;
         private readonly IAnalyticsService _analytics;
@@ -60,6 +60,7 @@ namespace PlanetIO.UI.Hud
 
         public void Start()
         {
+            RegisterMigrationRun();
             Player.DefeatAnnounced += OnDefeatAnnounced;
             _localPlayerProvider.LocalPlayerChanged += BindPlayer;
             BindPlayer(_localPlayerProvider.LocalPlayer);
@@ -67,6 +68,7 @@ namespace PlanetIO.UI.Hud
 
         public void Dispose()
         {
+            _migration?.UnregisterLocal("run");
             Player.DefeatAnnounced -= OnDefeatAnnounced;
             _localPlayerProvider.LocalPlayerChanged -= BindPlayer;
             Unbind();
@@ -74,7 +76,7 @@ namespace PlanetIO.UI.Hud
 
         public void Tick()
         {
-            if (_player != null && _player.IsSpawned && !_player.IsDefeated)
+            if (_migration?.IsRecovering != true && _player != null && _player.IsSpawned && !_player.IsDefeated)
             {
                 _duration += Time.unscaledDeltaTime;
             }
@@ -110,7 +112,12 @@ namespace PlanetIO.UI.Hud
             _player.PerksChanged += OnPerksChanged;
             _player.PerkOfferShown += OnPerkOfferShown;
             _player.Revived += OnRevived;
-            BeginRun();
+            if (_resumeMigrationRun && _player.WasMigrationRestored)
+            {
+                _resumeMigrationRun = false;
+                _lastPerkMask = _player.PerkMask;
+            }
+            else BeginRun();
         }
 
         private void Unbind()

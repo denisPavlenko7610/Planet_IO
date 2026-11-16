@@ -1,5 +1,7 @@
 using RD.Foundation;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Multiplayer;
@@ -13,15 +15,33 @@ namespace PlanetIO.Infrastructure.Networking
 
         private bool _initialized;
 
+        public IMigrationDataHandler MigrationHandler { get; set; }
+        public string LocalIdentity => AuthenticationService.Instance.PlayerId;
         public ISession ActiveSession { get; private set; }
+        public const string DifficultyProperty = "bot-difficulty";
+        public int RequestedBotDifficulty { get; set; } = (int)BotDifficulty.Medium;
+
+        public static BotDifficulty ReadDifficulty(IReadOnlyDictionary<string, SessionProperty> properties)
+        {
+            return properties != null && properties.TryGetValue(DifficultyProperty, out SessionProperty property) &&
+                property != null && int.TryParse(property.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value)
+                ? (BotDifficulty)BotDifficultyRules.Normalize(value) : BotDifficulty.Medium;
+        }
+
+        private Dictionary<string, SessionProperty> CreateProperties() => new()
+        {
+            [DifficultyProperty] = new SessionProperty(BotDifficultyRules.Normalize(RequestedBotDifficulty)
+                .ToString(CultureInfo.InvariantCulture))
+        };
 
         public async Awaitable<ISession> CreatePrivateRoomAsync(int maxPlayers, INetworkHandler networkHandler)
         {
             await EnsureInitializedAsync();
-            SessionOptions options = new SessionOptions { MaxPlayers = maxPlayers, IsPrivate = true }
+            SessionOptions options = new SessionOptions { MaxPlayers = maxPlayers, IsPrivate = true, SessionProperties = CreateProperties() }
                 .WithRelayNetwork()
                 .WithNetworkHandler(networkHandler);
 
+            options.WithHostMigration(MigrationHandler, TimeSpan.FromDays(365), TimeSpan.FromSeconds(5));
             ActiveSession = await MultiplayerService.Instance.CreateSessionAsync(options);
             return ActiveSession;
         }
@@ -31,6 +51,7 @@ namespace PlanetIO.Infrastructure.Networking
             await EnsureInitializedAsync();
             JoinSessionOptions options = new JoinSessionOptions().WithNetworkHandler(networkHandler);
 
+            options.WithHostMigration(MigrationHandler, TimeSpan.FromDays(365), TimeSpan.FromSeconds(5));
             ActiveSession = await MultiplayerService.Instance.JoinSessionByCodeAsync(code, options);
             return ActiveSession;
         }
@@ -39,10 +60,11 @@ namespace PlanetIO.Infrastructure.Networking
         {
             await EnsureInitializedAsync();
             QuickJoinOptions quickJoin = new() { Timeout = QuickJoinTimeout, CreateSession = true };
-            SessionOptions options = new SessionOptions { MaxPlayers = maxPlayers }
+            SessionOptions options = new SessionOptions { MaxPlayers = maxPlayers, SessionProperties = CreateProperties() }
                 .WithRelayNetwork()
                 .WithNetworkHandler(networkHandler);
 
+            options.WithHostMigration(MigrationHandler, TimeSpan.FromDays(365), TimeSpan.FromSeconds(5));
             ActiveSession = await MultiplayerService.Instance.MatchmakeSessionAsync(quickJoin, options);
             return ActiveSession;
         }

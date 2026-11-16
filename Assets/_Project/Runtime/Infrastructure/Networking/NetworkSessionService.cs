@@ -1,5 +1,7 @@
 using RD.Foundation;
 using System;
+using RD.Settings;
+using VContainer;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Multiplayer;
@@ -10,7 +12,7 @@ using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Networking
 {
-    public sealed class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
+    public sealed partial class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
     {
         private const string LocalAddress = "127.0.0.1";
         private const ushort LocalPort = 7777;
@@ -31,6 +33,10 @@ namespace PlanetIO.Infrastructure.Networking
         private bool _subscribed;
         private bool _shutdownRequested;
         private bool _recoveringFromDisconnect;
+        private ISettingsService _settings;
+
+        [Inject]
+        public void ConfigureDifficulty(ISettingsService settings) => _settings = settings;
 
         public NetworkSessionService(
             NetworkManager networkManager,
@@ -103,13 +109,18 @@ namespace PlanetIO.Infrastructure.Networking
 
             Mode = startingState == NetworkSessionState.StartingHost ? NetworkSessionMode.Host : NetworkSessionMode.Client;
             SetState(startingState, startingStatus);
-            NgoSessionNetworkHandler handler = new(_networkManager, PrepareConnection);
+            _sessionConnector.RequestedBotDifficulty = _settings?.Get(GameSettingKeys.BotDifficulty) ?? 1;
+            _sessionConnector.MigrationHandler = new SessionMigrationDataHandler(_migration);
+            NgoSessionNetworkHandler handler = new(_networkManager, PrepareConnection)
+            { MigrationStarting = BeginNetworkRecovery, Restarted = RestartMigratedNetworkAsync };
 
             try
             {
                 ISession session = await connect(handler);
                 Mode = handler.IsHost ? NetworkSessionMode.Host : NetworkSessionMode.Client;
-                CurrentRoom = new RoomConnectionSettings(session.Code ?? string.Empty, session.MaxPlayers);
+                CurrentRoom = new RoomConnectionSettings(session.Code ?? string.Empty, session.MaxPlayers,
+                    UgsSessionConnector.ReadDifficulty(session.Properties));
+                AttachMigrationSession(session);
                 SubscribeSceneManager();
 
                 if (!handler.IsHost)
@@ -153,14 +164,17 @@ namespace PlanetIO.Infrastructure.Networking
         {
             if (isHost)
             {
-                _networkManager.ConnectionApprovalCallback = (request, response) =>
-                    _approvalHandler.ApproveRoomConnection(request, response, CurrentRoom);
+                _migration.Clients.Clear();
+                _migration.LocalIdentity = _sessionConnector.LocalIdentity;
+                _migration.Clients[NetworkManager.ServerClientId] = _migration.LocalIdentity;
+                _networkManager.ConnectionApprovalCallback = ApproveMigratingConnection;
                 return;
             }
 
             _networkManager.ConnectionApprovalCallback = null;
             ConnectionApprovalHandler.RoomConnectionPayload payload = new()
             {
+                PlayerId = _sessionConnector.LocalIdentity,
                 Protocol = RoomRules.ProtocolVersion,
                 Nickname = _playerProfileService.Nickname
             };
@@ -182,6 +196,9 @@ namespace PlanetIO.Infrastructure.Networking
                 return false;
             }
 
+            _migration.StartMatch(Guid.NewGuid().ToString("N"));
+            _migration.LocalIdentity = "solo";
+            _migration.Clients[NetworkManager.ServerClientId] = "solo";
             CurrentRoom = singlePlayerRoom;
             Mode = NetworkSessionMode.SinglePlayer;
             UseLocalTransport();
@@ -255,6 +272,7 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             _shutdownRequested = true;
+            await UploadFinalMigrationSnapshotAsync();
             SetState(NetworkSessionState.ShuttingDown, "Shutting down network session");
 
             try
@@ -262,6 +280,7 @@ namespace PlanetIO.Infrastructure.Networking
                 await _sessionConnector.LeaveAsync();
                 await StopNetworkManagerAsync();
                 ResetConnectionConfiguration();
+                _migration.Clear();
                 Mode = NetworkSessionMode.None;
                 CurrentRoom = RoomConnectionSettings.Default;
                 SetProgress(0f);
@@ -282,6 +301,8 @@ namespace PlanetIO.Infrastructure.Networking
         {
             _shutdownRequested = true;
             _progressGeneration++;
+            _uploadGeneration++;
+            if (_migration != null) { _migration.RecoveryStarted -= BeginNetworkRecovery; _migration.RecoveryCompleted -= RecoveryFinished; }
             _networkManager.ConnectionApprovalCallback = null;
             Unsubscribe();
         }
@@ -462,6 +483,11 @@ namespace PlanetIO.Infrastructure.Networking
                 return;
             }
 
+            if (CanRecoverHost())
+            {
+                BeginNetworkRecovery();
+                return;
+            }
             string disconnectReason = _networkManager.DisconnectReason;
             LastFailure = SessionFailureReasons.FromDisconnectReason(disconnectReason, Mode == NetworkSessionMode.Client);
             string reason = string.IsNullOrWhiteSpace(disconnectReason)

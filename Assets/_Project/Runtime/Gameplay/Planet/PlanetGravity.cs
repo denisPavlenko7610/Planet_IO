@@ -1,4 +1,5 @@
 using System;
+using VContainer;
 using UnityEngine;
 
 namespace PlanetIO
@@ -9,6 +10,8 @@ namespace PlanetIO
     {
         private readonly SlingshotState _slingshot = new();
 
+        private MatchMigrationStore _migration;
+        [Inject] public void ConfigureMigration(MatchMigrationStore store) => _migration = store;
         private PlanetScale _planet;
         private Rigidbody2D _rigidbody2D;
 
@@ -39,6 +42,7 @@ namespace PlanetIO
                 return;
             }
 
+            if (_migration?.IsRecovering == true) return;
             float deltaTime = Time.fixedDeltaTime;
             Vector2 position = _rigidbody2D.position;
             Vector2 pull = Vector2.zero;

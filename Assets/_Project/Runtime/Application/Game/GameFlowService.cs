@@ -1,5 +1,6 @@
 using RD.Foundation;
 using System;
+using VContainer;
 using System.Threading;
 using PlanetIO.Core.Contracts.Loading;
 using PlanetIO.Pooling;
@@ -21,6 +22,9 @@ namespace PlanetIO.Application
         private readonly NetworkWorldReadyState _worldReadyState;
         private readonly IGameLoadingView _loadingView;
         private bool _worldInitialized;
+        private MatchMigrationStore _migration;
+        private MigrationWorldService _migrationWorld;
+        [Inject] public void ConfigureMigration(MatchMigrationStore store, MigrationWorldService world) { _migration = store; _migrationWorld = world; }
         private bool _disposed;
 
         public GameFlowService(
@@ -48,7 +52,7 @@ namespace PlanetIO.Application
         public event Action<GameState, GameState> StateChanged;
 
         public GameState State { get; private set; } = GameState.None;
-        public bool IsGameplayActive => State == GameState.Playing;
+        public bool IsGameplayActive => State == GameState.Playing && _migration?.IsRecovering != true;
 
         public async Awaitable StartAsync(CancellationToken cancellation = default)
         {
@@ -86,6 +90,12 @@ namespace PlanetIO.Application
                 return;
             }
 
+            if (_migration?.IsRecovering == true)
+            {
+                _loadingView.Show();
+                return;
+            }
+            if (State == GameState.Playing) _loadingView.Hide();
             switch (State)
             {
                 case GameState.WaitingForPlayers when IsSessionReady():
@@ -140,6 +150,13 @@ namespace PlanetIO.Application
             _cometSpawner.Initialize(_cometsPool);
             _enemySpawner.Initialize(_enemyPool);
 
+            if (_migration?.HasPendingWorld == true)
+            {
+                await _migrationWorld.RestoreAsync(_worldReadyState, cancellation);
+                _worldInitialized = true;
+                _worldReadyState.MarkReady();
+                return true;
+            }
             const int spawnBatchSize = 20;
             int pointsCount = _foodsPool.Capacity;
             int cometsCount = _cometsPool.Capacity;
@@ -177,6 +194,7 @@ namespace PlanetIO.Application
             }
 
             _worldInitialized = true;
+            _migrationWorld?.MarkReady();
             _worldReadyState.MarkReady();
             return true;
         }

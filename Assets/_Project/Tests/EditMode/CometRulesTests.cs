@@ -5,6 +5,24 @@ namespace PlanetIO.Tests
 {
     public sealed class CometRulesTests
     {
+        [TestCase(0.1f, 0.05f)]
+        [TestCase(0.4f, 0.2f)]
+        [TestCase(1f, 0.5f)]
+        [TestCase(2f, 1f)]
+        public void Damage_RemovesHalfTheVictimsMass(float capacity, float expected)
+        {
+            Assert.That(CometRules.Damage(capacity, CometRules.DefaultDamageFraction),
+                Is.EqualTo(expected).Within(1e-6f));
+        }
+
+        [TestCase(-1f, 0.5f, 0f)]
+        [TestCase(1f, -0.5f, 0f)]
+        [TestCase(1f, 2f, 1f)]
+        public void Damage_ClampsInvalidMassAndFraction(float capacity, float fraction, float expected)
+        {
+            Assert.That(CometRules.Damage(capacity, fraction), Is.EqualTo(expected));
+        }
+
         [Test]
         public void Spawn_ClearanceIncludesBoundary()
         {

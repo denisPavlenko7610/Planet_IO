@@ -186,7 +186,7 @@ namespace PlanetIO.Tests
 
             TouchWith(player, comet.GetComponent<Collider2D>());
 
-            Assert.That(player.Capacity, Is.GreaterThan(before));
+            Assert.That(player.Capacity, Is.EqualTo(before * 1.25f).Within(1e-5f));
             yield return null;
         }
 

@@ -129,6 +129,8 @@ namespace PlanetIO.Tests
         {
             yield return StartMoonGame();
             Player player = PrepareMoonPlayer();
+            player.GetComponent<PlayerMovement>().enabled = false;
+            player.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
             WorldDirector director = ResolveDirector();
             MapFeatureRules.Wormholes(TodaySeed(), out Vector2 portalA, out Vector2 portalB);
             player.transform.position = portalA;
