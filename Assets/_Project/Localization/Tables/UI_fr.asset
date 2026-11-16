@@ -329,7 +329,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: "+{0} XP   +{1} poussi\xE8re"
+    m_Localized: "+{0} XP   +{1} poussi\xE8re d'\xE9toiles"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -337,11 +337,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: "Poussi\xE8re x2 (pub)"
+    m_Localized: "Poussi\xE8re d'\xE9toiles \xD72 (pub)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: "Rang {0}   Poussi\xE8re {1}"
+    m_Localized: "Rang {0}   Poussi\xE8re d'\xE9toiles {1}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -357,7 +357,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
-    m_Localized: "Bonus du jour : +{0} poussi\xE8re"
+    m_Localized: "Bonus du jour : +{0} poussi\xE8re d'\xE9toiles"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510016

@@ -223,10 +223,6 @@ MonoBehaviour:
     m_Key: settings.privacy_policy
     m_Metadata:
       m_Items: []
-  - m_Id: 16380462645096448
-    m_Key: settings.comet_names
-    m_Metadata:
-      m_Items: []
   - m_Id: 17755957282484224
     m_Key: menu.ad_unavailable
     m_Metadata:

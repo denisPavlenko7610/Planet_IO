@@ -329,7 +329,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: "+{0} XP   +{1} py\u0142u"
+    m_Localized: "+{0} XP   +{1} py\u0142u gwiezdnego"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -337,11 +337,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: "Podw\xF3jny py\u0142 (reklama)"
+    m_Localized: "Py\u0142 gwiezdny \xD72 (reklama)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: "Ranga {0}   Py\u0142 {1}"
+    m_Localized: "Ranga {0}   Gwiezdny py\u0142 {1}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -357,7 +357,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
-    m_Localized: "Bonus dzienny: +{0} py\u0142u"
+    m_Localized: "Bonus dzienny: +{0} py\u0142u gwiezdnego"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510016

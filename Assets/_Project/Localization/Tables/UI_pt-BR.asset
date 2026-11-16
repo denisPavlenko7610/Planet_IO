@@ -329,7 +329,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: +{0} XP   +{1} poeira
+    m_Localized: +{0} XP   +{1} poeira estelar
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -337,11 +337,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: "Poeira dupla (an\xFAncio)"
+    m_Localized: "Poeira estelar \xD72 (an\xFAncio)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: Rank {0}   Poeira {1}
+    m_Localized: Rank {0}   Poeira estelar {1}
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -357,7 +357,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
-    m_Localized: "B\xF4nus di\xE1rio: +{0} de poeira"
+    m_Localized: "B\xF4nus di\xE1rio: +{0} de poeira estelar"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510016

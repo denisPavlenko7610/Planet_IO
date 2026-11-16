@@ -26,12 +26,6 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="settings-row">
-                    <ui:Label name="comet-names-label" class="settings-label" />
-                    <ui:VisualElement class="settings-control settings-control--end">
-                        <ui:Toggle name="comet-names-toggle" class="settings-toggle" />
-                    </ui:VisualElement>
-                </ui:VisualElement>
-                <ui:VisualElement class="settings-row">
                     <ui:Label name="controls-swapped-label" class="settings-label" />
                     <ui:VisualElement class="settings-control settings-control--end">
                         <ui:Toggle name="controls-swapped-toggle" class="settings-toggle" />

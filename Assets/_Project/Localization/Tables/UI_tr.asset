@@ -329,7 +329,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: +{0} XP   +{1} toz
+    m_Localized: "+{0} XP   +{1} y\u0131ld\u0131z tozu"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -337,11 +337,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: "\xC7ift toz (reklam)"
+    m_Localized: "Y\u0131ld\u0131z tozu \xD72 (reklam)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: "R\xFCtbe {0}   Toz {1}"
+    m_Localized: "R\xFCtbe {0}   Y\u0131ld\u0131z tozu {1}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -357,7 +357,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
-    m_Localized: "G\xFCnl\xFCk bonus: +{0} toz"
+    m_Localized: "G\xFCnl\xFCk bonus: +{0} y\u0131ld\u0131z tozu"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510016

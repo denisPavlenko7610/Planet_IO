@@ -9,7 +9,10 @@ namespace PlanetIO
         Hit,
         Kill,
         Death,
-        Boost
+        Boost,
+        MoonHit,
+        TierUp,
+        EventWarning
     }
 
     public interface ISfxPlayer

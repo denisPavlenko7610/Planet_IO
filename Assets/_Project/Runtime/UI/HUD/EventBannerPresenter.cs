@@ -13,6 +13,7 @@ namespace PlanetIO.UI.Hud
         private readonly IWorldEvents _events;
         private readonly ILocalizationService _localization;
         private readonly IGameStateService _gameState;
+        private readonly ISfxPlayer _sfxPlayer;
         private float _playing;
         private bool _modifierShown;
 
@@ -20,12 +21,14 @@ namespace PlanetIO.UI.Hud
             IWorldHudView view,
             IWorldEvents events,
             ILocalizationService localization,
-            IGameStateService gameState)
+            IGameStateService gameState,
+            ISfxPlayer sfxPlayer)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
             _events = events ?? throw new ArgumentNullException(nameof(events));
             _localization = localization ?? throw new ArgumentNullException(nameof(localization));
             _gameState = gameState ?? throw new ArgumentNullException(nameof(gameState));
+            _sfxPlayer = sfxPlayer ?? throw new ArgumentNullException(nameof(sfxPlayer));
         }
 
         public void Start()
@@ -64,6 +67,7 @@ namespace PlanetIO.UI.Hud
         private void OnWarned(CosmicEventType type)
         {
             _view.ShowEventBanner(_localization.Get(LocalizationKeys.EventWarning(type)));
+            _sfxPlayer.Play(SfxId.EventWarning);
         }
 
         private void OnStarted(CosmicEventType type)

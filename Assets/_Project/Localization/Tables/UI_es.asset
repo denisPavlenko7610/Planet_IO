@@ -327,7 +327,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: +{0} XP   +{1} polvo
+    m_Localized: +{0} XP   +{1} polvo estelar
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -335,11 +335,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: Polvo doble (anuncio)
+    m_Localized: "Polvo estelar \xD72 (anuncio)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: Rango {0}   Polvo {1}
+    m_Localized: Rango {0}   Polvo estelar {1}
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -355,7 +355,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
-    m_Localized: 'Bono diario: +{0} de polvo'
+    m_Localized: 'Bono diario: +{0} de polvo estelar'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510016

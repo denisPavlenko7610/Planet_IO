@@ -329,7 +329,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: +{0} XP   +{1} polvere
+    m_Localized: +{0} XP   +{1} polvere di stelle
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -337,11 +337,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: Polvere doppia (video)
+    m_Localized: "Polvere di stelle \xD72 (video)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: Grado {0}   Polvere {1}
+    m_Localized: Grado {0}   Polvere di stelle {1}
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -357,7 +357,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
-    m_Localized: 'Bonus giornaliero: +{0} polvere'
+    m_Localized: 'Bonus giornaliero: +{0} polvere di stelle'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510016

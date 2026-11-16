@@ -25,10 +25,5 @@ namespace PlanetIO.Tests
             Assert.That(CometNames.Get(0UL), Is.EqualTo(CometNames.Get(0)));
         }
 
-        [Test]
-        public void ShowCometNames_IsOffByDefault()
-        {
-            Assert.That(GameSettingKeys.ShowCometNames.DefaultValue, Is.False);
-        }
     }
 }

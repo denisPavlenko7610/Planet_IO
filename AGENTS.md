@@ -1,30 +1,22 @@
 # AGENTS.md
 
-## Источник правды по дизайну
+## Language
 
-- Целевой дизайн и статус реализации — [Docs/GDD.md](Docs/GDD.md). Менять поведение игры в обход GDD нельзя: сначала
-  правка GDD, затем код.
-- Для решений, которых в GDD нет или которые спорные, берём лучшие практики жанра .io. Главный образец —
-  **Slither.io** и близкие игры (agar.io, Wormate.io, Snake.io): сначала смотрим, как это решено там, затем адаптируем под
-  планеты, луны и гравитацию. Принятое решение записываем в GDD (раздел 5, «Сравнение со Slither.io»).
-- Если решение отличается от Slither.io-практики, причину фиксируем в GDD рядом с механикой.
+- Write everything in English except localization: the GDD, docs, this file, commit messages, test names and assertion
+  messages.
+- Other languages belong only in localization data (`Assets/_Project/Localization/UIStrings.csv` and the generated tables).
 
-## Ориентиры из Slither.io
+## Design source of truth
 
-| Область      | Правило                                                                                                                              | Где в коде                                      |
-|--------------|--------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
-| Скорость     | Не зависит от размера: большой не быстрее и не медленнее малого. Преимущество большого — площадь контакта, малого — манёвр и буст.   | `PlayerMovement`, `EnemyMovement`, префабы      |
-| Буст         | Платный по массе; дроп остаётся за краем тела и сразу не подбирается самим владельцем.                                               | `Player.Boost`, `BoostDropRules`, `Food`        |
-| Размер       | Радиус растёт медленнее массы (площадь пропорциональна массе), чтобы разброс размеров на экране оставался умеренным.                  | `PlanetSizeRules`                               |
-| Камера       | Широкий базовый обзор, плавный зум-аут при росте, упреждение по направлению движения, лёгкое расширение при бусте.                   | `PlayerCamera`, `CameraZoomRules`               |
-| Еда          | Читается при любом зуме: визуальный размер следует за зумом камеры, коллайдер и питательность не меняются. Магнит растёт с телом.   | `FoodViewScale`, `Food`, `FoodMagnetRules`      |
-| Главный экран | Только ник/планета, «Играть», «Онлайн» и иконки; остальное — отдельные окна, без нагромождения. Стрелка направления имеет постоянный экранный размер. | `Menu.uxml`, `PlayerDirectionArrow`, `DirectionArrowRules` |
-| Ощущение хода | Экранная скорость (высот экрана в секунду) не должна падать к концу забега больше чем втрое; планета занимает до ~16% высоты экрана. | `Docs/GDD.md`, раздел 2                         |
+- [Docs/GDD.md](Docs/GDD.md) holds the target design and implementation status. Change the GDD first, then the code.
+- When the GDD is silent or a call is contested, follow best practice from .io games, with Slither.io as the main
+  reference (then agar.io, Wormate.io, Snake.io). Adapt it to planets, moons and gravity, and record the decision in the
+  GDD (section 5).
+- If a decision departs from Slither.io practice, record the reason next to the mechanic in the GDD.
 
-## Правила проверки
+## Guardrails
 
-- Правила движения, размера, камеры и еды живут в чистых классах `Runtime/Core` и покрыты EditMode-тестами
-  (`SizeAndFeelRulesTests`, `BoostDropRulesTests`).
-- Тест `Speed_BigPlanetsAreNeverFasterThanSmallOnes` держит инвариант скорости для игрока и ботов: не отключать и не
-  ослаблять без решения в GDD.
-- После изменения размера, скорости, зума или магнита перемерить темп роста из GDD (раздел 4) на плейтесте.
+- Movement speed does not depend on size; the test `Speed_BigPlanetsAreNeverFasterThanSmallOnes` guards this. Do not
+  weaken it without a GDD decision.
+- Put movement, size, camera and food rules in pure classes under `Runtime/Core` with EditMode tests.
+- After changing size, speed, zoom or the magnet, re-measure the growth pace from GDD section 4 in a playtest.

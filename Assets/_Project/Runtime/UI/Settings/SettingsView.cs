@@ -12,7 +12,6 @@ namespace PlanetIO.UI.Settings
         event Action<float> MusicVolumeChanged;
         event Action<float> SfxVolumeChanged;
         event Action<bool> HapticsChanged;
-        event Action<bool> CometNamesChanged;
         event Action<bool> ControlsSwappedChanged;
         event Action<bool> FixedJoystickChanged;
         event Action PreviousLanguageRequested;
@@ -25,7 +24,7 @@ namespace PlanetIO.UI.Settings
 
         void Show();
         void Hide();
-        void ShowValues(float music, float sfx, bool haptics, bool cometNames, bool controlsSwapped);
+        void ShowValues(float music, float sfx, bool haptics, bool controlsSwapped);
         void ShowFixedJoystick(bool fixedJoystick);
         void ShowLanguage(string languageName);
         void SetAdPrivacyVisible(bool visible);
@@ -50,7 +49,6 @@ namespace PlanetIO.UI.Settings
         private VisualElement _musicFill;
         private VisualElement _sfxFill;
         private Toggle _hapticsToggle;
-        private Toggle _cometNamesToggle;
         private Toggle _controlsSwappedToggle;
         private Toggle _fixedJoystickToggle;
         private Button _previousLanguageButton;
@@ -63,7 +61,6 @@ namespace PlanetIO.UI.Settings
         public event Action<float> MusicVolumeChanged;
         public event Action<float> SfxVolumeChanged;
         public event Action<bool> HapticsChanged;
-        public event Action<bool> CometNamesChanged;
         public event Action<bool> ControlsSwappedChanged;
         public event Action<bool> FixedJoystickChanged;
         public event Action PreviousLanguageRequested;
@@ -88,7 +85,6 @@ namespace PlanetIO.UI.Settings
             _musicSlider = root.Q<Slider>("music-slider");
             _sfxSlider = root.Q<Slider>("sound-slider");
             _hapticsToggle = root.Q<Toggle>("haptics-toggle");
-            _cometNamesToggle = root.Q<Toggle>("comet-names-toggle");
             _controlsSwappedToggle = root.Q<Toggle>("controls-swapped-toggle");
             _fixedJoystickToggle = root.Q<Toggle>("fixed-joystick-toggle");
             _previousLanguageButton = root.Q<Button>("previous-language");
@@ -101,11 +97,9 @@ namespace PlanetIO.UI.Settings
             _musicFill = CreateFill(_musicSlider);
             _sfxFill = CreateFill(_sfxSlider);
             AddToggleKnob(_hapticsToggle);
-            AddToggleKnob(_cometNamesToggle);
             AddToggleKnob(_controlsSwappedToggle);
             AddToggleKnob(_fixedJoystickToggle);
             BindRowToggle(_hapticsToggle);
-            BindRowToggle(_cometNamesToggle);
             BindRowToggle(_controlsSwappedToggle);
             BindRowToggle(_fixedJoystickToggle);
             Hide();
@@ -113,7 +107,6 @@ namespace PlanetIO.UI.Settings
             _musicSlider.RegisterValueChangedCallback(OnMusicChanged);
             _sfxSlider.RegisterValueChangedCallback(OnSfxChanged);
             _hapticsToggle.RegisterValueChangedCallback(OnHapticsChanged);
-            _cometNamesToggle.RegisterValueChangedCallback(OnCometNamesChanged);
             _controlsSwappedToggle.RegisterValueChangedCallback(OnControlsSwappedChanged);
             _fixedJoystickToggle.RegisterValueChangedCallback(OnFixedJoystickChanged);
             _previousLanguageButton.clicked += OnPreviousLanguage;
@@ -129,7 +122,6 @@ namespace PlanetIO.UI.Settings
             _labels.Bind(root.Q<Label>("music-label"), LocalizationKeys.SettingsMusic);
             _labels.Bind(root.Q<Label>("sound-label"), LocalizationKeys.SettingsSound);
             _labels.Bind(root.Q<Label>("haptics-label"), LocalizationKeys.SettingsHaptics);
-            _labels.Bind(root.Q<Label>("comet-names-label"), LocalizationKeys.SettingsCometNames);
             _labels.Bind(root.Q<Label>("controls-swapped-label"), LocalizationKeys.SettingsControlsSwapped);
             _labels.Bind(root.Q<Label>("fixed-joystick-label"), LocalizationKeys.SettingsFixedJoystick);
             _labels.Bind(root.Q<Label>("language-label"), LocalizationKeys.SettingsLanguage);
@@ -143,7 +135,6 @@ namespace PlanetIO.UI.Settings
             _musicSlider.UnregisterValueChangedCallback(OnMusicChanged);
             _sfxSlider.UnregisterValueChangedCallback(OnSfxChanged);
             _hapticsToggle.UnregisterValueChangedCallback(OnHapticsChanged);
-            _cometNamesToggle.UnregisterValueChangedCallback(OnCometNamesChanged);
             _controlsSwappedToggle.UnregisterValueChangedCallback(OnControlsSwappedChanged);
             _fixedJoystickToggle.UnregisterValueChangedCallback(OnFixedJoystickChanged);
             _previousLanguageButton.clicked -= OnPreviousLanguage;
@@ -166,12 +157,11 @@ namespace PlanetIO.UI.Settings
 
         public void Hide() => _overlay.style.display = DisplayStyle.None;
 
-        public void ShowValues(float music, float sfx, bool haptics, bool cometNames, bool controlsSwapped)
+        public void ShowValues(float music, float sfx, bool haptics, bool controlsSwapped)
         {
             _musicSlider.SetValueWithoutNotify(music);
             _sfxSlider.SetValueWithoutNotify(sfx);
             _hapticsToggle.SetValueWithoutNotify(haptics);
-            _cometNamesToggle.SetValueWithoutNotify(cometNames);
             _controlsSwappedToggle.SetValueWithoutNotify(controlsSwapped);
             UpdateFill(_musicFill, _musicSlider);
             UpdateFill(_sfxFill, _sfxSlider);
@@ -259,8 +249,6 @@ namespace PlanetIO.UI.Settings
         }
 
         private void OnHapticsChanged(ChangeEvent<bool> changeEvent) => HapticsChanged?.Invoke(changeEvent.newValue);
-
-        private void OnCometNamesChanged(ChangeEvent<bool> changeEvent) => CometNamesChanged?.Invoke(changeEvent.newValue);
 
         private void OnControlsSwappedChanged(ChangeEvent<bool> changeEvent) => ControlsSwappedChanged?.Invoke(changeEvent.newValue);
 

@@ -17,3 +17,6 @@ MonoBehaviour:
   _kill: {fileID: 11400000, guid: 0366c1e83726c4e4b9c5f7a2f251a3db, type: 2}
   _death: {fileID: 11400000, guid: 38ed50739f2b35a4bb3fdae84170256c, type: 2}
   _boost: {fileID: 11400000, guid: 2e892b90fb5bd2940acd984609bd3ef9, type: 2}
+  _moonHit: {fileID: 11400000, guid: 5fddbc58f9194ebebe63a22755f5eb30, type: 2}
+  _tierUp: {fileID: 11400000, guid: 7f78cfd8da82441aacae1b015ce7f5a4, type: 2}
+  _eventWarning: {fileID: 11400000, guid: 6614cf9af497440eb32f46d2b892ccf9, type: 2}

@@ -1,7 +1,5 @@
-using RD.Settings;
 using TMPro;
 using UnityEngine;
-using VContainer;
 
 namespace PlanetIO.UI.Hud
 {
@@ -11,27 +9,15 @@ namespace PlanetIO.UI.Hud
         private const float MinimumParentScale = 0.0001f;
 
         [SerializeField] private TextMeshPro _label;
-        [SerializeField, Min(0.01f)] private float _labelScale = 0.5f;
+        [SerializeField, Range(0.02f, 0.5f)] private float _orthographicFraction = 0.105f;
         [SerializeField, Min(0f)] private float _edgePadding = 0.12f;
 
         private Comet _comet;
         private SpriteRenderer _cometRenderer;
         private Transform _labelTransform;
-        private ISettingsService _settings;
-        private bool _subscribed;
-        private bool _show;
+        private UnityEngine.Camera _camera;
         private bool _hasName;
         private ulong _boundSeed;
-
-        [Inject]
-        public void Construct(ISettingsService settings)
-        {
-            _settings = settings;
-            if (isActiveAndEnabled)
-            {
-                Subscribe();
-            }
-        }
 
         private void Awake()
         {
@@ -39,59 +25,12 @@ namespace PlanetIO.UI.Hud
             _cometRenderer = GetComponentInChildren<SpriteRenderer>();
             _labelTransform = _label.transform;
             SyncSortingLayer();
-            SetVisible(false);
         }
 
         private void OnEnable()
         {
             _hasName = false;
-            Subscribe();
-        }
-
-        private void OnDisable()
-        {
-            Unsubscribe();
-            SetVisible(false);
-        }
-
-        private void Subscribe()
-        {
-            if (_settings == null || _subscribed)
-            {
-                return;
-            }
-
-            _settings.Changed += OnSettingChanged;
-            _subscribed = true;
-            SetVisible(_settings.Get(GameSettingKeys.ShowCometNames));
-        }
-
-        private void Unsubscribe()
-        {
-            if (!_subscribed)
-            {
-                return;
-            }
-
-            _settings.Changed -= OnSettingChanged;
-            _subscribed = false;
-        }
-
-        private void OnSettingChanged(SettingChanged change)
-        {
-            if (change.Id == GameSettingKeys.ShowCometNames.Id)
-            {
-                SetVisible(_settings.Get(GameSettingKeys.ShowCometNames));
-            }
-        }
-
-        private void SetVisible(bool visible)
-        {
-            _show = visible;
-            if (_label != null && _label.enabled != visible)
-            {
-                _label.enabled = visible;
-            }
+            _label.enabled = true;
         }
 
         private void SyncSortingLayer()
@@ -110,7 +49,12 @@ namespace PlanetIO.UI.Hud
 
         private void LateUpdate()
         {
-            if (!_show)
+            if (_camera == null)
+            {
+                _camera = UnityEngine.Camera.main;
+            }
+
+            if (_camera == null)
             {
                 return;
             }
@@ -123,18 +67,19 @@ namespace PlanetIO.UI.Hud
                 _hasName = true;
             }
 
+            float labelScale = _camera.orthographicSize * _orthographicFraction;
             float parentScale = transform.lossyScale.x;
             float radius = _cometRenderer == null
                 ? _comet.Capacity
                 : _cometRenderer.localBounds.extents.y * _cometRenderer.transform.lossyScale.y;
-            float labelHalfHeight = _label.preferredHeight * 0.5f * _labelScale;
+            float labelHalfHeight = _label.preferredHeight * 0.5f * labelScale;
             _labelTransform.SetPositionAndRotation(
                 transform.position + Vector3.up * (radius + _edgePadding + labelHalfHeight),
                 Quaternion.identity);
 
             if (parentScale > MinimumParentScale)
             {
-                _labelTransform.localScale = Vector3.one * (_labelScale / parentScale);
+                _labelTransform.localScale = Vector3.one * (labelScale / parentScale);
             }
         }
     }

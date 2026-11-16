@@ -11,6 +11,9 @@ namespace PlanetIO.Infrastructure.Audio
         [SerializeField] private AudioCue _kill;
         [SerializeField] private AudioCue _death;
         [SerializeField] private AudioCue _boost;
+        [SerializeField] private AudioCue _moonHit;
+        [SerializeField] private AudioCue _tierUp;
+        [SerializeField] private AudioCue _eventWarning;
 
         public AudioCue Get(SfxId id) => id switch
         {
@@ -19,6 +22,9 @@ namespace PlanetIO.Infrastructure.Audio
             SfxId.Kill => _kill,
             SfxId.Death => _death,
             SfxId.Boost => _boost,
+            SfxId.MoonHit => _moonHit,
+            SfxId.TierUp => _tierUp,
+            SfxId.EventWarning => _eventWarning,
             _ => null
         };
     }

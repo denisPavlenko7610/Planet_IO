@@ -13,10 +13,6 @@ namespace PlanetIO.UI.Hud
         private const float DamageThreshold = -0.005f;
         private const float BorderWarningDistance = 18f;
         private const float BorderWarningMaxAlpha = 0.75f;
-        private const float TierUpPitch = 1.3f;
-        private const float TierUpVolume = 0.8f;
-        private const float MoonStrikePitch = 1.5f;
-        private const float MoonStrikeVolume = 0.6f;
         private const float SlingshotPitch = 1.7f;
         private const float SlingshotVolume = 0.7f;
 
@@ -99,7 +95,7 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            _sfxPlayer.Play(SfxId.Kill, TierUpPitch, TierUpVolume);
+            _sfxPlayer.Play(SfxId.TierUp);
             Haptics.Play(HapticPreset.Success);
         }
 
@@ -121,7 +117,7 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            _sfxPlayer.Play(SfxId.Hit, MoonStrikePitch, MoonStrikeVolume);
+            _sfxPlayer.Play(SfxId.MoonHit);
             Haptics.Play(HapticPreset.LightImpact);
         }
 

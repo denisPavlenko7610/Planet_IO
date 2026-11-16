@@ -11,3 +11,6 @@ All audio below is released under CC0 1.0 (public domain); attribution is not re
 | SFX/hit.wav | Kenney Sci-Fi Sounds (impactMetal_002) - https://kenney.nl/assets/sci-fi-sounds |
 | SFX/death.wav | Kenney Sci-Fi Sounds (explosionCrunch_000) |
 | SFX/boost_loop.wav | Kenney Sci-Fi Sounds (thrusterFire_000), made seamless with a crossfade |
+| SFX/moon_hit.ogg | Kenney Sci-Fi Sounds (impactMetal_004) |
+| SFX/tier_up.ogg | Kenney Digital Audio (powerUp7) - https://kenney.nl/assets/digital-audio |
+| SFX/event_warning.ogg | Kenney Digital Audio (twoTone2) |

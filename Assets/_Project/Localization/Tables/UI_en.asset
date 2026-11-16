@@ -329,7 +329,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: +{0} XP   +{1} dust
+    m_Localized: +{0} XP   +{1} stardust
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -337,11 +337,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: Double dust (ad)
+    m_Localized: Double stardust (ad)
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: Rank {0}   Dust {1}
+    m_Localized: Rank {0}   Stardust {1}
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -357,7 +357,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
-    m_Localized: 'Daily bonus: +{0} dust'
+    m_Localized: 'Daily bonus: +{0} stardust'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510016
