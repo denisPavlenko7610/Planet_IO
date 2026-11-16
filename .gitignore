@@ -107,3 +107,7 @@ Assets/netcode-build-assets-temp
 Assets/netcode-build-assets-temp.meta
 Assets/InitTestScene*.unity
 Assets/InitTestScene*.unity.meta
+
+# Addressables per-platform script caches (Android is tracked, Windows is local only)
+/Assets/_Project/AddressableAssetsData/Windows/
+/Assets/_Project/AddressableAssetsData/Windows.meta

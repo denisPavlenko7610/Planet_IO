@@ -8,7 +8,7 @@
 
 ## Design source of truth
 
-- [Docs/GDD.md](Docs/GDD.md) holds the target design and implementation status. Change the GDD first, then the code.
+- [docs/GDD.md](docs/GDD.md) holds the target design and implementation status. Change the GDD first, then the code.
 - When the GDD is silent or a call is contested, follow best practice from .io games, with Slither.io as the main
   reference (then agar.io, Wormate.io, Snake.io). Adapt it to planets, moons and gravity, and record the decision in the
   GDD (section 5).

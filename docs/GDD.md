@@ -30,20 +30,20 @@ One-line pitch: *"Slither.io where your tail is moons and your weapon is gravity
 
 | Area            | Now                                                                                                                                                                                                       |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Mass            | `Capacity` 0.08 → 2.0, start 0.08; scale = 0.08 × √(mass / 0.08) (`PlanetSizeRules`): size varies 5×, not 25×                                                                                             |
+| Mass            | `Capacity` 0.08 → 8.0, start 0.08; scale = 0.08 × √(mass / 0.08) (`PlanetSizeRules`): size varies 10× across the full mass range                                                                          |
 | Eating          | contact, if mass ≥ 1.08× the victim's; base absorption 40%, loot 60%; the Predator perk and bounty raise absorption                                                                                       |
 | Speed           | player 4.8 (boost 9.6), bot 3.6; no mass penalty: a big planet is neither faster nor slower than a small one (as in Slither.io)                                                                           |
 | Camera          | base size 3.6 (was 2.5), zoom = 3.6 × (mass / 0.08)^0.28, look-ahead of 16% of the size along the heading, +8% size while boosting                                                                        |
 | Boost           | 0.004 mass every 0.15 s, drops food worth 80% of the cost beyond the body edge (body radius + 0.3); the owner's magnet ignores its own drop for 1 s                                                       |
 | Border          | movement is blocked at the edge (`WorldBounds.KeepInside`); entering the zone costs max(regular boost cost, 8% mass); red vignette when close                                                             |
-| Food            | pool of 2250 `NetworkObject`s (was 1800), 16 migrating fields (45 s), golden 4% (×8); client-side visual ×1.2 × zoom^0.7, capped at ×3 (`FoodViewScale`), collider unchanged                              |
+| Food            | pool of 1800 `NetworkObject`s (was 2250), ambient nutrition x2, 16 migrating fields (45 s), golden 4% (×8); client-side visual ×1.2 × zoom^0.7, capped at ×3 (`FoodViewScale`), collider unchanged        |
 | Enemies         | pool of 16 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade)                                                                                                           |
-| Comets          | pool of 30, speed 2.5–3.5, damage 0.02 × comet mass; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                        |
+| Comets          | pool of 30, speed 2.5–3.5, damage 50% of victim mass; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                       |
 | Network         | NGO + UGS Sessions, rooms by code (default 8, max 16), owner-authoritative movement                                                                                                                       |
 | Meta            | 14 languages, skins (some for ads), continue via rewarded (50% mass), leaderboard, minimap                                                                                                                |
 | Tiers and moons | 4 tiers, base slots 0/2/4/6; server-side strikes, comet interception, ring clashes; HUD and camera account for moons                                                                                      |
 | Gravity         | pull and slingshot in `PlanetGravity`; the owner simulates the player, the server simulates bots                                                                                                          |
-| Perks           | 9 perks, server-side offer of 3 cards with a timer, pick screen in the HUD; compact top-docked choices and colored icon badges under the score                                                                        |
+| Perks           | 9 perks, server-side offer of 3 cards with a timer, pick screen in the HUD; compact top-docked choices and colored icon badges under the score                                                            |
 | Leader          | ring, minimap highlight, bounty +25%; minimum mass 0.4, refreshed every 0.5 s                                                                                                                             |
 | Progression     | rank (30), stardust, 3 missions a day, streak, results screen, FTUE, 12 skins (4 free); each new rank pays stardust 5 + rank                                                                              |
 | Respawn         | 8 random candidates, the best by "food nearby + distance from bodies that can eat you" wins (`RespawnRules`)                                                                                              |
@@ -62,7 +62,7 @@ drop what duplicates something that already works. The feel reference is Slither
 | What                                                                   | Why                                                                                                                                      | Phase |
 |------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|-------|
 | Full PlayMode run without failures, moon-reset regressions             | We cannot ship with a known death/continue defect; the reset exists in code, the tests are not confirmed                                 | 5     |
-| FPS and traffic measurement on a weak Android device with 2250 food    | The only confirmed performance risk; the pool grew by 25%                                                                                | 5     |
+| FPS and traffic measurement on a weak Android device with 1800 food    | Food remains a performance risk; the pool is reduced by 20%                                                                              | 5     |
 | Host/client check: replication, late join, reconnect                   | Rooms by code are part of the update; the 13 Nov report marks this Not Run                                                               | 5     |
 | Smart respawn                                                          | The first minute after death decides "play again"; it used to be a random point, often empty or next to a big body                       | 6     |
 | On-device tuning: camera, speed, food, magnet, boost cost, growth pace | All changed on 16 Nov without hands-on checks; boost now costs the full mass                                                             | 6     |
@@ -130,6 +130,20 @@ Platform: Android, played with one thumb, sessions of 5–10 minutes, 3–5 runs
 | 5–10 min     | Becomes the leader or dies                             | Bounty, loot, run result                |
 | Between runs | Looks at the results, spends stardust, takes a mission | Rank, cosmetics, daily streak           |
 
+Food/comet balance revision (November 16, 2026): reduce ambient food from 2250 to 1800 (-20%) and
+multiply regular and golden food nutrition by 2 for both players and bots. Golden food remains 4% at x8
+relative to regular food; boost drops and kill loot retain their exact mass budgets. This raises the total
+ambient mass budget by 60% while clearing some visual clutter. As in Slither.io, feeding must show visible
+progress; faster growth is the user's explicit preference. Movement, magnet and size curves stay unchanged.
+Re-measure the section 4 milestones with the controlled playtest and retain the human-play caveat.
+
+Maximum mass revision (November 16, 2026): raise the player and bot cap from 2.0 to 8.0.
+With the existing area-based curve, the maximum body diameter doubles relative to the old cap and is
+10 times the starting diameter. Mass 2.0 becomes an intermediate growth milestone; tier IV still starts
+at 1.4 and retains six base moon slots. Keep the camera curve, movement speed and growth falloff.
+This follows Slither.io's continued growth after the early progression milestones; the finite cap is a
+practical match-size bound. Check camera framing and repeat the growth probe at the expanded cap.
+
 Target pace to verify: mass 0.35 in about a minute, 0.8 in 3–4 minutes, 1.4 in 6–8 minutes, 2.0 in 8–10 minutes of
 continuous feeding. Tier-ups every 1–3 minutes should give a regular perk pick.
 
@@ -137,8 +151,64 @@ November 16 camera/perk verification: 53 selected EditMode and 5 selected PlayMo
 A controlled nearest-food probe reached masses 0.35 / 0.8 / 1.4 in 21.6 / 106.4 / 242.8 simulated seconds,
 then plateaued at 1.457; the pilot did not establish continuous feeding to 2.0. This does not validate the
 human-play pace targets. Details and limitations: [growth verification report](Testing-Growth-2026-11-16.md).
+The later food/comet revision passed 89 selected EditMode and 6 PlayMode checks: its cap-2 probe reached
+2.0 at 282.9 s. With cap 8, 35 additional EditMode checks passed and a repeat probe reached 0.35 / 0.8
+at 12.3 / 44.6 s before plateauing below the cap at 1.0601; late-game feeding remains unverified.
+Both probes use randomized fields and cannot establish human-play milestone averages.
 
 ## 5. Comparison with Slither.io
+
+Bot difficulty (November 16, 2026): Settings offers Easy, Medium and Hard, persisted with Medium as the default.
+In SinglePlayer (including solo Blitz), changes take effect on the next AI decision. In multiplayer, the host's
+selection at room creation becomes a shared room property; joining clients cannot override it. Online settings
+show that shared value with the selector locked for the current match. The host may choose a new value before
+creating the next room.
+This explicit difficulty choice adapts Slither.io's opponents to a primarily solo audience.
+Easy bots react every 0.75 s, have shorter awareness, do not lead targets and use brief defensive boosts.
+Medium bots react every 0.4 s, lead targets slightly and boost to escape or close a safe pursuit.
+Hard bots react every 0.2 s, look farther, intercept targets and use longer, more frequent tactical boosts.
+All difficulties retain the same base movement speed and existing personality variety; mass never increases speed.
+Bots evaluate other bots as prey/threats as well as visible, unprotected players, prioritize danger over feeding,
+avoid borders and prefer nutritious nearby food. They cannot target hidden planets or spawn-protected players.
+Boost replaces the previous free hunting/evasion speed multipliers: 2x speed, 0.004 mass per 0.15 s,
+80% returned as food behind the bot, with the same own-drop magnet grace and starting-mass floor as players.
+Boosting is bounded by duration/cooldown and reserve mass; hunting boosts stop if the prey is no longer edible.
+The visual boost tint is replicated. Respawn clears boost and tactical state. Re-measure section 4 growth pace
+after this speed/food economy change; automated checks alone do not validate human-play milestone targets.
+
+Difficulty damage revision (November 16, 2026): Easy/Medium/Hard multiply solo-player incoming damage from
+comets, moons, borders and map hazards by 0.75/1/1.25. Boost cost, eating eligibility, mass-to-speed rules,
+spawn protection and healing remain unchanged. Bots take 1.25/1/0.85 incoming damage and deal 0.8/1/1.2 moon
+damage at the room's difficulty in every mode. These are bot attributes; multiplayer players retain the normal
+damage rules and PvP moon damage. Multipliers compose when a bot attacks a solo player.
+Death loot remains 60% of the victim's remaining mass in 4-30 food pieces at the death location; continue
+discards that life's drop as before.
+
+Host migration target (November 16, 2026): use Multiplayer Services Relay migration with an application-owned,
+versioned and compressed world snapshot every second. Graceful departure freezes gameplay and uploads a final
+snapshot before leaving. A surviving session member becomes host, restores the arena and reconnects players
+by their stable session player IDs, never by old NGO client IDs. Preserve mass, positions, appearance, moons,
+perks/offers, defeat/continue state, loot ownership/lifetimes, bots, food fields, comets, world-event clocks,
+room difficulty and each surviving client's run accounting. Recovery pauses gameplay and blocks input; it
+must not create a new life, award duplicate rewards or silently reset an invalid snapshot. Abrupt loss can roll
+back at most to the latest successfully uploaded snapshot, so zero rollback is only promised for a successful
+graceful final upload. After 45 seconds without recovery, show a failure and return to the menu. This adapts
+the persistent arena expected from .io games to peer-hosted Relay rooms. Independent-peer tests are required
+before marking the feature verified; see [host migration plan](Host-Migration-Plan.md).
+
+Graceful handoff first broadcasts a pause and waits up to two seconds for connected clients to acknowledge
+their final owned pose. Snapshot uploads are serialized by the application; the final upload waits for any
+older upload before writing, so an in-flight periodic request cannot overwrite the handoff state.
+
+Verification after the difficulty damage/room revision: 464 EditMode checks and 8 selected PlayMode scenarios
+passed. The scenarios cover real boost velocity and cost, difficulty persistence, comet/moon/border damage,
+death loot from both a player and an eaten bot, moon immunity, continue loot cleanup and black-hole behavior.
+The preceding full PlayMode run passed 61, failed the already reproduced wormhole cooldown assertion and
+skipped 2 (the explicit feeding probe and a skin purchase on an already-unlocked profile). The explicit feeding
+probe was run separately: masses 0.35/0.8/1.4/2 at 12.0/49.3/130.8/224.9 simulated seconds; mass 2.9087 at
+600 s, with a late plateau and no reach to 4 or 8. This is not a hands-on pace or active-bot balance validation.
+Room difficulty metadata and PvP damage isolation passed rule tests; independent network peers and Android
+hardware were not tested. See [host migration plan](Host-Migration-Plan.md) for the required continuity work.
 
 Growth readability (November 16, 2026): keep area-based body growth and equal movement speed at every mass.
 Reduce the camera zoom exponent from 0.28 to 0.15: doubling mass should increase settled screen diameter by
@@ -164,18 +234,18 @@ the pinned center; releasing or cancelling the touch zeroes the input. Switching
 the current touch. This is an extra mobile-comfort setting added at the user's request; the core Slither.io principle
 (finger sets the direction, a second finger boosts) holds in both modes.
 
-| Slither.io                    | Planet IO now                               | Planet IO target                                 |
-|-------------------------------|---------------------------------------------|--------------------------------------------------|
-| Tail body                     | Orbiting moons                              | Tune positional combat                           |
-| Enemy hits your tail and dies | A moon touch hurts and knocks back          | Verify a small player can beat a big target      |
-| Encircling (circle kill)      | Moon ring and gravity                       | Verify the encircling tactic                     |
-| Boost costs length            | exists; ion trail is a perk                 | Develop trail cosmetics                          |
-| Loot on death                 | exists                                      | Keep; add a "supernova" for big planets          |
-| Crown for the top 1           | Leader ring, minimap beacon, bounty         | Add a pointer toward the leader                  |
-| Skins                         | planets                                     | Planets + moon sets + trails + explosion effects |
-| Speed independent of length   | equal for all masses                        | Keep; EditMode test for the invariant            |
+| Slither.io                    | Planet IO now                                            | Planet IO target                                 |
+|-------------------------------|----------------------------------------------------------|--------------------------------------------------|
+| Tail body                     | Orbiting moons                                           | Tune positional combat                           |
+| Enemy hits your tail and dies | A moon touch hurts and knocks back                       | Verify a small player can beat a big target      |
+| Encircling (circle kill)      | Moon ring and gravity                                    | Verify the encircling tactic                     |
+| Boost costs length            | exists; ion trail is a perk                              | Develop trail cosmetics                          |
+| Loot on death                 | exists                                                   | Keep; add a "supernova" for big planets          |
+| Crown for the top 1           | Leader ring, minimap beacon, bounty                      | Add a pointer toward the leader                  |
+| Skins                         | planets                                                  | Planets + moon sets + trails + explosion effects |
+| Speed independent of length   | equal for all masses                                     | Keep; EditMode test for the invariant            |
 | Zoom out while growing        | power-law zoom 0.15, delayed growth response, boost zoom | Tune in playtests                                |
-| Food readable at any zoom     | visual ×1.2 × zoom^0.7                      | Tune in playtests                                |
+| Food readable at any zoom     | visual ×1.2 × zoom^0.7                                   | Tune in playtests                                |
 
 Principle: decisions about game feel (speed, camera, size, food, boost) are checked against the best practices of
 Slither.io and similar genre games; any deviation is recorded here. The rule is recorded in [AGENTS.md](../AGENTS.md).
@@ -200,7 +270,10 @@ regular food and does not create new mass.
   network objects, no extra mass, and golden food, boost drops and loot are never moved. The trail is capped at 90
   points
   per world; after 8 seconds an uneaten point returns to its field. Pause stops both movement and trail creation.
-- Damage stays 0.02 × comet mass; a moon intercepts the hit, and the Comet Rider perk restores 50% of the damage.
+- An unprotected hit removes 50% of the victim's current mass and current mass score, independent of comet size.
+  Existing minimum-mass/death rules apply; peak score and earned XP are retained. A moon still intercepts the hit; Comet
+  Rider restores half of the calculated damage instead. This deliberately harsher moving hazard, absent in Slither.io,
+  makes avoidance meaningful as requested by the user.
   Strengthening the damage is decided separately after playtests.
 - The meteor shower keeps its 6 s warning, the strip, 12 consecutive passes at about 8 u/s, and 5 loot piles after the
   event; it uses the same tails and the capped food trail.
@@ -225,7 +298,7 @@ Finger control, perpetual motion, food and fields, field migration, golden food,
 | I    | Asteroid  | 0.08–0.35 | 0          | none        | close   |
 | II   | Planet    | 0.35–0.8  | 2          | pick 1 of 3 | farther |
 | III  | Gas giant | 0.8–1.4   | 4          | pick 1 of 3 | farther |
-| IV   | Star      | 1.4–2.0   | 6          | pick 1 of 3 | maximum |
+| IV   | Star      | 1.4–8.0   | 6          | pick 1 of 3 | maximum |
 
 Rules:
 
@@ -531,7 +604,7 @@ Ad consent (UMP) is already implemented through `IAdPrivacyService`.
    (`NetworkObject.CheckObjectVisibility`, check support in the NGO version used) and a smaller pool on weak devices.
    Step 2, if that is not enough: pellets as data (structs + delta events) without `NetworkObject`. The measurement is
    in
-   phase 5, with a 55 FPS threshold on a weak Android; the pool is currently 2250.
+   phase 5, with a 55 FPS threshold on a weak Android; the pool is currently 1800.
 8. **Anti-cheat before leaderboards.** Server-side validation of speed, bounds and teleports of the owner-authoritative
    transform. Deferred together with global leaderboards (phase 8).
 9. **Analytics:** `run_start`, `run_end{cause, tier, mass_peak, duration, killer_tier}`, `perk_offered/picked`,
@@ -598,7 +671,7 @@ the update release and are ordered by the rules in section 2.1.
 | Phase                                                | Duration | Content                                                                                                                                                                                                     | Exit criteria                                                                                                                                                            |
 |------------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 0–4. Foundation, moons, gravity, perks, meta, events | done     | Sections 6–8; rank, stardust, missions, streak, FTUE, events, Blitz, map features                                                                                                                           | Code implemented; on-device verification not finished (the 13 Nov report has scenarios marked Not Run)                                                                   |
-| 5. Stabilization                                     | 1        | Full PlayMode without failures, moon-reset regressions, host/client on two devices, FPS and traffic measurement on a weak Android with 2250 food                                                            | All tests green; ≥ 55 FPS on a weak Android; if over budget, distance-based food visibility (12.7)                                                                       |
+| 5. Stabilization                                     | 1        | Full PlayMode without failures, moon-reset regressions, host/client on two devices, FPS and traffic measurement on a weak Android with 1800 food                                                            | All tests green; ≥ 55 FPS on a weak Android; if over budget, distance-based food visibility (12.7)                                                                       |
 | 6. First minute and feel                             | 1–2      | Done in code: smart respawn, perk badges, rank reward, threat ring shape, small movement arrow, menu split into windows, three sounds. Left: on-device tuning of camera, speed, food, magnet and boost cost | A series of playtests (≥ 5 people): growth pace from section 4 within ±25%; ≥ 80% finish the FTUE; on tier II testers kill a tier III planet in at least 1 of 5 attempts |
 | 7. Update release                                    | 1        | AAB build, device smoke test, closed testing, store listing and screenshots                                                                                                                                 | crash-free ≥ 99.5% in closed testing; D1 ≥ 35% from Play Console after release                                                                                           |
 | 8. After release                                     | by data  | Google Play Games and anti-cheat, cosmetics and a shop, IAP, interstitials, rerolls for rewarded, deeper bot AI                                                                                             | By retention and monetization metrics                                                                                                                                    |
@@ -622,7 +695,7 @@ Target hypotheses (not guarantees; recheck against test data):
 | Risk                                    | Mitigation                                                                                                                             |
 |-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | Too many mechanics for a 5-second pitch | Disclosure by tier, FTUE, threat ring                                                                                                  |
-| Network load                            | Moons are computed analytically, perks sit in a bit mask, events are one `NetworkVariable`; food (2250 objects) is measured in phase 5 |
+| Network load                            | Moons are computed analytically, perks sit in a bit mask, events are one `NetworkVariable`; food (1800 objects) is measured in phase 5 |
 | Leader snowball                         | Bounty, burnout above 1.2 if needed                                                                                                    |
 | Perk imbalance                          | A pick-rate table in analytics, a downside on every perk, all numbers in a `ScriptableObject`                                          |
 | Localization cost                       | Icons and numbers instead of phrases, ≤ 20 strings per phase                                                                           |
