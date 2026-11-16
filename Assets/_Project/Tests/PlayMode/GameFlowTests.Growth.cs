@@ -44,6 +44,10 @@ namespace PlanetIO.Tests
             float[] reached = { -1f, -1f, -1f, -1f, -1f, -1f };
             int[] sampleTimes = { 60, 180, 240, 360, 480, 600 };
             int sample = 0;
+            float lastDiagnostic = -20f;
+            float lastGrowthMass = player.Capacity;
+            float lastGrowthTime = 0f;
+            var skippedUntil = new System.Collections.Generic.Dictionary<Food, float>();
             var report = new System.Text.StringBuilder("Automated nearest-food pilot; no boosts, opponents or events; no perks; 8x simulation.\n");
             Time.timeScale = 8f;
             Time.maximumDeltaTime = 0.1f;
@@ -60,9 +64,37 @@ namespace PlanetIO.Tests
                         sample++;
                         System.IO.File.WriteAllText("Temp/GrowthPace.txt", report.ToString());
                     }
-                    target = foods.Where(food => !food.IsDropped && food.gameObject.activeInHierarchy)
+                    if (player.Capacity > lastGrowthMass + 0.001f)
+                    {
+                        lastGrowthMass = player.Capacity;
+                        lastGrowthTime = elapsed;
+                    }
+                    else if (elapsed - lastGrowthTime >= 15f)
+                    {
+                        skippedUntil[target] = elapsed + 60f;
+                        lastGrowthTime = elapsed;
+                        Collider2D foodCollider = target.GetComponent<Collider2D>();
+                        report.AppendLine($"stuck t={elapsed:F0}s mass={player.Capacity:F4} position={player.transform.position} skipped target={target.transform.position} " +
+                                          $"distance={Vector2.Distance(player.transform.position, target.transform.position):F3} bodyRadius={player.BodyRadius:F3} " +
+                                          $"colliderEnabled={foodCollider.enabled} trigger={foodCollider.isTrigger} dropped={target.IsDropped} " +
+                                          $"immune={target.IsMagnetImmuneFor(player.NetworkObjectId)} overlaps={foodCollider.IsTouching(player.GetComponent<Collider2D>())} " +
+                                          $"edge={WorldBounds.DistanceToEdge(player.transform.position):F1} " +
+                                          $"claimed={typeof(Food).GetField("_isClaimed", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(target)} " +
+                                          $"spawned={target.IsSpawned} version={target.LifecycleVersion}");
+                    }
+                    target = foods.Where(food => !food.IsDropped && food.gameObject.activeInHierarchy &&
+                                                 !(skippedUntil.TryGetValue(food, out float until) && until > elapsed))
                         .OrderBy(food => (food.transform.position - player.transform.position).sqrMagnitude).First();
                     movement.SetDirection(target.transform.position - player.transform.position);
+                    if (elapsed - lastDiagnostic >= 20f)
+                    {
+                        lastDiagnostic = elapsed;
+                        int candidates = foods.Count(food => !food.IsDropped && food.gameObject.activeInHierarchy);
+                        int sceneFood = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude).Length;
+                        report.AppendLine($"diag t={elapsed:F0}s mass={player.Capacity:F4} position={player.transform.position} " +
+                                          $"target={target.transform.position} distance={Vector2.Distance(player.transform.position, target.transform.position):F2} " +
+                                          $"candidates={candidates} sceneFood={sceneFood} speed={player.GetComponent<Rigidbody2D>().linearVelocity.magnitude:F2}");
+                    }
                     SetMoonField(player, "_pendingOffers", 0);
                     SetMoonField(player, "_offerCount", 0);
                     yield return new WaitForFixedUpdate();

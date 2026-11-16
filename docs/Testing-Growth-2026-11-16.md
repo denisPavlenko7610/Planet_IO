@@ -45,5 +45,25 @@ these numbers must not be used to claim that GDD section 4's human-play targets 
 No food balance was changed based on this single probe. A hands-on mobile run is still needed for growth pace,
 perceived motion, localized text legibility and comfort during combat.
 
+## Plateau investigation (later the same day)
+
+The probe now logs a diagnostic line every 20 simulated seconds and detects a stall (no mass gain for 15 s). A stalled
+pilot skips its current target for 60 s and writes a `stuck` line with the target's collider, claim and overlap state.
+All 1800 food objects stayed active and the player speed stayed at 4.8 throughout, so there is no global food shortage
+or movement bug. In ten runs with the detector the pilot stalled zero to two times per run, each stall cut off after
+15 s, and finished at masses of about 3.0 to 4.3. The three runs that recorded milestones reached 0.35 at 9 to 22 s,
+0.8 at 32 to 77 s, 1.4 at 79 to 164 s and 2.0 at 128 to 249 s; mass 4.0 was reached once, at 519 s. The spread comes
+from randomized food fields.
+
+Every logged stall had the same signature: the target food lay inside the player's body (distance 0.5 to 0.8, body
+radius 1.1 to 1.4), its collider was enabled, it was a trigger, not dropped, not magnet-immune, not claimed and
+`IsTouching` reported an overlap, yet it was not eaten. Food is eaten only in `OnTriggerEnter2D`, so a food that is
+already inside the body when it becomes eligible produces no new enter event. The likely source is a respawned or
+magnet-pulled food placed inside the body without a physics exit/enter pair; this hypothesis was not proven.
+The pilot keeps steering at the food and never leaves the overlap, which is what produced the earlier 240 s plateaus.
+A human player would simply drive past such a food, so the effect on real growth pace is small but real (a few foods
+per ten minutes in this setup). No gameplay code was changed. If it matters in playtests, the cheapest fix candidates
+are a server-side check for food inside the body, or keeping respawn positions outside bodies.
+
 The explicit probe is GrowthPace_ContinuousFeedingRecordsMilestones. Its raw output is written to Temp/GrowthPace.txt.
 The visual regression check writes Temp/PerkGrowth.png.

@@ -154,7 +154,9 @@ human-play pace targets. Details and limitations: [growth verification report](T
 The later food/comet revision passed 89 selected EditMode and 6 PlayMode checks: its cap-2 probe reached
 2.0 at 282.9 s. With cap 8, 35 additional EditMode checks passed and a repeat probe reached 0.35 / 0.8
 at 12.3 / 44.6 s before plateauing below the cap at 1.0601; late-game feeding remains unverified.
-Both probes use randomized fields and cannot establish human-play milestone averages.
+Both probes use randomized fields and cannot establish human-play milestone averages. A later instrumented run
+explained the plateaus: the pilot stalls on a food that lies inside its body but was never eaten (no trigger enter
+event), not on a global food or speed problem; see the growth verification report.
 
 ## 5. Comparison with Slither.io
 
