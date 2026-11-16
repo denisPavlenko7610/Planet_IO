@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "Le boost laisse une tra\xEEn\xE9e nuisible. Le boost co\xFBte 25% de plus."
+    m_Localized: "Turbo +15 % ; tra\xEEn\xE9e 2 s ; co\xFBt +25 %"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "L'aimant \xE0 nourriture porte 50% plus loin. Tu es 8% plus lent."
+    m_Localized: Aimant +50 % ; vitesse -8 %
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 lune et +50% de d\xE9g\xE2ts des lunes. Tu es 5% plus lent."
+    m_Localized: "+1 lune ; d\xE9g\xE2ts +50 % ; vitesse -5 %"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "Survis \xE0 un coup mortel avec 30% de ta masse."
+    m_Localized: "Survie \xD71 ; conserve 30 % de masse"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: Tu es 12% plus rapide. La nourriture rapporte 10% de moins.
+    m_Localized: Vitesse +12 % ; nourriture -10 %
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -289,7 +289,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093515
-    m_Localized: "Zone de gravit\xE9 40% plus large. Tu es 6% plus lent."
+    m_Localized: "Zone gravit\xE9 +40 % ; vitesse -6 %"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093516
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: "Apr\xE8s un boost, disparais des minicartes rivales pendant 10 s."
+    m_Localized: 'Turbo : hors carte 10 s ; recharge 40 s'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Les com\xE8tes te soignent au lieu de te blesser."
+    m_Localized: "Com\xE8tes : soin de 50 % des d\xE9g\xE2ts"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "Les \xE9liminations donnent 20% de masse en plus. La nourriture rapporte 10% de moins."
+    m_Localized: "Masse \xE9liminations +20 % ; nourriture -10 %"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152

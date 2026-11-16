@@ -115,9 +115,16 @@ namespace PlanetIO
 
             UpdateDirection();
 
-            float targetSpeed = _isBoosting && _player.IsBoosting && _player.CanBoost ? _boostSpeed : _normalSpeed;
-            float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(_player.Capacity, _player.MinCapacity,
-                _massSpeedPenalty, _minimumSpeedMultiplier);
+            bool boosting = _isBoosting && _player.IsBoosting && _player.CanBoost;
+            float targetSpeed = boosting
+                ? _boostSpeed * PerkRules.BoostSpeedMultiplier(_player.PerkMask)
+                : _normalSpeed;
+            float speedMultiplier = EnemyDecisionRules.GetCapacitySpeedMultiplier(
+                _player.Capacity,
+                _player.MinCapacity,
+                _massSpeedPenalty,
+                _minimumSpeedMultiplier
+            );
 
             _currentSpeed = targetSpeed * speedMultiplier * _player.SpeedMultiplier;
             Move();
@@ -126,7 +133,9 @@ namespace PlanetIO
         public void Move()
         {
             float targetAngle = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
-            _rigidbody2D.MoveRotation(Mathf.MoveTowardsAngle(_rigidbody2D.rotation, targetAngle, _turnSpeed * Time.fixedDeltaTime));
+            _rigidbody2D.MoveRotation(
+                Mathf.MoveTowardsAngle(_rigidbody2D.rotation, targetAngle, _turnSpeed * Time.fixedDeltaTime)
+            );
             _rigidbody2D.linearVelocity = WorldBounds.KeepInside(_rigidbody2D.position, Direction * _currentSpeed);
         }
 
@@ -142,8 +151,14 @@ namespace PlanetIO
         {
             float current = Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg;
             float target = Mathf.Atan2(_desiredDirection.y, _desiredDirection.x) * Mathf.Rad2Deg;
-            float next = Mathf.SmoothDampAngle(current, target, ref _turnVelocity, _turnSmoothTime, _turnSpeed,
-                Time.fixedDeltaTime);
+            float next = Mathf.SmoothDampAngle(
+                current,
+                target,
+                ref _turnVelocity,
+                _turnSmoothTime,
+                _turnSpeed,
+                Time.fixedDeltaTime
+            );
             float radians = next * Mathf.Deg2Rad;
             Direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
         }

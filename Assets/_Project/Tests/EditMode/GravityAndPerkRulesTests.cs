@@ -169,6 +169,18 @@ namespace PlanetIO.Tests
         }
 
         [Test]
+        public void Perks_IonTrailOnlyRaisesBoostSpeedAndStacksWithSolarSail()
+        {
+            ushort ion = PerkRules.Bit(PerkId.IonTrail);
+            ushort both = PerkRules.With(ion, PerkId.SolarSail);
+            Assert.That(PerkRules.BoostSpeedMultiplier(0), Is.EqualTo(1f));
+            Assert.That(PerkRules.SpeedMultiplier(ion), Is.EqualTo(1f));
+            Assert.That(PerkRules.BoostSpeedMultiplier(ion), Is.EqualTo(1.15f).Within(1e-5f));
+            Assert.That(PerkRules.SpeedMultiplier(both) * PerkRules.BoostSpeedMultiplier(both),
+                Is.EqualTo(1.288f).Within(1e-5f));
+        }
+
+        [Test]
         public void Perks_EveryPerkHasADownsideOrSpecialCost()
         {
             ushort[] costly =

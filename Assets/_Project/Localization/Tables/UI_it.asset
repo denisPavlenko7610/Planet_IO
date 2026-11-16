@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "Il boost lascia una scia dannosa. Il boost costa il 25% in pi\xF9."
+    m_Localized: Turbo +15%; scia 2 s; costo +25%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "Il magnete del cibo arriva il 50% pi\xF9 lontano. Sei l'8% pi\xF9 lento."
+    m_Localized: "Magnete +50%; velocit\xE0 -8%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 luna e +50% di danno delle lune. Sei il 5% pi\xF9 lento."
+    m_Localized: "+1 luna; danni +50%; velocit\xE0 -5%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: Sopravvivi a un colpo mortale con il 30% della tua massa.
+    m_Localized: Sopravvivi 1 volta; resta il 30% di massa
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: "Sei il 12% pi\xF9 veloce. Il cibo d\xE0 il 10% in meno."
+    m_Localized: "Velocit\xE0 +12%; cibo -10%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -289,7 +289,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093515
-    m_Localized: "Zona di gravit\xE0 pi\xF9 ampia del 40%. Sei il 6% pi\xF9 lento."
+    m_Localized: "Zona gravit\xE0 +40%; velocit\xE0 -6%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093516
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: Dopo un boost, sparisci dalle minimappe rivali per 10 s.
+    m_Localized: 'Turbo: fuori mappa 10 s; ricarica 40 s'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: Le comete ti curano invece di ferirti.
+    m_Localized: 'Comete: curano il 50% dei danni'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "Le uccisioni danno il 20% di massa in pi\xF9. Il cibo d\xE0 il 10% in meno."
+    m_Localized: Massa uccisioni +20%; cibo -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152

@@ -625,7 +625,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _positionSmoothTime: 0.08
   _zoomSmoothTime: 0.2
-  _zoomPerCapacityUnit: 5
+  _baseOrthographicSize: 3.6
+  _zoomExponent: 0.15
+  _growthZoomSmoothTime: 0.9
   _maximumOrthographicSize: 30
   _minimumOrthographicSize: 2
   _killShake: 0.25

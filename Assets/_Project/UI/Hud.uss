@@ -79,6 +79,8 @@
 }
 
 .perk-chip {
+    align-items: center;
+    justify-content: center;
     width: 46px;
     height: 46px;
     margin: 0 6px 6px 0;
@@ -336,36 +338,35 @@
 
 #perk-panel {
     display: none;
-    justify-content: center;
+    position: absolute;
+    top: 174px;
+    left: 16px;
+    right: 16px;
     align-items: center;
 }
 
 #perk-box {
-    width: 94%;
-    max-width: 1180px;
-    padding: 20px 24px 28px 24px;
-    align-items: center;
+    width: 100%;
+    max-width: 980px;
+    padding: 10px 8px;
     background-color: rgba(21, 10, 51, 0.88);
-    border-radius: 32px;
+    border-radius: 18px;
     border-width: 2px;
     border-color: rgba(191, 153, 255, 0.55);
 }
 
 #perk-title {
-    font-size: 44px;
+    font-size: 24px;
     color: white;
-    margin: 0 0 12px 0;
+    margin: 0 0 6px 0;
     padding: 0;
     -unity-text-align: middle-center;
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: rgb(21, 10, 51);
 }
 
 #perk-timer {
-    width: 100%;
-    height: 14px;
-    margin-bottom: 18px;
-    border-radius: 7px;
+    height: 5px;
+    margin: 0 6px 8px 6px;
+    border-radius: 3px;
     background-color: rgba(8, 3, 22, 0.8);
     overflow: hidden;
 }
@@ -378,18 +379,18 @@
 
 #perk-cards {
     flex-direction: row;
-    width: 100%;
 }
 
 .perk-card {
     flex-grow: 1;
     flex-basis: 0;
-    margin: 0 8px;
-    min-height: 230px;
-    padding: 18px 16px;
+    min-width: 0;
+    margin: 0 4px;
+    min-height: 148px;
+    padding: 8px 6px;
     align-items: center;
-    border-radius: 24px;
-    border-width: 3px;
+    border-radius: 14px;
+    border-width: 2px;
     border-color: rgba(191, 153, 255, 0.7);
     background-color: rgba(41, 20, 82, 0.96);
 }
@@ -399,23 +400,44 @@
     border-color: rgb(255, 230, 115);
 }
 
+.perk-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.perk-chip > .perk-icon {
+    width: 30px;
+    height: 30px;
+    margin: 0;
+}
+
 .perk-name {
-    font-size: 34px;
+    font-size: 23px;
     color: rgb(255, 230, 115);
-    margin: 0 0 10px 0;
+    margin: 0 0 4px 0;
     padding: 0;
+    align-self: stretch;
     white-space: normal;
     -unity-text-align: middle-center;
     -unity-font-style: bold;
 }
 
 .perk-desc {
-    font-size: 26px;
+    font-size: 20px;
     color: white;
     margin: 0;
     padding: 0;
+    align-self: stretch;
     white-space: normal;
     -unity-text-align: upper-center;
+}
+
+.perk-offer-visible #minimap, .perk-offer-visible #perk-strip, .perk-offer-visible #leaderboard-panel,
+.perk-offer-visible #hud-center {
+    visibility: hidden;
 }
 
 #defeat-panel {
@@ -525,3 +547,21 @@
     font-size: 48px;
     color: white;
 }
+
+.perk-icon--0 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk0.svg"); }
+
+.perk-icon--1 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk1.svg"); }
+
+.perk-icon--2 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk2.svg"); }
+
+.perk-icon--3 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk3.svg"); }
+
+.perk-icon--4 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk4.svg"); }
+
+.perk-icon--5 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk5.svg"); }
+
+.perk-icon--6 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk6.svg"); }
+
+.perk-icon--7 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk7.svg"); }
+
+.perk-icon--8 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk8.svg"); }

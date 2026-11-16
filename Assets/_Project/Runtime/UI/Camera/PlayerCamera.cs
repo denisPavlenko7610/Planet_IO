@@ -12,7 +12,8 @@ namespace PlanetIO.UI.Camera
         [SerializeField, Min(0.01f)] private float _positionSmoothTime = 0.08f;
         [SerializeField, Min(0.01f)] private float _zoomSmoothTime = 0.2f;
         [SerializeField, Min(0.1f)] private float _baseOrthographicSize = 3.6f;
-        [SerializeField, Range(0f, 1f)] private float _zoomExponent = 0.28f;
+        [SerializeField, Range(0f, 1f)] private float _zoomExponent = CameraZoomRules.GrowthExponent;
+        [SerializeField, Min(0.01f)] private float _growthZoomSmoothTime = 0.9f;
         [SerializeField, Min(1f)] private float _maximumOrthographicSize = 30f;
         [SerializeField, Min(0.1f)] private float _minimumOrthographicSize = 2f;
         [SerializeField, Min(1f)] private float _moonViewMargin = 1.45f;
@@ -31,6 +32,7 @@ namespace PlanetIO.UI.Camera
         private float _zoomVelocity;
         private float _cameraDepth;
         private float _targetOrthographicSize;
+        private readonly GrowthZoomState _growthZoom = new();
         private float _shakeStrength;
         private float _shakeTimeRemaining;
         private Vector3 _lastShakeOffset;
@@ -42,6 +44,7 @@ namespace PlanetIO.UI.Camera
             Camera = GetComponent<UnityEngine.Camera>();
             _cameraDepth = transform.position.z;
             _targetOrthographicSize = _baseOrthographicSize;
+            _growthZoom.Reset(_targetOrthographicSize);
             Camera.orthographicSize = _baseOrthographicSize;
             FoodViewScale.SetZoomRatio(1f);
         }
@@ -67,15 +70,44 @@ namespace PlanetIO.UI.Camera
             Vector3 targetPosition = new(
                 playerPosition.x + _lookAhead.x,
                 playerPosition.y + _lookAhead.y,
-                _cameraDepth);
+                _cameraDepth
+            );
             Vector3 basePosition = transform.position - _lastShakeOffset;
-            Vector3 smoothed = Vector3.SmoothDamp(basePosition, targetPosition, ref _positionVelocity, _positionSmoothTime);
+            Vector3 smoothed = Vector3.SmoothDamp(
+                basePosition,
+                targetPosition,
+                ref _positionVelocity,
+                _positionSmoothTime
+            );
             _lastShakeOffset = GetShakeOffset();
             transform.position = smoothed + _lastShakeOffset;
 
-            float zoomTarget = _player.IsBoosting ? _targetOrthographicSize * _boostZoom : _targetOrthographicSize;
-            Camera.orthographicSize = Mathf.SmoothDamp(Camera.orthographicSize, zoomTarget, ref _zoomVelocity,
-                _zoomSmoothTime);
+            float requiredView = _player.MoonSlots > 0
+                ? CameraZoomRules.MoonView(
+                    MoonRules.OuterExtent(_player.BodyRadius),
+                    _moonViewMargin,
+                    Camera.aspect,
+                    _lookAheadFactor
+                )
+                : _minimumOrthographicSize;
+            float desired = Mathf.Clamp(
+                Mathf.Max(_targetOrthographicSize, requiredView),
+                _minimumOrthographicSize,
+                _maximumOrthographicSize
+            );
+            float zoomTarget = _growthZoom.Step(desired, requiredView, Time.deltaTime);
+            if (_player.IsBoosting)
+            {
+                zoomTarget *= _boostZoom;
+            }
+            float smoothTime = zoomTarget > Camera.orthographicSize ? _growthZoomSmoothTime : _zoomSmoothTime;
+            Camera.orthographicSize = Mathf.Max(requiredView, Mathf.SmoothDamp(
+                Camera.orthographicSize,
+                zoomTarget,
+                ref _zoomVelocity,
+                smoothTime
+            ));
+            FoodViewScale.SetZoomRatio(Camera.orthographicSize / _baseOrthographicSize);
         }
 
         private void OnDestroy()
@@ -115,6 +147,8 @@ namespace PlanetIO.UI.Camera
             _player.Defeated += OnPlayerDefeated;
             _player.Killed += OnPlayerKilled;
             OnCapacityChanged(_player.Capacity);
+            _growthZoom.Reset(_targetOrthographicSize);
+            _zoomVelocity = 0f;
         }
 
         private void UnbindPlayer()
@@ -171,14 +205,7 @@ namespace PlanetIO.UI.Camera
         {
             float target = _baseOrthographicSize * CameraZoomRules.Ratio(capacity, _zoomExponent);
 
-            if (_player != null && _player.MoonSlots > 0)
-            {
-                float moonRingSize = MoonRules.OuterExtent(_player.BodyRadius) * _moonViewMargin;
-                target = Mathf.Max(target, moonRingSize);
-            }
-
             _targetOrthographicSize = Mathf.Clamp(target, _minimumOrthographicSize, _maximumOrthographicSize);
-            FoodViewScale.SetZoomRatio(_targetOrthographicSize / _baseOrthographicSize);
         }
     }
 }

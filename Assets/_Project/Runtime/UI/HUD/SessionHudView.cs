@@ -67,6 +67,7 @@ namespace PlanetIO.UI.Hud
         void SetPerkTimer(float fraction);
         void HidePerkOffer();
         void SetActivePerks(int[] ids, string[] names);
+        void SetPerkIcons(int[] ids);
     }
 
     [DefaultExecutionOrder(100)]
@@ -452,6 +453,18 @@ namespace PlanetIO.UI.Hud
 
             SetPerkTimer(1f);
             _perkPanel.style.display = DisplayStyle.Flex;
+            _root.AddToClassList("perk-offer-visible");
+        }
+
+        public void SetPerkIcons(int[] ids)
+        {
+            for (int index = 0; index < PerkCardCount; index++)
+            {
+                VisualElement icon = _perkCards[index].Q<VisualElement>("perk-icon-" + index);
+                icon.ClearClassList();
+                icon.AddToClassList("perk-icon");
+                if (index < ids.Length) icon.AddToClassList("perk-icon--" + ids[index]);
+            }
         }
 
         public void SetPerkTimer(float fraction)
@@ -461,6 +474,7 @@ namespace PlanetIO.UI.Hud
 
         public void HidePerkOffer()
         {
+            _root.RemoveFromClassList("perk-offer-visible");
             _perkPanel.style.display = DisplayStyle.None;
         }
 
@@ -470,12 +484,17 @@ namespace PlanetIO.UI.Hud
             for (int index = 0; index < ids.Length; index++)
             {
                 string name = names[index];
-                Label chip = new(string.IsNullOrEmpty(name) ? "?" : name[..1].ToUpperInvariant())
+                VisualElement chip = new()
                 {
                     pickingMode = PickingMode.Ignore
                 };
                 chip.AddToClassList("perk-chip");
                 chip.AddToClassList($"perk-chip--{ids[index]}");
+                chip.tooltip = name;
+                VisualElement icon = new() { pickingMode = PickingMode.Ignore };
+                icon.AddToClassList("perk-icon");
+                icon.AddToClassList($"perk-icon--{ids[index]}");
+                chip.Add(icon);
                 _perkStrip.Add(chip);
             }
         }

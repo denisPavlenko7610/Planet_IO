@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: Boost leaves a damaging trail. Boost costs 25% more.
+    m_Localized: Boost +15%; trail 2 s; cost +25%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: Food magnet reaches 50% farther. You are 8% slower.
+    m_Localized: Magnet +50%; speed -8%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: +1 moon and +50% moon damage. You are 5% slower.
+    m_Localized: +1 moon; damage +50%; speed -5%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: Survive one deadly hit with 30% of your mass.
+    m_Localized: Survive once; keep 30% mass
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: You are 12% faster. Food gives 10% less.
+    m_Localized: Speed +12%; food -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -289,7 +289,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093515
-    m_Localized: Gravity zone is 40% wider. You are 6% slower.
+    m_Localized: Gravity zone +40%; speed -6%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093516
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: After a boost, vanish from rivals' minimaps for 10 s.
+    m_Localized: 'Boost: off minimap 10 s; cooldown 40 s'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: Comets heal you instead of hurting.
+    m_Localized: Comets heal 50% of damage
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: Kills give 20% more mass. Food gives 10% less.
+    m_Localized: Kill mass +20%; food -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152

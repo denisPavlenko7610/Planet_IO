@@ -45,6 +45,50 @@ namespace PlanetIO.Tests
             Assert.That(zoom, Is.LessThan(planet));
         }
 
+        [TestCase(0.16f, 1.2745f)]
+        [TestCase(0.35f, 1.6763f)]
+        [TestCase(0.8f, 2.2387f)]
+        [TestCase(2f, 3.0852f)]
+        public void CameraGrowth_SettledDiameterRemainsReadable(float mass, float expected)
+        {
+            float body = PlanetSizeRules.Scale(mass) / PlanetSizeRules.Scale(0.08f);
+            float zoom = CameraZoomRules.Ratio(mass, CameraZoomRules.GrowthExponent);
+            Assert.That(body / zoom, Is.EqualTo(expected).Within(0.002f));
+        }
+
+        [Test]
+        public void CameraGrowth_ContinuousFeedingDoesNotRestartHold()
+        {
+            GrowthZoomState zoom = new();
+            zoom.Reset(3.6f);
+            Assert.That(zoom.Step(3.8f, 2f, 0.1f), Is.EqualTo(3.6f));
+            Assert.That(zoom.Step(4f, 2f, 0.1f), Is.EqualTo(3.6f));
+            Assert.That(zoom.Step(4.2f, 2f, 0.1f), Is.EqualTo(3.6f));
+            Assert.That(zoom.Step(4.4f, 2f, 0.1f), Is.EqualTo(4.4f));
+        }
+
+        [Test]
+        public void CameraGrowth_ShrinkAndMoonSafetyBypassHold()
+        {
+            GrowthZoomState zoom = new();
+            zoom.Reset(3.6f);
+            Assert.That(zoom.Step(5f, 4.5f, 0.01f), Is.EqualTo(4.5f));
+            Assert.That(zoom.Step(3.6f, 2f, 0.01f), Is.EqualTo(3.6f));
+            zoom.Reset(3.6f);
+            Assert.That(zoom.Step(3.8f, 2f, 0.01f), Is.EqualTo(3.6f));
+        }
+
+        [TestCase(0.5625f)]
+        [TestCase(1f)]
+        [TestCase(1.7778f)]
+        public void CameraMoons_FitBothAxesWithLookAhead(float aspect)
+        {
+            float view = CameraZoomRules.MoonView(2f, 1.45f, aspect, 0.16f);
+            float offset = view * 0.16f;
+            Assert.That(view - offset, Is.GreaterThanOrEqualTo(2f));
+            Assert.That(view * aspect - offset, Is.GreaterThanOrEqualTo(2f));
+        }
+
         [Test]
         public void FoodViewScale_IsBoostedAtBaseZoomAndCapped()
         {

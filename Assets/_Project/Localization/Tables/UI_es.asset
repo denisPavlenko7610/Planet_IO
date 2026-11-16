@@ -247,7 +247,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "El turbo deja una estela da\xF1ina. El turbo cuesta un 25% m\xE1s."
+    m_Localized: Turbo +15%; rastro 2 s; coste +25%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -255,7 +255,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "El im\xE1n de comida llega un 50% m\xE1s lejos. Eres un 8% m\xE1s lento."
+    m_Localized: "Im\xE1n +50%; velocidad -8%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -263,7 +263,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 luna y +50% de da\xF1o de las lunas. Eres un 5% m\xE1s lento."
+    m_Localized: "+1 luna; da\xF1o +50%; velocidad -5%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -271,7 +271,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: Sobrevive a un golpe mortal con el 30% de tu masa.
+    m_Localized: Sobrevive 1 vez; conserva 30% de masa
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -279,7 +279,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: "Eres un 12% m\xE1s r\xE1pido. La comida da un 10% menos."
+    m_Localized: Velocidad +12%; comida -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -287,7 +287,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093515
-    m_Localized: "Zona de gravedad un 40% m\xE1s amplia. Eres un 6% m\xE1s lento."
+    m_Localized: Zona gravitatoria +40%; velocidad -6%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093516
@@ -295,7 +295,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: Tras un turbo, desapareces de los minimapas rivales durante 10 s.
+    m_Localized: 'Turbo: fuera del mapa 10 s; recarga 40 s'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -303,7 +303,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Los cometas te curan en lugar de da\xF1arte."
+    m_Localized: "Cometas: curan 50% del da\xF1o"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -311,7 +311,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "Las eliminaciones dan un 20% m\xE1s de masa. La comida da un 10% menos."
+    m_Localized: Masa por bajas +20%; comida -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152

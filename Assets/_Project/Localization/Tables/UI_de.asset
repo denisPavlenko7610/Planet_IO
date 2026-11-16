@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "Boost hinterl\xE4sst eine sch\xE4dliche Spur. Boost kostet 25% mehr."
+    m_Localized: Boost +15%; Spur 2 s; Kosten +25%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: Nahrungsmagnet reicht 50% weiter. Du bist 8% langsamer.
+    m_Localized: Magnet +50%; Tempo -8%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: +1 Mond und +50% Mondschaden. Du bist 5% langsamer.
+    m_Localized: +1 Mond; Schaden +50%; Tempo -5%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "\xDCberlebe einen t\xF6dlichen Treffer mit 30% deiner Masse."
+    m_Localized: "1\xD7 \xFCberleben; 30% Masse behalten"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: Du bist 12% schneller. Nahrung gibt 10% weniger.
+    m_Localized: Tempo +12%; Nahrung -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -289,7 +289,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093515
-    m_Localized: "Gravitationszone 40% gr\xF6\xDFer. Du bist 6% langsamer."
+    m_Localized: Gravitationszone +40%; Tempo -6%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093516
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: Nach einem Boost verschwindest du 10 s von den Minikarten der Gegner.
+    m_Localized: 'Boost: 10 s von Karte weg; Abklingzeit 40 s'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: Kometen heilen dich, statt zu schaden.
+    m_Localized: Kometen heilen 50% des Schadens
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "Absch\xFCsse geben 20% mehr Masse. Nahrung gibt 10% weniger."
+    m_Localized: Abschussmasse +20%; Nahrung -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152

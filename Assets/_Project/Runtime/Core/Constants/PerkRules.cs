@@ -80,6 +80,8 @@ namespace PlanetIO
 
         public static float BoostCostMultiplier(ushort mask) => Has(mask, PerkId.IonTrail) ? 1.25f : 1f;
 
+        public static float BoostSpeedMultiplier(ushort mask) => Has(mask, PerkId.IonTrail) ? 1.15f : 1f;
+
         public static int FillOffer(ushort ownedMask, int seed, byte[] result)
         {
             if (result == null)

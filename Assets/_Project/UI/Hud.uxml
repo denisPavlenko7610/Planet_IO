@@ -47,25 +47,28 @@
             <ui:VisualElement name="boost-button" class="control">
                 <ui:VisualElement name="boost-icon" picking-mode="Ignore" />
             </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement name="perk-panel" class="screen" picking-mode="Ignore">
-            <ui:VisualElement name="perk-box" picking-mode="Ignore">
-                <ui:Label name="perk-title" picking-mode="Ignore" />
-                <ui:VisualElement name="perk-timer" picking-mode="Ignore">
-                    <ui:VisualElement name="perk-timer-fill" picking-mode="Ignore" />
-                </ui:VisualElement>
-                <ui:VisualElement name="perk-cards" picking-mode="Ignore">
-                    <ui:VisualElement name="perk-card-0" class="perk-card">
-                        <ui:Label name="perk-name-0" class="perk-name" picking-mode="Ignore" />
-                        <ui:Label name="perk-desc-0" class="perk-desc" picking-mode="Ignore" />
+            <ui:VisualElement name="perk-panel" picking-mode="Ignore">
+                <ui:VisualElement name="perk-box" picking-mode="Ignore">
+                    <ui:Label name="perk-title" picking-mode="Ignore" />
+                    <ui:VisualElement name="perk-timer" picking-mode="Ignore">
+                        <ui:VisualElement name="perk-timer-fill" picking-mode="Ignore" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="perk-card-1" class="perk-card">
-                        <ui:Label name="perk-name-1" class="perk-name" picking-mode="Ignore" />
-                        <ui:Label name="perk-desc-1" class="perk-desc" picking-mode="Ignore" />
-                    </ui:VisualElement>
-                    <ui:VisualElement name="perk-card-2" class="perk-card">
-                        <ui:Label name="perk-name-2" class="perk-name" picking-mode="Ignore" />
-                        <ui:Label name="perk-desc-2" class="perk-desc" picking-mode="Ignore" />
+                    <ui:VisualElement name="perk-cards" picking-mode="Ignore">
+                        <ui:VisualElement name="perk-card-0" class="perk-card">
+                            <ui:VisualElement name="perk-icon-0" class="perk-icon" picking-mode="Ignore" />
+                            <ui:Label name="perk-name-0" class="perk-name" picking-mode="Ignore" />
+                            <ui:Label name="perk-desc-0" class="perk-desc" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="perk-card-1" class="perk-card">
+                            <ui:VisualElement name="perk-icon-1" class="perk-icon" picking-mode="Ignore" />
+                            <ui:Label name="perk-name-1" class="perk-name" picking-mode="Ignore" />
+                            <ui:Label name="perk-desc-1" class="perk-desc" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="perk-card-2" class="perk-card">
+                            <ui:VisualElement name="perk-icon-2" class="perk-icon" picking-mode="Ignore" />
+                            <ui:Label name="perk-name-2" class="perk-name" picking-mode="Ignore" />
+                            <ui:Label name="perk-desc-2" class="perk-desc" picking-mode="Ignore" />
+                        </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>

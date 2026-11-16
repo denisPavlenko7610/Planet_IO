@@ -105,10 +105,12 @@ namespace PlanetIO.UI.Hud
 
         private void OnOfferShown(PerkId[] perks, float seconds)
         {
+            var ids = new int[perks.Length];
             var names = new string[perks.Length];
             var descriptions = new string[perks.Length];
             for (int index = 0; index < perks.Length; index++)
             {
+                ids[index] = (int)perks[index];
                 names[index] = _localization.Get(LocalizationKeys.PerkName(perks[index]));
                 descriptions[index] = _localization.Get(LocalizationKeys.PerkDescription(perks[index]));
             }
@@ -116,6 +118,7 @@ namespace PlanetIO.UI.Hud
             _offerDuration = seconds;
             _offerEndTime = Time.unscaledTime + seconds;
             _offerVisible = true;
+            _view.SetPerkIcons(ids);
             _view.ShowPerkOffer(_localization.Get(LocalizationKeys.PerkTitle), names, descriptions);
         }
 

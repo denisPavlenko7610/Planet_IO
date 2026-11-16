@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "Turbo zostawia szkodliwy \u015Blad. Turbo kosztuje o 25% wi\u0119cej."
+    m_Localized: "Turbo +15%; \u015Blad 2 s; koszt +25%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "Magnes jedzenia si\u0119ga o 50% dalej. Jeste\u015B o 8% wolniejszy."
+    m_Localized: "Magnes +50%; pr\u0119dko\u015B\u0107 -8%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 ksi\u0119\u017Cyc i +50% obra\u017Ce\u0144 ksi\u0119\u017Cyc\xF3w. Jeste\u015B o 5% wolniejszy."
+    m_Localized: "+1 ksi\u0119\u017Cyc; obra\u017Cenia +50%; pr\u0119dko\u015B\u0107 -5%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "Prze\u017Cyj jedno \u015Bmiertelne trafienie z 30% masy."
+    m_Localized: "Prze\u017Cyj raz; zachowaj 30% masy"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: "Jeste\u015B o 12% szybszy. Jedzenie daje o 10% mniej."
+    m_Localized: "Pr\u0119dko\u015B\u0107 +12%; pokarm -10%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -289,7 +289,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093515
-    m_Localized: "Strefa grawitacji szersza o 40%. Jeste\u015B o 6% wolniejszy."
+    m_Localized: "Strefa grawitacji +40%; pr\u0119dko\u015B\u0107 -6%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093516
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: Po turbo znikasz z minimap rywali na 10 s.
+    m_Localized: "Turbo: poza map\u0105 10 s; odnowienie 40 s"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Komety lecz\u0105 ci\u0119 zamiast rani\u0107."
+    m_Localized: "Komety lecz\u0105 50% obra\u017Ce\u0144"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "Zab\xF3jstwa daj\u0105 o 20% wi\u0119cej masy. Jedzenie daje o 10% mniej."
+    m_Localized: "Masa za zab\xF3jstwa +20%; pokarm -10%"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152

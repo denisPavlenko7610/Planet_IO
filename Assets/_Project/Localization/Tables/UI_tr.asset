@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "H\u0131z, zarar veren bir iz b\u0131rak\u0131r. H\u0131z %25 daha pahal\u0131."
+    m_Localized: Turbo +%15; iz 2 sn; maliyet +%25
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "Yiyecek m\u0131knat\u0131s\u0131 %50 daha uza\u011Fa ula\u015F\u0131r. %8 daha yava\u015Fs\u0131n."
+    m_Localized: "M\u0131knat\u0131s +%50; h\u0131z -%8"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 ay ve %50 daha fazla ay hasar\u0131. %5 daha yava\u015Fs\u0131n."
+    m_Localized: "+1 ay; hasar +%50; h\u0131z -%5"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "\xD6l\xFCmc\xFCl bir darbeden k\xFCtlenin %30'u ile kurtul."
+    m_Localized: "1 kez hayatta kal; k\xFCtlenin %30\u2019u kal\u0131r"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: "%12 daha h\u0131zl\u0131s\u0131n. Yiyecek %10 daha az verir."
+    m_Localized: "H\u0131z +%12; yiyecek -%10"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -289,7 +289,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093515
-    m_Localized: "\xC7ekim alan\u0131 %40 daha geni\u015F. %6 daha yava\u015Fs\u0131n."
+    m_Localized: "\xC7ekim alan\u0131 +%40; h\u0131z -%6"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093516
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: "H\u0131zdan sonra 10 sn rakiplerin mini haritas\u0131ndan kaybolursun."
+    m_Localized: 'Turbo: haritada 10 sn gizlen; bekleme 40 sn'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Kuyruklu y\u0131ld\u0131zlar zarar vermek yerine seni iyile\u015Ftirir."
+    m_Localized: "Kuyruklu y\u0131ld\u0131zlar hasar\u0131n %50\u2019sini iyile\u015Ftirir"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "\xD6ld\xFCrmeler %20 daha fazla k\xFCtle verir. Yiyecek %10 daha az verir."
+    m_Localized: "\xD6ld\xFCrme k\xFCtlesi +%20; yiyecek -%10"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152

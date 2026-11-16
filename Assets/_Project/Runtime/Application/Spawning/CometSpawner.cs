@@ -22,6 +22,16 @@ namespace PlanetIO
             _bordersTrigger.CometTriggered += Respawn;
         }
 
+        protected override void OnRandomPlaced(Comet placedObject)
+        {
+            placedObject.GetComponent<CometMovement>().Randomize();
+        }
+
+        protected override Vector2 GetRandomPosition() => new(
+            Constants.WorldBounds.xMin - 100f,
+            Constants.WorldBounds.yMin - 100f
+        );
+
         private void OnDisable()
         {
             _bordersTrigger.CometTriggered -= Respawn;
