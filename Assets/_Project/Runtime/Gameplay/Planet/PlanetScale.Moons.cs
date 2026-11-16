@@ -138,6 +138,8 @@ namespace PlanetIO
                 return;
             }
 
+            SweepFoodInsideBody(deltaTime);
+
             if (_moons.Tick(deltaTime))
             {
                 PublishMoonMask();

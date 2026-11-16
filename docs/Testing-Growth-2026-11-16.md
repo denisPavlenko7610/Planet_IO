@@ -62,8 +62,14 @@ already inside the body when it becomes eligible produces no new enter event. Th
 magnet-pulled food placed inside the body without a physics exit/enter pair; this hypothesis was not proven.
 The pilot keeps steering at the food and never leaves the overlap, which is what produced the earlier 240 s plateaus.
 A human player would simply drive past such a food, so the effect on real growth pace is small but real (a few foods
-per ten minutes in this setup). No gameplay code was changed. If it matters in playtests, the cheapest fix candidates
-are a server-side check for food inside the body, or keeping respawn positions outside bodies.
+per ten minutes in this setup).
+
+Fix: `PlanetScale.SweepFoodInsideBody` (timing in `FoodSweepRules`) now runs on the server every 0.1 s for every
+combat-active player and bot and eats any unclaimed, non-immune food overlapping the body through the same claim and
+growth path as the trigger. Tests: 4 EditMode (`FoodSweepRulesTests`) and 3 PlayMode (`FoodSweep_*`). After the fix four
+probe runs had no stalls and finished at masses 3.75 to 4.20; 0.35 was reached at 12 to 21 s, 0.8 at 35 to 55 s, 1.4 at
+84 to 142 s and 2.0 at 146 to 234 s (mass 4.0 in two of four runs, at 536 s and 553 s). This is the same controlled
+probe, not a human playtest, so the section 4 targets still need a hands-on run.
 
 The explicit probe is GrowthPace_ContinuousFeedingRecordsMilestones. Its raw output is written to Temp/GrowthPace.txt.
 The visual regression check writes Temp/PerkGrowth.png.

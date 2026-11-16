@@ -156,7 +156,8 @@ The later food/comet revision passed 89 selected EditMode and 6 PlayMode checks:
 at 12.3 / 44.6 s before plateauing below the cap at 1.0601; late-game feeding remains unverified.
 Both probes use randomized fields and cannot establish human-play milestone averages. A later instrumented run
 explained the plateaus: the pilot stalls on a food that lies inside its body but was never eaten (no trigger enter
-event), not on a global food or speed problem; see the growth verification report.
+event), not on a global food or speed problem; see the growth verification report. The server-side body sweep
+described in section 5 removed these stalls: four probe runs showed none and reached masses of 3.75 to 4.20 at 600 s.
 
 ## 5. Comparison with Slither.io
 
@@ -211,6 +212,13 @@ probe was run separately: masses 0.35/0.8/1.4/2 at 12.0/49.3/130.8/224.9 simulat
 600 s, with a late plateau and no reach to 4 or 8. This is not a hands-on pace or active-bot balance validation.
 Room difficulty metadata and PvP damage isolation passed rule tests; independent network peers and Android
 hardware were not tested. See [host migration plan](Host-Migration-Plan.md) for the required continuity work.
+
+Food inside the body (November 16, 2026): food is eaten on the trigger enter event, so a food that ends up inside a
+planet's body without a new enter event (a respawn or a magnet pull landing inside the body) used to stay uneaten while
+the body kept overlapping it. The server now also sweeps every combat-active planet, player or bot, every 0.1 s and eats
+any unclaimed, non-immune food overlapping the body circle through the same claim and growth path as a trigger enter,
+so nothing is counted twice. Slither.io eats on overlap with no such gap. Growth per food, magnet and speed are
+unchanged; the sweep only removes the missed pickups. Re-measure the section 4 growth pace after this change.
 
 Growth readability (November 16, 2026): keep area-based body growth and equal movement speed at every mass.
 Reduce the camera zoom exponent from 0.28 to 0.15: doubling mass should increase settled screen diameter by
