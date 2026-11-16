@@ -66,6 +66,7 @@ namespace PlanetIO.Editor
         {
             ApplyReleaseSettings();
             ValidateRelease();
+            int versionCode = AndroidBuildVersion.PrepareForBuild();
 
             Directory.CreateDirectory(BuildDirectory);
             string[] scenes = EditorBuildSettings.scenes
@@ -88,10 +89,12 @@ namespace PlanetIO.Editor
                 throw new BuildFailedException($"Android build failed: {report.summary.result}");
             }
 
+            AndroidBuildVersion.RecordBuilt(versionCode);
             Debug.Log(
                 $"Android App Bundle created: " +
                 $"{options.locationPathName} " +
-                $"({report.summary.totalSize / 1048576f:0.0} MB)."
+                $"({report.summary.totalSize / 1048576f:0.0} MB), " +
+                $"version {PlayerSettings.bundleVersion} (code {versionCode})."
             );
         }
 

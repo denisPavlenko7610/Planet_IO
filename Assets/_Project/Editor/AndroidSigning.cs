@@ -12,8 +12,32 @@ namespace PlanetIO.Editor
         public const string KeyAliasVariable = "PLANETIO_KEYALIAS_NAME";
         public const string KeyAliasPasswordVariable = "PLANETIO_KEYALIAS_PASS";
 
+        public const string PasswordPreferenceKey = "PlanetIO.Android.KeystorePass";
+
         private const string RepositoryKeystorePath = "Keystore/planetio-upload.keystore";
         private const string DefaultKeyAlias = "planetio-upload";
+
+        public static bool HasStoredPassword => EditorPrefs.HasKey(PasswordPreferenceKey);
+
+        public static void StorePassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+            {
+                return;
+            }
+
+            EditorPrefs.SetString(PasswordPreferenceKey, password);
+        }
+
+        public static void ClearStoredPassword()
+        {
+            EditorPrefs.DeleteKey(PasswordPreferenceKey);
+        }
+
+        public static string ResolveKeystorePassword(string environmentValue, string storedValue)
+        {
+            return string.IsNullOrEmpty(environmentValue) ? storedValue ?? string.Empty : environmentValue;
+        }
 
         public static void ApplyFromEnvironment()
         {
@@ -28,7 +52,9 @@ namespace PlanetIO.Editor
                 return;
             }
 
-            string keystorePassword = Environment.GetEnvironmentVariable(KeystorePasswordVariable);
+            string keystorePassword = ResolveKeystorePassword(
+                Environment.GetEnvironmentVariable(KeystorePasswordVariable),
+                EditorPrefs.GetString(PasswordPreferenceKey, string.Empty));
             string alias = Environment.GetEnvironmentVariable(KeyAliasVariable);
             string aliasPassword = Environment.GetEnvironmentVariable(KeyAliasPasswordVariable);
 
@@ -43,8 +69,9 @@ namespace PlanetIO.Editor
         {
             if (!PlayerSettings.Android.useCustomKeystore)
             {
-                return $"Android signing is not configured. Set {KeystorePasswordVariable} (the keystore is read from " +
-                       $"{RepositoryKeystorePath}), or use Player Settings > Publishing Settings.";
+                return $"Android signing is not configured. Use Planet IO > Android > Set signing password (the keystore " +
+                       $"is read from {RepositoryKeystorePath}), set {KeystorePasswordVariable}, or use Player Settings > " +
+                       "Publishing Settings.";
             }
 
             if (!File.Exists(PlayerSettings.Android.keystoreName))
@@ -60,7 +87,8 @@ namespace PlanetIO.Editor
             if (string.IsNullOrEmpty(PlayerSettings.Android.keystorePass) ||
                 string.IsNullOrEmpty(PlayerSettings.Android.keyaliasPass))
             {
-                return "Keystore passwords are empty. Enter them in Player Settings or set the PLANETIO_* variables.";
+                return "Keystore passwords are empty. Use Planet IO > Android > Set signing password, enter them in " +
+                       "Player Settings, or set the PLANETIO_* variables.";
             }
 
             return string.Empty;
