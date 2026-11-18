@@ -37,6 +37,28 @@ namespace PlanetIO.Tests
         }
 
         [UnityTest, Timeout(60000)]
+        public IEnumerator PlatformServices_DefeatCountsTheRunOnceAndEveryServiceResolves()
+        {
+            yield return StartMoonGame();
+            IServiceStateService state = Resolve<IServiceStateService>();
+            Assert.That(state.IsLoaded, Is.True);
+            Assert.That(Resolve<IPostRunService>(), Is.Not.Null);
+            Assert.That(Resolve<ICloudSyncService>(), Is.Not.Null);
+            Assert.That(Resolve<IPlayGamesService>(), Is.Not.Null);
+            Assert.That(Resolve<IReviewService>(), Is.Not.Null);
+            Assert.That(System.Enum.IsDefined(typeof(BotDifficulty), Resolve<IRunDifficultyProvider>().Current), Is.True);
+            int runsBefore = state.State.RunsFinished;
+            Player player = PrepareMoonPlayer();
+            player.Capacity = 0.5f;
+            yield return new WaitForSeconds(1.2f);
+
+            player.Defeat();
+            yield return WaitForDefeatView(3f);
+
+            Assert.That(state.State.RunsFinished, Is.EqualTo(runsBefore + 1));
+        }
+
+        [UnityTest, Timeout(60000)]
         public IEnumerator Progress_ContinueThenSecondDefeatPaysOnlyTheDifference()
         {
             yield return StartMoonGame();

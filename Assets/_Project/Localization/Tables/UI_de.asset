@@ -496,6 +496,18 @@ MonoBehaviour:
     m_Localized: "Verbindung zum Spiel wird wiederhergestellt\u2026"
     m_Metadata:
       m_Items: []
+  - m_Id: 18266357037051904
+    m_Localized: Bei Play Spiele anmelden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937984
+    m_Localized: Bestenlisten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937985
+    m_Localized: Erfolge
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -34,18 +34,7 @@ namespace PlanetIO
             }
         }
 
-        private void OnColorChanged(Color32 _, Color32 color)
-        {
-            _visualEffects?.SetBaseColor(color);
-        }
-
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
-        private void SetColorRpc(Color32 color)
-        {
-            _networkColor.Value = color;
-        }
-
-        private void OnSpawnProtectionChanged(bool _, bool protection)
+		private void OnSpawnProtectionChanged(bool _, bool protection)
         {
             _visualEffects?.SetSpawnProtected(protection);
         }
@@ -57,7 +46,7 @@ namespace PlanetIO
                 return;
             }
 
-            _visualEffects.SetBaseColor(_networkColor.Value);
+            _visualEffects.SetBaseColor(Color.white);
             ApplySkin(_networkSkin.Value);
             _visualEffects.SetBoosting(_networkBoosting.Value);
             _visualEffects.SetSpawnProtected(_networkSpawnProtected.Value);

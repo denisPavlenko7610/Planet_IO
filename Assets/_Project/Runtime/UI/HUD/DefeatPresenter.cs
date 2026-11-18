@@ -19,6 +19,7 @@ namespace PlanetIO.UI.Hud
         private readonly IProgressionService _progression;
         private readonly IAnalyticsService _analytics;
         private readonly IBlitzMatch _blitz;
+        private readonly IPostRunService _postRun;
         private int _finalScore;
         private Player _localPlayer;
         private RunReward _lastReward;
@@ -40,8 +41,10 @@ namespace PlanetIO.UI.Hud
             IRunStats runStats,
             IProgressionService progression,
             IAnalyticsService analytics,
-            IBlitzMatch blitz)
+            IBlitzMatch blitz,
+            IPostRunService postRun)
         {
+            _postRun = postRun ?? throw new ArgumentNullException(nameof(postRun));
             _blitz = blitz ?? throw new ArgumentNullException(nameof(blitz));
             _resultView = resultView ?? throw new ArgumentNullException(nameof(resultView));
             _runStats = runStats ?? throw new ArgumentNullException(nameof(runStats));
@@ -92,8 +95,11 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            if (_localPlayer.WasMigrationRestored) _continueUsedThisLife = _localPlayer.ContinueUsed;
-            _localPlayer.Defeated += OnDefeated;
+            if (_localPlayer.WasMigrationRestored)
+			{
+				_continueUsedThisLife = _localPlayer.ContinueUsed;
+			}
+			_localPlayer.Defeated += OnDefeated;
             _localPlayer.Revived += OnRevived;
             _localPlayer.CapacityChanged += OnCapacityChanged;
             _peakCapacity = Mathf.Max(_peakCapacity, _localPlayer.Capacity);
@@ -168,9 +174,16 @@ namespace PlanetIO.UI.Hud
         private void ShowRunResult()
         {
             RunSummary summary = _runStats.Current;
-            if (!_restoredReward) _lastReward = _progression.ApplyRun(summary);
-            if (!_restoredReward) _doubleDustClaimed = false;
-            _restoredReward = false;
+            bool restored = _restoredReward;
+            if (!_restoredReward)
+			{
+				_lastReward = _progression.ApplyRun(summary);
+			}
+			if (!_restoredReward)
+			{
+				_doubleDustClaimed = false;
+			}
+			_restoredReward = false;
 
             string details = _localization.Get(
                 LocalizationKeys.ResultDetails, FormatDuration(summary.DurationSeconds), summary.Kills, summary.PeakTier);
@@ -202,6 +215,11 @@ namespace PlanetIO.UI.Hud
                 ("kills", summary.Kills),
                 ("killer_tier", _runStats.KillerTier),
                 ("xp", _lastReward.XpGained));
+
+            if (!restored)
+            {
+                _postRun.OnRunEnded(new RunEndInfo(summary, _lastReward, _blitz.IsFinished));
+            }
         }
 
         private string BuildRewardText(int dust)
@@ -249,6 +267,16 @@ namespace PlanetIO.UI.Hud
         }
 
         private void OnPlayAgainRequested()
+        {
+            if (!_isDefeated || _localPlayer == null)
+            {
+                return;
+            }
+
+            PlayAgain();
+        }
+
+        private void PlayAgain()
         {
             if (!_isDefeated || _localPlayer == null)
             {

@@ -35,7 +35,7 @@ namespace PlanetIO.UI.Settings
 
     [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(UIDocument))]
-    public sealed class SettingsView : MonoBehaviour, ISettingsView
+    public sealed partial class SettingsView : MonoBehaviour, ISettingsView
     {
         private const string FillClass = "slider-fill";
         private const string KnobClass = "toggle-knob";
@@ -143,6 +143,7 @@ namespace PlanetIO.UI.Settings
             _labels.Bind(_adPrivacyButton, LocalizationKeys.SettingsAdPrivacy);
             _labels.Bind(_privacyPolicyButton, LocalizationKeys.SettingsPrivacyPolicy);
             _labels.Bind(_closeButton, LocalizationKeys.SettingsClose);
+            EnableServices(root);
         }
 
         private void OnDisable()
@@ -166,6 +167,7 @@ namespace PlanetIO.UI.Settings
             }
 
             _rowToggles.Clear();
+            DisableServices();
             _labels?.Dispose();
             _labels = null;
         }

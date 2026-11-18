@@ -11,6 +11,9 @@ using PlanetIO.Infrastructure.Audio;
 using PlanetIO.Infrastructure.Networking;
 using PlanetIO.Infrastructure.Loading;
 using PlanetIO.Infrastructure.Localization;
+using PlanetIO.Infrastructure.PlayGames;
+using PlanetIO.Infrastructure.Review;
+using PlanetIO.Infrastructure.Services;
 using PlanetIO.Infrastructure.Settings;
 using RD.Localization;
 using RD.Settings;
@@ -103,7 +106,13 @@ namespace PlanetIO.Bootstrap
             builder.RegisterInstance(_sfxCatalog);
             builder.RegisterInstance(_skinCatalog);
             builder.Register<SfxPlayer>(Lifetime.Singleton).As<ISfxPlayer>();
-            builder.Register<AdMobRewardedService>(Lifetime.Singleton).As<IRewardedAdsService>().As<IAdPrivacyService>();
+            builder.Register<AdMobRewardedService>(Lifetime.Singleton).AsSelf().As<IRewardedAdsService>().As<IAdPrivacyService>();
+            builder.Register<ServiceStateService>(Lifetime.Singleton).As<IServiceStateService>();
+            builder.Register<PlayGamesService>(Lifetime.Singleton).As<IPlayGamesService>();
+            builder.Register<PlayReviewService>(Lifetime.Singleton).As<IReviewService>();
+            builder.Register<RunDifficultyProvider>(Lifetime.Singleton).As<IRunDifficultyProvider>();
+            builder.Register<CloudSyncService>(Lifetime.Singleton).As<ICloudSyncService>();
+            builder.Register<PostRunService>(Lifetime.Singleton).As<IPostRunService>();
             builder.RegisterEntryPoint<AddressableMusicService>();
 			builder.RegisterEntryPoint<NetworkSessionService>()
                 .AsSelf()
@@ -120,6 +129,8 @@ namespace PlanetIO.Bootstrap
             {
                 await Container.Resolve<PlayerProfileService>().FlushAsync();
                 await Container.Resolve<ProgressionService>().FlushAsync();
+                await Container.Resolve<IServiceStateService>().FlushAsync();
+                Container.Resolve<ICloudSyncService>().FlushPending();
             }
             catch (Exception exception) { UnityLogger.LogException(exception); }
         }

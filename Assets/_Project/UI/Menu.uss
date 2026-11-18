@@ -110,6 +110,9 @@
 .overlay-card {
     width: 820px;
     max-width: 96%;
+    max-height: 92%;
+    min-height: 0;
+    flex-shrink: 1;
     padding: 30px 36px;
     align-items: stretch;
     background-color: var(--panel-modal);
@@ -159,32 +162,13 @@
     margin-top: 6px;
 }
 
-.swatches {
-    flex-direction: row;
-    justify-content: center;
-}
-
-.swatch {
-    width: 64px;
-    height: 64px;
-    margin: 0 7px;
-    border-radius: 32px;
-    transition-property: scale;
-    transition-duration: 0.1s;
-}
-
-.swatch--selected {
-    scale: 1.2 1.2;
-    border-width: 3px;
-    border-color: white;
-}
-
 .skins {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     align-content: center;
-    height: 230px;
+    min-height: 210px;
+    flex-shrink: 0;
 }
 
 .skin {
@@ -236,6 +220,9 @@
     -unity-text-outline-color: rgb(21, 10, 51);
     text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
     -unity-text-align: middle-center;
+    white-space: normal;
+    margin-left: 24px;
+    margin-right: 24px;
 }
 
 #status-text.status--error {
@@ -269,6 +256,20 @@
     left: 32px;
 }
 
+#menu-leaderboards-button {
+    display: none;
+    position: absolute;
+    top: 24px;
+    left: 140px;
+}
+
+#menu-achievements-button {
+    display: none;
+    position: absolute;
+    top: 24px;
+    right: 140px;
+}
+
 #missions-overlay {
     display: none;
     justify-content: center;
@@ -282,6 +283,9 @@
 #missions-card {
     width: 900px;
     max-width: 96%;
+    max-height: 92%;
+    min-height: 0;
+    flex-shrink: 1;
     padding: 30px 36px 30px 36px;
     align-items: stretch;
     background-color: var(--panel-modal);
@@ -289,6 +293,7 @@
 }
 
 #missions-title {
+    white-space: normal;
     font-size: 54px;
     color: white;
     -unity-text-align: middle-center;
@@ -298,6 +303,7 @@
 }
 
 #missions-streak {
+    white-space: normal;
     font-size: 30px;
     color: var(--gold);
     -unity-text-align: middle-center;
@@ -306,6 +312,7 @@
 }
 
 #missions-bonus {
+    white-space: normal;
     font-size: 28px;
     color: rgb(153, 255, 128);
     -unity-text-align: middle-center;
@@ -330,6 +337,7 @@
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: 0;
+    min-width: 0;
     margin-right: 12px;
 }
 
@@ -349,6 +357,7 @@
 }
 
 .mission-row .btn-small {
+    width: 196px;
     margin-left: 8px;
 }
 

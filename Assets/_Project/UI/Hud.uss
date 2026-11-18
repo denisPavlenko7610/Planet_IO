@@ -153,10 +153,11 @@
 }
 
 #minimap {
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 121px;
     margin-top: 12px;
-    border-radius: 20px;
+    border-radius: 4px;
+    overflow: hidden;
     border-width: 2px;
     border-color: rgba(191, 153, 255, 0.4);
     background-color: rgba(21, 10, 51, 0.5);
@@ -452,9 +453,16 @@
     max-width: 94%;
     max-height: 96%;
     padding: 30px 44px 32px 44px;
-    flex-direction: row;
-    align-items: center;
+    min-height: 0;
+    flex-shrink: 1;
     background-color: rgba(41, 20, 82, 0.96);
+}
+
+#defeat-layout {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
 }
 
 #defeat-card .btn {
@@ -466,20 +474,25 @@
 #defeat-results {
     flex-grow: 1;
     flex-shrink: 1;
-    flex-basis: 0;
-    min-width: 0;
-    align-items: center;
-    margin-right: 44px;
+    flex-basis: auto;
+    width: 360px;
+    min-width: 280px;
+    max-width: 100%;
+    align-items: stretch;
+    margin: 0 22px 16px 0;
 }
 
 #defeat-actions {
     width: 460px;
+    max-width: 100%;
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
 }
 
 #defeat-title {
+    white-space: normal;
+    -unity-text-align: middle-center;
     font-size: 60px;
     color: var(--danger);
     margin: 0 0 8px 0;
@@ -584,3 +597,22 @@
 .perk-icon--7 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk7.svg"); }
 
 .perk-icon--8 { background-image: url("project://database/Assets/_Project/UI/PerkIcons/Perk8.svg"); }
+
+#damage-popup {
+    position: absolute;
+    width: 280px;
+    margin-left: -140px;
+    font-size: 46px;
+    -unity-font-style: bold;
+    color: rgb(255, 95, 104);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgb(45, 7, 22);
+    text-shadow: 0 2px 0 rgba(25, 0, 8, 0.8);
+    opacity: 0;
+}
+
+.minimap-blip--local {
+    border-width: 2px;
+    border-color: white;
+}

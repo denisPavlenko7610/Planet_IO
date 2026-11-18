@@ -10,233 +10,267 @@ using Object = UnityEngine.Object;
 
 namespace PlanetIO.Infrastructure.Audio
 {
-    public sealed class AddressableMusicService : IStartable, IDisposable
-    {
-        private const string MenuMusicAddress = "audio/menu-theme";
-        private const string GameMusicAddress = "audio/game-theme";
-        private const float MaximumMusicVolume = 0.45f;
-        private const float FadeDurationSeconds = 0.25f;
+	public sealed class AddressableMusicService : IStartable, IDisposable
+	{
+		private const string MenuMusicAddress = "audio/menu-theme";
+		private const string GameMusicAddress = "audio/game-theme";
+		private const float MaximumMusicVolume = 0.45f;
+		private const float FadeDurationSeconds = 0.25f;
+		private static readonly string[] MenuMusicAddresses =
+			{ MenuMusicAddress, "audio/exploration-theme", "audio/steller-dreams" };
+		private static readonly string[] GameMusicAddresses =
+			{ GameMusicAddress, "audio/exploration-theme", "audio/steller-dreams" };
 
-        private readonly IContentInitializationService _contentInitializationService;
-        private readonly ISettingsService _settings;
-        private AudioSource _audioSource;
-        private AddressableAssetLease<AudioClip> _clipLease;
-        private readonly AddressableService _addressables;
-        private readonly CancellationTokenSource _lifetime = new();
-        private string _currentAddress = string.Empty;
-        private string _requestedAddress = string.Empty;
-        private int _playGeneration;
-        private bool _disposed;
+		private readonly IContentInitializationService _contentInitializationService;
+		private readonly ISettingsService _settings;
+		private AudioSource _audioSource;
+		private AddressableAssetLease<AudioClip> _clipLease;
+		private readonly AddressableService _addressables;
+		private readonly CancellationTokenSource _lifetime = new();
+		private string _currentAddress = string.Empty;
+		private string _requestedAddress = string.Empty;
+		private int _playGeneration;
+		private bool _disposed;
+		private string _musicSceneName = string.Empty;
 
-        public AddressableMusicService(
-            IContentInitializationService contentInitializationService,
-            ISettingsService settings,
-            AddressableService addressables)
-        {
-            _contentInitializationService = contentInitializationService ?? throw new ArgumentNullException(nameof(contentInitializationService));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _addressables = addressables ?? throw new ArgumentNullException(nameof(addressables));
-        }
+		public AddressableMusicService(
+			IContentInitializationService contentInitializationService,
+			ISettingsService settings,
+			AddressableService addressables
+		)
+		{
+			_contentInitializationService = contentInitializationService ??
+				throw new ArgumentNullException(nameof(contentInitializationService));
+			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
+			_addressables = addressables ?? throw new ArgumentNullException(nameof(addressables));
+		}
 
-        private float TargetVolume => MaximumMusicVolume * _settings.Get(GameSettingKeys.MusicVolume);
+		private float TargetVolume => MaximumMusicVolume * _settings.Get(GameSettingKeys.MusicVolume);
 
-        public void Start()
-        {
-            if (_disposed || _audioSource != null)
-            {
-                return;
-            }
+		public void Start()
+		{
+			if (_disposed || _audioSource != null)
+			{
+				return;
+			}
 
-            GameObject audioObject = new("Addressable Music");
-            Object.DontDestroyOnLoad(audioObject);
-            _audioSource = audioObject.AddComponent<AudioSource>();
-            _audioSource.playOnAwake = false;
-            _audioSource.loop = true;
-            _audioSource.spatialBlend = 0f;
-            _audioSource.volume = 0f;
+			GameObject audioObject = new("Addressable Music");
+			Object.DontDestroyOnLoad(audioObject);
+			_audioSource = audioObject.AddComponent<AudioSource>();
+			_audioSource.playOnAwake = false;
+			_audioSource.loop = true;
+			_audioSource.spatialBlend = 0f;
+			_audioSource.volume = 0f;
 
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            _settings.Changed += OnSettingsChanged;
-            PlayForScene(SceneManager.GetActiveScene());
-        }
+			SceneManager.sceneLoaded += OnSceneLoaded;
+			_settings.Changed += OnSettingsChanged;
+			PlayForScene(SceneManager.GetActiveScene());
+		}
 
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
+		public void Dispose()
+		{
+			if (_disposed)
+			{
+				return;
+			}
 
-            _disposed = true;
-            _lifetime.Cancel();
-            _lifetime.Dispose();
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            _settings.Changed -= OnSettingsChanged;
-            _playGeneration++;
-            ReleaseClip();
+			_disposed = true;
+			_lifetime.Cancel();
+			_lifetime.Dispose();
+			SceneManager.sceneLoaded -= OnSceneLoaded;
+			_settings.Changed -= OnSettingsChanged;
+			_playGeneration++;
+			ReleaseClip();
 
-            if (_audioSource != null)
-            {
-                Object.Destroy(_audioSource.gameObject);
-                _audioSource = null;
-            }
-        }
+			if (_audioSource != null)
+			{
+				Object.Destroy(_audioSource.gameObject);
+				_audioSource = null;
+			}
+		}
 
-        private void OnSceneLoaded(Scene scene, LoadSceneMode _)
-        {
-            PlayForScene(scene);
-        }
+		private void OnSceneLoaded(Scene scene, LoadSceneMode _)
+		{
+			PlayForScene(scene);
+		}
 
-        private void PlayForScene(Scene scene)
-        {
-            string address = scene.name switch
-            {
-                SceneNames.Menu => MenuMusicAddress,
-                SceneNames.Game => GameMusicAddress,
-                _ => string.Empty
-            };
+		private void PlayForScene(Scene scene)
+		{
+			if (_disposed)
+			{
+				return;
+			}
 
-            if (_disposed || string.IsNullOrEmpty(address))
-            {
-                return;
-            }
+			if (scene.name == _musicSceneName && !string.IsNullOrEmpty(_requestedAddress))
+			{
+				ResumeIfNeeded();
+				return;
+			}
 
-            if (string.Equals(address, _requestedAddress, StringComparison.Ordinal))
-            {
-                ResumeIfNeeded();
-                return;
-            }
+			string[] addresses = scene.name switch
+			{
+				SceneNames.Menu => MenuMusicAddresses,
+				SceneNames.Game => GameMusicAddresses,
+				_ => null
+			};
 
-            if (string.Equals(address, _currentAddress, StringComparison.Ordinal) &&
-                _audioSource != null &&
-                _audioSource.clip != null)
-            {
-                int generation = ++_playGeneration;
-                _requestedAddress = address;
-                ResumeIfNeeded();
-                _ = FadeToAsync(TargetVolume, generation);
-                return;
-            }
+			if (addresses == null)
+			{
+				return;
+			}
 
-            _requestedAddress = address;
-            _ = LoadAndPlayAsync(address, ++_playGeneration);
-        }
+			_musicSceneName = scene.name;
+			string historyKey = "PlanetIO.Audio.LastTrack." + scene.name;
+			string previousAddress = PlayerPrefs.GetString(historyKey, string.Empty);
+			int previousIndex = Array.IndexOf(addresses, previousAddress);
+			int index = UnityEngine.Random.Range(0, addresses.Length - (previousIndex >= 0 ? 1 : 0));
+			if (previousIndex >= 0 && index >= previousIndex)
+			{
+				index++;
+			}
 
-        private async Awaitable LoadAndPlayAsync(string address, int generation)
-        {
-            AddressableAssetLease<AudioClip> lease = null;
-            bool ownershipTransferred = false;
+			string address = addresses[index];
+			PlayerPrefs.SetString(historyKey, address);
+			PlayerPrefs.Save();
 
-            try
-            {
-                await _contentInitializationService.InitializeAsync();
-                if (!_contentInitializationService.IsReady ||
-                    !IsCurrentRequest(generation))
-                {
-                    return;
-                }
+			if (string.Equals(address, _requestedAddress, StringComparison.Ordinal))
+			{
+				ResumeIfNeeded();
+				return;
+			}
 
-                lease = await _addressables.LoadAssetAsync<AudioClip>(address, _lifetime.Token);
-                if (!IsCurrentRequest(generation))
+			if (string.Equals(address, _currentAddress, StringComparison.Ordinal) &&
+				_audioSource != null &&
+				_audioSource.clip != null)
+			{
+				int generation = ++_playGeneration;
+				_requestedAddress = address;
+				ResumeIfNeeded();
+				_ = FadeToAsync(TargetVolume, generation);
+				return;
+			}
+
+			_requestedAddress = address;
+			_ = LoadAndPlayAsync(address, ++_playGeneration);
+		}
+
+		private async Awaitable LoadAndPlayAsync(string address, int generation)
+		{
+			AddressableAssetLease<AudioClip> lease = null;
+			bool ownershipTransferred = false;
+
+			try
+			{
+				await _contentInitializationService.InitializeAsync();
+				if (!_contentInitializationService.IsReady ||
+					!IsCurrentRequest(generation))
+				{
+					return;
+				}
+
+				lease = await _addressables.LoadAssetAsync<AudioClip>(address, _lifetime.Token);
+				if (!IsCurrentRequest(generation))
 				{
 					return;
 				}
 
 				await FadeToAsync(0f, generation);
-                if (!IsCurrentRequest(generation))
-                {
-                    return;
-                }
+				if (!IsCurrentRequest(generation))
+				{
+					return;
+				}
 
-                ReleaseClip();
-                _clipLease = lease;
-                ownershipTransferred = true;
-                _currentAddress = address;
-                _requestedAddress = address;
-                _audioSource.clip = lease.Asset;
-                _audioSource.volume = 0f;
-                _audioSource.Play();
-                await FadeToAsync(TargetVolume, generation);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception exception)
-            {
-                UnityLogger.LogException(exception);
-            }
-            finally
-            {
-                if (!ownershipTransferred)
+				ReleaseClip();
+				_clipLease = lease;
+				ownershipTransferred = true;
+				_currentAddress = address;
+				_requestedAddress = address;
+				_audioSource.clip = lease.Asset;
+				_audioSource.volume = 0f;
+				_audioSource.Play();
+				await FadeToAsync(TargetVolume, generation);
+			}
+			catch (OperationCanceledException) { }
+			catch (Exception exception)
+			{
+				UnityLogger.LogException(exception);
+			}
+			finally
+			{
+				if (!ownershipTransferred)
 				{
 					lease?.Dispose();
 				}
 
 				if (!ownershipTransferred && generation == _playGeneration)
-                {
-                    _requestedAddress = _currentAddress;
-                }
-            }
-        }
+				{
+					_requestedAddress = _currentAddress;
+				}
+			}
+		}
 
-        private void OnSettingsChanged(SettingChanged _)
-        {
-            if (_audioSource != null && _audioSource.isPlaying)
-            {
-                _audioSource.volume = TargetVolume;
-            }
-        }
+		private void OnSettingsChanged(SettingChanged _)
+		{
+			if (_audioSource != null && _audioSource.isPlaying)
+			{
+				_audioSource.volume = TargetVolume;
+			}
+		}
 
-        private async Awaitable FadeToAsync(float targetVolume, int generation)
-        {
-            if (!IsCurrentRequest(generation) || _audioSource == null)
-            {
-                return;
-            }
+		private async Awaitable FadeToAsync(float targetVolume, int generation)
+		{
+			if (!IsCurrentRequest(generation) || _audioSource == null)
+			{
+				return;
+			}
 
-            float initialVolume = _audioSource.volume;
-            float elapsed = 0f;
+			float initialVolume = _audioSource.volume;
+			float elapsed = 0f;
 
-            while (elapsed < FadeDurationSeconds && IsCurrentRequest(generation))
-            {
-                elapsed += Time.unscaledDeltaTime;
-                _audioSource.volume = Mathf.Lerp(initialVolume, targetVolume, Mathf.Clamp01(elapsed / FadeDurationSeconds));
-                await Awaitable.NextFrameAsync();
-            }
+			while (elapsed < FadeDurationSeconds && IsCurrentRequest(generation))
+			{
+				elapsed += Time.unscaledDeltaTime;
+				_audioSource.volume = Mathf.Lerp(
+					initialVolume,
+					targetVolume,
+					Mathf.Clamp01(elapsed / FadeDurationSeconds)
+				);
+				await Awaitable.NextFrameAsync();
+			}
 
-            if (IsCurrentRequest(generation) && _audioSource != null)
-            {
-                _audioSource.volume = targetVolume;
-            }
-        }
+			if (IsCurrentRequest(generation) && _audioSource != null)
+			{
+				_audioSource.volume = targetVolume;
+			}
+		}
 
-        private bool IsCurrentRequest(int generation)
-        {
-            return !_disposed && generation == _playGeneration;
-        }
+		private bool IsCurrentRequest(int generation)
+		{
+			return !_disposed && generation == _playGeneration;
+		}
 
-        private void ResumeIfNeeded()
-        {
-            if (_audioSource != null &&
-                _audioSource.clip != null &&
-                !_audioSource.isPlaying)
-            {
-                _audioSource.UnPause();
-            }
-        }
+		private void ResumeIfNeeded()
+		{
+			if (_audioSource != null &&
+				_audioSource.clip != null &&
+				!_audioSource.isPlaying)
+			{
+				_audioSource.UnPause();
+			}
+		}
 
-        private void ReleaseClip()
-        {
-            if (_audioSource != null)
-            {
-                _audioSource.Stop();
-                _audioSource.clip = null;
-            }
+		private void ReleaseClip()
+		{
+			if (_audioSource != null)
+			{
+				_audioSource.Stop();
+				_audioSource.clip = null;
+			}
 
-            _clipLease?.Dispose();
-            _clipLease = null;
+			_clipLease?.Dispose();
+			_clipLease = null;
 
-            _currentAddress = string.Empty;
-        }
-    }
+			_currentAddress = string.Empty;
+		}
+	}
 }

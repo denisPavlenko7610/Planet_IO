@@ -71,13 +71,8 @@ namespace PlanetIO
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-        private readonly NetworkVariable<Color32> _networkColor = new(
-            new Color32(255, 255, 255, 255),
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
-
         private IRespawnService<Enemy> _enemyRespawnService;
-        private ISpawnService<Food> _foodSpawnService;
+        private ISpawnService<FoodRecord> _foodSpawnService;
         private IGameStateService _gameStateService;
         private IPlayerProfileService _playerProfileService;
         private ILootSpawnService _lootSpawnService;
@@ -91,8 +86,7 @@ namespace PlanetIO
         private float _capacityAtDefeat;
         private PlayerVisualEffects _visualEffects;
         private PlanetSkinCatalog _skinCatalog;
-        private readonly Collider2D[] _foodBuffer = new Collider2D[FoodAttractionBuffer];
-        private ContactFilter2D _foodFilter;
+		private readonly System.Collections.Generic.List<FoodRecord> _foodBuffer = new(FoodAttractionBuffer);
 
         public bool IsDefeated => IsSpawned && _networkDefeated.Value;
         public bool IsSpawnProtected => _invincibilityTimeRemaining > 0f;
@@ -117,16 +111,17 @@ namespace PlanetIO
 
         [Inject]
         public void Construct(
-            IRespawnService<Comet> cometRespawnService,
-            IRespawnService<Food> pointRespawnService,
-            IRespawnService<Enemy> enemyRespawnService,
-            ISpawnService<Food> pointSpawnService,
-            IGameStateService gameStateService,
-            IPlayerProfileService playerProfileService,
-            ILootSpawnService lootSpawnService,
-            BordersTrigger bordersTrigger,
-            PlanetSkinCatalog skinCatalog,
-            IPlayerRegistry playerRegistry)
+			IRespawnService<Comet> cometRespawnService,
+			IFoodService pointRespawnService,
+			IRespawnService<Enemy> enemyRespawnService,
+			ISpawnService<FoodRecord> pointSpawnService,
+			IGameStateService gameStateService,
+			IPlayerProfileService playerProfileService,
+			ILootSpawnService lootSpawnService,
+			BordersTrigger bordersTrigger,
+			PlanetSkinCatalog skinCatalog,
+			IPlayerRegistry playerRegistry
+		)
         {
             _skinCatalog = skinCatalog;
             CometRespawnService = cometRespawnService;
@@ -144,8 +139,6 @@ namespace PlanetIO
         {
             base.Awake();
             _rigidbody2D = GetComponent<Rigidbody2D>();
-            _foodFilter = ContactFilter2D.noFilter;
-            _foodFilter.SetLayerMask(LayerMask.GetMask(Constants.FoodLayerName));
             InitializeAbilities();
         }
 
@@ -168,7 +161,6 @@ namespace PlanetIO
             _networkDefeated.OnValueChanged += OnDefeatedChanged;
             _networkBoosting.OnValueChanged += OnBoostingChanged;
             _networkSpawnProtected.OnValueChanged += OnSpawnProtectionChanged;
-            _networkColor.OnValueChanged += OnColorChanged;
             _networkSkin.OnValueChanged += OnSkinChanged;
             SubscribePerks();
             AttachAbilityViews();
@@ -199,7 +191,6 @@ namespace PlanetIO
             if (IsOwner && !WasMigrationRestored)
             {
                 SubmitNicknameRpc(_playerProfileService.Nickname);
-                SetColorRpc(_playerProfileService.PreferredColor);
                 SetSkinRpc((byte)_playerProfileService.SelectedSkin);
             }
 
@@ -214,7 +205,6 @@ namespace PlanetIO
             _networkDefeated.OnValueChanged -= OnDefeatedChanged;
             _networkBoosting.OnValueChanged -= OnBoostingChanged;
             _networkSpawnProtected.OnValueChanged -= OnSpawnProtectionChanged;
-            _networkColor.OnValueChanged -= OnColorChanged;
             _networkSkin.OnValueChanged -= OnSkinChanged;
             UnsubscribePerks();
             base.OnNetworkDespawn();

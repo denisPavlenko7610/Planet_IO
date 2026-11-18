@@ -6,6 +6,7 @@
         "PlanetIO.Gameplay",
         "VContainer",
         "Unity.Netcode.Runtime",
+        "Unity.Collections",
         "RD.Foundation",
         "GUID:6efe087bdf83fde4394da70201de35cc"
     ],

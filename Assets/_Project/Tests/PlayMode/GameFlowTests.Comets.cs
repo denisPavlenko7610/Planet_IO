@@ -12,10 +12,10 @@ namespace PlanetIO.Tests
 {
     public sealed partial class GameFlowTests
     {
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Comets_HalvePlayerAndBotMassAndCurrentScoreAtAnyCometSize()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             Enemy enemy = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
             Comet comet = Object.FindObjectsByType<Comet>(FindObjectsInactive.Exclude).First();
@@ -41,10 +41,10 @@ namespace PlanetIO.Tests
             }
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Comets_AtMinimumMassRetainExistingDefeatRule()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             player.Capacity = player.MinCapacity * 1.5f;
             Comet comet = Object.FindObjectsByType<Comet>(FindObjectsInactive.Exclude).First();
@@ -97,11 +97,11 @@ namespace PlanetIO.Tests
         {
             yield return StartMoonGame();
             FoodSpawner spawner = Object.FindFirstObjectByType<FoodSpawner>();
-            var trail = (Dictionary<Food, float>)typeof(FoodSpawner)
+            var trail = (Dictionary<FoodRecord, float>)typeof(FoodSpawner)
                 .GetField("_cometFood", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(spawner);
-            foreach (Food food in trail.Keys.ToArray()) spawner.Respawn(food);
-            Food[] before = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude);
-            var positions = before.ToDictionary(food => food, food => food.transform.position);
+            foreach (FoodRecord food in trail.Keys.ToArray()) spawner.Respawn(food);
+            FoodRecord[] before = AllFood();
+            var positions = before.ToDictionary(food => food, food => food.Position);
             float totalMass = before.Sum(food => food.GetGrowth(0.002f));
             Vector2 destination = new(170f, 110f);
             for (int index = 0; index < CometRules.MaximumTrailFood + 5; index++)
@@ -110,19 +110,19 @@ namespace PlanetIO.Tests
             }
 
             Assert.That(trail.Count, Is.InRange(1, CometRules.MaximumTrailFood));
-            Food[] after = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude);
+            FoodRecord[] after = AllFood();
             Assert.That(after.Length, Is.EqualTo(before.Length));
             Assert.That(after.Sum(food => food.GetGrowth(0.002f)), Is.EqualTo(totalMass).Within(1e-5f));
-            foreach (Food food in trail.Keys)
+            foreach (FoodRecord food in trail.Keys)
             {
                 Assert.That(food.ValueMultiplier, Is.EqualTo(1f));
                 Assert.That(food.IsDropped, Is.False);
                 Assert.That(food.DensityCell, Is.EqualTo(-1));
-                Assert.That(food.transform.position, Is.Not.EqualTo(positions[food]));
+                Assert.That(food.Position, Is.Not.EqualTo(positions[food]));
             }
 
-            Food[] moved = trail.Keys.ToArray();
-            foreach (Food food in moved) trail[food] = 0f;
+            FoodRecord[] moved = trail.Keys.ToArray();
+            spawner.World.Advance(CometRules.FoodLifetime + 0.01f);
             typeof(FoodSpawner).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(spawner, null);
             Assert.That(trail.Count, Is.Zero);
             Assert.That(moved.All(food => food.DensityCell >= 0), Is.True);

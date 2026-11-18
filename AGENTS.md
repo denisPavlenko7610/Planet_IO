@@ -4,7 +4,18 @@
 
 - Write everything in English except localization: the GDD, docs, this file, commit messages, test names and assertion
   messages.
-- Other languages belong only in localization data (`Assets/_Project/Localization/UIStrings.csv` and the generated tables).
+- Other languages belong only in localization data (`Assets/_Project/Localization/UIStrings.csv` and the generated
+  tables).
+
+## Code formatting
+
+- Use tabs for indentation in C# files, with a tab width of 4, as specified in `.editorconfig`.
+- When adding or editing C# code, use tabs even if nearby legacy code uses spaces. Avoid reformatting unrelated lines.
+- Separate logical blocks of code with a blank line: between members, between groups of statements, after a closing
+  brace of an `if`, `for`, `foreach`, `while`, `switch` or `try` block, and before `return`. Do not pack code into a
+  solid wall of lines.
+- Declare locals with explicit types, never `var`, even when the type is obvious from the right-hand side.
+- Apply both rules to code you add or edit. Do not reformat untouched lines to satisfy them.
 
 ## Design source of truth
 

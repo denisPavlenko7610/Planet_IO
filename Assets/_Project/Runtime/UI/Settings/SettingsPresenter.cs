@@ -124,8 +124,11 @@ namespace PlanetIO.UI.Settings
 
         private void OnBotDifficultyChanged(int difficulty)
         {
-            if (IsOnline) return;
-            _settings.Set(GameSettingKeys.BotDifficulty, difficulty);
+            if (IsOnline)
+			{
+				return;
+			}
+			_settings.Set(GameSettingKeys.BotDifficulty, difficulty);
             _settings.Flush();
             Render();
         }

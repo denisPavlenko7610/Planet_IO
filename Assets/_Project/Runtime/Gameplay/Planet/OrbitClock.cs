@@ -7,7 +7,6 @@ namespace PlanetIO
     {
         private static double _migrationOffset;
         public static void SetMigrationOffset(double offset) => _migrationOffset = offset;
-        public static double MigrationOffset => _migrationOffset;
         public static double Now
         {
             get

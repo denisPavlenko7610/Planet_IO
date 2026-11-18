@@ -4,6 +4,13 @@ namespace PlanetIO
 {
     public static class DirectionArrowRules
     {
+		public const float ScreenHeightFraction = 0.018f;
+
+		public static float ClearanceRadius(float bodyRadius, float spriteRadius)
+		{
+			return Mathf.Max(0f, bodyRadius, spriteRadius) * 1.12f;
+		}
+
         public static float WorldSize(float orthographicSize, float screenHeightFraction)
         {
             return Mathf.Max(0f, orthographicSize) * 2f * Mathf.Max(0f, screenHeightFraction);

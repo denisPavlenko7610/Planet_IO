@@ -10,8 +10,10 @@
     "PlanetIO.Bootstrap",
     "PlanetIO.UI",
     "Unity.Netcode.Runtime",
+    "Unity.Networking.Transport",
     "VContainer",
     "RD.Settings",
+    "RD.Haptics",
     "RD.Localization"
   ],
   "includePlatforms": [],

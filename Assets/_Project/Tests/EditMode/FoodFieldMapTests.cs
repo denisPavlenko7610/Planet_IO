@@ -5,7 +5,7 @@ namespace PlanetIO.Tests
 {
     public sealed class FoodFieldMapTests
     {
-        private const int TotalFood = 1800;
+        private const int TotalFood = 2000;
         private const int Seed = 12345;
 
         private static readonly Rect Bounds = Rect.MinMaxRect(-210f, -125f, 210f, 150f);

@@ -30,6 +30,10 @@ namespace PlanetIO.Tests
 
             var game = Object.FindFirstObjectByType<GameLifetimeScope>();
             game.Container.Resolve<ILootSpawnService>().SpawnLoot(new Vector2(70, 70), 1f);
+			FoodSpawner foodSpawner = Object.FindFirstObjectByType<FoodSpawner>();
+			FoodRecord protectedDrop = foodSpawner.SpawnAt(player.transform, 0.07f);
+			protectedDrop.SetDropper(player.NetworkObjectId, 5f);
+			ulong dropId = protectedDrop.Id;
             var store = Resolve<MatchMigrationStore>();
             store.BeginRecovery();
             long runId = game.Container.Resolve<IRunStats>().Current.RunId;
@@ -41,7 +45,7 @@ namespace PlanetIO.Tests
             expected.Durability[1] = 0;
             expected.Regrow[1] = 4f;
             data = MatchSnapshotCodec.Encode(snapshot);
-            int foodCount = snapshot.Food.Length;
+            int foodCount = snapshot.Food.Count(f => !f.Inactive);
             float nutrition = snapshot.Food.Where(f => f.Dropped).Sum(f => f.Nutrition);
             var manager = NetworkManager.Singleton;
             var sessionService = Resolve<NetworkSessionService>();
@@ -65,12 +69,18 @@ namespace PlanetIO.Tests
 
             player = FindLocalPlayer();
             Assert.That(player.WasMigrationRestored, Is.True);
+			FoodRecord restoredDrop = Object.FindFirstObjectByType<FoodSpawner>().World.Find(dropId);
+			Assert.That(restoredDrop, Is.Not.Null);
+			Assert.That(restoredDrop.IsMagnetImmuneFor(player.NetworkObjectId), Is.True);
+			Assert.That(restoredDrop.ExpiresAt, Is.GreaterThan(0f));
+			Assert.That(AllFood().Count(food => !food.IsDropped), Is.EqualTo(2000));
+
             Assert.That(player.Capacity, Is.EqualTo(expected.Mass).Within(0.00001f));
             Assert.That(player.PerkMask, Is.EqualTo(expected.Perks));
             Assert.That(player.CaptureMigration().Durability[0], Is.EqualTo(1));
             Assert.That(player.CaptureMigration().Regrow[1], Is.EqualTo(4f).Within(0.05f));
             Assert.That(
-                Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude).Count(f => f.IsSpawned),
+                AllFood().Count(f => f.Active),
                 Is.EqualTo(foodCount)
             );
             Assert.That(SumDroppedNutrition(), Is.EqualTo(nutrition).Within(0.0001f));

@@ -76,11 +76,7 @@ namespace PlanetIO
                 travelDirection = _rigidbody2D.linearVelocity;
             }
 
-            Vector2 spawnPosition = BoostDropRules.SpawnPosition(transform.position, travelDirection, BodyRadius);
-            _pointSpawnTransform.position = Constants.ClampToWorld(spawnPosition);
-
-            Food dropped = _foodSpawnService.SpawnAt(_pointSpawnTransform, BoostCost * BoostDropNutritionFraction);
-            dropped?.SetDropper(NetworkObjectId, FoodMagnetRules.OwnDropGraceSeconds);
+			DropBoostFood(_foodSpawnService, _pointSpawnTransform, travelDirection, BoostCost * BoostDropNutritionFraction);
         }
 
         private void OnBoostingChanged(bool _, bool boosting)

@@ -62,7 +62,7 @@ namespace PlanetIO.Tests
         [UnityTest, Timeout(60000)]
         public IEnumerator World_BuildsMapFeaturesAndStarAnchors()
         {
-            yield return StartMoonGame();
+            yield return StartMoonGame(dailyWorld: true);
 
             MapFeatureField.Anchor[] anchors = MapFeatureField.Anchors;
             for (int slot = 0; slot < MapFeatureRules.StarCount; slot++)
@@ -81,7 +81,7 @@ namespace PlanetIO.Tests
         [UnityTest, Timeout(60000)]
         public IEnumerator World_NebulaHidesPlanetsFromRivals()
         {
-            yield return StartMoonGame();
+            yield return StartMoonGame(dailyWorld: true);
             Player player = PrepareMoonPlayer();
             var discs = new MapDisc[MapFeatureRules.NebulaCount];
             MapFeatureRules.Nebulae(TodaySeed(), discs);
@@ -102,7 +102,7 @@ namespace PlanetIO.Tests
         [UnityTest, Timeout(60000)]
         public IEnumerator World_StarPullsAnyBodyTowardIt()
         {
-            yield return StartMoonGame();
+            yield return StartMoonGame(dailyWorld: true);
             Player player = PrepareMoonPlayer();
             MapFeatureField.Anchor star = MapFeatureField.Anchors[0];
             float distance = star.Radius + (star.ZoneRadius - star.Radius) * 0.5f;
@@ -127,7 +127,7 @@ namespace PlanetIO.Tests
         [UnityTest, Timeout(60000)]
         public IEnumerator World_WormholeTeleportsOncePerCooldown()
         {
-            yield return StartMoonGame();
+            yield return StartMoonGame(dailyWorld: true);
             Player player = PrepareMoonPlayer();
             player.GetComponent<PlayerMovement>().enabled = false;
             player.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
@@ -161,7 +161,7 @@ namespace PlanetIO.Tests
         [UnityTest, Timeout(60000)]
         public IEnumerator World_BlackHoleTakesAQuarterOncePerEventAndSpitsLoot()
         {
-            yield return StartMoonGame();
+            yield return StartMoonGame(dailyWorld: true);
             Player player = PrepareMoonPlayer();
             player.Capacity = 1f;
             WorldDirector director = ResolveDirector();
@@ -190,7 +190,7 @@ namespace PlanetIO.Tests
         [UnityTest, Timeout(60000)]
         public IEnumerator World_MeteorShowerLaunchesCometsAcrossTheBandAndRestoresThem()
         {
-            yield return StartMoonGame();
+            yield return StartMoonGame(dailyWorld: true);
             WorldDirector director = ResolveDirector();
             CosmicEvent meteors = FindEvent(CosmicEventType.MeteorShower);
             ForceEvent(director, meteors);
@@ -232,7 +232,7 @@ namespace PlanetIO.Tests
         [UnityTest, Timeout(60000)]
         public IEnumerator World_EventPhasesFireWarningStartAndEndInOrder()
         {
-            yield return StartMoonGame();
+            yield return StartMoonGame(dailyWorld: true);
             WorldDirector director = ResolveDirector();
             CosmicEvent supernova = FindEvent(CosmicEventType.Supernova);
             var order = new List<string>();

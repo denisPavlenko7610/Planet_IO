@@ -22,6 +22,7 @@ namespace PlanetIO
 
         protected void RestorePlanetMigration(PlanetMigrationState state)
         {
+			_targetScale = PlanetSizeRules.Scale(state.Mass);
             _localCapacity = state.Mass;
             _networkCapacity.Value = state.Mass;
             transform.localScale = new Vector3(

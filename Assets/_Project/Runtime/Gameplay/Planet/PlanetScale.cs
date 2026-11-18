@@ -24,7 +24,7 @@ namespace PlanetIO
         [SerializeField, Min(MinAllowedCapacity)] private float _initialCapacity = 0.1f;
         [SerializeField, Range(0f, 1f)] private float _killAbsorbFraction = 0.4f;
         [SerializeField, Min(1f)] private float _eatSizeRatio = CombatRules.DefaultEatSizeRatio;
-        [SerializeField, Min(0f)] private float _foodGrowthFalloff = 1f;
+        [SerializeField, Min(0f)] private float _foodGrowthFalloff = 0.5f;
 
         private readonly NetworkVariable<float> _networkCapacity = new(
             0f,
@@ -36,6 +36,7 @@ namespace PlanetIO
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
+		private float _targetScale;
         private float _localCapacity;
         private ISettingsService _difficultySettings;
         private INetworkSessionService _difficultySession;
@@ -54,7 +55,6 @@ namespace PlanetIO
 
         public float MinCapacity => _minCapacity;
         public float InitialCapacity => _initialCapacity;
-        public float EatSizeRatio => _eatSizeRatio;
 
         public float Capacity
         {
@@ -68,6 +68,7 @@ namespace PlanetIO
                 : GetFallbackDisplayName();
 
         public event Action<float> CapacityChanged;
+        public event Action<float, float> Damaged;
         public event Action<string> DisplayNameChanged;
 
         protected virtual void Awake()
@@ -92,6 +93,7 @@ namespace PlanetIO
             SubscribeMoons();
             PlanetDirectory.Register(this);
             ApplyCapacity(_networkCapacity.Value, true);
+			transform.localScale = new Vector3(_targetScale, _targetScale, ScaleDepth);
             AttachMoonViews();
         }
 
@@ -109,7 +111,7 @@ namespace PlanetIO
         protected abstract float FoodGrowthMultiplier { get; }
         protected abstract float CometDamageMultiplier { get; }
         protected abstract string GetFallbackDisplayName();
-        protected IRespawnService<Food> FoodRespawnService { get; set; }
+        protected IFoodService FoodRespawnService { get; set; }
         protected IRespawnService<Comet> CometRespawnService { get; set; }
 
         protected void SetDisplayName(string value)
@@ -143,10 +145,39 @@ namespace PlanetIO
             return ChangeCapacity(-Mathf.Abs(amount));
         }
 
+        protected bool TakeDamage(float amount)
+        {
+            if (!IsServer || !IsSpawned || amount <= 0f || !float.IsFinite(amount))
+			{
+				return false;
+			}
+			float before = Capacity;
+            float lost = before - ClampCapacity(before - amount);
+            bool changed = Shrink(amount);
+            if (lost > 0f)
+			{
+				ReportDamageRpc(lost, before);
+			}
+			return changed;
+        }
+
+        [Rpc(SendTo.Owner)]
+        private void ReportDamageRpc(float lost, float before)
+        {
+            Damaged?.Invoke(lost, before);
+        }
+
         public bool CanDevour(PlanetScale victim)
         {
             return victim != null && CombatRules.CanDevour(Capacity, victim.Capacity, _eatSizeRatio);
         }
+
+		internal void DropBoostFood(ISpawnService<FoodRecord> spawner, Transform point, Vector2 travelDirection, float nutrition)
+		{
+			point.position = Constants.ClampToWorld(
+				BoostDropRules.SpawnPosition(transform.position, travelDirection, BodyRadius));
+			spawner.SpawnAt(point, nutrition)?.SetDropper(NetworkObjectId, FoodMagnetRules.OwnDropGraceSeconds);
+		}
 
         protected virtual void DeathCheck(float capacity)
         {
@@ -159,18 +190,7 @@ namespace PlanetIO
                 return;
             }
 
-            if (other.TryGetComponent(out Food point))
-            {
-                if (!point.TryClaim())
-                {
-                    return;
-                }
-
-                Grow(GrowthRules.ApplyFalloff(point.GetGrowth(FoodGrowthMultiplier), Capacity, _foodGrowthFalloff, point.Nutrition > 0f));
-                point.PlayEatenEffect();
-                FoodRespawnService?.Respawn(point);
-            }
-            else if (other.TryGetComponent(out Comet comet))
+            if (other.TryGetComponent(out Comet comet))
             {
                 float cometMass = CometRules.Damage(Capacity, CometDamageMultiplier);
                 if (CometHealFraction > 0f)
@@ -179,13 +199,22 @@ namespace PlanetIO
                 }
                 else
                 {
-                    Shrink(cometMass * IncomingDamageMultiplier);
+                    TakeDamage(cometMass * IncomingDamageMultiplier);
                 }
 
                 comet.PlayImpactEffect();
                 CometRespawnService?.Respawn(comet);
             }
         }
+
+		public bool TryEatFood(FoodRecord food)
+		{
+			if (!IsServer || !IsCombatActive || food == null || food.IsMagnetImmuneFor(NetworkObjectId) || !food.TryClaim()) return false;
+			Grow(GrowthRules.ApplyFalloff(food.GetGrowth(FoodGrowthMultiplier), Capacity, _foodGrowthFalloff, food.Nutrition > 0f));
+			FoodRespawnService.PlayEatenEffect(food);
+			FoodRespawnService.Respawn(food);
+			return true;
+		}
 
         private bool ChangeCapacity(float delta)
         {
@@ -236,8 +265,11 @@ namespace PlanetIO
         {
             float previousCapacity = _localCapacity;
             _localCapacity = capacity;
-            float scale = PlanetSizeRules.Scale(capacity);
-            transform.localScale = new Vector3(scale, scale, ScaleDepth);
+			_targetScale = PlanetSizeRules.Scale(capacity);
+			if (!IsSpawned || capacity <= previousCapacity)
+			{
+				transform.localScale = new Vector3(_targetScale, _targetScale, ScaleDepth);
+			}
 
             if (notify)
             {
@@ -250,6 +282,13 @@ namespace PlanetIO
             }
         }
 
+		protected virtual void LateUpdate()
+		{
+			if (!IsSpawned) return;
+			float scale = PlanetSizeRules.SmoothGrowth(transform.localScale.x, _targetScale, Time.deltaTime);
+			transform.localScale = new Vector3(scale, scale, ScaleDepth);
+		}
+
         private float ClampCapacity(float value)
         {
             return Mathf.Clamp(value, _minCapacity, _maxCapacity);
@@ -257,17 +296,12 @@ namespace PlanetIO
 
         private void NormalizeCapacityBounds()
         {
-            _minCapacity = IsFinite(_minCapacity)
+            _minCapacity = float.IsFinite(_minCapacity)
                 ? Mathf.Max(MinAllowedCapacity, _minCapacity)
                 : MinAllowedCapacity;
-            _maxCapacity = IsFinite(_maxCapacity)
+            _maxCapacity = float.IsFinite(_maxCapacity)
                 ? Mathf.Max(_minCapacity, _maxCapacity)
                 : _minCapacity;
-        }
-
-        private static bool IsFinite(float value)
-        {
-            return !float.IsNaN(value) && !float.IsInfinity(value);
         }
 
 #if UNITY_EDITOR

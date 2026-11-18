@@ -49,6 +49,8 @@
 }
 
 .section-label {
+    white-space: normal;
+    min-width: 0;
     color: var(--muted);
     font-size: 34px;
     -unity-text-align: middle-center;
@@ -58,7 +60,10 @@
 
 .btn {
     margin: 0;
-    padding: 0 0 10px 0;
+    padding: 12px 28px 22px 28px;
+    max-width: 100%;
+    flex-shrink: 0;
+    white-space: normal;
     border-width: 0;
     border-radius: 0;
     background-color: rgba(0, 0, 0, 0);
@@ -137,9 +142,10 @@
 }
 
 .btn-icon {
-    width: 92px;
-    height: 92px;
+    width: 104px;
+    height: 104px;
     padding: 0 0 8px 0;
+    overflow: visible;
     align-items: center;
     justify-content: center;
     -unity-slice-left: 60;
@@ -165,6 +171,14 @@
 
 .glyph-missions {
     background-image: url("/Assets/_Project/Sprites/Buttons/IconMissions.png");
+}
+
+.glyph-trophy {
+    background-image: url("/Assets/_Project/Sprites/Buttons/IconTrophy.png");
+}
+
+.glyph-medal {
+    background-image: url("/Assets/_Project/Sprites/Buttons/IconMedal.png");
 }
 
 .btn-badge {
@@ -221,6 +235,8 @@
 
 .field {
     margin: 0;
+    min-width: 0;
+    flex-shrink: 1;
     height: 92px;
 }
 

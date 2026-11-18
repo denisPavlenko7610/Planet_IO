@@ -8,6 +8,31 @@ namespace PlanetIO.Tests
     {
         private const string UiFolder = "Assets/_Project/UI/";
 
+		[Test]
+		public void Minimap_FirstUpdateBeforeLayoutDoesNotPoisonCachedPositions()
+		{
+			var owner = new UnityEngine.GameObject("Minimap layout test");
+			owner.SetActive(false);
+			try
+			{
+				var view = owner.AddComponent<PlanetIO.UI.Hud.MinimapView>();
+				var map = new UnityEngine.UIElements.VisualElement();
+				typeof(PlanetIO.UI.Hud.MinimapView).GetField("_map",
+					System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(view, map);
+				Assert.That(float.IsNaN(map.contentRect.width), Is.True, "Exercise the initial unmeasured layout.");
+				view.UpdateBlips(new[] { new PlanetIO.UI.Hud.MinimapBlip(UnityEngine.Vector2.one, UnityEngine.Color.white) });
+				Assert.That(float.IsFinite(map[0].style.left.value.value), Is.True);
+				Assert.That(map[0].style.left.value.value, Is.GreaterThan(100f));
+				view.UpdateBlips(new[] { new PlanetIO.UI.Hud.MinimapBlip(UnityEngine.Vector2.zero, UnityEngine.Color.white) });
+				Assert.That(map[0].style.left.value.value, Is.Zero);
+				Assert.That(map[0].style.top.value.value, Is.GreaterThan(80f));
+			}
+			finally
+			{
+				UnityEngine.Object.DestroyImmediate(owner);
+			}
+		}
+
         [TestCase(".btn-cta")]
         [TestCase(".btn-long")]
         [TestCase(".btn-small")]

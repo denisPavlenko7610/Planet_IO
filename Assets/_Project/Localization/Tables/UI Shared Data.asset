@@ -51,10 +51,6 @@ MonoBehaviour:
     m_Key: menu.online
     m_Metadata:
       m_Items: []
-  - m_Id: 3656122375
-    m_Key: menu.color
-    m_Metadata:
-      m_Items: []
   - m_Id: 3660316672
     m_Key: status.ready
     m_Metadata:
@@ -481,6 +477,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18145445231841280
     m_Key: status.migrating
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357037051904
+    m_Key: settings.play_games_sign_in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937984
+    m_Key: settings.leaderboards
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937985
+    m_Key: settings.achievements
     m_Metadata:
       m_Items: []
   m_Metadata:

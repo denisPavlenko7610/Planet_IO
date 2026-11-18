@@ -2,7 +2,7 @@
 
 IO game inspired by Slither.io, but with a different growth and survival loop.
 
-Players grow only by eating points, become slower as they get larger, and must trade speed, mass, and positioning to survive.
+Players grow by collecting food and absorbing smaller planets. Movement speed stays independent of size; boost, moons and gravity add tactical choices.
 
 ![image](https://user-images.githubusercontent.com/13468920/204050922-29bc7332-afac-4204-9f4d-99551a3ba36b.png)
 

@@ -61,12 +61,11 @@ namespace PlanetIO.Tests
 			yield return LeaveToMenu();
 		}
 
-		[UnityTest]
+		[UnityTest, SharedWorld]
 		[Timeout(45000)]
 		public IEnumerator MinimumStartingMass_SurvivesRespawnAndStillDiesFromDamage()
 		{
-			yield return StartSoloGame();
-			yield return WaitForGameplay(10f);
+			yield return StartSharedMoonGame();
 
 			Player player = FindLocalPlayer();
 			Assert.That(player.InitialCapacity, Is.EqualTo(player.MinCapacity));
@@ -83,8 +82,7 @@ namespace PlanetIO.Tests
 				Is.True,
 				"Damage below the minimum must still defeat a player already at that minimum."
 			);
-
-			yield return LeaveToMenu();
+			yield return null;
 		}
 	}
 }

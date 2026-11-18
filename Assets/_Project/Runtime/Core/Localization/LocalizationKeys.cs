@@ -14,7 +14,6 @@ namespace PlanetIO
         public const string MenuSettings = "menu.settings";
         public const string MenuBestScore = "menu.best_score";
         public const string MenuOnline = "menu.online";
-        public const string MenuColor = "menu.color";
         public const string MenuPlanet = "menu.planet";
         public const string MenuSkinLocked = "menu.skin_locked";
         public const string MenuAdUnavailable = "menu.ad_unavailable";
@@ -49,6 +48,9 @@ namespace PlanetIO
         public const string SettingsAdPrivacy = "settings.ad_privacy";
         public const string SettingsPrivacyPolicy = "settings.privacy_policy";
         public const string SettingsClose = "settings.close";
+        public const string SettingsPlayGamesSignIn = "settings.play_games_sign_in";
+        public const string SettingsLeaderboards = "settings.leaderboards";
+        public const string SettingsAchievements = "settings.achievements";
 
         public const string HudSinglePlayer = "hud.single_player";
         public const string HudRoom = "hud.room";
@@ -189,11 +191,12 @@ namespace PlanetIO
         public static readonly string[] All =
         {
             MenuNicknamePlaceholder, MenuRandomNickname, MenuPlayWithBots, MenuCreateRoom, MenuQuickPlay, MenuJoinRoom,
-            MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuColor, MenuPlanet, MenuSkinLocked, MenuAdUnavailable,
+            MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuPlanet, MenuSkinLocked, MenuAdUnavailable,
             StatusReady, StatusCreatingRoom, StatusRoomCreated, StatusConnecting, StatusStartingSolo,
             StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusMigrating, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
             SettingsBotDifficulty, SettingsBotsOnly, DifficultyEasy, DifficultyMedium, DifficultyHard,
             SettingsTitle, SettingsMusic, SettingsSound, SettingsLanguage, SettingsHaptics, SettingsControlsSwapped, SettingsFixedJoystick, SettingsAdPrivacy, SettingsPrivacyPolicy, SettingsClose,
+            SettingsPlayGamesSignIn, SettingsLeaderboards, SettingsAchievements,
             HudSinglePlayer, HudRoom, HudPlayers, HudRank, HudLeaders, HudHintTouch,
             HudYouAte, HudYouLost, HudFinalScore, HudPlayAgain, HudWatchAd, HudLeave, HudBoost, HudBackToLeave,
             HudKillFeed, TutorialEat, TutorialAvoid, TutorialBoost,

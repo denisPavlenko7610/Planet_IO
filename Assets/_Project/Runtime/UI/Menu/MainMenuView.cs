@@ -67,6 +67,7 @@ namespace PlanetIO.UI.Menu
             _menuRoot = root.Q<VisualElement>("menu-root");
             _menuRoot.RegisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
             EnableProgressView(root);
+            EnablePlayGamesView(root);
             EnableModeView(root);
             EnableScreens(root);
 
@@ -88,7 +89,6 @@ namespace PlanetIO.UI.Menu
             _labels.Bind(_quickPlayButton, LocalizationKeys.MenuQuickPlay);
             _labels.Bind(_joinRoomButton, LocalizationKeys.MenuJoinRoom);
             _labels.Bind(root.Q<Button>("random-nickname"), LocalizationKeys.MenuRandomNickname);
-            _labels.Bind(root.Q<Label>("color-label"), LocalizationKeys.MenuColor);
             _labels.Bind(root.Q<Label>("planet-label"), LocalizationKeys.MenuPlanet);
             _labels.Bind(_onlineButton, LocalizationKeys.MenuOnline);
             _labels.Bind(_customizeClose, LocalizationKeys.SettingsClose);
@@ -107,6 +107,7 @@ namespace PlanetIO.UI.Menu
             _roomCodeInput.UnregisterCallback<KeyDownEvent>(OnRoomCodeKeyDown);
             _menuRoot.UnregisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
             DisableProgressView();
+            DisablePlayGamesView();
             DisableModeView();
             DisableScreens();
             _labels?.Dispose();

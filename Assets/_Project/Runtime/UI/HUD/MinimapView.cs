@@ -8,12 +8,16 @@ namespace PlanetIO.UI.Hud
     {
         public readonly Vector2 NormalizedPosition;
         public readonly Color Color;
+		public readonly bool IsLocal;
+		public readonly bool IsEvent;
         public readonly bool IsLeader;
 
-        public MinimapBlip(Vector2 normalizedPosition, Color color, bool isLeader = false)
+		public MinimapBlip(Vector2 normalizedPosition, Color color, bool isLeader = false, bool isLocal = false, bool isEvent = false)
         {
             NormalizedPosition = normalizedPosition;
             Color = color;
+			IsLocal = isLocal;
+			IsEvent = isEvent;
             IsLeader = isLeader;
         }
     }
@@ -36,7 +40,8 @@ namespace PlanetIO.UI.Hud
             _map = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>("minimap");
             _blips.Clear();
             _states.Clear();
-            _map.Clear();
+			_map.Clear();
+			_map.style.height = FallbackSize * Constants.WorldBounds.height / Constants.WorldBounds.width;
         }
 
         public void UpdateBlips(IReadOnlyList<MinimapBlip> blips)
@@ -56,9 +61,9 @@ namespace PlanetIO.UI.Hud
             }
 
             Vector2 size = _map.contentRect.size;
-            if (size.x <= 0f || size.y <= 0f)
+			if (!float.IsFinite(size.x) || !float.IsFinite(size.y) || size.x <= 0f || size.y <= 0f)
             {
-                size = new Vector2(FallbackSize, FallbackSize);
+				size = new Vector2(FallbackSize, FallbackSize * Constants.WorldBounds.height / Constants.WorldBounds.width);
             }
 
             while (_states.Count < _blips.Count)
@@ -83,24 +88,26 @@ namespace PlanetIO.UI.Hud
                 }
 
                 MinimapBlip data = blips[index];
-                float blipSize = data.IsLeader ? LeaderBlipSize : BlipSize;
-                float left = data.NormalizedPosition.x * size.x - blipSize * 0.5f;
-                float top = (1f - data.NormalizedPosition.y) * size.y - blipSize * 0.5f;
+				float blipSize = data.IsLeader || data.IsLocal ? LeaderBlipSize : BlipSize;
+				float left = Mathf.Clamp(data.NormalizedPosition.x * size.x - blipSize * 0.5f, 0f, Mathf.Max(0f, size.x - blipSize));
+				float top = Mathf.Clamp((1f - data.NormalizedPosition.y) * size.y - blipSize * 0.5f, 0f, Mathf.Max(0f, size.y - blipSize));
 
+				blip.EnableInClassList("minimap-blip--local", data.IsLocal);
                 if (!state.Visible)
                 {
                     blip.style.display = DisplayStyle.Flex;
                     state.Visible = true;
                 }
 
-                if (!state.Initialized || state.Size != blipSize)
+				if (!state.Initialized || state.Size != blipSize || state.IsEvent != data.IsEvent)
                 {
                     blip.style.width = blipSize;
                     blip.style.height = blipSize;
-                    blip.style.borderTopLeftRadius = blipSize * 0.5f;
-                    blip.style.borderTopRightRadius = blipSize * 0.5f;
-                    blip.style.borderBottomLeftRadius = blipSize * 0.5f;
-                    blip.style.borderBottomRightRadius = blipSize * 0.5f;
+					blip.style.borderTopLeftRadius = data.IsEvent ? 0f : blipSize * 0.5f;
+					blip.style.borderTopRightRadius = data.IsEvent ? 0f : blipSize * 0.5f;
+					blip.style.borderBottomLeftRadius = data.IsEvent ? 0f : blipSize * 0.5f;
+					blip.style.borderBottomRightRadius = data.IsEvent ? 0f : blipSize * 0.5f;
+					state.IsEvent = data.IsEvent;
                     state.Size = blipSize;
                 }
 
@@ -110,13 +117,13 @@ namespace PlanetIO.UI.Hud
                     state.Color = data.Color;
                 }
 
-                if (!state.Initialized || Mathf.Abs(state.Left - left) >= PositionTolerance)
+				if (!state.Initialized || !float.IsFinite(state.Left) || Mathf.Abs(state.Left - left) >= PositionTolerance)
                 {
                     blip.style.left = left;
                     state.Left = left;
                 }
 
-                if (!state.Initialized || Mathf.Abs(state.Top - top) >= PositionTolerance)
+				if (!state.Initialized || !float.IsFinite(state.Top) || Mathf.Abs(state.Top - top) >= PositionTolerance)
                 {
                     blip.style.top = top;
                     state.Top = top;
@@ -129,6 +136,7 @@ namespace PlanetIO.UI.Hud
 
         private struct BlipState
         {
+			public bool IsEvent;
             public bool Initialized;
             public bool Visible;
             public float Size;

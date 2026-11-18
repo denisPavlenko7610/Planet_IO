@@ -11,6 +11,7 @@ namespace PlanetIO.Infrastructure.Mobile
     public sealed class MobileRuntimeService : IStartable, ITickable, IDisposable
     {
         private const int TargetFrameRate = 60;
+		private const int MobileMenuFrameRate = 30;
         private const float LeaveConfirmWindowSeconds = 2f;
 
         private readonly INetworkSessionService _networkSessionService;
@@ -106,6 +107,13 @@ namespace PlanetIO.Infrastructure.Mobile
 
         private static void ApplySceneSettings(Scene scene)
         {
+			if (UnityEngine.Application.isMobilePlatform)
+			{
+				UnityEngine.Application.targetFrameRate = scene.name == SceneNames.Game
+					? TargetFrameRate
+					: MobileMenuFrameRate;
+			}
+
             Screen.sleepTimeout = scene.name == SceneNames.Game
                 ? SleepTimeout.NeverSleep
                 : SleepTimeout.SystemSetting;

@@ -1,3 +1,94 @@
 # Google Mobile Ads (Next Gen) classes referenced by the Unity wrapper but absent in Legacy mode.
 -dontwarn com.google.unity.ads.nextgen.**
 -dontwarn com.google.android.libraries.ads.mobile.sdk.**
+
+# Google Play Games, Play Core and In-App Review (copied from the packages' Proguard folders).
+-keep class com.google.android.gms.games.leaderboard.** { *; }
+-keep class com.google.android.gms.games.snapshot.** { *; }
+-keep class com.google.android.gms.games.achievement.** { *; }
+-keep class com.google.android.gms.games.event.** { *; }
+-keep class com.google.android.gms.games.stats.** { *; }
+-keep class com.google.android.gms.games.* { *; }
+-keep class com.google.android.gms.common.api.ResultCallback { *; }
+-keep class com.google.android.gms.signin.** { *; }
+-keep class com.google.android.gms.dynamic.** { *; }
+-keep class com.google.android.gms.dynamite.** { *; }
+-keep class com.google.android.gms.tasks.** { *; }
+-keep class com.google.android.gms.security.** { *; }
+-keep class com.google.android.gms.base.** { *; }
+-keep class com.google.android.gms.actions.** { *; }
+-keep class com.google.games.bridge.** { *; }
+-keep class com.google.android.gms.common.ConnectionResult { *; }
+-keep class com.google.android.gms.common.GooglePlayServicesUtil { *; }
+-keep class com.google.android.gms.common.api.** { *; }
+-keep class com.google.android.gms.common.data.DataBufferUtils { *; }
+-keep class com.google.android.gms.nearby.** { *; }
+-keep class com.google.android.play.core.common.IntentSenderForResultStarter {
+    public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle);
+}
+-keep class com.google.android.play.core.common.LocalTestingException {
+}
+-keep class com.google.android.play.core.listener.StateUpdatedListener {
+    public abstract void onStateUpdate(java.lang.Object);
+}
+-keep @interface android.support.annotation.NonNull
+-keep @interface android.support.annotation.Nullable
+-keep class com.google.android.gms.tasks.OnCompleteListener {
+    public abstract void onComplete(com.google.android.gms.tasks.Task);
+}
+-keep class com.google.android.gms.tasks.OnFailureListener {
+    public abstract void onFailure(java.lang.Exception);
+}
+-keep class com.google.android.gms.tasks.OnSuccessListener {
+    public abstract void onSuccess(java.lang.Object);
+}
+-keep class com.google.android.gms.tasks.RuntimeExecutionException {
+}
+-keep class com.google.android.gms.tasks.Task {
+    <init>();
+    public com.google.android.gms.tasks.Task addOnCompleteListener(com.google.android.gms.tasks.OnCompleteListener);
+    public com.google.android.gms.tasks.Task addOnCompleteListener(java.util.concurrent.Executor, com.google.android.gms.tasks.OnCompleteListener);
+    public abstract com.google.android.gms.tasks.Task addOnFailureListener(com.google.android.gms.tasks.OnFailureListener);
+    public abstract com.google.android.gms.tasks.Task addOnFailureListener(java.util.concurrent.Executor, com.google.android.gms.tasks.OnFailureListener);
+    public abstract com.google.android.gms.tasks.Task addOnSuccessListener(com.google.android.gms.tasks.OnSuccessListener);
+    public abstract com.google.android.gms.tasks.Task addOnSuccessListener(java.util.concurrent.Executor, com.google.android.gms.tasks.OnSuccessListener);
+    public abstract java.lang.Exception getException();
+    public abstract java.lang.Object getResult();
+    public abstract java.lang.Object getResult(java.lang.Class);
+    public abstract boolean isComplete();
+    public abstract boolean isSuccessful();
+}
+-keep class com.google.android.gms.tasks.TaskExecutors {
+    public static java.util.concurrent.Executor MAIN_THREAD;
+}
+-keep class com.google.android.gms.tasks.Tasks {
+    public static java.lang.Object await(com.google.android.gms.tasks.Task);
+    public static java.lang.Object await(com.google.android.gms.tasks.Task, long, java.util.concurrent.TimeUnit);
+    public static com.google.android.gms.tasks.Task whenAll(java.util.Collection);
+}
+-keep class com.google.android.gms.common.api.ApiException {
+    public int getStatusCode();
+}
+-keep class com.google.android.play.core.review.ReviewManager {
+  public com.google.android.gms.tasks.Task requestReviewFlow();
+  public com.google.android.gms.tasks.Task launchReviewFlow(android.app.Activity, com.google.android.play.core.review.ReviewInfo);
+}
+-keepnames class com.google.android.play.core.review.ReviewInfo
+-keep class com.google.android.play.core.review.ReviewManagerFactory {
+  <init>();
+  public static com.google.android.play.core.review.ReviewManager create(android.content.Context);
+}
+-keep class com.google.android.play.core.review.testing.FakeReviewManager {
+  public <init>(android.content.Context);
+  public com.google.android.gms.tasks.Task requestReviewFlow();
+  public com.google.android.gms.tasks.Task launchReviewFlow(android.app.Activity, com.google.android.play.core.review.ReviewInfo);
+}
+-keep class com.google.android.play.core.review.model.ReviewErrorCode {
+    public static int NO_ERROR;
+    public static int PLAY_STORE_NOT_FOUND;
+    public static int INVALID_REQUEST;
+    public static int INTERNAL_ERROR;
+}
+-keep class com.google.android.play.core.review.ReviewException {
+    public int getErrorCode();
+}

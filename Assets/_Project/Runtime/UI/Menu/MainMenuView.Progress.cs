@@ -121,7 +121,7 @@ namespace PlanetIO.UI.Menu
 
         public void SetMissionsAlert(bool visible)
         {
-            _missionsBadge.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            _missionsBadge.SetDisplayed(visible);
         }
 
         public void ShowMissions(string title, string streak, string bonus, string close, MissionRow[] rows)
@@ -129,14 +129,14 @@ namespace PlanetIO.UI.Menu
             _missionsTitle.text = title;
             _missionsStreak.text = streak;
             _missionsBonus.text = bonus ?? string.Empty;
-            _missionsBonus.style.display = string.IsNullOrEmpty(bonus) ? DisplayStyle.None : DisplayStyle.Flex;
+            _missionsBonus.SetDisplayed(!string.IsNullOrEmpty(bonus));
             _missionsClose.text = close;
 
             for (int index = 0; index < MissionSlots; index++)
             {
                 bool available = rows != null && index < rows.Length;
                 VisualElement row = _missionNames[index].parent.parent;
-                row.style.display = available ? DisplayStyle.Flex : DisplayStyle.None;
+                row.SetDisplayed(available);
                 if (!available)
                 {
                     continue;
@@ -149,13 +149,13 @@ namespace PlanetIO.UI.Menu
                 _missionClaims[index].SetEnabled(data.State == MissionRowState.Claimable);
                 _missionClaims[index].style.opacity = data.State == MissionRowState.InProgress ? 0.45f : 1f;
                 _missionRerolls[index].text = data.RerollLabel;
-                _missionRerolls[index].style.display = data.CanReroll ? DisplayStyle.Flex : DisplayStyle.None;
+                _missionRerolls[index].SetDisplayed(data.CanReroll);
             }
         }
 
         public void SetMissionsVisible(bool visible)
         {
-            _missionsOverlay.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            _missionsOverlay.SetDisplayed(visible);
         }
 
         private void OnMissionsClicked() => MissionsRequested?.Invoke();

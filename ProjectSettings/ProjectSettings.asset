@@ -167,7 +167,7 @@ PlayerSettings:
   - {fileID: 11400000, guid: a1763f7e521264543b7bc917f7a3879a, type: 2}
   - {fileID: 11400000, guid: 3f5b5dff67a942289a9defa416b206f3, type: 2}
   - {fileID: 11400000, guid: dafc5443cd90af348b02a4c458584bfb, type: 2}
-  - {fileID: 11400000, guid: 6fcd55d4163f6f64c991f4a4ead92c70, type: 2}
+  - {fileID: 11400000, guid: bc6a6919807bf8240a88ad30b31fe792, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -195,7 +195,7 @@ PlayerSettings:
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 8
+  AndroidBundleVersionCode: 11
   AndroidMinSdkVersion: 26
   AndroidTargetSdkVersion: 36
   AndroidCompileSdkVersion: 0
@@ -927,11 +927,11 @@ PlayerSettings:
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
   enableDirectStorage: 0
-  cloudProjectId: 1aa366e4-0d96-40aa-ac14-e9d4be87db5b
+  cloudProjectId: 378049be-2d39-4f00-8d34-4702c9f614de
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Planet_IO
-  organizationId: denys-pavlenko
+  projectName: Planet_IO (2)
+  organizationId: denispavlenko7610new
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

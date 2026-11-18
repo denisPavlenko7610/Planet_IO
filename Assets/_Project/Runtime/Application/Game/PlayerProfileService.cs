@@ -12,7 +12,6 @@ namespace PlanetIO.Application
 {
     public sealed class PlayerProfileService : IPlayerProfileService
     {
-        private const string ColorIndexKey = "PlanetIO.ColorIndex";
         private const string NicknameKey = "PlanetIO.Nickname";
         private const string BestScoreKey = "PlanetIO.BestScore";
         private const string SelectedSkinKey = "PlanetIO.Skins.Selected";
@@ -38,7 +37,6 @@ namespace PlanetIO.Application
             _saves = saves ?? throw new ArgumentNullException(nameof(saves));
             SelectedSkin = FirstFreeSkin();
             Nickname = PlanetNames.Get(0);
-            PreferredColor = PlayerPalette.GetColor(0);
         }
 
         public async Awaitable InitializeAsync(CancellationToken cancellationToken = default)
@@ -60,10 +58,8 @@ namespace PlanetIO.Application
             SelectedSkin = savedSkin >= 0 && IsSkinUnlocked(savedSkin) ? savedSkin : FirstFreeSkin();
             Nickname = NicknameRules.Normalize(data.Nickname);
             BestScore = data.BestScore;
-            PreferredColor = PlayerPalette.GetColor(data.ColorIndex);
             _initialized = true;
             NicknameChanged?.Invoke(Nickname);
-            PreferredColorChanged?.Invoke(PreferredColor);
             SkinChanged?.Invoke(SelectedSkin);
             SkinsUnlocked?.Invoke();
         }
@@ -76,7 +72,6 @@ namespace PlanetIO.Application
                 Version = ProfileVersion,
                 Nickname = string.IsNullOrWhiteSpace(nickname)
                     ? PlanetNames.Pick(_random) : NicknameRules.Normalize(nickname),
-                ColorIndex = Mathf.Clamp(PlayerPrefs.GetInt(ColorIndexKey, 0), 0, PlayerPalette.Colors.Count - 1),
                 BestScore = Mathf.Max(0, PlayerPrefs.GetInt(BestScoreKey, 0)),
                 SelectedSkin = PlayerPrefs.GetString(SelectedSkinKey, string.Empty),
                 UnlockedSkins = PlayerPrefs.GetString(UnlockedSkinsKey, string.Empty)
@@ -87,7 +82,6 @@ namespace PlanetIO.Application
         private static void Validate(ProfileData data)
         {
             if (data == null || data.Version != ProfileVersion || data.BestScore < 0 ||
-                data.ColorIndex < 0 || data.ColorIndex >= PlayerPalette.Colors.Count ||
                 string.IsNullOrWhiteSpace(data.Nickname) || data.UnlockedSkins == null ||
                 data.UnlockedSkins.Any(string.IsNullOrWhiteSpace))
                 throw new InvalidSaveDataException("Unsupported or invalid Planet_IO profile.");
@@ -115,7 +109,6 @@ namespace PlanetIO.Application
                         {
                             Version = ProfileVersion,
                             Nickname = Nickname,
-                            ColorIndex = Mathf.Max(0, PlayerPalette.IndexOf(PreferredColor)),
                             BestScore = BestScore,
                             SelectedSkin = _skinCatalog.Get(SelectedSkin).Id,
                             UnlockedSkins = _unlockedSkins.OrderBy(id => id).ToArray()
@@ -147,17 +140,49 @@ namespace PlanetIO.Application
         {
             public int Version;
             public string Nickname;
-            public int ColorIndex;
             public int BestScore;
             public string SelectedSkin;
             public string[] UnlockedSkins;
         }
 
+        public void ExportCloud(CloudSaveData data)
+        {
+            data.Nickname = Nickname;
+            data.BestScore = BestScore;
+            data.SelectedSkin = _skinCatalog.Get(SelectedSkin).Id;
+            data.UnlockedSkins = _unlockedSkins.OrderBy(id => id, StringComparer.Ordinal).ToArray();
+        }
+
+        public void ImportCloud(CloudSaveData data)
+        {
+            if (!_initialized || data == null)
+            {
+                return;
+            }
+
+            foreach (string id in data.UnlockedSkins)
+            {
+                if (_skinCatalog.IndexOf(id) >= 0)
+                {
+                    _unlockedSkins.Add(id);
+                }
+            }
+
+            BestScore = Mathf.Max(BestScore, data.BestScore);
+            SetNickname(data.Nickname);
+            int skin = _skinCatalog.IndexOf(data.SelectedSkin);
+            if (skin >= 0 && IsSkinUnlocked(skin))
+            {
+                SelectSkin(skin);
+            }
+
+            Save();
+            SkinsUnlocked?.Invoke();
+        }
+
         public event Action<string> NicknameChanged;
-        public event Action<Color32> PreferredColorChanged;
 
         public string Nickname { get; private set; }
-        public Color32 PreferredColor { get; private set; }
         public int BestScore { get; private set; }
         public int SelectedSkin { get; private set; }
 
@@ -243,21 +268,5 @@ namespace PlanetIO.Application
             SetNickname(PlanetNames.Pick(_random, Nickname));
         }
 
-        public void SetPreferredColor(Color32 color)
-        {
-            if ((Color)PreferredColor == (Color)color)
-            {
-                return;
-            }
-
-            PreferredColor = color;
-            int colorIndex = PlayerPalette.IndexOf(color);
-            if (colorIndex >= 0)
-            {
-                Save();
-            }
-
-            PreferredColorChanged?.Invoke(color);
-        }
     }
 }

@@ -6,7 +6,7 @@ namespace PlanetIO
     {
         public const float ZoneFactor = 3f;
         public const float AffectedMassRatio = 0.6f;
-        public const float MaxPullSpeed = 1.4f;
+        public const float MaxPullSpeed = 1.4f * MovementRules.PlayerSpeed / 4.8f;
         public const float TangentMinDegrees = 60f;
         public const float TangentMaxDegrees = 120f;
         public const float MinSlingshotSpeed = 1f;

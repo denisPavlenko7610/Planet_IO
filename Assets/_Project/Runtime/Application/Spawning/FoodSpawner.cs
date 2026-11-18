@@ -1,343 +1,191 @@
-using UnityEngine;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using PlanetIO.Pooling;
+using System.Linq;
+using Unity.Netcode;
+using UnityEngine;
+using VContainer;
 using Random = UnityEngine.Random;
 
 namespace PlanetIO
 {
-    public sealed partial class FoodSpawner
-        : Spawner<Food>, IRespawnService<Food>, ISpawnService<Food>, ILootSpawnService, IFoodFieldGuide, ICometFoodTrail, IMigrationLootFactory
-    {
-        public const float LootMassFraction = 0.6f;
-        private const float LootItemsPerCapacity = 20f;
-        private const int MinimumLootItems = 4;
-        private const int MaximumLootItems = 30;
-        private const float MinimumLootScale = 0.7f;
-        private const float MaximumLootScale = 1.6f;
-        private const float LootScalePerNutrition = 10f;
-        private const float LootTintMultiplier = 2f;
-        private const float GoldenValueMultiplier = 8f;
+	public sealed partial class FoodSpawner : MonoBehaviour, IFoodService, ILootSpawnService, IFoodFieldGuide, ICometFoodTrail, IMigrationLootFactory
+	{
+		public const float LootMassFraction = 0.6f;
+		private const float GoldenValueMultiplier = 8f;
+		[SerializeField] private float _droppedPointLifetime = 10f;
+		[SerializeField] private float _lootLifetime = 20f;
+		[SerializeField] private float _goldenChance = 0.04f;
+		[SerializeField] private FoodFieldSettings _fieldSettings = new();
+		[SerializeField] private FoodSizeTiers _sizeTiers = new();
+		[SerializeField] private Vector2 _horizontalSpawnRange = new(-210f, 210f);
+		[SerializeField] private Vector2 _verticalSpawnRange = new(-125f, 150f);
+		private FoodFieldMap _fieldMap;
+		private float _relocateTimer;
+		private readonly List<FoodRecord> _ambientFood = new(2000);
+		private readonly Dictionary<FoodRecord, float> _cometFood = new();
+		private readonly ExpiryQueue<ulong> _expiry = new();
+		private IObjectResolver _resolver;
+		private IGameStateService _gameState;
+		private FoodReplication _replication;
+		private FoodWorld _world;
+		private FoodViewRenderer _view;
+		private NetworkManager _network;
+		public FoodWorld World => _world?.Authoritative == true ? _world : _replication?.Replica.World ?? _world;
+		public FoodWorld ViewWorld => _world?.Authoritative == true ? _world : _replication?.Replica.World;
+		public bool IsReplicaReady => _world?.Authoritative == true || _replication?.Replica.Ready == true;
+		public event Action<FoodEatEvent> Eaten;
+		public void MarkWorldReady() => _replication.MarkReady();
+		public ulong Epoch => _replication?.Epoch ?? 0;
 
-        [SerializeField, Min(0.1f)]
-        private float _droppedPointLifetime = 10f;
-        [SerializeField, Min(0.1f)]
-        private float _lootLifetime = 20f;
-        [SerializeField, Range(0f, 1f)]
-        private float _goldenChance = 0.04f;
-        [SerializeField]
-        private FoodFieldSettings _fieldSettings = new();
-        [SerializeField]
-        private FoodSizeTiers _sizeTiers = new();
+		[Inject] public void ConstructCometTrail(IObjectResolver resolver) => _resolver = resolver;
 
-        private FoodFieldMap _fieldMap;
-        private float _relocateTimer;
-        private int _sourceCell = FoodFieldMap.NoCell;
-        private int _pendingCell = FoodFieldMap.NoCell;
-        private bool _pendingGolden;
-        private readonly List<Food> _ambientFood = new();
-        private readonly Dictionary<Food, float> _cometFood = new();
-        private readonly List<Food> _expiredCometFood = new();
-        private readonly ExpiryQueue<Food> _dropExpiry = new();
-        private float _dropClock;
-        private IGameStateService _gameState;
-        private VContainer.IObjectResolver _resolver;
+		public void Initialize(FoodPool configuration, NetworkManager network = null)
+		{
+			if (_world != null) return;
+			NetworkManager manager = network != null ? network : NetworkManager.Singleton;
+			_network = manager;
+			_world = new FoodWorld(manager != null && manager.IsServer, Constants.WorldBounds);
+			if (_world.Authoritative)
+				_fieldMap = new FoodFieldMap(Rect.MinMaxRect(_horizontalSpawnRange.x, _verticalSpawnRange.x,
+					_horizontalSpawnRange.y, _verticalSpawnRange.y), configuration.Capacity, _fieldSettings, Random.Range(int.MinValue, int.MaxValue));
+			_replication = new FoodReplication(this, manager);
+			if (manager.IsClient && SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null)
+				_view = new FoodViewRenderer(configuration, SceneContainers.Get(SceneContainers.Food));
+		}
 
-        [VContainer.Inject]
-        public void ConstructCometTrail(VContainer.IObjectResolver resolver) => _resolver = resolver;
+		public FoodRecord CreateObject()
+		{
+			_world.RequireAuthority();
+			int cell = _fieldMap.Reserve(FoodFieldMap.NoCell);
+			bool golden = Random.value < _goldenChance;
+			float size = golden ? _sizeTiers.ResolveGolden(Random.value) : _sizeTiers.Resolve(Random.value, Random.value);
+			FoodRecord food = _world.Create(_fieldMap.SamplePosition(cell), size, (byte)Random.Range(0, FoodPool.Colors.Length));
+			_world.Configure(food, false, false, cell, 0f, golden ? GoldenValueMultiplier : 1f);
+			_ambientFood.Add(food);
+			return food;
+		}
 
-        public bool TryLeaveCometFood(Vector2 position)
-        {
-            if (!CometRules.CanLeaveFood(_cometFood.Count, position) || _ambientFood.Count == 0)
-            {
-                return false;
-            }
+		public FoodRecord SpawnAt(Transform position, float nutrition)
+		{
+			if (position == null) throw new ArgumentNullException(nameof(position));
+			FoodRecord food = _world.Create(Constants.ClampToWorld(position.position), _sizeTiers.ResolveDropped(Random.value), (byte)Random.Range(0, FoodPool.Colors.Length));
+			_world.Configure(food, true, false, -1, nutrition, 1f, _droppedPointLifetime);
+			_expiry.Enqueue(food.Id, 0, food.ExpiresAt);
+			return food;
+		}
 
-            for (int attempt = 0; attempt < 24; attempt++)
-            {
-                Food point = _ambientFood[Random.Range(0, _ambientFood.Count)];
-                if (point == null ||
-                    !point.IsSpawned ||
-                    !point.isActiveAndEnabled ||
-                    point.IsDropped ||
-                    point.ValueMultiplier > 1f ||
-                    point.DensityCell == FoodFieldMap.NoCell ||
-                    ((Vector2)point.transform.position - position).sqrMagnitude < 4f)
-                {
-                    continue;
-                }
+		public ILootDrop SpawnLoot(Vector2 position, float sourceCapacity)
+		{
+			int count = GetLootItemCount(sourceCapacity);
+			var drop = new LootDrop(this, count);
+			float nutrition = sourceCapacity * LootMassFraction / count;
+			float scale = Mathf.Clamp(0.7f + nutrition * 10f, 0.7f, 1.6f);
+			float spread = Mathf.Max(sourceCapacity * 1.5f, 0.6f), start = Random.Range(0f, 360f / count);
+			for (int index = 0; index < count; index++)
+			{
+				float angle = (start + index * (360f / count)) * Mathf.Deg2Rad;
+				Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (spread * Random.Range(0.5f, 1.2f));
+				FoodRecord food = _world.Create(Constants.ClampToWorld(position + offset), scale, (byte)Random.Range(0, FoodPool.Colors.Length));
+				_world.Configure(food, true, false, -1, nutrition, 2f, _lootLifetime);
+				drop.Add(food);
+				_expiry.Enqueue(food.Id, 0, food.ExpiresAt);
+			}
+			return drop;
+		}
 
-                _fieldMap?.Release(point.DensityCell);
-                point.DensityCell = FoodFieldMap.NoCell;
-                point.transform.position = position;
-                TeleportIfSpawned(point);
-                _cometFood.Add(point, CometRules.FoodLifetime);
-                return true;
-            }
+		public static int GetLootItemCount(float capacity) => Mathf.Clamp(Mathf.RoundToInt(capacity * 20f), 4, 30);
+		public void Query(Vector2 position, float radius, List<FoodRecord> result) => _world.Query(position, radius, result);
+		public bool TryGetFieldTarget(Vector2 from, float distance, out Vector2 target)
+		{
+			if (_fieldMap != null) return _fieldMap.TryGetFieldTarget(from, distance, out target);
+			target = default;
+			return false;
+		}
 
-            return false;
-        }
+		public void Respawn(FoodRecord food)
+		{
+			if (food == null || !food.Active) return;
+			if (food.IsDropped) { _world.Remove(food); return; }
+			_cometFood.Remove(food);
+			int previous = food.DensityCell;
+			_fieldMap.Release(previous);
+			int cell = _fieldMap.Reserve(previous);
+			bool golden = Random.value < _goldenChance;
+			_world.Renew(food);
+			food.Position = _fieldMap.SamplePosition(cell);
+			food.Capacity = golden ? _sizeTiers.ResolveGolden(Random.value) : _sizeTiers.Resolve(Random.value, Random.value);
+			_world.Configure(food, false, false, cell, 0f, golden ? GoldenValueMultiplier : 1f);
+		}
 
-        public FoodFieldMap FieldMap => _fieldMap;
+		public bool TryLeaveCometFood(Vector2 position)
+		{
+			if (!CometRules.CanLeaveFood(_cometFood.Count, position) || _ambientFood.Count == 0) return false;
+			for (int attempt = 0; attempt < 24; attempt++)
+			{
+				FoodRecord food = _ambientFood[Random.Range(0, _ambientFood.Count)];
+				if (!food.Active || food.IsDropped || food.ValueMultiplier > 1f || food.DensityCell == -1 || (food.Position - position).sqrMagnitude < 4f) continue;
+				_fieldMap.Release(food.DensityCell);
+				food.Position = position;
+				_world.Configure(food, false, true, -1, food.Nutrition, food.ValueMultiplier, CometRules.FoodLifetime);
+				_cometFood.Add(food, CometRules.FoodLifetime);
+				_expiry.Enqueue(food.Id, 0, food.ExpiresAt);
+				return true;
+			}
+			return false;
+		}
 
-        public override void Initialize(ObjectPool<Food> objectPool)
-        {
-            base.Initialize(objectPool);
-            _fieldMap = new FoodFieldMap(
-                SpawnArea,
-                objectPool.Capacity,
-                _fieldSettings,
-                Random.Range(int.MinValue, int.MaxValue)
-            );
-            _relocateTimer = 0f;
-        }
+		public void PlayEatenEffect(FoodRecord food)
+		{
+			_world.RequireAuthority();
+			var effect = new FoodEatEvent(food.Position, food.Capacity, food.Flavor, food.ValueMultiplier > 1f);
+			Eaten?.Invoke(effect);
+			if (_network.IsClient) ShowEffect(effect);
+		}
 
-        public Food SpawnAt(Transform spawnTransform, float nutrition)
-        {
-            if (spawnTransform == null)
-            {
-                throw new ArgumentNullException(nameof(spawnTransform));
-            }
+		internal static void ShowEffect(FoodEatEvent effect)
+		{
+			if (!ViewBounds.IsVisible(effect.Position, 1f)) return;
+			Color color = effect.Golden ? new Color(1f, 0.82f, 0.25f) : FoodPool.Colors[effect.Flavor % FoodPool.Colors.Length];
+			GameVfx.Eat(effect.Position, color, effect.Size * FoodViewScale.Factor);
+		}
 
-            Food point = CreateObject(spawnTransform.position, _sizeTiers.ResolveDropped(Random.value));
+		private void Update()
+		{
+			if (_world == null) return;
+			if (_world.Authoritative)
+			{
+				if (_resolver != null) _gameState ??= _resolver.Resolve<IGameStateService>();
+				if (_gameState?.IsGameplayActive == true && _migration?.IsRecovering != true)
+				{
+					_world.Advance(Time.deltaTime);
+					while (_expiry.TryDequeueExpired(_world.Clock, out ulong id, out _))
+					{
+						FoodRecord food = _world.Find(id);
+						if (food != null) Respawn(food);
+					}
+					_relocateTimer += Time.deltaTime;
+					if (_fieldSettings.RelocateInterval > 0f && _relocateTimer >= _fieldSettings.RelocateInterval)
+					{ _relocateTimer = 0f; _fieldMap.RelocateField(); }
+				}
+			}
+			_replication.Tick(Time.unscaledDeltaTime);
+		}
 
-            int lifecycleVersion = point.MarkAsDropped();
-            point.SetNutrition(nutrition);
-            point.SetValueMultiplier(1f);
+		private void LateUpdate() => _view?.Render(ViewWorld, Time.deltaTime);
+		private void OnDestroy() { _replication?.Dispose(); _view?.Dispose(); _expiry.Clear(); }
 
-            ScheduleRelease(point, lifecycleVersion, _droppedPointLifetime);
-            return point;
-        }
-
-        public ILootDrop SpawnLoot(Vector2 position, float sourceCapacity)
-        {
-            int itemCount = GetLootItemCount(sourceCapacity);
-            LootDrop drop = new(this, itemCount);
-            float itemNutrition = sourceCapacity * LootMassFraction / itemCount;
-            float itemScale = Mathf.Clamp(
-                MinimumLootScale + itemNutrition * LootScalePerNutrition,
-                MinimumLootScale,
-                MaximumLootScale
-            );
-            float spreadRadius = Mathf.Max(sourceCapacity * 1.5f, 0.6f);
-            float startAngle = Random.Range(0f, 360f / itemCount);
-
-            for (int index = 0; index < itemCount; index++)
-            {
-                float angle = (startAngle + index * (360f / itemCount)) * Mathf.Deg2Rad;
-                float distance = spreadRadius * Random.Range(0.5f, 1.2f);
-                Vector2 itemPosition = position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
-                itemPosition = Constants.ClampToWorld(itemPosition);
-
-                Food loot = CreateObject(itemPosition, itemScale);
-
-                int lifecycleVersion = loot.MarkAsDropped();
-                loot.SetNutrition(itemNutrition);
-                loot.SetValueMultiplier(LootTintMultiplier);
-
-                drop.Add(loot, lifecycleVersion);
-                ScheduleRelease(loot, lifecycleVersion, _lootLifetime);
-            }
-
-            return drop;
-        }
-
-        public static int GetLootItemCount(float sourceCapacity)
-        {
-            return Mathf.Clamp(
-                Mathf.RoundToInt(sourceCapacity * LootItemsPerCapacity),
-                MinimumLootItems,
-                MaximumLootItems
-            );
-        }
-
-        public bool TryGetFieldTarget(Vector2 from, float minimumDistance, out Vector2 target)
-        {
-            if (_fieldMap == null)
-            {
-                target = default;
-                return false;
-            }
-
-            return _fieldMap.TryGetFieldTarget(from, minimumDistance, out target);
-        }
-
-        public void Respawn(Food point)
-        {
-            if (point == null)
-            {
-                return;
-            }
-
-            if (point.IsDropped)
-            {
-                ReturnDroppedPoint(point);
-                return;
-            }
-
-            _cometFood.Remove(point);
-
-            _sourceCell = point.DensityCell;
-            _fieldMap?.Release(_sourceCell);
-            point.DensityCell = FoodFieldMap.NoCell;
-
-            RespawnObject(point);
-            point.ResetClaim();
-
-            _sourceCell = FoodFieldMap.NoCell;
-        }
-
-        protected override Vector2 GetRandomPosition()
-        {
-            if (_fieldMap == null)
-            {
-                return base.GetRandomPosition();
-            }
-
-            _pendingCell = _fieldMap.Reserve(_sourceCell);
-            return _fieldMap.SamplePosition(_pendingCell);
-        }
-
-        protected override float GetRandomScale()
-        {
-            _pendingGolden = Random.value < _goldenChance;
-            return _pendingGolden
-                ? _sizeTiers.ResolveGolden(Random.value)
-                : _sizeTiers.Resolve(Random.value, Random.value);
-        }
-
-        protected override void OnRandomPlaced(Food placedObject)
-        {
-            if (!_ambientFood.Contains(placedObject))
-            {
-                _ambientFood.Add(placedObject);
-            }
-            placedObject.DensityCell = _pendingCell;
-            placedObject.SetValueMultiplier(_pendingGolden ? GoldenValueMultiplier : 1f);
-            _pendingCell = FoodFieldMap.NoCell;
-            _pendingGolden = false;
-        }
-
-        private void Update()
-        {
-            ReleaseExpiredDrops();
-
-            if (_resolver != null) _gameState ??= VContainer.IObjectResolverExtensions.Resolve<IGameStateService>(_resolver);
-            if (_gameState?.IsGameplayActive != true)
-            {
-                return;
-            }
-
-            _expiredCometFood.Clear();
-            foreach (var pair in _cometFood)
-            {
-                if (pair.Value <= 0f || pair.Key == null || !pair.Key.IsSpawned)
-                {
-                    _expiredCometFood.Add(pair.Key);
-                }
-            }
-
-            foreach (Food point in _expiredCometFood)
-            {
-                _cometFood.Remove(point);
-                if (point != null && point.IsSpawned)
-                {
-                    Respawn(point);
-                }
-            }
-
-            _expiredCometFood.Clear();
-            _expiredCometFood.AddRange(_cometFood.Keys);
-            foreach (Food point in _expiredCometFood)
-            {
-                _cometFood[point] -= Time.deltaTime;
-            }
-
-            if (_fieldMap == null || _fieldSettings.RelocateInterval <= 0f)
-            {
-                return;
-            }
-
-            _relocateTimer += Time.deltaTime;
-            if (_relocateTimer < _fieldSettings.RelocateInterval)
-            {
-                return;
-            }
-
-            _relocateTimer = 0f;
-            _fieldMap.RelocateField();
-        }
-
-        private void ReturnDroppedPoint(Food point)
-        {
-            point.MarkAsStored();
-            ReleaseObject(point);
-        }
-
-        private sealed class LootDrop : ILootDrop, IMigrationLootDrop
-        {
-            private readonly FoodSpawner _spawner;
-            private readonly List<(Food Food, int LifecycleVersion)> _items;
-
-            public LootDrop(FoodSpawner spawner, int capacity)
-            {
-                _spawner = spawner;
-                _items = new List<(Food, int)>(capacity);
-            }
-
-            public void Add(Food food, int lifecycleVersion)
-            {
-                _items.Add((food, lifecycleVersion));
-            }
-
-            public ulong[] CaptureFoodIds() => _items.Where(item => item.Food != null && item.Food.IsSpawned &&
-                item.Food.IsDropped && item.Food.LifecycleVersion == item.LifecycleVersion).Select(item => item.Food.NetworkObjectId).ToArray();
-
-            public void Discard()
-            {
-                foreach ((Food food, int lifecycleVersion) in _items)
-                {
-                    if (food != null && food.IsDropped && food.LifecycleVersion == lifecycleVersion)
-                    {
-                        _spawner.ReturnDroppedPoint(food);
-                    }
-                }
-
-                _items.Clear();
-            }
-        }
-
-        private void ScheduleRelease(Food point, int lifecycleVersion, float lifetime)
-        {
-            float expiresAt = _dropClock + Mathf.Max(0f, lifetime);
-            point.DropExpiresAt = expiresAt;
-            _dropExpiry.Enqueue(point, lifecycleVersion, expiresAt);
-        }
-
-        private void ReleaseExpiredDrops()
-        {
-            if (_migration?.IsRecovering != true)
-            {
-                _dropClock += Time.deltaTime;
-            }
-
-            while (_dropExpiry.TryDequeueExpired(_dropClock, out Food point, out int lifecycleVersion))
-            {
-                if (point == null ||
-                    !point.IsDropped ||
-                    point.LifecycleVersion != lifecycleVersion)
-                {
-                    continue;
-                }
-
-                ReturnDroppedPoint(point);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            _dropExpiry.Clear();
-        }
-    }
+		private sealed class LootDrop : ILootDrop, IMigrationLootDrop
+		{
+			private readonly FoodSpawner _spawner;
+			private readonly List<ulong> _ids;
+			public LootDrop(FoodSpawner spawner, int count) { _spawner = spawner; _ids = new List<ulong>(count); }
+			public void Add(FoodRecord food) => _ids.Add(food.Id);
+			public ulong[] CaptureFoodIds() => _ids.Where(id => _spawner.World.Find(id)?.IsDropped == true).ToArray();
+			public void Discard()
+			{
+				foreach (ulong id in _ids) { FoodRecord food = _spawner.World.Find(id); if (food?.IsDropped == true) _spawner.World.Remove(food); }
+				_ids.Clear();
+			}
+		}
+	}
 }

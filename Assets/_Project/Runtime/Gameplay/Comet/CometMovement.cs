@@ -127,9 +127,7 @@ namespace PlanetIO
                 return;
             }
 
-            _direction = direction.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
-                ? direction.normalized
-                : Vector2.right;
+            _direction = Constants.NormalizedOrRight(direction);
             _normalSpeed = Mathf.Max(0f, speed);
             _waiting = false;
             _foodTimer = Random.Range(0.5f, CometRules.TrailInterval);
@@ -141,8 +139,11 @@ namespace PlanetIO
                 networkTransform.Teleport(position, _cometTransform.rotation, transform.localScale);
             }
 
-            if (IsSpawned) ClearTailRpc();
-            StopMovement();
+            if (IsSpawned)
+			{
+				ClearTailRpc();
+			}
+			StopMovement();
         }
 
         [Rpc(SendTo.Everyone)]

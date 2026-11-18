@@ -494,6 +494,18 @@ MonoBehaviour:
     m_Localized: "\uACBD\uAE30\uC5D0 \uB2E4\uC2DC \uC5F0\uACB0 \uC911\u2026"
     m_Metadata:
       m_Items: []
+  - m_Id: 18266357037051904
+    m_Localized: "Play \uAC8C\uC784 \uB85C\uADF8\uC778"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937984
+    m_Localized: "\uC21C\uC704\uD45C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937985
+    m_Localized: "\uC5C5\uC801"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

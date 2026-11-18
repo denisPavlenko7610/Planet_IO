@@ -6,9 +6,9 @@ namespace PlanetIO.Tests
 {
     public sealed class GameRulesExtensionsTests
     {
-        [TestCase(1f, 0.015f)]
-        [TestCase(8f, 0.12f)]
-        public void Food_AmbientNutritionDoublesRegularAndGolden(float valueMultiplier, float expected)
+        [TestCase(1f, 0.0225f)]
+        [TestCase(8f, 0.18f)]
+        public void Food_AmbientNutritionTriplesRegularAndGolden(float valueMultiplier, float expected)
         {
             Assert.That(
                 GrowthRules.FoodGrowth(0.5f, 0.015f, valueMultiplier, 0f),

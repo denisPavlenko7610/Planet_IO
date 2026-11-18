@@ -42,10 +42,6 @@ namespace PlanetIO.Application
         {
             var state = planet.CaptureMigration();
             state.ObjectId = _store.StableId(planet.NetworkObjectId);
-            if (state.LootIds != null)
-            {
-                state.LootIds = state.LootIds.Select(_store.StableId).ToArray();
-            }
             if (state.TargetId != ulong.MaxValue)
             {
                 state.TargetId = _store.StableId(state.TargetId);
@@ -63,10 +59,10 @@ namespace PlanetIO.Application
             var players = Object.FindObjectsByType<Player>(FindObjectsInactive.Exclude).Where(p => p.IsSpawned)
                 .ToArray();
             var bots = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).Where(p => p.IsSpawned).ToArray();
-            var foods = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude).Where(p => p.IsSpawned).ToArray();
+			var foods = Enumerable.Range(0, _food.World.UsedSlots).Select(_food.World.At).Where(p => p != null).ToArray();
             var comets = Object.FindObjectsByType<CometMovement>(FindObjectsInactive.Exclude).Where(p => p.IsSpawned)
                 .ToArray();
-            _store.PruneTracked(players.Cast<object>().Concat(bots).Concat(foods).Concat(comets));
+            _store.PruneTracked(players.Cast<object>().Concat(bots).Concat(comets));
             foreach (var p in players)
             {
                 _store.TrackObject(p.NetworkObjectId, p);
@@ -74,10 +70,6 @@ namespace PlanetIO.Application
             foreach (var p in bots)
             {
                 _store.TrackObject(p.NetworkObjectId, p);
-            }
-            foreach (var p in foods)
-            {
-                _store.TrackObject(p.NetworkObjectId, p, p.LifecycleVersion);
             }
             foreach (var p in comets)
             {
@@ -87,14 +79,13 @@ namespace PlanetIO.Application
             {
                 Ready = true, Clock = OrbitClock.Now,
                 Difficulty = _resolver.Resolve<INetworkSessionService>().CurrentRoom.Difficulty,
-                Fields = _food.CaptureFieldMigration()
+                Fields = _food.CaptureFieldMigration(), FoodEpoch = _food.Epoch
             };
             snapshot.Players = players.Select(CapturePlanet).ToArray();
             snapshot.Bots = bots.Select(CapturePlanet).ToArray();
             snapshot.Food = foods.Select(food =>
                 {
                     var s = _food.CaptureFoodMigration(food);
-                    s.ObjectId = _store.StableId(food.NetworkObjectId);
                     s.DropperId = _store.StableId(s.DropperId);
                     return s;
                 }
@@ -120,8 +111,7 @@ namespace PlanetIO.Application
             {
                 cancellation.ThrowIfCancellationRequested();
                 var state = snapshot.Food[i];
-                var food = _food.RestoreFoodMigration(state);
-                _store.BindObject(state.ObjectId, food.NetworkObjectId, food, food.LifecycleVersion);
+				_food.RestoreFoodMigration(state);
                 if (i % 40 == 39)
                 {
                     await Awaitable.NextFrameAsync(cancellation);
@@ -146,15 +136,7 @@ namespace PlanetIO.Application
                     world.AddMigratedMeteor(movement);
                 }
             }
-            foreach (var s in snapshot.Food)
-            {
-                if (_store.ObjectIds.TryGetValue(s.ObjectId, out ulong id) &&
-                    _network.SpawnManager.SpawnedObjects.TryGetValue(id, out var obj) &&
-                    obj.TryGetComponent(out Food food))
-                {
-                    food.RestoreDropper(s, _store.ObjectIds);
-                }
-            }
+			_food.RestoreDroppers(_store.ObjectIds);
             ready.RestoreClock(snapshot.Clock);
             world.RestoreMigration(snapshot.World, _store);
             _ready = true;

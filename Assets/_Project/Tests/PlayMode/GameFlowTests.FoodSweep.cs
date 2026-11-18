@@ -10,58 +10,59 @@ namespace PlanetIO.Tests
 {
     public sealed partial class GameFlowTests
     {
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator FoodSweep_EatsFoodInsideTheBodyWithoutAnEnterEvent()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
-            Food food = PlaceFoodRelativeToPlayer(player, 0.5f);
-            Vector2 placed = food.transform.position;
+            FoodRecord food = PlaceFoodRelativeToPlayer(player, 0.5f);
+            Vector2 placed = food.Position;
             float before = player.Capacity;
 
             RunFoodSweep(player);
 
             Assert.That(player.Capacity, Is.GreaterThan(before));
-            Assert.That(Vector2.Distance(food.transform.position, placed), Is.GreaterThan(0.01f), "Eaten food is respawned elsewhere.");
+            Assert.That(Vector2.Distance(food.Position, placed), Is.GreaterThan(0.01f), "Eaten food is respawned elsewhere.");
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator FoodSweep_LeavesFoodOutsideTheBodyAlone()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
-            Food food = PlaceFoodRelativeToPlayer(player, 3f);
-            Vector2 placed = food.transform.position;
+            FoodRecord food = PlaceFoodRelativeToPlayer(player, 3f);
+            Vector2 placed = food.Position;
 
             RunFoodSweep(player);
 
-            Assert.That(Vector2.Distance(food.transform.position, placed), Is.LessThan(0.001f));
+            Assert.That(Vector2.Distance(food.Position, placed), Is.LessThan(0.001f));
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator FoodSweep_DoesNotEatFoodAlreadyClaimed()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
-            Food food = PlaceFoodRelativeToPlayer(player, 0.5f);
-            Vector2 placed = food.transform.position;
+            FoodRecord food = PlaceFoodRelativeToPlayer(player, 0.5f);
+            Vector2 placed = food.Position;
             Assert.That(food.TryClaim(), Is.True);
             float before = player.Capacity;
 
             RunFoodSweep(player);
 
-            Assert.That(Vector2.Distance(food.transform.position, placed), Is.LessThan(0.001f));
+            Assert.That(Vector2.Distance(food.Position, placed), Is.LessThan(0.001f));
             Assert.That(food.IsDropped, Is.False);
             Assert.That(player.Capacity, Is.GreaterThanOrEqualTo(before));
+            food.ResetClaim();
         }
 
-        private static Food PlaceFoodRelativeToPlayer(Player player, float bodyRadiusFactor)
+        private static FoodRecord PlaceFoodRelativeToPlayer(Player player, float bodyRadiusFactor)
         {
             player.GetComponent<PlayerMovement>().enabled = false;
             player.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
-            Food food = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude)
-                .First(candidate => !candidate.IsDropped && candidate.gameObject.activeInHierarchy);
-            food.transform.position = player.transform.position + Vector3.right * (player.BodyRadius * bodyRadiusFactor);
+            FoodRecord food = AllFood()
+                .First(candidate => !candidate.IsDropped && candidate.Active);
+            food.Position = player.transform.position + Vector3.right * (player.BodyRadius * bodyRadiusFactor);
             Physics2D.SyncTransforms();
             return food;
         }

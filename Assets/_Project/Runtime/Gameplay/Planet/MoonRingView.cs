@@ -63,10 +63,19 @@ namespace PlanetIO
             float bodyRadius = _planet.BodyRadius;
             if (!ViewBounds.IsVisible(transform.position, MoonRules.OuterExtent(bodyRadius)))
             {
+				if (_root != null && _root.gameObject.activeSelf)
+				{
+					_root.gameObject.SetActive(false);
+				}
+
                 return;
             }
 
             EnsureRoot();
+			if (!_root.gameObject.activeSelf)
+			{
+				_root.gameObject.SetActive(true);
+			}
 
             Sprite sprite = _body.sprite;
             float moonRadius = MoonRules.MoonRadius(bodyRadius);

@@ -50,6 +50,7 @@ namespace PlanetIO.UI.Hud
             _blips.Clear();
             Player localPlayer = _localPlayerProvider.LocalPlayer;
             Rect bounds = Constants.WorldBounds;
+			MinimapBlip? localBlip = null;
             IReadOnlyList<PlanetScale> planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
@@ -90,10 +91,14 @@ namespace PlanetIO.UI.Hud
                     (position.x - bounds.xMin) / bounds.width,
                     (position.y - bounds.yMin) / bounds.height);
 
-                _blips.Add(new MinimapBlip(normalized, color, isLeader));
+				bool isLocalPlayer = planet == localPlayer;
+				var blip = new MinimapBlip(normalized, color, isLeader, isLocalPlayer);
+				if (isLocalPlayer) localBlip = blip;
+				else _blips.Add(blip);
             }
 
-            AddEventMarker();
+			AddEventMarker();
+			if (localBlip.HasValue) _blips.Add(localBlip.Value);
             _view.UpdateBlips(_blips);
         }
 
@@ -116,7 +121,7 @@ namespace PlanetIO.UI.Hud
                 _ => new Color(0.8f, 0.45f, 1f)
             };
 
-            _blips.Add(new MinimapBlip(normalized, color, true));
+			_blips.Add(new MinimapBlip(normalized, color, true, false, true));
         }
     }
 }

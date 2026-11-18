@@ -2,15 +2,17 @@
 
 All audio below is released under CC0 1.0 (public domain); attribution is not required.
 
-| File | Source |
-| --- | --- |
-| MenuTheme.ogg | "Cosmic Navigation" (loop version) - https://opengameart.org/content/cosmic-navigation |
-| GameTheme.ogg | "Claimed by the Void" (loop version) - https://opengameart.org/content/claimed-by-the-void |
-| SFX/eat.wav | Kenney Interface Sounds (drop_001) - https://kenney.nl/assets/interface-sounds |
-| SFX/kill.wav | Kenney Interface Sounds (confirmation_002) |
-| SFX/hit.wav | Kenney Sci-Fi Sounds (impactMetal_002) - https://kenney.nl/assets/sci-fi-sounds |
-| SFX/death.wav | Kenney Sci-Fi Sounds (explosionCrunch_000) |
-| SFX/boost_loop.wav | Kenney Sci-Fi Sounds (thrusterFire_000), made seamless with a crossfade |
-| SFX/moon_hit.ogg | Kenney Sci-Fi Sounds (impactMetal_004) |
-| SFX/tier_up.ogg | Kenney Digital Audio (powerUp7) - https://kenney.nl/assets/digital-audio |
-| SFX/event_warning.ogg | Kenney Digital Audio (twoTone2) |
+| File                  | Source                                                                                      |
+|-----------------------|---------------------------------------------------------------------------------------------|
+| MenuTheme.ogg         | "Cosmic Navigation" (loop version) - https://opengameart.org/content/cosmic-navigation      |
+| GameTheme.ogg         | "Claimed by the Void" (loop version) - https://opengameart.org/content/claimed-by-the-void  |
+| ExplorationTheme.ogg  | "Exploration Theme" by Cleyton Kauffman - https://opengameart.org/content/exploration-theme |
+| StellerDreams.ogg     | "Steller Dreams" by Synth-thetic - https://opengameart.org/content/steller-dreams           |
+| SFX/eat.wav           | Kenney Interface Sounds (drop_001) - https://kenney.nl/assets/interface-sounds              |
+| SFX/kill.wav          | Kenney Interface Sounds (confirmation_002)                                                  |
+| SFX/hit.wav           | Kenney Sci-Fi Sounds (impactMetal_002) - https://kenney.nl/assets/sci-fi-sounds             |
+| SFX/death.wav         | Kenney Sci-Fi Sounds (explosionCrunch_000)                                                  |
+| SFX/boost_loop.wav    | Kenney Sci-Fi Sounds (thrusterFire_000), made seamless with a crossfade                     |
+| SFX/moon_hit.ogg      | Kenney Sci-Fi Sounds (impactMetal_004)                                                      |
+| SFX/tier_up.ogg       | Kenney Digital Audio (powerUp7) - https://kenney.nl/assets/digital-audio                    |
+| SFX/event_warning.ogg | Kenney Digital Audio (twoTone2)                                                             |

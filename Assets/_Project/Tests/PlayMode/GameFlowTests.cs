@@ -24,13 +24,18 @@ namespace PlanetIO.Tests
 		{
 			yield return OpenMenu();
 
+			string[] menuTracks = { "MenuTheme", "ExplorationTheme", "StellerDreams" };
+			yield return WaitForMusicClip(menuTracks, 5f);
+
+			string initialMenuTrack = GameObject.Find("Addressable Music").GetComponent<AudioSource>().clip.name;
+
 			Button soloButton = FindButton("play-with-bots");
 			Assert.That(soloButton, Is.Not.Null);
 			Click(soloButton);
 
 			yield return WaitForScene(SceneNames.Game, 18f);
 			yield return WaitForOpponentCount(10, 5f);
-			yield return WaitForMusicClip("GameTheme", 5f);
+			yield return WaitForMusicClip(new[] { "GameTheme", "ExplorationTheme", "StellerDreams" }, 5f);
 
 			Assert.That(GameObject.Find("SessionHud"), Is.Not.Null);
 			Assert.That(
@@ -51,11 +56,12 @@ namespace PlanetIO.Tests
 			Click(leaveButton);
 
 			yield return WaitForScene(SceneNames.Menu, 10f);
+			yield return WaitForMusicClip(menuTracks.Where(name => name != initialMenuTrack).ToArray(), 5f);
 		}
 
 		[UnityTest]
 		[Timeout(45000)]
-		public IEnumerator LocalPlayer_UsesPreferredColorAfterSpawnProtection()
+		public IEnumerator LocalPlayer_PreservesSkinColorsAfterSpawnProtection()
 		{
 			yield return StartSoloGame();
 
@@ -64,7 +70,7 @@ namespace PlanetIO.Tests
 
 			yield return new WaitForSeconds(2.5f);
 
-			Color expected = ResolveProfile().PreferredColor;
+			Color expected = Color.white;
 			Color actual = localPlayer.GetComponent<SpriteRenderer>().color;
 			Assert.That(
 				ColorDistance(expected, actual),
@@ -143,11 +149,11 @@ namespace PlanetIO.Tests
 			yield return LeaveToMenu();
 		}
 
-		[UnityTest]
+		[UnityTest, SharedWorld]
 		[Timeout(45000)]
 		public IEnumerator Defeat_DropsLootAndContinueRestoresConfiguredFraction()
 		{
-			yield return StartSoloGame();
+			yield return StartSharedMoonGame();
 
 			Player localPlayer = FindLocalPlayer();
 			Assert.That(localPlayer, Is.Not.Null);
@@ -181,16 +187,13 @@ namespace PlanetIO.Tests
 			localPlayer.ContinueRpc();
 			Assert.That(localPlayer.Capacity, Is.EqualTo(continuedCapacity));
 			Assert.That(repeatedContinueEvents, Is.Zero);
-
-			yield return LeaveToMenu();
 		}
 
-		[UnityTest]
+		[UnityTest, SharedWorld]
 		[Timeout(45000)]
 		public IEnumerator PlayerEatsFood_WithAndWithoutSpawnProtection([Values(true, false)] bool spawnProtected)
 		{
-			yield return StartSoloGame();
-			yield return WaitForGameplay(10f);
+			yield return StartSharedMoonGame();
 
 			Player localPlayer = FindLocalPlayer();
 			Assert.That(localPlayer, Is.Not.Null);
@@ -211,23 +214,20 @@ namespace PlanetIO.Tests
 
 			Assert.That(localPlayer.IsSpawnProtected, Is.EqualTo(spawnProtected));
 
-			Food food = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude).First(item => !item.IsDropped);
+			FoodRecord food = AllFood().First(item => !item.IsDropped);
 			float capacityBefore = localPlayer.Capacity;
 
-			TouchWith(localPlayer, food.GetComponent<Collider2D>());
+			localPlayer.TryEatFood(food);
 
 			Assert.That(localPlayer.Capacity, Is.GreaterThan(capacityBefore));
 			Assert.That(localPlayer.IsSpawnProtected, Is.EqualTo(spawnProtected));
-
-			yield return LeaveToMenu();
 		}
 
-		[UnityTest]
+		[UnityTest, SharedWorld]
 		[Timeout(45000)]
 		public IEnumerator CometHit_HurtsOnlyUnprotectedPlayer([Values(true, false)] bool spawnProtected)
 		{
-			yield return StartSoloGame();
-			yield return WaitForGameplay(10f);
+			yield return StartSharedMoonGame();
 
 			Player localPlayer = FindLocalPlayer();
 			Assert.That(localPlayer, Is.Not.Null);
@@ -262,8 +262,6 @@ namespace PlanetIO.Tests
 			{
 				Assert.That(localPlayer.Capacity, Is.EqualTo(capacityBefore * 0.5f).Within(1e-5f));
 			}
-
-			yield return LeaveToMenu();
 		}
 
 		[UnityTest]
@@ -343,9 +341,9 @@ namespace PlanetIO.Tests
 
 			Player player = FindLocalPlayer();
 			PlayerMovement movement = player.GetComponent<PlayerMovement>();
-			foreach (Food food in Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude))
+			foreach (FoodRecord food in AllFood())
 			{
-				food.GetComponent<Collider2D>().enabled = false;
+				food.TryClaim();
 			}
 
 			player.Capacity = player.MinCapacity + 0.001f;
@@ -418,6 +416,17 @@ namespace PlanetIO.Tests
 		[UnityTearDown]
 		public IEnumerator StopSession()
 		{
+			if (KeepSharedWorld())
+			{
+				yield break;
+			}
+
+			_sharedWorldActive = false;
+			yield return ShutdownSession();
+		}
+
+		private static IEnumerator ShutdownSession()
+		{
 			ApplicationLifetimeScope scope = Object.FindAnyObjectByType<ApplicationLifetimeScope>();
 			if (scope == null || scope.Container == null)
 			{
@@ -429,13 +438,23 @@ namespace PlanetIO.Tests
 				yield return null;
 
 			awaiter.GetResult();
+			_menuIsFresh = SceneManager.GetActiveScene().name == SceneNames.Menu;
 		}
+
+		private static bool _menuIsFresh;
 
 		private static IEnumerator OpenMenu()
 		{
+			yield return EndSharedWorld();
 			bool applicationStarted = Object.FindAnyObjectByType<ApplicationLifetimeScope>() != null;
-			SceneManager.LoadScene(applicationStarted ? SceneNames.Menu : SceneNames.Boot);
-			yield return WaitForScene(SceneNames.Menu, 12f);
+			bool menuIsFresh = _menuIsFresh && SceneManager.GetActiveScene().name == SceneNames.Menu;
+			_menuIsFresh = false;
+			if (!menuIsFresh)
+			{
+				SceneManager.LoadScene(applicationStarted ? SceneNames.Menu : SceneNames.Boot);
+			}
+
+			yield return WaitForScene(SceneNames.Menu, 30f);
 		}
 
 		private static IEnumerator LeaveToMenu()
@@ -491,10 +510,16 @@ namespace PlanetIO.Tests
 			method.Invoke(player, new object[] { other });
 		}
 
+		private static FoodRecord[] AllFood()
+		{
+			FoodWorld world = Object.FindFirstObjectByType<FoodSpawner>().World;
+			return Enumerable.Range(0, world.UsedSlots).Select(world.At).Where(food => food?.Active == true).ToArray();
+		}
+
 		private static float SumDroppedNutrition()
 		{
 			float total = 0f;
-			foreach (Food food in Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude))
+			foreach (FoodRecord food in AllFood())
 			{
 				if (food.IsDropped)
 				{
@@ -562,7 +587,7 @@ namespace PlanetIO.Tests
 		}
 
 		private static IEnumerator WaitForMusicClip(
-			string expectedClipName,
+			string[] expectedClipNames,
 			float timeoutSeconds
 		)
 		{
@@ -578,7 +603,7 @@ namespace PlanetIO.Tests
 					: null;
 
 				if (musicSource?.clip != null &&
-					musicSource.clip.name == expectedClipName)
+					expectedClipNames.Contains(musicSource.clip.name))
 				{
 					break;
 				}
@@ -589,8 +614,8 @@ namespace PlanetIO.Tests
 			Assert.That(musicSource, Is.Not.Null);
 			Assert.That(musicSource.clip, Is.Not.Null);
 			Assert.That(
-				musicSource.clip.name,
-				Is.EqualTo(expectedClipName)
+				expectedClipNames,
+				Does.Contain(musicSource.clip.name)
 			);
 		}
 

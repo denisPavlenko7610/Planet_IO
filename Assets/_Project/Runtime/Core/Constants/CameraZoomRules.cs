@@ -4,7 +4,7 @@ namespace PlanetIO
 {
     public static class CameraZoomRules
     {
-        public const float GrowthExponent = 0.15f;
+        public const float GrowthExponent = 0.10f;
         public const float GrowthHoldSeconds = 0.35f;
 
         public static float MoonView(float outerExtent, float margin, float aspect, float lookAhead)

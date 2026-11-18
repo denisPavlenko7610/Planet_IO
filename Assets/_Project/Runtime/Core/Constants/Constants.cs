@@ -7,7 +7,6 @@ namespace PlanetIO
     {
         public const float ScaleMultiplier = 100f;
         public const float MinimumDirectionSquaredMagnitude = 0.0001f;
-        public const float MinimumDisplayCapacity = 0.01f;
         public const ulong UnassignedClientId = ulong.MaxValue;
         public const string FoodLayerName = "Food";
 
@@ -35,12 +34,20 @@ namespace PlanetIO
             return Quaternion.Euler(0f, 0f, angle);
         }
 
-        public static Vector2 GetRandomDirection()
+        public static Vector2 GetRandomDirection() => NormalizedOrRight(Random.insideUnitCircle);
+
+        public static Vector2 NormalizedOrRight(Vector2 vector)
         {
-            Vector2 direction = Random.insideUnitCircle;
-            return direction.sqrMagnitude > MinimumDirectionSquaredMagnitude
-                ? direction.normalized
+            return vector.sqrMagnitude > MinimumDirectionSquaredMagnitude
+                ? vector.normalized
                 : Vector2.right;
+        }
+
+        public static Vector2 NormalizedOrRandom(Vector2 vector)
+        {
+            return vector.sqrMagnitude > MinimumDirectionSquaredMagnitude
+                ? vector.normalized
+                : GetRandomDirection();
         }
     }
 }

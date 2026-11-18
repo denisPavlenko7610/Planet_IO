@@ -50,7 +50,7 @@ namespace PlanetIO
             s.TrailNext = _trailNext;
             s.TrailSpawnTimer = _trailSpawnTimer;
             s.TrailStrikeTimer = _trailStrikeTimer;
-            s.Color = _networkColor.Value;
+            s.Color = Color.white;
             s.Skin = _networkSkin.Value;
             s.LootIds = (_lootDrop as IMigrationLootDrop)?.CaptureFoodIds() ?? Array.Empty<ulong>();
             GetComponent<PlayerMovement>()?.CaptureMigration(s);
@@ -69,7 +69,6 @@ namespace PlanetIO
             _highestTier = s.HighestTier;
             _networkPerks.Value = s.Perks;
             RestorePlanetMigration(s);
-            _networkColor.Value = s.Color;
             _networkSkin.Value = s.Skin;
             _continueUsedThisLife = s.ContinueUsed;
             _capacityAtDefeat = s.DefeatMass;
@@ -111,18 +110,7 @@ namespace PlanetIO
             {
                 _migration.BindObject(s.ObjectId, NetworkObjectId, this);
             }
-            if (_migration != null)
-            {
-                foreach (var foodState in _migration.RestoredFood)
-                {
-                    if (_migration.ObjectIds.TryGetValue(foodState.ObjectId, out ulong foodId) &&
-                        NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(foodId, out var obj) &&
-                        obj.TryGetComponent(out Food food))
-                    {
-                        food.RestoreDropper(foodState, _migration.ObjectIds);
-                    }
-                }
-            }
+			if (_migration != null) FoodRespawnService.RestoreDroppers(_migration.ObjectIds);
             _pendingMigration = null;
         }
 

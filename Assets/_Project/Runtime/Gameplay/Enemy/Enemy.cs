@@ -52,10 +52,11 @@ namespace PlanetIO
 
         [Inject]
         public void Construct(
-            IRespawnService<Comet> cometRespawnService,
-            IRespawnService<Food> pointRespawnService,
-            IRespawnService<Enemy> enemyRespawnService,
-            IGameStateService gameStateService)
+			IRespawnService<Comet> cometRespawnService,
+			IFoodService pointRespawnService,
+			IRespawnService<Enemy> enemyRespawnService,
+			IGameStateService gameStateService
+		)
         {
             CometRespawnService = cometRespawnService ?? throw new ArgumentNullException(nameof(cometRespawnService));
             FoodRespawnService = pointRespawnService ?? throw new ArgumentNullException(nameof(pointRespawnService));

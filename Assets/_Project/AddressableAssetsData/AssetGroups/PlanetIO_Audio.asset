@@ -22,6 +22,20 @@ MonoBehaviour:
     - audio
     - preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5f972f8516250004cbf5f31ad289cd42
+    m_Address: audio/steller-dreams
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8da3dc51b9311b44cb0fd36eaf9850c1
+    m_Address: audio/exploration-theme
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - audio
+    - preload
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d018a2b56c71fc443add02ef4e5251d2
     m_Address: audio/game-theme
     m_ReadOnly: 0
@@ -34,8 +48,8 @@ MonoBehaviour:
   m_SchemaSet:
     m_Schemas:
     - {fileID: 11400000, guid: 3e90601f65b747944a982358647fb575, type: 2}
-    - {fileID: 11400000, guid: cc22b17ba6528f54cab56e2ebe752faf, type: 2}
     - {fileID: 11400000, guid: c9c75020734f4df08de50ae2ea9447f1, type: 2}
+    - {fileID: 11400000, guid: cc22b17ba6528f54cab56e2ebe752faf, type: 2}
     m_SchemaDisplayOrder: []
   m_IncludeInBuild: 1
   m_IncludeInBuildMigrated: 1

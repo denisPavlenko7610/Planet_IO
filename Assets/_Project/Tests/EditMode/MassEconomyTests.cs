@@ -8,18 +8,20 @@ namespace PlanetIO.Tests
     {
         private const string PlayerPrefabPath = "Assets/_Project/Prefabs/Player.prefab";
 
-        private Food _food;
+        private FoodRecord _food;
+		private FoodWorld _foodWorld;
 
         [SetUp]
         public void SetUp()
         {
-            _food = new GameObject("TestFood").AddComponent<Food>();
+            _foodWorld = new FoodWorld(true, Constants.WorldBounds);
+			_food = _foodWorld.Create(Vector2.zero, 0.2f);
         }
 
         [TearDown]
         public void TearDown()
         {
-            Object.DestroyImmediate(_food.gameObject);
+            _food = null;
         }
 
         [Test]
@@ -27,7 +29,7 @@ namespace PlanetIO.Tests
         {
             _food.Capacity = 0.5f;
 
-            Assert.That(_food.GetGrowth(0.02f), Is.EqualTo(0.02f).Within(1e-6f));
+            Assert.That(_food.GetGrowth(0.02f), Is.EqualTo(0.03f).Within(1e-6f));
         }
 
         [Test]
@@ -43,10 +45,11 @@ namespace PlanetIO.Tests
         [Test]
         public void Food_StoredAfterDrop_ForgetsNutrition()
         {
-            _food.MarkAsDropped();
+            _foodWorld.Configure(_food, true, false, -1, 0f, 1f);
             _food.SetNutrition(0.05f);
 
-            _food.MarkAsStored();
+            _foodWorld.Renew(_food);
+			_foodWorld.Configure(_food, false, false, 0, 0f, 1f);
 
             Assert.That(_food.Nutrition, Is.EqualTo(0f));
         }

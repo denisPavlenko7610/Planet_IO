@@ -17,19 +17,14 @@ namespace PlanetIO.UI.Hud
 
         public void Start()
         {
-            _localPlayerProvider.LocalPlayerChanged += OnLocalPlayerChanged;
+            _localPlayerProvider.LocalPlayerChanged += BindPlayer;
             BindPlayer(_localPlayerProvider.LocalPlayer);
         }
 
         public void Dispose()
         {
-            _localPlayerProvider.LocalPlayerChanged -= OnLocalPlayerChanged;
+            _localPlayerProvider.LocalPlayerChanged -= BindPlayer;
             BindPlayer(null);
-        }
-
-        private void OnLocalPlayerChanged(Player player)
-        {
-            BindPlayer(player);
         }
 
         private void BindPlayer(Player player)

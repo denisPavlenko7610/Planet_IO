@@ -7,9 +7,9 @@ namespace PlanetIO
         public const float OrbitRadiusFactor = 1.7f;
         public const float MoonRadiusFactor = 0.2f;
         public const float AngularSpeedDegrees = 90f;
-        public const int MaxDurability = 3;
-        public const float RegrowSeconds = 12f;
-        public const float HitDamageFraction = 0.06f;
+        public const int MaxDurability = 2;
+        public const float RegrowSeconds = 16f;
+        public const float HitDamageFraction = 0.10f;
         public const float MinHitDamage = 0.004f;
         public const float HitImmunitySeconds = 1f;
         public const float OwnerGainFraction = 0.5f;

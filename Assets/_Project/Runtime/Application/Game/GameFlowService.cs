@@ -15,7 +15,7 @@ namespace PlanetIO.Application
         private readonly FoodSpawner _foodSpawner;
         private readonly CometSpawner _cometSpawner;
         private readonly EnemySpawner _enemySpawner;
-        private readonly ObjectPool<Food> _foodsPool;
+        private readonly FoodPool _foodsPool;
         private readonly ObjectPool<Comet> _cometsPool;
         private readonly ObjectPool<Enemy> _enemyPool;
         private readonly NetworkManager _networkManager;
@@ -28,15 +28,16 @@ namespace PlanetIO.Application
         private bool _disposed;
 
         public GameFlowService(
-            FoodSpawner pointSpawner,
-            CometSpawner cometSpawner,
-            EnemySpawner enemySpawner,
-            ObjectPool<Food> pointsPool,
-            ObjectPool<Comet> cometsPool,
-            ObjectPool<Enemy> enemyPool,
-            NetworkManager networkManager,
-            NetworkWorldReadyState worldReadyState,
-            IGameLoadingView loadingView)
+			FoodSpawner pointSpawner,
+			CometSpawner cometSpawner,
+			EnemySpawner enemySpawner,
+			FoodPool pointsPool,
+			ObjectPool<Comet> cometsPool,
+			ObjectPool<Enemy> enemyPool,
+			NetworkManager networkManager,
+			NetworkWorldReadyState worldReadyState,
+			IGameLoadingView loadingView
+		)
         {
             _foodSpawner = pointSpawner ?? throw new ArgumentNullException(nameof(pointSpawner));
             _cometSpawner = cometSpawner ?? throw new ArgumentNullException(nameof(cometSpawner));
@@ -136,6 +137,8 @@ namespace PlanetIO.Application
                 return true;
             }
 
+			if (!_networkManager.IsListening) return false;
+			_foodSpawner.Initialize(_foodsPool);
             if (!_networkManager.IsServer)
             {
                 return !_disposed && _networkManager.IsListening;
@@ -146,13 +149,13 @@ namespace PlanetIO.Application
                 return false;
             }
 
-            _foodSpawner.Initialize(_foodsPool);
             _cometSpawner.Initialize(_cometsPool);
             _enemySpawner.Initialize(_enemyPool);
 
             if (_migration?.HasPendingWorld == true)
             {
                 await _migrationWorld.RestoreAsync(_worldReadyState, cancellation);
+				_foodSpawner.MarkWorldReady();
                 _worldInitialized = true;
                 _worldReadyState.MarkReady();
                 return true;
@@ -193,6 +196,7 @@ namespace PlanetIO.Application
                 }
             }
 
+			_foodSpawner.MarkWorldReady();
             _worldInitialized = true;
             _migrationWorld?.MarkReady();
             _worldReadyState.MarkReady();
@@ -206,7 +210,7 @@ namespace PlanetIO.Application
 
         private bool IsSessionReady()
         {
-            if (!IsSessionAlive() || !_worldReadyState.IsReady)
+            if (!IsSessionAlive() || !_worldReadyState.IsReady || !_foodSpawner.IsReplicaReady)
             {
                 return false;
             }

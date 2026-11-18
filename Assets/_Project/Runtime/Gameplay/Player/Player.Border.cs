@@ -45,7 +45,7 @@ namespace PlanetIO
                 triggeringPlayer == this &&
                 !IsSpawnProtected)
             {
-                Shrink(Mathf.Max(_boostMassCost, Capacity * _borderMassLoss) * IncomingDamageMultiplier);
+                TakeDamage(Mathf.Max(_boostMassCost, Capacity * _borderMassLoss) * IncomingDamageMultiplier);
             }
         }
     }

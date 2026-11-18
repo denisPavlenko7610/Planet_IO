@@ -6,10 +6,13 @@ namespace PlanetIO.UI.Hud
     public sealed class PlayerDirectionArrow : MonoBehaviour
     {
         [SerializeField] private SpriteRenderer _arrowRenderer;
-        [SerializeField] private float _angleOffset = 90f;
-        [SerializeField, Range(0.01f, 0.1f)] private float _screenHeightFraction = 0.035f;
+		[SerializeField] private float _angleOffset = 0f;
+		[SerializeField, Range(0.01f, 0.1f)]
+		private float _screenHeightFraction = DirectionArrowRules.ScreenHeightFraction;
         [SerializeField, Range(0f, 2f)] private float _edgeGapInArrowSizes = 0.5f;
-        [SerializeField, Range(0f, 1f)] private float _alpha = 0.85f;
+		[SerializeField, Range(0f, 1f)] private float _alpha = 0.75f;
+
+		private SpriteRenderer _bodyRenderer;
 
         private PlayerMovement _playerMovement;
         private Transform _arrowTransform;
@@ -18,6 +21,12 @@ namespace PlanetIO.UI.Hud
 
         private void Awake()
         {
+			if (_arrowRenderer != null)
+			{
+				_arrowRenderer.sprite = OverlaySprites.Chevron;
+				_arrowRenderer.color = new Color(1f, 1f, 1f, _alpha);
+			}
+
             _arrowTransform = _arrowRenderer != null ? _arrowRenderer.transform : transform;
             Hide();
         }
@@ -25,6 +34,7 @@ namespace PlanetIO.UI.Hud
         public void Bind(PlayerMovement playerMovement)
         {
             _playerMovement = playerMovement;
+			_bodyRenderer = playerMovement != null ? playerMovement.Player.GetComponent<SpriteRenderer>() : null;
         }
 
         public void Hide()
@@ -100,7 +110,12 @@ namespace PlanetIO.UI.Hud
 
             float worldSize = DirectionArrowRules.WorldSize(_camera.orthographicSize, _screenHeightFraction);
             float spriteSize = Mathf.Max(sprite.bounds.size.x, sprite.bounds.size.y, 0.0001f);
-            float distance = DirectionArrowRules.Distance(player.BodyRadius, worldSize, _edgeGapInArrowSizes);
+			float spriteRadius = _bodyRenderer != null
+				? Mathf.Max(_bodyRenderer.bounds.extents.x, _bodyRenderer.bounds.extents.y) +
+				Vector2.Distance(_bodyRenderer.bounds.center, player.transform.position)
+				: 0f;
+			float radius = DirectionArrowRules.ClearanceRadius(player.BodyRadius, spriteRadius);
+			float distance = DirectionArrowRules.Distance(radius, worldSize, _edgeGapInArrowSizes);
 
             float scale = worldSize / spriteSize / parentScale;
             _arrowTransform.localScale = new Vector3(scale, scale, 1f);

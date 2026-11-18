@@ -62,8 +62,8 @@ namespace PlanetIO.UI.Hud
             if (_localPlayer != null)
             {
                 _localPlayer.PerkOfferShown -= OnOfferShown;
-                _localPlayer.PerkOfferClosed -= OnOfferClosed;
-                _localPlayer.Defeated -= OnOfferClosed;
+                _localPlayer.PerkOfferClosed -= HideOffer;
+                _localPlayer.Defeated -= HideOffer;
                 _localPlayer.PerksChanged -= OnPerksChanged;
             }
 
@@ -76,9 +76,12 @@ namespace PlanetIO.UI.Hud
             }
 
             _localPlayer.PerkOfferShown += OnOfferShown;
-            if (_localPlayer.WasMigrationRestored) _localPlayer.RequestRestoredOfferRpc();
-            _localPlayer.PerkOfferClosed += OnOfferClosed;
-            _localPlayer.Defeated += OnOfferClosed;
+            if (_localPlayer.WasMigrationRestored)
+			{
+				_localPlayer.RequestRestoredOfferRpc();
+			}
+			_localPlayer.PerkOfferClosed += HideOffer;
+            _localPlayer.Defeated += HideOffer;
             _localPlayer.PerksChanged += OnPerksChanged;
             OnPerksChanged(_localPlayer.PerkMask);
         }
@@ -121,11 +124,6 @@ namespace PlanetIO.UI.Hud
             _offerVisible = true;
             _view.SetPerkIcons(ids);
             _view.ShowPerkOffer(_localization.Get(LocalizationKeys.PerkTitle), names, descriptions);
-        }
-
-        private void OnOfferClosed()
-        {
-            HideOffer();
         }
 
         private void OnPerkChosen(int index)

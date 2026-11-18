@@ -17,6 +17,33 @@
       },
       "hash": "81542a7e86292b5c4c21b1782c5af23b567f45ce"
     },
+    "com.google.play.common": {
+      "version": "file:com.google.play.common",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.google.play.core": {
+      "version": "file:com.google.play.core",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.google.play.games": {
+      "version": "file:com.google.play.games",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.google.play.review": {
+      "version": "file:com.google.play.review",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.google.play.common": "1.9.2",
+        "com.google.play.core": "1.8.6"
+      }
+    },
     "com.unity.2d.animation": {
       "version": "17.0.3",
       "depth": 1,

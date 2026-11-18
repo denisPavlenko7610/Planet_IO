@@ -22,7 +22,8 @@ namespace PlanetIO
 
         private int CountFoodAround(Vector2 position)
         {
-            return Physics2D.OverlapCircle(position, RespawnRules.FoodSearchRadius, _foodFilter, _foodBuffer);
+            FoodRespawnService.Query(position, RespawnRules.FoodSearchRadius, _foodBuffer);
+			return _foodBuffer.Count;
         }
 
         private float NearestThreatEdgeDistance(Vector2 position)

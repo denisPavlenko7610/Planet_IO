@@ -1,43 +1,26 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlanetIO
 {
-    public abstract partial class PlanetScale
-    {
-        private const int BodyFoodBufferSize = 32;
-
-        private readonly Collider2D[] _bodyFoodBuffer = new Collider2D[BodyFoodBufferSize];
-        private ContactFilter2D _bodyFoodFilter;
-        private bool _bodyFoodFilterReady;
-        private float _bodyFoodSweepTimer;
-
-        private void SweepFoodInsideBody(float deltaTime)
-        {
-            if (!FoodSweepRules.Advance(ref _bodyFoodSweepTimer, deltaTime))
-            {
-                return;
-            }
-
-            if (!_bodyFoodFilterReady)
-            {
-                _bodyFoodFilter = ContactFilter2D.noFilter;
-                _bodyFoodFilter.SetLayerMask(LayerMask.GetMask(Constants.FoodLayerName));
-                _bodyFoodFilterReady = true;
-            }
-
-            int hitCount = Physics2D.OverlapCircle(transform.position, BodyRadius, _bodyFoodFilter, _bodyFoodBuffer);
-            for (int index = 0; index < hitCount; index++)
-            {
-                Collider2D hit = _bodyFoodBuffer[index];
-                if (hit == null ||
-                    !hit.TryGetComponent(out Food food) ||
-                    food.IsMagnetImmuneFor(NetworkObjectId))
-                {
-                    continue;
-                }
-
-                HandleEntityCollision(hit);
-            }
-        }
-    }
+	public abstract partial class PlanetScale
+	{
+		private readonly List<FoodRecord> _bodyFood = new(128);
+		private float _bodyFoodSweepTimer;
+		private Vector2 _previousFoodSweep;
+		private bool _hasFoodSweepPosition;
+		private void SweepFoodInsideBody(float deltaTime)
+		{
+			if (FoodRespawnService == null || !FoodSweepRules.Advance(ref _bodyFoodSweepTimer, deltaTime)) return;
+			Vector2 current = transform.position;
+			Vector2 previous = _hasFoodSweepPosition && (current - _previousFoodSweep).sqrMagnitude <= 16f ? _previousFoodSweep : current;
+			_previousFoodSweep = current;
+			_hasFoodSweepPosition = true;
+			FoodRespawnService.Query((current + previous) * 0.5f, BodyRadius + Vector2.Distance(current, previous) * 0.5f, _bodyFood);
+			foreach (FoodRecord food in _bodyFood)
+			{
+				if (FoodPickupRules.Intersects(previous, current, food.Position, BodyRadius + food.Radius)) TryEatFood(food);
+			}
+		}
+	}
 }

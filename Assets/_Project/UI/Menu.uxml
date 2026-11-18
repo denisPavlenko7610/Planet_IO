@@ -17,6 +17,12 @@
                 <ui:VisualElement class="btn-glyph glyph-missions" picking-mode="Ignore" />
                 <ui:Label name="missions-badge" class="btn-badge" text="!" picking-mode="Ignore" />
             </ui:Button>
+            <ui:Button name="menu-leaderboards-button" class="btn btn-hud btn-icon btn-green">
+                <ui:VisualElement class="btn-glyph glyph-trophy" picking-mode="Ignore" />
+            </ui:Button>
+            <ui:Button name="menu-achievements-button" class="btn btn-hud btn-icon btn-green">
+                <ui:VisualElement class="btn-glyph glyph-medal" picking-mode="Ignore" />
+            </ui:Button>
             <ui:VisualElement name="columns">
                 <ui:Button name="profile-button" class="profile-chip menu-item">
                     <ui:VisualElement name="profile-skin" picking-mode="Ignore" />
@@ -34,22 +40,20 @@
         </ui:VisualElement>
         <ui:VisualElement name="customize-overlay" class="screen overlay">
             <ui:VisualElement name="customize-backdrop" class="screen overlay-backdrop" />
-            <ui:VisualElement name="customize-card" class="card overlay-card">
+            <ui:ScrollView name="customize-card" class="card overlay-card" horizontal-scroller-visibility="Hidden">
                 <ui:VisualElement class="row">
                     <ui:TextField name="nickname-input" class="field grow" />
                     <ui:Button name="random-nickname" class="btn btn-small btn-blue" />
                 </ui:VisualElement>
-                <ui:Label name="color-label" class="section-label overlay-section" />
-                <ui:VisualElement name="swatches" class="swatches" />
                 <ui:Label name="planet-label" class="section-label overlay-section" />
                 <ui:VisualElement name="skins" class="skins" />
                 <ui:Label name="customize-status" class="overlay-status" />
                 <ui:Button name="customize-close" class="btn btn-small btn-red overlay-close" />
-            </ui:VisualElement>
+            </ui:ScrollView>
         </ui:VisualElement>
         <ui:VisualElement name="online-overlay" class="screen overlay">
             <ui:VisualElement name="online-backdrop" class="screen overlay-backdrop" />
-            <ui:VisualElement name="online-card" class="card overlay-card">
+            <ui:ScrollView name="online-card" class="card overlay-card" horizontal-scroller-visibility="Hidden">
                 <ui:Button name="quick-play" class="btn btn-long btn-green overlay-item" />
                 <ui:Button name="create-room" class="btn btn-long btn-blue overlay-item" />
                 <ui:VisualElement class="row join-row">
@@ -58,11 +62,11 @@
                 </ui:VisualElement>
                 <ui:Label name="online-status" class="overlay-status" />
                 <ui:Button name="online-close" class="btn btn-small btn-red overlay-close" />
-            </ui:VisualElement>
+            </ui:ScrollView>
         </ui:VisualElement>
         <ui:VisualElement name="missions-overlay" class="screen">
             <ui:VisualElement name="missions-backdrop" class="screen" />
-            <ui:VisualElement name="missions-card" class="card">
+            <ui:ScrollView name="missions-card" class="card" horizontal-scroller-visibility="Hidden">
                 <ui:Label name="missions-title" />
                 <ui:Label name="missions-streak" />
                 <ui:Label name="missions-bonus" />
@@ -93,7 +97,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:Button name="missions-close" class="btn btn-long btn-red" />
-            </ui:VisualElement>
+            </ui:ScrollView>
         </ui:VisualElement>
         <ui:Instance template="Settings" name="settings" class="screen" picking-mode="Ignore" />
     </ui:VisualElement>

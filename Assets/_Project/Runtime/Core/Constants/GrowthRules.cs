@@ -4,7 +4,7 @@ namespace PlanetIO
     {
         public static float FoodGrowth(float capacity, float eaterMultiplier, float valueMultiplier, float nutrition)
         {
-            return nutrition > 0f ? nutrition : capacity * eaterMultiplier * valueMultiplier * 2f;
+            return nutrition > 0f ? nutrition : capacity * eaterMultiplier * valueMultiplier * 3f;
         }
 
         public static float ApplyFalloff(float growth, float currentCapacity, float falloff, bool isDroppedMass)

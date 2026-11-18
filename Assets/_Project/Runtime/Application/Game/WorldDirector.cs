@@ -285,10 +285,7 @@ namespace PlanetIO.Application
 
         private void Teleport(PlanetScale planet, Vector2 entrance, Vector2 exit, double now)
         {
-            Vector2 away = (Vector2)planet.transform.position - entrance;
-            Vector2 direction = away.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
-                ? away.normalized
-                : Vector2.right;
+            Vector2 direction = Constants.NormalizedOrRight((Vector2)planet.transform.position - entrance);
             Vector2 target = exit + direction * (MapFeatureRules.WormholeExitOffset + planet.BodyRadius);
             _portalReady[planet.NetworkObjectId] = now + MapFeatureRules.WormholeCooldownSeconds;
             planet.Teleport(Constants.ClampToWorld(target));

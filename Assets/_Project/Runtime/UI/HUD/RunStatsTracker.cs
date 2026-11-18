@@ -117,8 +117,11 @@ namespace PlanetIO.UI.Hud
                 _resumeMigrationRun = false;
                 _lastPerkMask = _player.PerkMask;
             }
-            else BeginRun();
-        }
+            else
+			{
+				BeginRun();
+			}
+		}
 
         private void Unbind()
         {

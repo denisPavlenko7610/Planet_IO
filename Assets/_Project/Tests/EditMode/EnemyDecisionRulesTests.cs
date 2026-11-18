@@ -80,7 +80,7 @@ namespace PlanetIO.Tests
         }
 
         [Test]
-        public void Think_SelectsNearestFoodAndIgnoresOtherLayers()
+        public void Think_SelectsNearestFoodAndIgnoresNonFoodEntities()
         {
             using var scope = new SensingScope();
             scope.AddFood(Vector2.up, false);
@@ -94,17 +94,15 @@ namespace PlanetIO.Tests
         }
 
         [Test]
-        public void Think_EqualDistanceFoodKeepsFirstPhysicsResult()
+        public void Think_EqualDistanceFoodUsesGridOrder()
         {
             using var scope = new SensingScope();
             scope.AddFood(Vector2.left * 3f);
             scope.AddFood(Vector2.right * 3f);
-            Physics2D.SyncTransforms();
-            var hits = new Collider2D[64];
-            var filter = ContactFilter2D.noFilter;
-            filter.SetLayerMask(LayerMask.GetMask(Constants.FoodLayerName));
-            Assert.That(Physics2D.OverlapCircle(scope.Origin, 16f, filter, hits), Is.EqualTo(2));
-            Vector2 expected = ((Vector2)hits[0].transform.position - scope.Origin).normalized;
+			var candidates = new List<FoodRecord>();
+			scope.FoodService.Query(scope.Origin, 16f, candidates);
+			Assert.That(candidates.Count, Is.EqualTo(2));
+			Vector2 expected = (candidates[0].Position - scope.Origin).normalized;
 
             scope.Think();
 
@@ -128,6 +126,7 @@ namespace PlanetIO.Tests
             private readonly UnityEngine.Random.State _randomState = UnityEngine.Random.state;
             public readonly Vector2 Origin = new(10000f, 10000f);
             public readonly EnemyMovement Movement;
+			public readonly FoodServiceStub FoodService = new();
 
             public SensingScope()
             {
@@ -137,6 +136,7 @@ namespace PlanetIO.Tests
                 root.AddComponent<CircleCollider2D>();
                 Enemy enemy = root.AddComponent<Enemy>();
                 Movement = root.GetComponent<EnemyMovement>();
+				typeof(EnemyMovement).GetField("_foodSpawner", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(Movement, FoodService);
                 typeof(Enemy).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
                     .Invoke(enemy, null);
                 typeof(EnemyMovement).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -148,12 +148,7 @@ namespace PlanetIO.Tests
 
             public void AddFood(Vector2 offset, bool onFoodLayer = true)
             {
-                var root = new GameObject("SensingFood");
-                _objects.Add(root);
-                root.layer = onFoodLayer ? LayerMask.NameToLayer(Constants.FoodLayerName) : 0;
-                root.transform.position = Origin + offset;
-                root.AddComponent<Food>();
-                root.AddComponent<CircleCollider2D>().radius = 0.1f;
+				if (onFoodLayer) FoodService.World.Create(Origin + offset, 0.2f);
             }
 
             public void Think()

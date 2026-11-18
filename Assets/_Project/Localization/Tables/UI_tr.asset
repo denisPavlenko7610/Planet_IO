@@ -496,6 +496,18 @@ MonoBehaviour:
     m_Localized: "Ma\xE7a yeniden ba\u011Flan\u0131l\u0131yor\u2026"
     m_Metadata:
       m_Items: []
+  - m_Id: 18266357037051904
+    m_Localized: "Play Oyunlar'a giri\u015F yap"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937984
+    m_Localized: "S\u0131ralamalar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937985
+    m_Localized: "Ba\u015Far\u0131mlar"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

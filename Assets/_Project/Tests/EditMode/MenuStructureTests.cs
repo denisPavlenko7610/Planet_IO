@@ -31,7 +31,6 @@ namespace PlanetIO.Tests
 
         [TestCase("nickname-input")]
         [TestCase("random-nickname")]
-        [TestCase("swatches")]
         [TestCase("skins")]
         public void ProfileControls_LiveInTheCustomizeWindow(string name)
         {

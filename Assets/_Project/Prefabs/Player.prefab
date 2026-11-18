@@ -89,7 +89,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -257,8 +257,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 5
-  m_fontSizeBase: 5
+  m_fontSize: 4.25
+  m_fontSizeBase: 4.25
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -478,6 +478,7 @@ GameObject:
   - component: {fileID: 7112992876354291134}
   - component: {fileID: 8188025366137381373}
   - component: {fileID: 4579248558706267416}
+  - component: {fileID: 4579248558706267417}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -676,7 +677,7 @@ MonoBehaviour:
   _initialCapacity: 0.08
   _killAbsorbFraction: 0.4
   _eatSizeRatio: 1.08
-  _foodGrowthFalloff: 1
+  _foodGrowthFalloff: 0.5
   _playerFoodGrowthMultiplier: 0.015
   _playerCometDamageMultiplier: 0.5
   _boostMassCost: 0.004
@@ -705,9 +706,10 @@ MonoBehaviour:
   _rigidbody2D: {fileID: 8517843457492819217}
   _massSpeedPenalty: 0
   _minimumSpeedMultiplier: 1
-  _turnSpeed: 540
-  _normalSpeed: 4.8
-  _boostSpeed: 9.6
+  _turnSpeed: 360
+  _turnSmoothTime: 0.18
+  _normalSpeed: 3.6
+  _boostSpeed: 7.2
 --- !u!114 &8045643209960618507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -828,3 +830,20 @@ MonoBehaviour:
   _boostPulseSpeed: 8
   _protectionBlinkSpeed: 14
   _protectionBlinkAmount: 0.7
+--- !u!114 &4579248558706267417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8045643209477139654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bea762dea7a2ddd46a7cea0e48c6e0dd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: PlanetIO.UI::PlanetIO.UI.Hud.PlayerDirectionArrow
+  _arrowRenderer: {fileID: 7119392977724085000}
+  _angleOffset: 0
+  _screenHeightFraction: 0.018
+  _edgeGapInArrowSizes: 0.5
+  _alpha: 0.75

@@ -60,7 +60,7 @@ namespace PlanetIO.Tests
                         Assert.That(bot.Capacity, Is.EqualTo(1f - BotDifficultyRules.BoostCost).Within(0.00001f));
                         Assert.That(bot.GetComponent<Rigidbody2D>().linearVelocity.magnitude,
                             Is.EqualTo(normalSpeed * 2f).Within(0.001f));
-                        Assert.That(Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude).Any(food =>
+                        Assert.That(AllFood().Any(food =>
                             food.IsDropped && Mathf.Abs(food.Nutrition - BotDifficultyRules.BoostCost * BotDifficultyRules.BoostFoodFraction) < 0.00001f), Is.True);
                     }
                     else Assert.That(bot.Capacity, Is.EqualTo(1f));
@@ -157,10 +157,10 @@ namespace PlanetIO.Tests
             }
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Difficulty_SoloCometsMoonsAndBordersUseDamageTuning()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             ISettingsService settings = Resolve<ISettingsService>();
             int previous = settings.Get(GameSettingKeys.BotDifficulty);
             try
@@ -190,13 +190,13 @@ namespace PlanetIO.Tests
                     object[] attack = { enemy, Vector2.left, BotDifficultyRules.BotOutgoingDamage(difficulty), 0f };
                     typeof(PlanetScale).GetMethod("TryReceiveStrike", BindingFlags.Instance | BindingFlags.NonPublic)
                         .Invoke(player, attack);
-                    Assert.That(player.Capacity, Is.EqualTo(1f - 0.06f * BotDifficultyRules.BotOutgoingDamage(difficulty) * playerScale).Within(0.00001f));
+                    Assert.That(player.Capacity, Is.EqualTo(1f - 0.10f * BotDifficultyRules.BotOutgoingDamage(difficulty) * playerScale).Within(0.00001f));
                     enemy.Capacity = 1f;
                     SetMoonField(enemy, "_moonImmunityRemaining", 0f);
                     object[] retaliation = { player, Vector2.left, 1f, 0f };
                     typeof(PlanetScale).GetMethod("TryReceiveStrike", BindingFlags.Instance | BindingFlags.NonPublic)
                         .Invoke(enemy, retaliation);
-                    Assert.That(enemy.Capacity, Is.EqualTo(1f - 0.06f * botScale).Within(0.00001f));
+                    Assert.That(enemy.Capacity, Is.EqualTo(1f - 0.10f * botScale).Within(0.00001f));
                 }
             }
             finally
@@ -206,21 +206,21 @@ namespace PlanetIO.Tests
             }
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Loot_PlayerAndEatenBotLeaveFoodAtDeathLocation()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             player.Capacity = 1f;
             Enemy enemy = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
             enemy.Capacity = 0.35f;
             Vector2 deathPosition = enemy.transform.position;
-            var before = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude)
+            var before = AllFood()
                 .Where(food => food.IsDropped).ToHashSet();
             TouchWith(player, enemy.GetComponent<Collider2D>());
             AssertDeathFood(before, deathPosition, 0.35f);
             Assert.That(enemy.Capacity, Is.EqualTo(enemy.InitialCapacity));
-            before = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude)
+            before = AllFood()
                 .Where(food => food.IsDropped).ToHashSet();
             player.Capacity = 1f;
             deathPosition = player.transform.position;
@@ -228,13 +228,13 @@ namespace PlanetIO.Tests
             AssertDeathFood(before, deathPosition, 1f);
         }
 
-        private static void AssertDeathFood(HashSet<Food> before, Vector2 position, float mass)
+        private static void AssertDeathFood(HashSet<FoodRecord> before, Vector2 position, float mass)
         {
-            Food[] food = Object.FindObjectsByType<Food>(FindObjectsInactive.Exclude)
+            FoodRecord[] food = AllFood()
                 .Where(point => point.IsDropped && !before.Contains(point)).ToArray();
             Assert.That(food.Length, Is.InRange(4, 30));
             Assert.That(food.Sum(point => point.Nutrition), Is.EqualTo(mass * 0.6f).Within(0.00001f));
-            Assert.That(food.All(point => Vector2.Distance(point.transform.position, position)
+            Assert.That(food.All(point => Vector2.Distance(point.Position, position)
                 <= Mathf.Max(mass * 1.5f, 0.6f) * 1.21f), Is.True);
         }
 

@@ -95,7 +95,6 @@ namespace PlanetIO.Tests
         }
 
         [TestCase("SetBoostRpc")]
-        [TestCase("SetColorRpc")]
         [TestCase("SubmitNicknameRpc")]
         [TestCase("ContinueRpc")]
         [TestCase("SetSkinRpc")]

@@ -100,7 +100,7 @@ namespace PlanetIO
             _pendingCapacityRestore = 0f;
             if (!IsDefeated)
             {
-                Capacity = restored;
+				Capacity = Mathf.Max(Capacity, restored);
             }
         }
 

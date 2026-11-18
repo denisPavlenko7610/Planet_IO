@@ -225,32 +225,21 @@ namespace PlanetIO
         }
 
         private void AttachMoonViews()
-        {
-            if (!TryGetComponent(out MoonRingView _))
-            {
-                gameObject.AddComponent<MoonRingView>();
-            }
+		{
+			EnsureComponent<MoonRingView>();
+			EnsureComponent<ThreatRingView>();
+			EnsureComponent<PlanetKnockback>();
+			EnsureComponent<PlanetGravity>();
+			EnsureComponent<LeaderBeaconView>();
+		}
 
-            if (!TryGetComponent(out ThreatRingView _))
-            {
-                gameObject.AddComponent<ThreatRingView>();
-            }
-
-            if (!TryGetComponent(out PlanetKnockback _))
-            {
-                gameObject.AddComponent<PlanetKnockback>();
-            }
-
-            if (!TryGetComponent(out PlanetGravity _))
-            {
-                gameObject.AddComponent<PlanetGravity>();
-            }
-
-            if (!TryGetComponent(out LeaderBeaconView _))
-            {
-                gameObject.AddComponent<LeaderBeaconView>();
-            }
-        }
+		protected void EnsureComponent<T>() where T : Component
+		{
+			if (!TryGetComponent(out T _))
+			{
+				gameObject.AddComponent<T>();
+			}
+		}
 
         private void RefreshTierServer(float capacity)
         {
@@ -284,6 +273,14 @@ namespace PlanetIO
                 _networkMoonMask.Value = _moons.AliveMask;
             }
         }
+
+		private void HitMoon(int index)
+		{
+			if (_moons.Hit(index))
+			{
+				PublishMoonMask();
+			}
+		}
 
         private void OnTierValueChanged(byte previous, byte current)
         {
@@ -361,10 +358,7 @@ namespace PlanetIO
             Grow(dealt * MoonRules.OwnerGainFraction);
             PlayMoonImpactRpc(moonPosition, moonRadius);
 
-            if (_moons.Hit(moonIndex))
-            {
-                PublishMoonMask();
-            }
+			HitMoon(moonIndex);
         }
 
         private void InterceptComet(Comet comet, int moonIndex)
@@ -372,10 +366,7 @@ namespace PlanetIO
             comet.PlayImpactEffect();
             CometRespawnService?.Respawn(comet);
 
-            if (_moons.Hit(moonIndex))
-            {
-                PublishMoonMask();
-            }
+			HitMoon(moonIndex);
         }
 
         internal bool TryReceiveStrike(PlanetScale attacker, Vector2 sourcePosition, float damageScale, out float dealt)
@@ -395,16 +386,13 @@ namespace PlanetIO
 
             LastAttackerName = attacker.DisplayName;
             LastAttackerClientId = attacker.AttributionClientId;
-            Shrink(MoonRules.Damage(before) * damageScale * IncomingDamageMultiplier);
+            TakeDamage(MoonRules.Damage(before) * damageScale * IncomingDamageMultiplier);
             LastAttackerName = null;
             LastAttackerClientId = Constants.UnassignedClientId;
 
             dealt = Mathf.Max(0f, before - Capacity);
 
-            Vector2 away = (Vector2)transform.position - sourcePosition;
-            Vector2 direction = away.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
-                ? away.normalized
-                : Constants.GetRandomDirection();
+            Vector2 direction = Constants.NormalizedOrRandom((Vector2)transform.position - sourcePosition);
             ApplyKnockback(direction * MoonRules.KnockbackSpeed);
             return true;
         }
@@ -427,9 +415,9 @@ namespace PlanetIO
                     continue;
                 }
 
-                if (TryFindMoonClash(other, time, out Vector2 clashPoint))
+                if (TryFindMoonClash(other, time, out Vector2 clashPoint, out int ownMoon, out int otherMoon))
                 {
-                    StartMoonClash(other, clashPoint);
+                    StartMoonClash(other, clashPoint, ownMoon, otherMoon);
                     return;
                 }
             }
@@ -438,9 +426,10 @@ namespace PlanetIO
         private bool CanClashMoons =>
             IsServer && IsSpawned && IsCombatActive && !IsHarmImmune && _clashCooldown <= 0f && _moons.AliveMask != 0;
 
-        private bool TryFindMoonClash(PlanetScale other, double time, out Vector2 clashPoint)
+        private bool TryFindMoonClash(PlanetScale other, double time, out Vector2 clashPoint, out int ownMoon, out int otherMoon)
         {
             clashPoint = default;
+            ownMoon = otherMoon = -1;
             Vector2 centerA = transform.position;
             Vector2 centerB = other.transform.position;
             float radiusA = BodyRadius;
@@ -475,6 +464,8 @@ namespace PlanetIO
                     Vector2 positionB = MoonRules.Position(centerB, radiusB, b, other._moons.Slots, time, phaseB);
                     if ((positionA - positionB).sqrMagnitude <= limitSquared)
                     {
+                        ownMoon = a;
+                        otherMoon = b;
                         clashPoint = (positionA + positionB) * 0.5f;
                         return true;
                     }
@@ -484,15 +475,15 @@ namespace PlanetIO
             return false;
         }
 
-        private void StartMoonClash(PlanetScale other, Vector2 clashPoint)
+        private void StartMoonClash(PlanetScale other, Vector2 clashPoint, int ownMoon, int otherMoon)
         {
-            _clashCooldown = MoonRules.ClashCooldownSeconds;
+			HitMoon(ownMoon);
+			other.HitMoon(otherMoon);
+			_clashCooldown = MoonRules.ClashCooldownSeconds;
             other._clashCooldown = MoonRules.ClashCooldownSeconds;
 
-            Vector2 apart = (Vector2)transform.position - (Vector2)other.transform.position;
-            Vector2 direction = apart.sqrMagnitude > Constants.MinimumDirectionSquaredMagnitude
-                ? apart.normalized
-                : Constants.GetRandomDirection();
+            Vector2 direction = Constants.NormalizedOrRandom(
+                (Vector2)transform.position - (Vector2)other.transform.position);
 
             ApplyKnockback(direction * MoonRules.ClashKnockbackSpeed);
             other.ApplyKnockback(-direction * MoonRules.ClashKnockbackSpeed);

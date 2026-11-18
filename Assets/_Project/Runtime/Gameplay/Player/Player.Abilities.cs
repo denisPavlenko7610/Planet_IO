@@ -52,12 +52,9 @@ namespace PlanetIO
         }
 
         private void AttachAbilityViews()
-        {
-            if (!TryGetComponent(out IonTrailView _))
-            {
-                gameObject.AddComponent<IonTrailView>();
-            }
-        }
+		{
+			EnsureComponent<IonTrailView>();
+		}
 
         private void UpdateAbilities(float deltaTime)
         {

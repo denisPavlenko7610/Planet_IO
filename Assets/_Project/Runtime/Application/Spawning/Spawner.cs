@@ -18,12 +18,6 @@ namespace PlanetIO
 
         private ObjectPool<T> _objectPool;
 
-        protected Rect SpawnArea => Rect.MinMaxRect(
-            _horizontalSpawnRange.x,
-            _verticalSpawnRange.x,
-            _horizontalSpawnRange.y,
-            _verticalSpawnRange.y);
-
         public virtual void Initialize(ObjectPool<T> objectPool)
         {
             _objectPool = objectPool ?? throw new ArgumentNullException(nameof(objectPool));
@@ -82,21 +76,6 @@ namespace PlanetIO
                     spawnedTransform.localScale);
             }
         }
-
-		protected void ReleaseObject(T objectToRelease)
-		{
-			if (objectToRelease == null)
-			{
-				return;
-			}
-
-			if (objectToRelease.TryGetComponent(out NetworkObject networkObject) && networkObject.IsSpawned)
-			{
-				networkObject.Despawn(false);
-			}
-
-			_objectPool.Release(objectToRelease);
-		}
 
         protected virtual Vector2 GetRandomPosition()
         {

@@ -78,9 +78,9 @@ namespace PlanetIO.Tests
         [Test]
         public void Damage_IsPercentOfCapacityWithFloor()
         {
-            Assert.That(MoonRules.Damage(1f), Is.EqualTo(0.06f).Within(1e-6f));
-            Assert.That(MoonRules.Damage(0.05f), Is.EqualTo(MoonRules.MinHitDamage));
-            Assert.That(MoonRules.Damage(0.08f), Is.EqualTo(0.0048f).Within(1e-6f));
+            Assert.That(MoonRules.Damage(1f), Is.EqualTo(0.10f).Within(1e-6f));
+            Assert.That(MoonRules.Damage(0.03f), Is.EqualTo(MoonRules.MinHitDamage));
+            Assert.That(MoonRules.Damage(0.08f), Is.EqualTo(0.008f).Within(1e-6f));
         }
 
         [Test]

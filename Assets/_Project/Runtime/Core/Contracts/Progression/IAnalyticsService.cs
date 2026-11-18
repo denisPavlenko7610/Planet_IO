@@ -19,5 +19,8 @@ namespace PlanetIO
         public const string MissionComplete = "mission_complete";
         public const string ShopPurchase = "shop_purchase";
         public const string EventStart = "event_start";
+        public const string ReviewPrompt = "review_prompt";
+        public const string SignIn = "signin";
+        public const string CloudSync = "cloud_sync";
     }
 }

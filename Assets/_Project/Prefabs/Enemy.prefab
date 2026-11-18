@@ -207,7 +207,7 @@ MonoBehaviour:
   _minCapacity: 0.08
   _maxCapacity: 8
   _killAbsorbFraction: 0.4
-  _foodGrowthFalloff: 1
+  _foodGrowthFalloff: 0.5
   _enemyConfig: {fileID: 11400000, guid: b2d220ad140161b46a8557abd2274fc6, type: 2}
   _spriteRenderer: {fileID: 163752541173436847}
   _enemyFoodGrowthMultiplier: 0.01
@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _normalSpeed: 3.6
+  _normalSpeed: 3
   _smoothTurnSpeed: 260
   _dashTurnSpeed: 900
   _dashChance: 0.45
@@ -459,8 +459,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 5
-  m_fontSizeBase: 5
+  m_fontSize: 4.25
+  m_fontSizeBase: 4.25
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

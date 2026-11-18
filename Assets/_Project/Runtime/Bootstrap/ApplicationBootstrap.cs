@@ -14,6 +14,8 @@ namespace PlanetIO.Bootstrap
         private readonly IContentInitializationService _content;
         private readonly PlayerProfileService _profile;
         private readonly ProgressionService _progression;
+        private readonly IServiceStateService _serviceState;
+        private readonly ICloudSyncService _cloud;
         private readonly IAnalyticsService _analytics;
 
         public ApplicationBootstrap(
@@ -22,6 +24,8 @@ namespace PlanetIO.Bootstrap
             IRewardedAdsService rewardedAdsService,
             PlayerProfileService profile,
             ProgressionService progression,
+            IServiceStateService serviceState,
+            ICloudSyncService cloud,
             IAnalyticsService analytics)
         {
             _content = content ?? throw new ArgumentNullException(nameof(content));
@@ -29,6 +33,8 @@ namespace PlanetIO.Bootstrap
             _rewardedAdsService = rewardedAdsService ?? throw new ArgumentNullException(nameof(rewardedAdsService));
             _profile = profile ?? throw new ArgumentNullException(nameof(profile));
             _progression = progression ?? throw new ArgumentNullException(nameof(progression));
+            _serviceState = serviceState ?? throw new ArgumentNullException(nameof(serviceState));
+            _cloud = cloud ?? throw new ArgumentNullException(nameof(cloud));
             _analytics = analytics ?? throw new ArgumentNullException(nameof(analytics));
         }
 
@@ -40,9 +46,11 @@ namespace PlanetIO.Bootstrap
             {
                 await _profile.InitializeAsync();
                 await _progression.InitializeAsync();
+                await _serviceState.InitializeAsync();
                 _analytics.Track(AnalyticsEvents.SessionStart, ("rank", _progression.Rank), ("streak", _progression.StreakDays));
                 await _content.InitializeAsync();
                 _rewardedAdsService.Initialize();
+                _cloud.SignIn(false);
                 if (_sceneFlow.IsLoaded(SceneIds.Boot))
                 {
                     await _sceneFlow.ChangeSceneAsync(SceneIds.Menu);
@@ -62,6 +70,7 @@ namespace PlanetIO.Bootstrap
             {
                 await _profile.FlushAsync();
                 await _progression.FlushAsync();
+                await _serviceState.FlushAsync();
             }
             catch (Exception exception) { UnityLogger.LogException(exception); }
         }

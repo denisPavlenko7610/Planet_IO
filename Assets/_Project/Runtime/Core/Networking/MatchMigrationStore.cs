@@ -111,7 +111,7 @@ namespace PlanetIO
             _tracked.Clear();
             WaitingPlayers.Clear();
             _nextEntity = snapshot.Players.Select(p => p.ObjectId).Concat(snapshot.Bots.Select(p => p.ObjectId))
-                    .Concat(snapshot.Food.Select(p => p.ObjectId)).Concat(snapshot.Comets.Select(p => p.ObjectId))
+                    .Concat(snapshot.Comets.Select(p => p.ObjectId))
                     .DefaultIfEmpty(0UL).Max() +
                 1;
             foreach (var player in snapshot.Players)

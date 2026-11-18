@@ -10,13 +10,13 @@ namespace PlanetIO.UI.Hud
     {
         private const float MuteAfterReviveSeconds = 0.5f;
         private const float GrowthThreshold = 0.0001f;
-        private const float DamageThreshold = -0.005f;
         private const float BorderWarningDistance = 18f;
         private const float BorderWarningMaxAlpha = 0.75f;
         private const float SlingshotPitch = 1.7f;
         private const float SlingshotVolume = 0.7f;
 
         private readonly ISessionHudView _view;
+		private readonly IDamageFeedbackView _damageView;
         private readonly ILocalPlayerProvider _localPlayerProvider;
         private readonly ILocalizationService _localization;
         private readonly ISfxPlayer _sfxPlayer;
@@ -33,6 +33,7 @@ namespace PlanetIO.UI.Hud
             ISfxPlayer sfxPlayer)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
+			_damageView = view as IDamageFeedbackView;
             _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
             _localization = localization ?? throw new ArgumentNullException(nameof(localization));
             _sfxPlayer = sfxPlayer ?? throw new ArgumentNullException(nameof(sfxPlayer));
@@ -57,6 +58,9 @@ namespace PlanetIO.UI.Hud
             UpdateBorderWarning();
         }
 
+		private bool IsFeedbackMuted =>
+			_localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil;
+
         private void BindPlayer(Player player)
         {
             if (_localPlayer != null)
@@ -64,12 +68,14 @@ namespace PlanetIO.UI.Hud
                 _localPlayer.Killed -= OnLocalKill;
                 _localPlayer.Revived -= OnRevived;
                 _localPlayer.CapacityChanged -= OnCapacityChanged;
+                _localPlayer.Damaged -= OnDamaged;
                 _localPlayer.TierChanged -= OnTierChanged;
                 _localPlayer.MoonStruck -= OnMoonStruck;
                 _localPlayer.Slingshot -= OnSlingshot;
             }
 
-            _localPlayer = player;
+			_damageView?.ClearDamage();
+			_localPlayer = player;
             if (_localPlayer == null)
             {
                 return;
@@ -78,6 +84,7 @@ namespace PlanetIO.UI.Hud
             _localPlayer.Killed += OnLocalKill;
             _localPlayer.Revived += OnRevived;
             _localPlayer.CapacityChanged += OnCapacityChanged;
+            _localPlayer.Damaged += OnDamaged;
             _localPlayer.TierChanged += OnTierChanged;
             _localPlayer.MoonStruck += OnMoonStruck;
             _localPlayer.Slingshot += OnSlingshot;
@@ -90,7 +97,7 @@ namespace PlanetIO.UI.Hud
         {
             bool tierUp = tier > _lastTier;
             _lastTier = tier;
-            if (!tierUp || _localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil)
+            if (!tierUp || IsFeedbackMuted)
             {
                 return;
             }
@@ -101,7 +108,7 @@ namespace PlanetIO.UI.Hud
 
         private void OnSlingshot()
         {
-            if (_localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil)
+            if (IsFeedbackMuted)
             {
                 return;
             }
@@ -112,7 +119,7 @@ namespace PlanetIO.UI.Hud
 
         private void OnMoonStruck(Vector2 _)
         {
-            if (_localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil)
+            if (IsFeedbackMuted)
             {
                 return;
             }
@@ -146,7 +153,8 @@ namespace PlanetIO.UI.Hud
 
         private void OnRevived()
         {
-            _mutedUntil = Time.unscaledTime + MuteAfterReviveSeconds;
+			_damageView?.ClearDamage();
+			_mutedUntil = Time.unscaledTime + MuteAfterReviveSeconds;
             _lastCapacity = _localPlayer != null ? _localPlayer.Capacity : 0f;
             _lastTier = _localPlayer != null ? _localPlayer.Tier : TierRules.MinTier;
         }
@@ -155,7 +163,7 @@ namespace PlanetIO.UI.Hud
         {
             float delta = capacity - _lastCapacity;
             _lastCapacity = capacity;
-            if (_localPlayer == null || _localPlayer.IsDefeated || Time.unscaledTime < _mutedUntil)
+            if (IsFeedbackMuted)
             {
                 return;
             }
@@ -164,12 +172,18 @@ namespace PlanetIO.UI.Hud
             {
                 _sfxPlayer.Play(SfxId.Eat, Mathf.Clamp(1.4f - capacity, 0.8f, 1.7f));
             }
-            else if (delta < DamageThreshold)
-            {
-                _sfxPlayer.Play(SfxId.Hit);
-                Haptics.Play(HapticPreset.LightImpact);
-            }
         }
+
+        private void OnDamaged(float lost, float before)
+		{
+			if (IsFeedbackMuted)
+			{
+				return;
+			}
+			_sfxPlayer.Play(SfxId.Hit);
+			Haptics.Play(HapticPreset.LightImpact);
+			_damageView?.ShowDamage(GetLocalPlayerScreenPosition(), Constants.CapacityToScore(lost), lost / before);
+		}
 
         private void OnLocalKill(string victimName, int score)
         {

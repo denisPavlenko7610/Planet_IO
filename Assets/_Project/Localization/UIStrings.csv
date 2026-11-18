@@ -14,7 +14,6 @@ menu.room_code_placeholder,Room code,Код комнаты,房间代码,ルー�
 menu.settings,Settings,Настройки,设置,設定,설정,Einstellungen,Paramètres,Ajustes,Configurações,Impostazioni,Ustawienia,Налаштування,Налады,Ayarlar
 menu.best_score,Best: {0},Рекорд: {0},最高分：{0},ベスト：{0},최고 점수: {0},Rekord: {0},Record : {0},Récord: {0},Recorde: {0},Record: {0},Rekord: {0},Рекорд: {0},Рэкорд: {0},En iyi: {0}
 menu.online,Online,Онлайн,在线,オンライン,온라인,Online,En ligne,En línea,Online,Online,Online,Онлайн,Анлайн,Çevrimiçi
-menu.color,Color,Цвет,颜色,カラー,색상,Farbe,Couleur,Color,Cor,Colore,Kolor,Колір,Колер,Renk
 status.ready,Ready to play,Готово к игре,准备就绪,準備完了,플레이 준비 완료,Bereit zum Spielen,Prêt à jouer,Listo para jugar,Pronto para jogar,Pronto a giocare,Gotowy do gry,Готово до гри,Гатова да гульні,Oynamaya hazır
 status.creating_room,Creating room...,Создание комнаты...,正在创建房间...,ルームを作成中...,방 만드는 중...,Raum wird erstellt...,Création de la salle...,Creando sala...,Criando sala...,Creazione stanza...,Tworzenie pokoju...,Створення кімнати...,Стварэнне пакоя...,Oda oluşturuluyor...
 status.room_created,Room created. Code: {0},Комната создана. Код: {0},房间已创建。代码：{0},ルームを作成しました。コード：{0},방이 생성되었습니다. 코드: {0},Raum erstellt. Code: {0},Salle créée. Code : {0},Sala creada. Código: {0},Sala criada. Código: {0},Stanza creata. Codice: {0},Pokój utworzony. Kod: {0},Кімнату створено. Код: {0},Пакой створаны. Код: {0},Oda oluşturuldu. Kod: {0}
@@ -116,3 +115,6 @@ mode.blitz,Blitz: 5-minute match,Блиц: матч на 5 минут,闪电战�
 blitz.title,Time's up!,Время вышло!,时间到,タイムアップ,시간 종료!,Zeit ist um!,Temps écoulé !,¡Se acabó el tiempo!,Tempo esgotado!,Tempo scaduto!,Koniec czasu!,Час вийшов!,Час скончыўся!,Süre doldu!
 blitz.rank,Place {0} of {1},Место {0} из {1},第 {0} 名，共 {1} 名,{1}人中{0}位,{1}명 중 {0}위,Platz {0} von {1},Place {0} sur {1},Puesto {0} de {1},Posição {0} de {1},Posto {0} su {1},Miejsce {0} z {1},Місце {0} з {1},Месца {0} з {1},{1} oyuncu arasında {0}.
 settings.fixed_joystick,Fixed joystick,Фиксированный джойстик,固定摇杆,固定スティック,고정 조이스틱,Fester Joystick,Joystick fixe,Joystick fijo,Joystick fixo,Joystick fisso,Stały joystick,Фіксований джойстик,Фіксаваны джойстык,Sabit joystick
+settings.play_games_sign_in,Sign in to Play Games,Войти в Play Игры,登录 Play 游戏,Play ゲームにログイン,Play 게임 로그인,Bei Play Spiele anmelden,Connexion à Play Jeux,Iniciar sesión en Play Juegos,Entrar no Play Jogos,Accedi a Play Giochi,Zaloguj do Gier Play,Увійти в Play Ігри,Увайсці ў Play Гульні,Play Oyunlar'a giriş yap
+settings.leaderboards,Leaderboards,Рейтинги,排行榜,ランキング,순위표,Bestenlisten,Classements,Clasificaciones,Classificações,Classifiche,Rankingi,Рейтинги,Рэйтынгі,Sıralamalar
+settings.achievements,Achievements,Достижения,成就,実績,업적,Erfolge,Succès,Logros,Conquistas,Obiettivi,Osiągnięcia,Досягнення,Дасягненні,Başarımlar

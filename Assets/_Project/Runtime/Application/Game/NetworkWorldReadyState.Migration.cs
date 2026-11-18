@@ -69,20 +69,18 @@ namespace PlanetIO.Application
         {
             if (!_handoffPaused.Value ||
                 !IsServer ||
-                !Finite(position.x) ||
-                !Finite(position.y) ||
-                !Finite(position.z) ||
-                !Finite(rotation.x) ||
-                !Finite(rotation.y) ||
-                !Finite(rotation.z) ||
-                !Finite(rotation.w))
+                !float.IsFinite(position.x) ||
+                !float.IsFinite(position.y) ||
+                !float.IsFinite(position.z) ||
+                !float.IsFinite(rotation.x) ||
+                !float.IsFinite(rotation.y) ||
+                !float.IsFinite(rotation.z) ||
+                !float.IsFinite(rotation.w))
             {
                 return;
             }
 
             _acknowledged[rpc.Receive.SenderClientId] = (Constants.ClampToWorld(position), rotation);
         }
-
-        private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 }

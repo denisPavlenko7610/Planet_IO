@@ -31,29 +31,13 @@ namespace PlanetIO
                 BodyRadius,
                 _foodAttractionRadius,
                 PerkRules.MagnetRadiusMultiplier(PerkMask));
-            int hitCount = Physics2D.OverlapCircle(transform.position, reach, _foodFilter, _foodBuffer);
-            float pullStep = _foodAttractionSpeed * Time.deltaTime;
-
-            for (int index = 0; index < hitCount; index++)
-            {
-                Collider2D hit = _foodBuffer[index];
-                if (hit == null ||
-                    !hit.TryGetComponent(out Food food) ||
-                    food.IsMagnetImmuneFor(NetworkObjectId))
-                {
-                    continue;
-                }
-
-                Transform foodTransform = food.transform;
-                Vector2 offset = (Vector2)transform.position - (Vector2)foodTransform.position;
-                float distance = offset.magnitude;
-                if (distance < 0.01f)
-                {
-                    continue;
-                }
-
-                foodTransform.position += (Vector3)(offset / distance * Mathf.Min(pullStep, distance));
-            }
+			FoodRespawnService.Query(transform.position, reach, _foodBuffer);
+			float pullStep = _foodAttractionSpeed * Time.deltaTime;
+			foreach (FoodRecord food in _foodBuffer)
+			{
+				if (food.IsMagnetImmuneFor(NetworkObjectId)) continue;
+				food.Position = Vector2.MoveTowards(food.Position, transform.position, pullStep);
+			}
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -83,7 +67,7 @@ namespace PlanetIO
                     _enemyRespawnService.Respawn(enemy);
                 }
             }
-            else if (!protectedFromHarm || other.TryGetComponent<Food>(out _))
+            else if (!protectedFromHarm)
             {
                 HandleEntityCollision(other);
             }

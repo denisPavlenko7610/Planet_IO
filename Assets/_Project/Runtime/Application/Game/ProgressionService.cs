@@ -78,6 +78,19 @@ namespace PlanetIO.Application
             await _saves.SaveAsync(Slot, _state);
         }
 
+        public ProgressionState ExportState() => JsonUtility.FromJson<ProgressionState>(JsonUtility.ToJson(_state));
+
+        public void ImportState(ProgressionState state)
+        {
+            if (!_initialized || state == null || !state.IsValid())
+            {
+                return;
+            }
+
+            _state = JsonUtility.FromJson<ProgressionState>(JsonUtility.ToJson(state));
+            RefreshDay();
+        }
+
         public void RefreshDay()
         {
             if (!_initialized)

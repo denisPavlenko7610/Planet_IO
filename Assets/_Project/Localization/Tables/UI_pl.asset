@@ -496,6 +496,18 @@ MonoBehaviour:
     m_Localized: "Ponowne \u0142\u0105czenie z rozgrywk\u0105\u2026"
     m_Metadata:
       m_Items: []
+  - m_Id: 18266357037051904
+    m_Localized: Zaloguj do Gier Play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937984
+    m_Localized: Rankingi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937985
+    m_Localized: "Osi\u0105gni\u0119cia"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

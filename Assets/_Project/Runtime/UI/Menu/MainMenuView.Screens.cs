@@ -26,8 +26,8 @@ namespace PlanetIO.UI.Menu
             _onlineClose = root.Q<Button>("online-close");
             _onlineStatus = root.Q<Label>("online-status");
 
-            SetScreenVisible(_customizeOverlay, false);
-            SetScreenVisible(_onlineOverlay, false);
+            _customizeOverlay.SetDisplayed(false);
+            _onlineOverlay.SetDisplayed(false);
 
             _profileButton.clicked += OnProfileClicked;
             _onlineButton.clicked += OnOnlineClicked;
@@ -53,21 +53,16 @@ namespace PlanetIO.UI.Menu
             _onlineStatus.EnableInClassList(ErrorClass, isError);
         }
 
-        private static void SetScreenVisible(VisualElement overlay, bool visible)
-        {
-            overlay.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
-        }
+        private void OnProfileClicked() => _customizeOverlay.SetDisplayed(true);
 
-        private void OnProfileClicked() => SetScreenVisible(_customizeOverlay, true);
+        private void OnOnlineClicked() => _onlineOverlay.SetDisplayed(true);
 
-        private void OnOnlineClicked() => SetScreenVisible(_onlineOverlay, true);
+        private void OnCustomizeCloseClicked() => _customizeOverlay.SetDisplayed(false);
 
-        private void OnCustomizeCloseClicked() => SetScreenVisible(_customizeOverlay, false);
+        private void OnOnlineCloseClicked() => _onlineOverlay.SetDisplayed(false);
 
-        private void OnOnlineCloseClicked() => SetScreenVisible(_onlineOverlay, false);
+        private void OnCustomizeBackdropClicked(ClickEvent clickEvent) => _customizeOverlay.SetDisplayed(false);
 
-        private void OnCustomizeBackdropClicked(ClickEvent clickEvent) => SetScreenVisible(_customizeOverlay, false);
-
-        private void OnOnlineBackdropClicked(ClickEvent clickEvent) => SetScreenVisible(_onlineOverlay, false);
+        private void OnOnlineBackdropClicked(ClickEvent clickEvent) => _onlineOverlay.SetDisplayed(false);
     }
 }

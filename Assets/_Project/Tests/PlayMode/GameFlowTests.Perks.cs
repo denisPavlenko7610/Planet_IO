@@ -11,12 +11,11 @@ namespace PlanetIO.Tests
 {
     public sealed partial class GameFlowTests
     {
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_TierUpOffersThreeChoicesAndPickGrantsPerk()
         {
-            yield return StartMoonGame();
-            Player player = PrepareMoonPlayer();
-            player.Capacity = 0.1f;
+            yield return StartSharedMoonGame();
+			Player player = PreparePerkPlayer();
             PerkId[] offered = null;
             player.PerkOfferShown += (perks, _) => offered = perks;
 
@@ -35,12 +34,11 @@ namespace PlanetIO.Tests
             Assert.That(PerkRules.OwnedCount(player.PerkMask), Is.EqualTo(1));
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_UnansweredOfferResolvesItselfAndClosesView()
         {
-            yield return StartMoonGame();
-            Player player = PrepareMoonPlayer();
-            player.Capacity = 0.1f;
+            yield return StartSharedMoonGame();
+			Player player = PreparePerkPlayer();
             bool shown = false;
             bool closed = false;
             player.PerkOfferShown += (_, _) => shown = true;
@@ -55,12 +53,11 @@ namespace PlanetIO.Tests
             Assert.That(PerkRules.OwnedCount(player.PerkMask), Is.EqualTo(1), "Timeout picks one random perk.");
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_RegainingTierInSameLifeDoesNotOfferAgain()
         {
-            yield return StartMoonGame();
-            Player player = PrepareMoonPlayer();
-            player.Capacity = 0.1f;
+            yield return StartSharedMoonGame();
+			Player player = PreparePerkPlayer();
             int offers = 0;
             player.PerkOfferShown += (_, _) => offers++;
 
@@ -76,12 +73,11 @@ namespace PlanetIO.Tests
             Assert.That(ReadPrivateField<int>(player, "_pendingOffers"), Is.Zero);
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_JumpingSeveralTiersQueuesOneOfferPerTier()
         {
-            yield return StartMoonGame();
-            Player player = PrepareMoonPlayer();
-            player.Capacity = 0.1f;
+            yield return StartSharedMoonGame();
+			Player player = PreparePerkPlayer();
 
             player.Capacity = 1.5f;
 
@@ -89,10 +85,20 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+		private static Player PreparePerkPlayer()
+		{
+			Player player = PrepareMoonPlayer();
+			player.Capacity = 0.1f;
+			// Shared-world feeding can open an offer before this test starts listening.
+			typeof(Player).GetMethod("ResetPerksForNewLife", BindingFlags.Instance | BindingFlags.NonPublic)
+				.Invoke(player, null);
+			return player;
+		}
+
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_RespawnClearsPerksButContinueKeepsThem()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             GrantPerk(player, PerkId.SolarSail);
             player.Capacity = 1f;
@@ -110,10 +116,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_HeavyMoonsAddASlotAndRemovingItDropsIt()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             Assert.That(player.MoonMask, Is.EqualTo(3));
 
@@ -124,10 +130,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_AblativeCrustSurvivesOneLethalHit()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             GrantPerk(player, PerkId.AblativeCrust);
 
@@ -148,10 +154,33 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+		[UnityTest, SharedWorld, Timeout(45000)]
+		public IEnumerator Perks_AblativeCrustPreservesFoodEatenBeforeDeferredRestore()
+		{
+			yield return StartSharedMoonGame();
+			Player player = PrepareMoonPlayer();
+			GrantPerk(player, PerkId.AblativeCrust);
+			player.Capacity = player.MinCapacity;
+			Assert.That(player.HasPerk(PerkId.AblativeCrust), Is.False);
+
+			FoodRecord food = AllFood().First(candidate => candidate.Active && !candidate.IsDropped);
+			food.ResetClaim();
+			food.SetNutrition(0.02f);
+			Assert.That(player.TryEatFood(food), Is.True);
+			float fedCapacity = player.Capacity;
+			Assert.That(fedCapacity, Is.GreaterThan(player.MinCapacity));
+
+			yield return null;
+			yield return null;
+
+			Assert.That(player.IsDefeated, Is.False, "Deferred healing must not kill a fed survivor.");
+			Assert.That(player.Capacity, Is.GreaterThanOrEqualTo(fedCapacity), "Food gained before healing must remain.");
+		}
+
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_AblativeCrustProtectsFromBeingEaten()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player victim = PrepareMoonPlayer();
             victim.Capacity = 1f;
             GrantPerk(victim, PerkId.AblativeCrust);
@@ -172,10 +201,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_CometRiderHealsInsteadOfHurting()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             player.Capacity = 1f;
             GrantPerk(player, PerkId.CometRider);
@@ -190,10 +219,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_NebulaVeilHidesPlayerAfterBoostEnds()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             GrantPerk(player, PerkId.NebulaVeil);
             MethodInfo setBoosting = typeof(Player).GetMethod(
@@ -214,10 +243,10 @@ namespace PlanetIO.Tests
             Assert.That(player.IsStealthed, Is.False, "Stealth ends and cools down for 40 s.");
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_IonTrailDamagesRivalsThatTouchIt()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             player.Capacity = 0.4f;
             GrantPerk(player, PerkId.IonTrail);
@@ -241,10 +270,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Gravity_PullsSmallBodyTowardMuchBiggerPlanet()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             player.Capacity = 0.3f;
             Enemy well = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
@@ -270,10 +299,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Gravity_DoesNotPullComparableBodies()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             player.Capacity = 0.5f;
             Enemy peer = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
@@ -285,10 +314,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Gravity_SlingshotRaisesSpeedMultiplier()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             PlanetGravity gravity = player.GetComponent<PlanetGravity>();
             Assert.That(player.SpeedMultiplier, Is.EqualTo(1f).Within(1e-5f));
@@ -301,10 +330,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Leader_IsLargestPlanetAboveMinimumAndGetsBountyOnKill()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player hunter = PrepareMoonPlayer();
             hunter.Capacity = 1f;
             Enemy prey = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
@@ -328,10 +357,10 @@ namespace PlanetIO.Tests
             yield return null;
         }
 
-        [UnityTest, Timeout(45000)]
+        [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Leader_DirectoryPicksBiggestEligiblePlanet()
         {
-            yield return StartMoonGame();
+            yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             Enemy[] enemies = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude);
             foreach (Enemy enemy in enemies)

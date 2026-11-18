@@ -44,6 +44,8 @@
 
 .settings-row {
     flex-direction: row;
+    flex-wrap: wrap;
+    flex-shrink: 0;
     align-items: center;
     align-self: stretch;
     min-height: 72px;
@@ -62,6 +64,9 @@
 .settings-label {
     flex-grow: 1;
     flex-shrink: 1;
+    flex-basis: 220px;
+    min-width: 0;
+    white-space: normal;
     font-size: 32px;
     color: white;
     -unity-text-align: middle-left;
@@ -70,8 +75,9 @@
 }
 
 .settings-control {
-    width: 440px;
-    flex-shrink: 0;
+    width: 360px;
+    max-width: 100%;
+    flex-shrink: 1;
     flex-direction: row;
     align-items: center;
 }
@@ -124,12 +130,12 @@
 .settings-toggle {
     margin: 0;
     width: 112px;
-    height: 60px;
+    height: 88px;
 }
 
 .settings-toggle .unity-toggle__input {
     width: 112px;
-    height: 60px;
+    height: 88px;
     margin: 0;
     padding: 0;
     align-items: center;
@@ -183,8 +189,9 @@
 
 .stepper-button {
     width: 100px;
-    height: 80px;
+    height: 96px;
     font-size: 40px;
+    padding: 0 8px 8px 8px;
     background-image: url("/Assets/_Project/Art/UI/Buttons/PNG/11Button_Midl_Blue.png");
 }
 
@@ -195,6 +202,8 @@
     -unity-text-align: middle-center;
     flex-grow: 1;
     flex-shrink: 1;
+    min-width: 0;
+    white-space: normal;
     margin: 0 8px;
     padding: 0;
 }
@@ -209,11 +218,23 @@
 }
 
 .settings-footer > .btn {
-    margin: 0 12px;
+    margin: 6px 12px;
+}
+
+.settings-services {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-self: stretch;
+    margin-top: 14px;
+}
+
+.settings-services > .btn {
+    margin: 6px 8px;
 }
 
 .link {
-    align-self: center;
+    min-height: 80px;    align-self: stretch;
     margin: 8px 0 0 0;
     padding: 4px 16px;
     border-width: 0;
@@ -222,6 +243,9 @@
     font-size: 30px;
     color: rgb(170, 220, 255);
     -unity-text-align: middle-center;
+    max-width: 100%;
+    white-space: normal;
+    flex-shrink: 0;
 }
 
 .link:hover {
@@ -234,6 +258,21 @@
     color: var(--gold);
 }
 
-.difficulty-heading { justify-content: center; }
-.difficulty-hint { font-size: 24px; color: rgb(196, 184, 224); white-space: normal; }
-#difficulty-value { font-size: 30px; white-space: normal; }
+.difficulty-heading {
+    justify-content: center;
+}
+
+.difficulty-heading > Label {
+    white-space: normal;
+}
+
+.difficulty-hint {
+    font-size: 24px;
+    color: rgb(196, 184, 224);
+    white-space: normal;
+}
+
+#difficulty-value {
+    font-size: 30px;
+    white-space: normal;
+}

@@ -9,20 +9,13 @@ namespace PlanetIO.Tests
 {
     public sealed class GameplayRulesTests
     {
-        private sealed class FoodTestScope : System.IDisposable
-        {
-            public readonly Food Food;
-
-            public FoodTestScope()
-            {
-                Food = new GameObject("TestFood").AddComponent<Food>();
-            }
-
-            public void Dispose()
-            {
-                Object.DestroyImmediate(Food.gameObject);
-            }
-        }
+		private sealed class FoodTestScope : System.IDisposable
+		{
+			public readonly FoodWorld World = new(true, Constants.WorldBounds);
+			public readonly FoodRecord Food;
+			public FoodTestScope() { Food = World.Create(Vector2.zero, 0.2f); }
+			public void Dispose() { }
+		}
 
         [Test]
         public void Food_ClaimIsExclusiveUntilReset()
@@ -36,35 +29,32 @@ namespace PlanetIO.Tests
             Assert.That(scope.Food.TryClaim(), Is.True);
         }
 
-        [Test]
-        public void Food_LifecycleTracksDroppedStateAndVersion()
-        {
-            using var scope = new FoodTestScope();
-            Assert.That(scope.Food.IsDropped, Is.False);
-            Assert.That(scope.Food.LifecycleVersion, Is.EqualTo(0));
+		[Test]
+		public void Food_LifecycleInvalidatesOldHandlesAndClearsDroppedState()
+		{
+			using var scope = new FoodTestScope();
+			ulong old = scope.Food.Id;
+			scope.World.Configure(scope.Food, true, false, -1, 0.2f, 1f);
+			Assert.That(scope.Food.IsDropped, Is.True);
+			scope.World.Remove(scope.Food);
+			FoodRecord replacement = scope.World.Create(Vector2.one, 0.3f);
+			Assert.That(scope.World.Find(old), Is.Null);
+			Assert.That(replacement.Id, Is.Not.EqualTo(old));
+			Assert.That(replacement.IsDropped, Is.False);
+			Assert.That(replacement.Nutrition, Is.Zero);
+		}
 
-            int version = scope.Food.MarkAsDropped();
-
-            Assert.That(scope.Food.IsDropped, Is.True);
-            Assert.That(version, Is.EqualTo(1));
-            Assert.That(scope.Food.MarkAsDropped(), Is.EqualTo(2));
-
-            scope.Food.MarkAsStored();
-
-            Assert.That(scope.Food.IsDropped, Is.False);
-            Assert.That(scope.Food.LifecycleVersion, Is.EqualTo(3));
-        }
-
-        [Test]
-        public void Food_DefaultValueMultiplierIsOne_AndStaysWithoutServer()
-        {
-            using var scope = new FoodTestScope();
-            Assert.That(scope.Food.ValueMultiplier, Is.EqualTo(1f));
-
-            scope.Food.SetValueMultiplier(8f);
-
-            Assert.That(scope.Food.ValueMultiplier, Is.EqualTo(1f));
-        }
+		[Test]
+		public void Food_ValueMultiplierIsServerOwned()
+		{
+			using var scope = new FoodTestScope();
+			Assert.That(scope.Food.ValueMultiplier, Is.EqualTo(1f));
+			scope.Food.SetValueMultiplier(8f);
+			Assert.That(scope.Food.ValueMultiplier, Is.EqualTo(8f));
+			var replica = new FoodWorld(false, Constants.WorldBounds);
+			replica.ApplyVisual(scope.Food.Id, Vector2.zero, 0.2f, 1f, 0, true);
+			Assert.Throws<System.InvalidOperationException>(() => replica.Find(scope.Food.Id).SetValueMultiplier(8f));
+		}
 
         [Test]
         public void PlayerPalette_GetColorWrapsAroundBounds()

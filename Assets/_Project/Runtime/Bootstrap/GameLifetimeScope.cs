@@ -19,7 +19,7 @@ namespace PlanetIO.Bootstrap
     {
         [Header("Pools")]
         [SerializeField, Assign(AssignMode.Scene)]
-        private ObjectPool<Food> _foodsPool;
+        private FoodPool _foodsPool;
 
         [SerializeField, Assign(AssignMode.Scene)]
         private ObjectPool<Enemy> _enemyPool;
@@ -47,22 +47,18 @@ namespace PlanetIO.Bootstrap
         [SerializeField, Assign(AssignMode.Scene)]
         private SessionHudView _sessionHudView;
 
-        protected override void Awake()
-        {
-            base.Awake();
-        }
-
         protected override void Configure(IContainerBuilder builder)
         {
             builder.Register<MigrationWorldService>(Lifetime.Scoped);
-            builder.RegisterComponent(_foodsPool).As<ObjectPool<Food>>();
+            builder.RegisterComponent(_foodsPool);
             builder.RegisterComponent(_cometsPool).As<ObjectPool<Comet>>();
             builder.RegisterComponent(_enemyPool).As<ObjectPool<Enemy>>();
 
             builder.RegisterComponent(_foodSpawner)
                 .AsSelf()
-                .As<IRespawnService<Food>>()
-                .As<ISpawnService<Food>>()
+                .As<IFoodService>()
+				.As<IRespawnService<FoodRecord>>()
+                .As<ISpawnService<FoodRecord>>()
                 .As<ILootSpawnService>()
                 .As<IFoodFieldGuide>()
                 .As<ICometFoodTrail>();
@@ -122,8 +118,10 @@ namespace PlanetIO.Bootstrap
             builder.RegisterEntryPoint<HudNavigationPresenter>();
             builder.RegisterEntryPoint<ControlsLayoutPresenter>();
             builder.RegisterComponentInHierarchy<SettingsView>()
-                .As<ISettingsView>();
+                .As<ISettingsView>()
+                .As<IServicesView>();
             builder.RegisterEntryPoint<SettingsPresenter>().AsSelf();
+            builder.RegisterEntryPoint<ServicesPresenter>();
             builder.Register<PauseService>(Lifetime.Scoped).As<IPauseService>();
             builder.Register<UnityTimeScalePauseController>(Lifetime.Scoped);
             builder.RegisterBuildCallback(container => container.Resolve<UnityTimeScalePauseController>());

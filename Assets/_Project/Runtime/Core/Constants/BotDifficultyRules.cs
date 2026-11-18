@@ -30,6 +30,7 @@ namespace PlanetIO
         public const float BoostTickSeconds = 0.15f;
         public const float BoostSpeedMultiplier = 2f;
         public const float BoostFoodFraction = 0.8f;
+		public const float MediumHuntRatio = 1.16f;
 
         public static int Normalize(int value) => value is >= 0 and <= 2 ? value : (int)BotDifficulty.Medium;
 
@@ -67,7 +68,7 @@ namespace PlanetIO
         {
             BotDifficulty.Easy => new(0.75f, 0.8f, 1.28f, 0f, 0.35f, 8f),
             BotDifficulty.Hard => new(0.2f, 1.25f, 1.08f, 0.55f, 1f, 3f),
-            _ => new(0.4f, 1f, 1.16f, 0.25f, 0.65f, 5f)
+			_ => new(0.4f, 1f, MediumHuntRatio, 0.25f, 0.65f, 5f)
         };
 
         public static bool CanAffordBoost(float capacity, float startingMass) => capacity > startingMass + BoostCost;

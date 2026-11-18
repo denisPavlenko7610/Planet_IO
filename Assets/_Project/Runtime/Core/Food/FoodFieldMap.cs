@@ -107,8 +107,6 @@ namespace PlanetIO
 
         public Vector2 GetFieldCenter(int fieldIndex) => _fields[fieldIndex].Center;
 
-        public float GetFieldRadius(int fieldIndex) => _fields[fieldIndex].Radius;
-
         public int CellOf(Vector2 position)
         {
             int column = Mathf.Clamp(Mathf.FloorToInt((position.x - _bounds.xMin) / _cellWidth), 0, _columns - 1);

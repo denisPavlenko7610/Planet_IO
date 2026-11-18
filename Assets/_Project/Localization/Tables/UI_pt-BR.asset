@@ -496,6 +496,18 @@ MonoBehaviour:
     m_Localized: "Reconectando \xE0 partida\u2026"
     m_Metadata:
       m_Items: []
+  - m_Id: 18266357037051904
+    m_Localized: Entrar no Play Jogos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937984
+    m_Localized: "Classifica\xE7\xF5es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937985
+    m_Localized: Conquistas
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

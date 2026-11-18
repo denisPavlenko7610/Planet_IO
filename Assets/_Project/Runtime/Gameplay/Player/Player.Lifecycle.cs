@@ -54,7 +54,7 @@ namespace PlanetIO
                     _rigidbody2D.linearVelocity = Vector2.zero;
                 }
 
-                GameVfx.Death(transform.position, _networkColor.Value, Capacity);
+                GameVfx.Death(transform.position, Color.white, Capacity);
 
                 if (IsOwner)
                 {

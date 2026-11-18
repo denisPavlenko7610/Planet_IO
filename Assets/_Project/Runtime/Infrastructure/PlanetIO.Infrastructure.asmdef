@@ -23,6 +23,9 @@
         "RD.Audio",
         "RD.Pause",
         "RD.Attributes",
+        "Google.Play.Games",
+        "Google.Play.Review",
+        "Google.Play.Common",
         "GUID:6efe087bdf83fde4394da70201de35cc",
         "GUID:9899626431664a947974b12095a03362",
         "GUID:0f25be3c69bd51b4da7fd6b687fff831"

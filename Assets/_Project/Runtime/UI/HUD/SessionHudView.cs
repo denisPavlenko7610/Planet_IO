@@ -72,7 +72,7 @@ namespace PlanetIO.UI.Hud
 
     [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(UIDocument))]
-    public sealed class SessionHudView : MonoBehaviour, ISessionHudView, IPerkView, IRunResultView, IWorldHudView
+    public sealed partial class SessionHudView : MonoBehaviour, ISessionHudView, IPerkView, IRunResultView, IWorldHudView
     {
         private const int PerkCardCount = PerkRules.OfferSize;
         private const float RankAnimationSeconds = 1.2f;
@@ -155,6 +155,9 @@ namespace PlanetIO.UI.Hud
             _defeatBodyText = _root.Q<Label>("defeat-body");
             _killFeedText = _root.Q<Label>("kill-feed");
             _scorePopupText = _root.Q<Label>("score-popup");
+            _damagePopup = _root.Q<Label>("damage-popup");
+            _borderStrength = 0f;
+            ClearDamage();
             _hintText = _root.Q<Label>("hint-text");
             _pingText = _root.Q<Label>("ping-text");
             _pingText.style.display = DisplayStyle.None;
@@ -211,6 +214,7 @@ namespace PlanetIO.UI.Hud
 
         private void OnDisable()
         {
+            ClearDamage();
             _leaveButton.clicked -= OnLeaveClicked;
             _settingsButton.clicked -= OnSettingsClicked;
             _defeatLeaveButton.clicked -= OnLeaveClicked;
@@ -230,6 +234,7 @@ namespace PlanetIO.UI.Hud
         {
             float deltaTime = Time.unscaledDeltaTime;
             UpdateRankAnimation(deltaTime);
+            UpdateDamage(deltaTime);
 
             if (_eventBannerRemaining > 0f)
             {
@@ -270,6 +275,7 @@ namespace PlanetIO.UI.Hud
 
         public void ShowDefeat(string title, string body)
         {
+            ClearDamage();
             _defeatTitleText.text = title;
             _defeatBodyText.text = body;
             _playAgainButton.SetEnabled(true);
@@ -298,7 +304,7 @@ namespace PlanetIO.UI.Hud
 
         public void SetContinueVisible(bool visible)
         {
-            _continueButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            _continueButton.SetDisplayed(visible);
         }
 
         public void ShowKillFeed(string message)
@@ -333,7 +339,8 @@ namespace PlanetIO.UI.Hud
 
         public void SetBorderWarning(float strength)
         {
-            _borderWarning.style.opacity = Mathf.Clamp01(strength);
+            _borderStrength = Mathf.Clamp01(strength);
+            ApplyWarning();
         }
 
         public void SetControlsSwapped(bool swapped)
@@ -349,7 +356,7 @@ namespace PlanetIO.UI.Hud
         public void SetPing(int milliseconds, PingQuality quality)
         {
             bool visible = quality != PingQuality.Hidden;
-            _pingText.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            _pingText.SetDisplayed(visible);
             _pingText.EnableInClassList("ping-good", quality == PingQuality.Good);
             _pingText.EnableInClassList("ping-fair", quality == PingQuality.Fair);
             _pingText.EnableInClassList("ping-poor", quality == PingQuality.Poor);
@@ -369,7 +376,7 @@ namespace PlanetIO.UI.Hud
         public void SetBlitzTimer(string text, bool visible)
         {
             _blitzTimerText.text = text ?? string.Empty;
-            _blitzTimerText.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            _blitzTimerText.SetDisplayed(visible);
         }
 
         public void ShowRunResult(
@@ -399,7 +406,7 @@ namespace PlanetIO.UI.Hud
         public void SetDoubleDust(bool visible, string label)
         {
             _doubleDustButton.text = label;
-            _doubleDustButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            _doubleDustButton.SetDisplayed(visible);
         }
 
         private void UpdateRankAnimation(float deltaTime)
@@ -443,7 +450,7 @@ namespace PlanetIO.UI.Hud
             for (int index = 0; index < PerkCardCount; index++)
             {
                 bool available = index < names.Length;
-                _perkCards[index].style.display = available ? DisplayStyle.Flex : DisplayStyle.None;
+                _perkCards[index].SetDisplayed(available);
                 if (available)
                 {
                     _perkNames[index].text = names[index];
@@ -463,8 +470,11 @@ namespace PlanetIO.UI.Hud
                 VisualElement icon = _perkCards[index].Q<VisualElement>("perk-icon-" + index);
                 icon.ClearClassList();
                 icon.AddToClassList("perk-icon");
-                if (index < ids.Length) icon.AddToClassList("perk-icon--" + ids[index]);
-            }
+                if (index < ids.Length)
+				{
+					icon.AddToClassList("perk-icon--" + ids[index]);
+				}
+			}
         }
 
         public void SetPerkTimer(float fraction)

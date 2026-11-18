@@ -496,6 +496,18 @@ MonoBehaviour:
     m_Localized: "Riconnessione alla partita\u2026"
     m_Metadata:
       m_Items: []
+  - m_Id: 18266357037051904
+    m_Localized: Accedi a Play Giochi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937984
+    m_Localized: Classifiche
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18266357120937985
+    m_Localized: Obiettivi
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

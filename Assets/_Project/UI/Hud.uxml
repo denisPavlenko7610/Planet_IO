@@ -44,6 +44,7 @@
             </ui:VisualElement>
             <ui:Label name="hint-text" picking-mode="Ignore" />
             <ui:Label name="score-popup" picking-mode="Ignore" />
+            <ui:Label name="damage-popup" picking-mode="Ignore" />
             <ui:VisualElement name="boost-button" class="control">
                 <ui:VisualElement name="boost-icon" picking-mode="Ignore" />
             </ui:VisualElement>
@@ -74,26 +75,28 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="defeat-panel" class="screen">
-            <ui:VisualElement name="defeat-card" class="card">
-                <ui:VisualElement name="defeat-results">
-                    <ui:Label name="defeat-title" />
-                    <ui:Label name="defeat-body" />
-                    <ui:Label name="result-details" />
-                    <ui:VisualElement name="rank-row">
-                        <ui:Label name="rank-text" />
-                        <ui:VisualElement name="rank-bar">
-                            <ui:VisualElement name="rank-fill" />
+            <ui:ScrollView name="defeat-card" class="card" horizontal-scroller-visibility="Hidden">
+                <ui:VisualElement name="defeat-layout">
+                    <ui:VisualElement name="defeat-results">
+                        <ui:Label name="defeat-title" />
+                        <ui:Label name="defeat-body" />
+                        <ui:Label name="result-details" />
+                        <ui:VisualElement name="rank-row">
+                            <ui:Label name="rank-text" />
+                            <ui:VisualElement name="rank-bar">
+                                <ui:VisualElement name="rank-fill" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
+                        <ui:Label name="reward-text" />
                     </ui:VisualElement>
-                    <ui:Label name="reward-text" />
+                    <ui:VisualElement name="defeat-actions">
+                        <ui:Button name="play-again" class="btn btn-cta btn-yellow" />
+                        <ui:Button name="continue-button" class="btn btn-long btn-green" />
+                        <ui:Button name="double-dust" class="btn btn-long btn-blue" />
+                        <ui:Button name="defeat-leave" class="btn btn-hud btn-red" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="defeat-actions">
-                    <ui:Button name="play-again" class="btn btn-cta btn-yellow" />
-                    <ui:Button name="continue-button" class="btn btn-long btn-green" />
-                    <ui:Button name="double-dust" class="btn btn-long btn-blue" />
-                    <ui:Button name="defeat-leave" class="btn btn-hud btn-red" />
-                </ui:VisualElement>
-            </ui:VisualElement>
+            </ui:ScrollView>
         </ui:VisualElement>
         <ui:VisualElement name="loading-overlay" class="screen">
             <ui:Label name="loading-title" text="Loading Session" />

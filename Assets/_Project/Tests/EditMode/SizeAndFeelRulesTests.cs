@@ -9,6 +9,41 @@ namespace PlanetIO.Tests
         private const string PlayerPrefabPath = "Assets/_Project/Prefabs/Player.prefab";
         private const string EnemyPrefabPath = "Assets/_Project/Prefabs/Enemy.prefab";
 
+		[TestCase(30)]
+		[TestCase(60)]
+		[TestCase(120)]
+		public void Growth_SettlesSmoothlyWithoutOvershootAtDifferentFrameRates(int fps)
+		{
+			float start = PlanetSizeRules.Scale(0.08f);
+			float target = PlanetSizeRules.Scale(0.8f);
+			float scale = start;
+			for (int i = 0; i < fps; i++)
+			{
+				float next = PlanetSizeRules.SmoothGrowth(scale, target, 1f / fps);
+				Assert.That(next, Is.InRange(scale, target));
+				if (i == 0) Assert.That(next, Is.LessThan(start + (target - start) * 0.21f));
+				scale = next;
+			}
+			Assert.That(scale, Is.EqualTo(target).Within((target - start) * 0.002f));
+			Assert.That(PlanetSizeRules.SmoothGrowth(scale, start, 0.01f), Is.EqualTo(start));
+		}
+
+		[Test]
+		public void Steering_ReversalIsGradualAndConvergesWithoutOvershoot()
+		{
+			float angle = 0f;
+			float velocity = 0f;
+			for (int i = 0; i < 100; i++)
+			{
+				float next = MovementRules.Turn(angle, 170f, ref velocity,
+					MovementRules.TurnSmoothTime, MovementRules.TurnSpeed, 0.02f);
+				Assert.That(next, Is.InRange(angle, 170f));
+				Assert.That(next - angle, Is.LessThanOrEqualTo(MovementRules.TurnSpeed * 0.02f));
+				angle = next;
+			}
+			Assert.That(angle, Is.EqualTo(170f).Within(0.1f));
+		}
+
         [Test]
         public void PlanetScale_AtReferenceCapacity_EqualsCapacity()
         {
@@ -45,10 +80,10 @@ namespace PlanetIO.Tests
             Assert.That(zoom, Is.LessThan(planet));
         }
 
-        [TestCase(0.16f, 1.2745f)]
-        [TestCase(0.35f, 1.6763f)]
-        [TestCase(0.8f, 2.2387f)]
-        [TestCase(2f, 3.0852f)]
+        [TestCase(0.16f, 1.3195f)]
+        [TestCase(0.35f, 1.8046f)]
+        [TestCase(0.8f, 2.5119f)]
+        [TestCase(2f, 3.6239f)]
         public void CameraGrowth_SettledDiameterRemainsReadable(float mass, float expected)
         {
             float body = PlanetSizeRules.Scale(mass) / PlanetSizeRules.Scale(0.08f);
@@ -146,7 +181,8 @@ namespace PlanetIO.Tests
         [Test]
         public void Food_MagnetImmunityAppliesOnlyToDropperDuringGrace()
         {
-            var food = new GameObject("ImmuneFood").AddComponent<Food>();
+            var world = new FoodWorld(true, Constants.WorldBounds);
+			FoodRecord food = world.Create(Vector2.zero, 0.2f);
             try
             {
                 food.SetDropper(7UL, 5f);
@@ -154,12 +190,12 @@ namespace PlanetIO.Tests
                 Assert.That(food.IsMagnetImmuneFor(7UL), Is.True);
                 Assert.That(food.IsMagnetImmuneFor(8UL), Is.False);
 
-                food.MarkAsStored();
+                world.Renew(food);
                 Assert.That(food.IsMagnetImmuneFor(7UL), Is.False);
             }
             finally
             {
-                Object.DestroyImmediate(food.gameObject);
+                world.Remove(food);
             }
         }
 
