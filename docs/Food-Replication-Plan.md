@@ -15,7 +15,9 @@ The expected benefit comes from removing individual object lifecycle, transforms
 network bookkeeping. Binary messages alone would leave much of that CPU work. Do not replace 2000
 NetworkObjects with 2000 independently updated NetworkVariables. Measure the actual savings on a device.
 
-Replicate the whole table to clients at connection/rebaseline and cull rendering locally. At 2000 mostly static items,
+Replicate the whole table after the client registers its Game-scene handler and requests the baseline.
+The host then sends deltas to that client. Each valid snapshot header or chunk extends the retry deadline.
+An incomplete snapshot or revision gap still triggers recovery. Cull rendering locally. At 2000 mostly static items,
 this avoids region-subscription races. Use the grid for simulation queries and view selection. Add network
 region subscriptions only if measured traffic justifies them.
 
@@ -131,8 +133,8 @@ Unity's instanced mesh culling operates on groups. An atlas does not guarantee a
 
 - [Unity custom messages](https://mp-docs.dl.it.unity3d.com/netcode/current/advanced-topics/message-system/custom-messages/)
 - [Unity RenderMeshInstanced](https://docs.unity3d.com/ScriptReference/Graphics.RenderMeshInstanced.html)
-## Verification record
 
-See [Food replication verification ? November 18, 2026](Testing-Food-Replication-2026-11-18.md) for
-the host/two-client transport run, gameplay and migration checks, growth re-measurement and remaining
-physical-device acceptance work.
+## Remaining work
+
+Physical-device acceptance: Android temperature, sustained FPS, battery use and on-device multiplayer
+measurement.

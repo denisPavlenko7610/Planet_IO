@@ -4,7 +4,7 @@ namespace PlanetIO
 {
     public static class DirectionArrowRules
     {
-		public const float ScreenHeightFraction = 0.018f;
+		public const float ScreenHeightFraction = 0.0225f;
 
 		public static float ClearanceRadius(float bodyRadius, float spriteRadius)
 		{

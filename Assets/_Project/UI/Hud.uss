@@ -262,14 +262,11 @@
     bottom: 70px;
     width: 200px;
     height: 200px;
-    border-radius: 100px;
-    border-width: 5px;
-    border-color: rgba(205, 170, 255, 0.8);
-    background-color: rgba(41, 20, 82, 0.55);
+    -unity-background-scale-mode: scale-to-fit;
     scale: 0.78 0.78;
     align-items: center;
     justify-content: center;
-    transition-property: scale, background-color;
+    transition-property: scale;
     transition-duration: 0.08s;
 }
 
@@ -286,16 +283,16 @@
     bottom: 38px;
     width: 264px;
     height: 264px;
-    border-radius: 132px;
-    border-width: 5px;
+    background-image: url("project://database/Assets/_Project/Sprites/UI/StickBase.png");
     scale: 1 1;
 }
 
 #stick.stick-active {
-    background-color: rgba(120, 70, 220, 0.45);
+    background-image: url("project://database/Assets/_Project/Sprites/UI/StickBaseActive.png");
 }
 
 #boost-button {
+    background-image: url("project://database/Assets/_Project/Sprites/UI/BoostBase.png");
     right: 180px;
     scale: 0.95 0.95;
 }
@@ -319,7 +316,7 @@
 
 #boost-button:active {
     scale: 0.88 0.88;
-    background-color: rgba(120, 70, 220, 0.6);
+    background-image: url("project://database/Assets/_Project/Sprites/UI/BoostBaseActive.png");
 }
 
 .controls-swapped #stick-zone {

@@ -172,7 +172,6 @@ namespace PlanetIO.Tests
 			Assert.That(small.Capacity, Is.EqualTo(0.4f));
 			Assert.That(large.Capacity, Is.EqualTo(0.8f));
 
-			// A live moon can touch the larger core while the smaller core remains outside it.
 			Vector2 attackOffset = MoonRules.Position(
 				Vector2.zero,
 				a,

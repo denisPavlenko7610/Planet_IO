@@ -230,38 +230,34 @@ namespace PlanetIO.UI.Hud
             _labels = null;
         }
 
-        private void Update()
-        {
-            float deltaTime = Time.unscaledDeltaTime;
-            UpdateRankAnimation(deltaTime);
-            UpdateDamage(deltaTime);
+		private void Update()
+		{
+			float deltaTime = Time.unscaledDeltaTime;
+			UpdateRankAnimation(deltaTime);
+			UpdateDamage(deltaTime);
 
-            if (_eventBannerRemaining > 0f)
-            {
-                _eventBannerRemaining -= deltaTime;
-                _eventBannerText.style.opacity = Mathf.Clamp01(_eventBannerRemaining / (EventBannerSeconds * 0.4f));
-            }
+			UpdateFade(_eventBannerText, ref _eventBannerRemaining, deltaTime, EventBannerSeconds * 0.4f);
+			UpdateFade(_killFeedText, ref _killFeedTimeRemaining, deltaTime, KillFeedFadeSeconds);
 
-            if (_killFeedTimeRemaining > 0f)
-            {
-                _killFeedTimeRemaining -= deltaTime;
-                _killFeedText.style.opacity = Mathf.Clamp01(_killFeedTimeRemaining / KillFeedFadeSeconds);
-            }
+			if (_scorePopupTimeRemaining > 0f)
+			{
+				_scorePopupTimeRemaining -= deltaTime;
+				_scorePopupOrigin.y -= ScorePopupRiseSpeed * deltaTime;
+				_scorePopupText.style.top = _scorePopupOrigin.y;
+				_scorePopupText.style.opacity = Mathf.Clamp01(_scorePopupTimeRemaining / ScorePopupSeconds);
+			}
 
-            if (_scorePopupTimeRemaining > 0f)
-            {
-                _scorePopupTimeRemaining -= deltaTime;
-                _scorePopupOrigin.y -= ScorePopupRiseSpeed * deltaTime;
-                _scorePopupText.style.top = _scorePopupOrigin.y;
-                _scorePopupText.style.opacity = Mathf.Clamp01(_scorePopupTimeRemaining / ScorePopupSeconds);
-            }
+			UpdateFade(_hintText, ref _hintTimeRemaining, deltaTime, HintFadeSeconds * 0.4f);
+		}
 
-            if (_hintTimeRemaining > 0f)
-            {
-                _hintTimeRemaining -= deltaTime;
-                _hintText.style.opacity = Mathf.Clamp01(_hintTimeRemaining / (HintFadeSeconds * 0.4f));
-            }
-        }
+		private static void UpdateFade(Label label, ref float remaining, float deltaTime, float fadeSeconds)
+		{
+			if (remaining > 0f)
+			{
+				remaining -= deltaTime;
+				label.style.opacity = Mathf.Clamp01(remaining / fadeSeconds);
+			}
+		}
 
         public void ShowSessionText(string text)
         {

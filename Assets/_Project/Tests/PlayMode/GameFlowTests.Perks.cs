@@ -89,7 +89,6 @@ namespace PlanetIO.Tests
 		{
 			Player player = PrepareMoonPlayer();
 			player.Capacity = 0.1f;
-			// Shared-world feeding can open an offer before this test starts listening.
 			typeof(Player).GetMethod("ResetPerksForNewLife", BindingFlags.Instance | BindingFlags.NonPublic)
 				.Invoke(player, null);
 			return player;

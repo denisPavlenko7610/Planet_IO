@@ -145,7 +145,6 @@ namespace PlanetIO
 			Changed?.Invoke(record);
 		}
 
-		// The broad phase includes food radius; callers apply their exact pickup/magnet rules.
 		public void Query(Vector2 center, float radius, List<FoodRecord> result)
 		{
 			result.Clear();
@@ -195,7 +194,6 @@ namespace PlanetIO
 			return record;
 		}
 
-		// Replica updates are applied through the protocol, never through gameplay mutation methods.
 		public FoodRecord Apply(FoodMigrationState state, bool active)
 		{
 			if (!IsValidId(state.ObjectId))
@@ -204,16 +202,11 @@ namespace PlanetIO
 			int slot = SlotOf(state.ObjectId);
 			uint generation = GenerationOf(state.ObjectId);
 
-			FoodRecord record = _records[slot] ??= new FoodRecord { World = this, Slot = slot };
-			if (record.Generation > generation)
-				return record;
-
-			if (record.Active)
+			if (!TryPrepareRecordUpdate(slot, generation, out FoodRecord record))
 			{
-				Unlink(record);
-				ActiveCount--;
+				return record;
 			}
-			_used = Mathf.Max(_used, slot + 1);
+
 			record.Id = state.ObjectId;
 			record.Generation = generation;
 			record.Active = active;
@@ -229,12 +222,8 @@ namespace PlanetIO
 			record.ImmuneUntil = Clock + state.Immunity;
 			record.ExpiresAt = Clock + state.Remaining;
 			record.Claimed = false;
-			_maximumRadius = Mathf.Max(_maximumRadius, record.Radius);
-			if (active)
-			{
-				ActiveCount++;
-				Link(record);
-			}
+			FinishRecordUpdate(record);
+
 			return record;
 		}
 
@@ -262,16 +251,11 @@ namespace PlanetIO
 		{
 			int slot = SlotOf(id);
 			uint generation = GenerationOf(id);
-			FoodRecord record = _records[slot] ??= new FoodRecord { World = this, Slot = slot };
-			if (record.Generation > generation)
-				return;
-
-			if (record.Active)
+			if (!TryPrepareRecordUpdate(slot, generation, out FoodRecord record))
 			{
-				Unlink(record);
-				ActiveCount--;
+				return;
 			}
-			_used = Mathf.Max(_used, slot + 1);
+
 			record.Id = id;
 			record.Generation = generation;
 			record.StoredPosition = position;
@@ -279,8 +263,32 @@ namespace PlanetIO
 			record.ValueMultiplier = value;
 			record.Flavor = flavor;
 			record.Active = active;
+			FinishRecordUpdate(record);
+		}
+
+		private bool TryPrepareRecordUpdate(int slot, uint generation, out FoodRecord record)
+		{
+			record = _records[slot] ??= new FoodRecord { World = this, Slot = slot };
+			if (record.Generation > generation)
+			{
+				return false;
+			}
+
+			if (record.Active)
+			{
+				Unlink(record);
+				ActiveCount--;
+			}
+
+			_used = Mathf.Max(_used, slot + 1);
+
+			return true;
+		}
+
+		private void FinishRecordUpdate(FoodRecord record)
+		{
 			_maximumRadius = Mathf.Max(_maximumRadius, record.Radius);
-			if (active)
+			if (record.Active)
 			{
 				ActiveCount++;
 				Link(record);

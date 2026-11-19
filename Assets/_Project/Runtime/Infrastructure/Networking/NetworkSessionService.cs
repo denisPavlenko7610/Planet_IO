@@ -36,7 +36,7 @@ namespace PlanetIO.Infrastructure.Networking
         private ISettingsService _settings;
 
         [Inject]
-        public void ConfigureDifficulty(ISettingsService settings) => _settings = settings;
+        public void ConfigureSettings(ISettingsService settings) => _settings = settings;
 
         public NetworkSessionService(
             NetworkManager networkManager,
@@ -132,20 +132,14 @@ namespace PlanetIO.Infrastructure.Networking
                     return true;
                 }
 
-                if (!await WaitOneFrameAsync() || !_networkManager.IsListening || !_networkManager.IsServer)
-                {
-                    await AbortStartAsync("Room did not transition to Listening state");
-                    return false;
-                }
+				if (!await WaitForListeningAsync("Room did not transition to Listening state"))
+				{
+					return false;
+				}
 
-                SetState(NetworkSessionState.StartingHost, $"Room created. Code: {CurrentRoom.RoomCode}");
-                if (LoadNetworkScene(SceneNames.Loading))
-                {
-                    return true;
-                }
+				SetState(NetworkSessionState.StartingHost, $"Room created. Code: {CurrentRoom.RoomCode}");
 
-                await AbortStartAsync(Status);
-                return false;
+				return await LoadLoadingSceneAsync();
             }
             catch (OperationCanceledException)
             {
@@ -212,26 +206,44 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             SubscribeSceneManager();
-            if (!await WaitOneFrameAsync())
-            {
-                await AbortStartAsync("Single player start was cancelled");
-                return false;
-            }
 
-            if (!_networkManager.IsListening || !_networkManager.IsServer)
-            {
-                await AbortStartAsync("Single player did not transition to Listening state");
-                return false;
-            }
+			if (!await WaitForListeningAsync(
+				"Single player did not transition to Listening state",
+				"Single player start was cancelled"))
+			{
+				return false;
+			}
 
-            if (LoadNetworkScene(SceneNames.Loading))
-            {
-                return true;
-            }
-
-            await AbortStartAsync(Status);
-            return false;
+			return await LoadLoadingSceneAsync();
         }
+
+		private async Awaitable<bool> WaitForListeningAsync(string notListeningReason, string cancelledReason = null)
+		{
+			if (!await WaitOneFrameAsync())
+			{
+				await AbortStartAsync(cancelledReason ?? notListeningReason);
+				return false;
+			}
+
+			if (!_networkManager.IsListening || !_networkManager.IsServer)
+			{
+				await AbortStartAsync(notListeningReason);
+				return false;
+			}
+
+			return true;
+		}
+
+		private async Awaitable<bool> LoadLoadingSceneAsync()
+		{
+			if (LoadNetworkScene(SceneNames.Loading))
+			{
+				return true;
+			}
+
+			await AbortStartAsync(Status);
+			return false;
+		}
 
         public async Awaitable ContinueToGameAsync()
         {

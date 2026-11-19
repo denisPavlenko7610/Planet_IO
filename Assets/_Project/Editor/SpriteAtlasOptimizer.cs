@@ -40,7 +40,7 @@ namespace PlanetIO.Editor
 			string atlasPath,
 			string[] sourceFolderPaths,
 			int maximumTextureSize,
-			bool tightPacking
+			bool gameplay
 		)
 		{
 			SpriteAtlasAsset atlas;
@@ -53,7 +53,6 @@ namespace PlanetIO.Editor
 				atlas = new SpriteAtlasAsset();
 			}
 
-			// Preserve custom packables while adding folders introduced after atlas creation.
 			SpriteAtlas imported = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(atlasPath);
 			HashSet<Object> packables = imported != null
 				? new HashSet<Object>(imported.GetPackables())
@@ -87,32 +86,33 @@ namespace PlanetIO.Editor
 
 			SpriteAtlasAsset.Save(atlas, atlasPath);
 			AssetDatabase.ImportAsset(atlasPath);
-			var importer = (SpriteAtlasImporter)AssetImporter.GetAtPath(atlasPath);
+			SpriteAtlasImporter importer = (SpriteAtlasImporter)AssetImporter.GetAtPath(atlasPath);
 
 			SpriteAtlasPackingSettings packingSettings = importer.packingSettings;
 			packingSettings.enableRotation = false;
-			packingSettings.enableTightPacking = tightPacking;
-			packingSettings.padding = 4;
+			packingSettings.enableTightPacking = gameplay;
+			packingSettings.padding = 8;
 			importer.packingSettings = packingSettings;
 
 			SpriteAtlasTextureSettings textureSettings = importer.textureSettings;
-			textureSettings.generateMipMaps = false;
+			textureSettings.generateMipMaps = true;
 			textureSettings.readable = false;
 			textureSettings.sRGB = true;
-			textureSettings.filterMode = FilterMode.Bilinear;
+			textureSettings.filterMode = FilterMode.Trilinear;
 			importer.textureSettings = textureSettings;
 
 			TextureImporterPlatformSettings androidSettings = importer.GetPlatformSettings("Android");
 			androidSettings.overridden = true;
 			androidSettings.maxTextureSize = maximumTextureSize;
-			androidSettings.format = TextureImporterFormat.ETC2_RGBA8;
+			androidSettings.format = gameplay ? TextureImporterFormat.ETC2_RGBA8 : TextureImporterFormat.RGBA32;
+			androidSettings.textureCompression = gameplay
+				? TextureImporterCompression.Compressed
+				: TextureImporterCompression.Uncompressed;
 			androidSettings.compressionQuality = 50;
 			importer.SetPlatformSettings(androidSettings);
 			importer.includeInBuild = true;
 			importer.SaveAndReimport();
 
-			// Retire the V1 asset only after the replacement has imported successfully.
-			// These built-in atlases are discovered automatically and have no direct asset references.
 			if (legacy != null && !AssetDatabase.DeleteAsset(legacyPath))
 			{
 				throw new IOException($"Could not remove replaced atlas: {legacyPath}");

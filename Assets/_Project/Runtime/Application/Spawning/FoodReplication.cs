@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-	// One scene-level channel. Every message is bounded below the transport MTU.
 	public sealed class FoodReplication : IDisposable
 	{
 		public const string MessageName = "PlanetIO.Food.v1";
+		private const float SnapshotRetrySeconds = 2f;
 		private readonly FoodSpawner _food;
 		private readonly NetworkManager _manager;
 		private readonly FoodPacketWriter _writer = new();
@@ -37,7 +37,20 @@ namespace PlanetIO
 			Replica.Eaten += FoodSpawner.ShowEffect;
 		}
 
-		public void StartEpoch(ulong epoch) { Epoch = Math.Max(Epoch, epoch); _revision = 0; _sentSnapshots.Clear(); }
+		public void StartEpoch(ulong epoch)
+		{
+			Epoch = Math.Max(Epoch, epoch);
+			_revision = 0;
+
+			foreach (ulong client in _manager.ConnectedClientsIds)
+			{
+				if (_sentSnapshots.ContainsKey(client))
+				{
+					SendSnapshot(client);
+				}
+			}
+		}
+
 		public void MarkReady()
 		{
 			_ready = true;
@@ -63,16 +76,13 @@ namespace PlanetIO
 				_request -= deltaTime;
 				if (Replica.NeedsSnapshot && _request <= 0f && _manager.IsConnectedClient)
 				{
-					_request = 2f;
+					_request = SnapshotRetrySeconds;
 					_writer.Reset(FoodMessage.Request, 0, 0);
 					Send(NetworkManager.ServerClientId);
 				}
 				return;
 			}
 			if (!_ready) return;
-			var clients = _manager.ConnectedClientsIds;
-			for (int i = 0; i < clients.Count; i++)
-				if (clients[i] != _manager.LocalClientId && !_sentSnapshots.ContainsKey(clients[i])) SendSnapshot(clients[i]);
 			_flush += deltaTime;
 			if (_flush < 0.1f) return;
 			_flush %= 0.1f;
@@ -117,7 +127,16 @@ namespace PlanetIO
 					length != 18 || _receive[0] != 1 || _receive[1] != (byte)FoodMessage.Request) return;
 				if (!_sentSnapshots.TryGetValue(sender, out float time) || _clock - time >= 1f) SendSnapshot(sender);
 			}
-			else if (sender == NetworkManager.ServerClientId) Replica.Receive(_receive, length);
+			else if (sender == NetworkManager.ServerClientId)
+			{
+				uint progress = Replica.SnapshotProgress;
+				Replica.Receive(_receive, length);
+
+				if (Replica.SnapshotProgress != progress)
+				{
+					_request = SnapshotRetrySeconds;
+				}
+			}
 		}
 
 		private void SendSnapshot(ulong client)

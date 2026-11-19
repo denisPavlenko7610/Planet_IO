@@ -239,16 +239,21 @@ namespace PlanetIO.Tests
 		[Test]
 		public void GameplayAtlas_IncludesFoodFolder()
 		{
-			SpriteAtlas atlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>("Assets/_Project/Atlases/Gameplay.spriteatlasv2");
+			SpriteAtlas atlas =
+				AssetDatabase.LoadAssetAtPath<SpriteAtlas>("Assets/_Project/Atlases/Gameplay.spriteatlasv2");
 			Assert.That(atlas, Is.Not.Null);
-			Assert.That(atlas.GetPackables().Select(AssetDatabase.GetAssetPath), Does.Contain("Assets/_Project/Sprites/Foods"));
+			Assert.That(
+				atlas.GetPackables().Select(AssetDatabase.GetAssetPath),
+				Does.Contain("Assets/_Project/Sprites/Foods")
+			);
 		}
 
-		[TestCase("Assets/_Project/Atlases/Gameplay.spriteatlasv2", 2048)]
-		[TestCase("Assets/_Project/Atlases/Controls.spriteatlasv2", 1024)]
+		[TestCase("Assets/_Project/Atlases/Gameplay.spriteatlasv2", 2048, TextureImporterFormat.ETC2_RGBA8)]
+		[TestCase("Assets/_Project/Atlases/Controls.spriteatlasv2", 1024, TextureImporterFormat.RGBA32)]
 		public void SpriteAtlas_IsPackedForAndroid(
 			string assetPath,
-			int maximumTextureSize
+			int maximumTextureSize,
+			TextureImporterFormat expectedFormat
 		)
 		{
 			SpriteAtlas atlas =
@@ -260,6 +265,8 @@ namespace PlanetIO.Tests
 			SpriteAtlasImporter importer = AssetImporter.GetAtPath(assetPath) as SpriteAtlasImporter;
 			Assert.That(importer, Is.Not.Null);
 			Assert.That(importer.includeInBuild, Is.True);
+			Assert.That(importer.textureSettings.generateMipMaps, Is.True);
+			Assert.That(importer.textureSettings.filterMode, Is.EqualTo(FilterMode.Trilinear));
 			TextureImporterPlatformSettings androidSettings =
 				importer.GetPlatformSettings("Android");
 			Assert.That(androidSettings.overridden, Is.True);
@@ -269,7 +276,7 @@ namespace PlanetIO.Tests
 			);
 			Assert.That(
 				androidSettings.format,
-				Is.EqualTo(TextureImporterFormat.ETC2_RGBA8)
+				Is.EqualTo(expectedFormat)
 			);
 		}
 	}

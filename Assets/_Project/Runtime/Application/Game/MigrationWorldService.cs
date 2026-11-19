@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using Unity.Netcode;
 using UnityEngine;
@@ -49,59 +49,120 @@ namespace PlanetIO.Application
             return state;
         }
 
-        public MatchSnapshot Capture()
-        {
-            if (!_ready || !_network.IsServer)
-            {
-                return null;
-            }
+		public MatchSnapshot Capture()
+		{
+			if (!_ready || !_network.IsServer)
+			{
+				return null;
+			}
 
-            var players = Object.FindObjectsByType<Player>(FindObjectsInactive.Exclude).Where(p => p.IsSpawned)
-                .ToArray();
-            var bots = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).Where(p => p.IsSpawned).ToArray();
-			var foods = Enumerable.Range(0, _food.World.UsedSlots).Select(_food.World.At).Where(p => p != null).ToArray();
-            var comets = Object.FindObjectsByType<CometMovement>(FindObjectsInactive.Exclude).Where(p => p.IsSpawned)
-                .ToArray();
-            _store.PruneTracked(players.Cast<object>().Concat(bots).Concat(comets));
-            foreach (var p in players)
-            {
-                _store.TrackObject(p.NetworkObjectId, p);
-            }
-            foreach (var p in bots)
-            {
-                _store.TrackObject(p.NetworkObjectId, p);
-            }
-            foreach (var p in comets)
-            {
-                _store.TrackObject(p.NetworkObjectId, p);
-            }
-            var snapshot = new MatchSnapshot
-            {
-                Ready = true, Clock = OrbitClock.Now,
-                Difficulty = _resolver.Resolve<INetworkSessionService>().CurrentRoom.Difficulty,
-                Fields = _food.CaptureFieldMigration(), FoodEpoch = _food.Epoch
-            };
-            snapshot.Players = players.Select(CapturePlanet).ToArray();
-            snapshot.Bots = bots.Select(CapturePlanet).ToArray();
-            snapshot.Food = foods.Select(food =>
-                {
-                    var s = _food.CaptureFoodMigration(food);
-                    s.DropperId = _store.StableId(s.DropperId);
-                    return s;
-                }
-            ).ToArray();
-            var world = _resolver.Resolve<IWorldEvents>() as WorldDirector;
-            snapshot.Comets = comets.Select(comet =>
-                {
-                    var s = comet.CaptureMigration();
-                    s.Meteor = world != null && world.IsMigratingMeteor(comet);
-                    s.ObjectId = _store.StableId(comet.NetworkObjectId);
-                    return s;
-                }
-            ).ToArray();
-            snapshot.World = world.CaptureMigration(_store);
-            return snapshot;
-        }
+			WorldDirector world = ResolveWorld();
+			List<Player> players = FindSpawned<Player>();
+			List<Enemy> bots = FindSpawned<Enemy>();
+			List<CometMovement> comets = FindSpawned<CometMovement>();
+
+			List<object> live = new(players.Count + bots.Count + comets.Count);
+			live.AddRange(players);
+			live.AddRange(bots);
+			live.AddRange(comets);
+			_store.PruneTracked(live);
+
+			TrackAll(players);
+			TrackAll(bots);
+			TrackAll(comets);
+
+			MatchSnapshot snapshot = new()
+			{
+				Ready = true,
+				Clock = OrbitClock.Now,
+				Difficulty = _resolver.Resolve<INetworkSessionService>().CurrentRoom.Difficulty,
+				Fields = _food.CaptureFieldMigration(),
+				FoodEpoch = _food.Epoch
+			};
+			snapshot.Players = CapturePlanets(players);
+			snapshot.Bots = CapturePlanets(bots);
+			snapshot.Food = CaptureFood();
+			snapshot.Comets = CaptureComets(comets, world);
+			snapshot.World = world.CaptureMigration(_store);
+
+			return snapshot;
+		}
+
+		private WorldDirector ResolveWorld() => _resolver.Resolve<IWorldEvents>() as WorldDirector;
+
+		private static List<T> FindSpawned<T>() where T : NetworkBehaviour
+		{
+			T[] found = Object.FindObjectsByType<T>(FindObjectsInactive.Exclude);
+			List<T> spawned = new(found.Length);
+
+			foreach (T item in found)
+			{
+				if (item.IsSpawned)
+				{
+					spawned.Add(item);
+				}
+			}
+
+			return spawned;
+		}
+
+		private void TrackAll<T>(List<T> items) where T : NetworkBehaviour
+		{
+			foreach (T item in items)
+			{
+				_store.TrackObject(item.NetworkObjectId, item);
+			}
+		}
+
+		private PlanetMigrationState[] CapturePlanets<T>(List<T> planets) where T : PlanetScale
+		{
+			PlanetMigrationState[] states = new PlanetMigrationState[planets.Count];
+
+			for (int index = 0; index < states.Length; index++)
+			{
+				states[index] = CapturePlanet(planets[index]);
+			}
+
+			return states;
+		}
+
+		private FoodMigrationState[] CaptureFood()
+		{
+			FoodWorld table = _food.World;
+			int used = table.UsedSlots;
+			List<FoodMigrationState> states = new(used);
+
+			for (int index = 0; index < used; index++)
+			{
+				FoodRecord food = table.At(index);
+				if (food == null)
+				{
+					continue;
+				}
+
+				FoodMigrationState state = _food.CaptureFoodMigration(food);
+				state.DropperId = _store.StableId(state.DropperId);
+				states.Add(state);
+			}
+
+			return states.ToArray();
+		}
+
+		private CometMigrationState[] CaptureComets(List<CometMovement> comets, WorldDirector world)
+		{
+			CometMigrationState[] states = new CometMigrationState[comets.Count];
+
+			for (int index = 0; index < states.Length; index++)
+			{
+				CometMovement comet = comets[index];
+				CometMigrationState state = comet.CaptureMigration();
+				state.Meteor = world.IsMigratingMeteor(comet);
+				state.ObjectId = _store.StableId(comet.NetworkObjectId);
+				states[index] = state;
+			}
+
+			return states;
+		}
 
         public async Awaitable RestoreAsync(NetworkWorldReadyState ready, CancellationToken cancellation)
         {
@@ -124,7 +185,7 @@ namespace PlanetIO.Application
                 bot.RestoreMigration(state);
                 _store.BindObject(state.ObjectId, bot.NetworkObjectId, bot);
             }
-            var world = _resolver.Resolve<IWorldEvents>() as WorldDirector;
+			WorldDirector world = ResolveWorld();
             foreach (var state in snapshot.Comets)
             {
                 var comet = _comets.CreateObject(state.Position, state.Mass);

@@ -118,7 +118,6 @@ namespace PlanetIO
 			byte[] bytes = Compress(json, System.IO.Compression.CompressionLevel.Fastest);
 			if (bytes.Length > MaximumCompressedBytes)
 			{
-				// Keep the transport budget and exact state when a larger food pool outgrows fast gzip.
 				bytes = Compress(json, System.IO.Compression.CompressionLevel.Optimal);
 			}
 			if (bytes.Length > MaximumCompressedBytes)

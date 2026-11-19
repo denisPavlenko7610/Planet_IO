@@ -88,7 +88,6 @@ namespace PlanetIO.Tests
 			var map = root.Q("minimap");
 			float worldAspect = Constants.WorldBounds.width / Constants.WorldBounds.height;
 			float logicalPixel = root.worldBound.width / Screen.width;
-			// Snapping both rectangle edges can change each dimension by one physical pixel.
 			float minimumAspect = (map.layout.width - logicalPixel) / (map.layout.height + logicalPixel);
 			float maximumAspect = (map.layout.width + logicalPixel) / (map.layout.height - logicalPixel);
 			Assert.That(worldAspect, Is.InRange(minimumAspect, maximumAspect));

@@ -128,18 +128,7 @@ namespace PlanetIO
 
         private void Drive(Vector2 finger)
         {
-            Vector2 offset = finger - _anchor;
-            float distance = offset.magnitude;
-            if (distance > MaxDeflection)
-            {
-                if (!_fixedJoystick)
-                {
-                    _anchor = ClampAnchor(_anchor + offset / distance * (distance - MaxDeflection));
-                    PlaceStick();
-                }
-
-                offset = Vector2.ClampMagnitude(finger - _anchor, MaxDeflection);
-            }
+			Vector2 offset = Vector2.ClampMagnitude(finger - _anchor, MaxDeflection);
 
             _knob.style.translate = new Translate(offset.x, offset.y);
 

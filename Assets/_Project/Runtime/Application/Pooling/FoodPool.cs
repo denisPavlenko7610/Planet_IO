@@ -2,7 +2,6 @@
 
 namespace PlanetIO
 {
-	// Scene configuration for the data table and shared client views; never creates food entities.
 	public sealed class FoodPool : MonoBehaviour
 	{
 		[SerializeField, Min(1)] private int _capacity = 2000;

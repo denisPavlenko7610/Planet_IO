@@ -38,8 +38,13 @@ namespace PlanetIO.Tests
 				SpriteRenderer marker = instance.transform.Find("Arrow").GetComponent<SpriteRenderer>();
 				Assert.That(marker.sprite, Is.SameAs(OverlaySprites.Chevron));
 				Assert.That(marker.enabled, Is.True);
+				Assert.That(
+					SortingLayer.GetLayerValueFromID(marker.sortingLayerID),
+					Is.GreaterThan(SortingLayer.GetLayerValueFromID(SortingLayer.NameToID("Foreground"))),
+					"The direction indicator must render above world rings."
+				);
 				float worldSize = marker.sprite.bounds.size.y * marker.transform.lossyScale.y;
-				Assert.That(worldSize / (2f * zoom), Is.EqualTo(0.018f).Within(1e-5f));
+				Assert.That(worldSize / (2f * zoom), Is.EqualTo(0.0225f).Within(1e-5f));
 				Assert.That(marker.color.a, Is.EqualTo(0.75f).Within(1e-5f));
 				Assert.That(Vector2.Dot(marker.transform.right, Vector2.right), Is.GreaterThan(0.999f));
 				float radius = instance.GetComponent<Player>().BodyRadius;

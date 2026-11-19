@@ -79,6 +79,7 @@ namespace PlanetIO
 		public FoodWorld World { get; private set; } = new(false, Constants.WorldBounds);
 		public ulong Epoch { get; private set; }
 		public ulong Revision { get; private set; }
+		public uint SnapshotProgress { get; private set; }
 		public bool Ready { get; private set; }
 		public bool NeedsSnapshot { get; private set; } = true;
 		public event Action<FoodEatEvent> Eaten;
@@ -107,6 +108,9 @@ namespace PlanetIO
 				_stagingEpoch = epoch; _baseline = revision; _snapshotId = token;
 				_expected = count; _received = 0; _hash = 2166136261;
 				_staging = new FoodWorld(false, Constants.WorldBounds);
+				NeedsSnapshot = true;
+				SnapshotProgress++;
+
 				return;
 			}
 			if (type == FoodMessage.Chunk || type == FoodMessage.End)
@@ -130,6 +134,8 @@ namespace PlanetIO
 				for (int i = 0; i < count; i++) { if (!_updates[i].Active) throw new InvalidDataException("Inactive snapshot record."); Apply(_staging, _updates[i]); }
 				_hash = FoodPacketWriter.Hash(_hash, bytes, start, length - start);
 				_received += count;
+				SnapshotProgress++;
+
 				return;
 			}
 			if (type != FoodMessage.Delta && type != FoodMessage.Effects) throw new InvalidDataException("Unknown food message.");

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using NUnit.Framework;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -45,6 +46,66 @@ namespace PlanetIO.Tests
 		}
 
 		[UnityTest, Timeout(60000)]
+		public IEnumerator LateJoinWaitsForFoodHandlerAndRepairsRevisionGaps()
+		{
+			ushort port;
+			using (UdpClient socket = new(0))
+			{
+				port = (ushort)((IPEndPoint)socket.Client.LocalEndPoint).Port;
+			}
+
+			NetworkManager host = Node("Food baseline host", port);
+			Assert.That(host.StartHost(), Is.True);
+			FoodSpawner server = Food(host);
+			const int recordCount = 2000;
+			for (int index = 0; index < recordCount; index++)
+			{
+				server.CreateObject();
+			}
+
+			server.MarkWorldReady();
+			FoodReplication hostReplication = Replication(server);
+			NetworkManager remote = Node("Food baseline late joiner", port);
+			Assert.That(remote.StartClient(), Is.True);
+			yield return Wait(() => remote.IsConnectedClient);
+
+			yield return new WaitForSecondsRealtime(2.25f);
+			Assert.That(hostReplication.SentPackets, Is.Zero, "The host sent food before the client's Game-scene handler was ready.");
+
+			FoodSpawner client = Food(remote);
+			yield return Wait(() => client.IsReplicaReady);
+			yield return new WaitForSecondsRealtime(2.25f);
+			Assert.That(client.World.ActiveCount, Is.EqualTo(recordCount));
+			const int snapshotPackets = 2 + (recordCount + FoodPacketWriter.RecordsPerPacket - 1) / FoodPacketWriter.RecordsPerPacket;
+			Assert.That(hostReplication.SentPackets, Is.EqualTo(snapshotPackets), "A late join should send one complete baseline.");
+			TestContext.WriteLine($"One food baseline: {hostReplication.SentPackets} packets, {hostReplication.SentBytes} payload bytes.");
+
+			FoodReplica replica = Replication(client).Replica;
+			FoodPacketWriter gap = new();
+			gap.Reset(FoodMessage.Delta, replica.Epoch, replica.Revision + 2);
+			gap.Byte(0);
+			replica.Receive(gap.Buffer, gap.Length);
+			Assert.That(replica.NeedsSnapshot, Is.True);
+
+			yield return Wait(() => !replica.NeedsSnapshot);
+			Assert.That(replica.World.ActiveCount, Is.EqualTo(recordCount));
+			Assert.That(hostReplication.SentPackets, Is.EqualTo(2 * snapshotPackets), "A revision gap should send one repair baseline.");
+
+			ulong newEpoch = hostReplication.Epoch + 1;
+			hostReplication.StartEpoch(newEpoch);
+			yield return Wait(() => replica.Epoch == newEpoch && !replica.NeedsSnapshot);
+			Assert.That(replica.World.ActiveCount, Is.EqualTo(recordCount));
+			Assert.That(hostReplication.SentPackets, Is.EqualTo(3 * snapshotPackets), "An epoch change should rebaseline the subscribed client once.");
+		}
+
+		private static FoodReplication Replication(FoodSpawner spawner)
+		{
+			FieldInfo field = typeof(FoodSpawner).GetField("_replication", BindingFlags.Instance | BindingFlags.NonPublic);
+
+			return (FoodReplication)field.GetValue(spawner);
+		}
+
+		[UnityTest, Timeout(60000)]
 		public IEnumerator BinarySnapshotsDeltasLateJoinAndIdleTrafficWorkOverNgoTransport()
 		{
 			ushort port;
@@ -74,7 +135,7 @@ namespace PlanetIO.Tests
 			yield return Wait(() => client.World.Find(first.Id) != null && lateClient.World.Find(first.Id) != null);
 			Assert.That(client.World.Find(old), Is.Null);
 			Assert.That(lateClient.World.Find(first.Id).Position, Is.EqualTo(first.Position));
-			var replication = (FoodReplication)typeof(FoodSpawner).GetField("_replication", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(server);
+			FoodReplication replication = Replication(server);
 			yield return new WaitForSecondsRealtime(0.3f);
 			int packets = replication.SentPackets;
 			yield return new WaitForSecondsRealtime(0.4f);
@@ -87,7 +148,6 @@ namespace PlanetIO.Tests
 		{
 			foreach (NetworkManager manager in _managers) if (manager != null) manager.Shutdown();
 			for (int i = 0; i < 5; i++) yield return null;
-			// Dispose channel owners while their NetworkManagers still exist.
 			for (int i = _objects.Count - 1; i >= 0; i--) if (_objects[i] != null) Object.Destroy(_objects[i]);
 			_objects.Clear(); _managers.Clear();
 			yield return null;

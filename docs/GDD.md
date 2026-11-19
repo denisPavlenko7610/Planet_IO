@@ -1,6 +1,7 @@
 # Planet IO: GDD and development plan
 
-Updated: November 18, 2026 (qualified leaderboard records, cloud upload queue and cleanup, section 7.2). Earlier sections:
+Updated: November 18, 2026 (qualified leaderboard records, cloud upload queue and cleanup, section 7.2). Earlier
+sections:
 November 13, 2026. Implementation status was checked against the working tree, including uncommitted changes.
 Code
 being present does not mean a mechanic is verified; earlier test results are in the
@@ -30,27 +31,27 @@ One-line pitch: *"Slither.io where your tail is moons and your weapon is gravity
 
 ## 2. What exists now (facts from the code)
 
-| Area            | Now                                                                                                                                                                                                                                  |
+| Area            | Now                                                                                                                                                                                                                                                           |
 |-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Mass            | `Capacity` 0.08 → 8.0, start 0.08; scale = 0.08 × √(mass / 0.08) (`PlanetSizeRules`): size varies 10× across the full mass range                                                                                                     |
-| Eating          | contact, if mass ≥ 1.08× the victim's; base absorption 40%, loot 60%; the Predator perk and bounty raise absorption                                                                                                                  |
-| Speed           | player 3.6 (boost 7.2), bot 3.0; no mass penalty: a big planet is neither faster nor slower than a small one (as in Slither.io)                                                                                                      |
+| Mass            | `Capacity` 0.08 → 8.0, start 0.08; scale = 0.08 × √(mass / 0.08) (`PlanetSizeRules`): size varies 10× across the full mass range                                                                                                                              |
+| Eating          | contact, if mass ≥ 1.08× the victim's; base absorption 40%, loot 60%; the Predator perk and bounty raise absorption                                                                                                                                           |
+| Speed           | player 3.6 (boost 7.2), bot 3.0; no mass penalty: a big planet is neither faster nor slower than a small one (as in Slither.io)                                                                                                                               |
 | Camera          | base size 3.6, zoom = 3.6 × (mass / 0.08)^0.10 with delayed growth response, look-ahead of 16% of the size along the heading, +8% size while boosting                                                                                                         |
-| Boost           | 0.004 mass every 0.15 s, drops food worth 80% of the cost beyond the body edge (body radius + 0.3); the owner's magnet ignores its own drop for 1 s                                                                                  |
-| Border          | movement is blocked at the edge (`WorldBounds.KeepInside`); entering the zone costs max(regular boost cost, 8% mass); red vignette when close                                                                                        |
+| Boost           | 0.004 mass every 0.15 s, drops food worth 80% of the cost beyond the body edge (body radius + 0.3); the owner's magnet ignores its own drop for 1 s                                                                                                           |
+| Border          | movement is blocked at the edge (`WorldBounds.KeepInside`); entering the zone costs max(regular boost cost, 8% mass); red vignette when close                                                                                                                 |
 | Food            | 2000 server table records; binary snapshots and 10 Hz deltas; client-only pooled views, ambient nutrition x3, falloff 0.5, 16 migrating fields (45 s), golden 4% (×8); client-side visual ×1.2 × zoom^0.7, capped at ×3 (`FoodViewScale`), collider unchanged |
-| Enemies         | pool of 16 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade)                                                                                                                                      |
-| Comets          | pool of 30, speed 2.5–3.5, damage 50% of victim mass; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                                                  |
-| Network         | NGO + UGS Sessions, rooms by code (default 8, max 16), owner-authoritative movement                                                                                                                                                  |
-| Meta            | 14 languages, skins (some for ads), continue via rewarded (50% mass), leaderboard, minimap                                                                                                                                           |
-| Tiers and moons | 4 tiers, base slots 0/2/4/6; server-side strikes, comet interception, ring clashes; HUD and camera account for moons                                                                                                                 |
-| Gravity         | pull and slingshot in `PlanetGravity`; the owner simulates the player, the server simulates bots                                                                                                                                     |
-| Perks           | 9 perks, server-side offer of 3 cards with a timer, pick screen in the HUD; compact top-docked choices and colored icon badges under the score                                                                                       |
-| Leader          | ring, minimap highlight, bounty +25%; minimum mass 0.4, refreshed every 0.5 s                                                                                                                                                        |
-| Progression     | rank (30), stardust, 3 missions a day, streak, results screen, FTUE, 12 skins (4 free); each new rank pays stardust 5 + rank                                                                                                         |
-| Respawn         | 8 random candidates, the best by "food nearby + distance from bodies that can eat you" wins (`RespawnRules`)                                                                                                                         |
-| Movement arrow  | open chevron, constant on-screen size (1.8% of screen height), outside the visible body with a half-marker gap; does not grow with the planet (`DirectionArrowRules`)                                                                |
-| Main menu       | on screen: nickname and planet (profile chip), Play, Blitz, Online, mission and settings icons; nickname and skins live in the Profile window; quick play, room and code live in the Online window                                   |
+| Enemies         | pool of 16 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade)                                                                                                                                                               |
+| Comets          | pool of 30, speed 2.5–3.5, damage 50% of victim mass; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                                                                           |
+| Network         | NGO + UGS Sessions, rooms by code (default 8, max 16), owner-authoritative movement                                                                                                                                                                           |
+| Meta            | 14 languages, skins (some for ads), continue via rewarded (50% mass), leaderboard, minimap                                                                                                                                                                    |
+| Tiers and moons | 4 tiers, base slots 0/2/4/6; server-side strikes, comet interception, ring clashes; HUD and camera account for moons                                                                                                                                          |
+| Gravity         | pull and slingshot in `PlanetGravity`; the owner simulates the player, the server simulates bots                                                                                                                                                              |
+| Perks           | 9 perks, server-side offer of 3 cards with a timer, pick screen in the HUD; compact top-docked choices and colored icon badges under the score                                                                                                                |
+| Leader          | ring, minimap highlight, bounty +25%; minimum mass 0.4, refreshed every 0.5 s                                                                                                                                                                                 |
+| Progression     | rank (30), stardust, 3 missions a day, streak, results screen, FTUE, 12 skins (4 free); each new rank pays stardust 5 + rank                                                                                                                                  |
+| Respawn         | 8 random candidates, the best by "food nearby + distance from bodies that can eat you" wins (`RespawnRules`)                                                                                                                                                  |
+| Movement arrow  | open chevron, constant on-screen size (1.8% of screen height), outside the visible body with a half-marker gap; does not grow with the planet (`DirectionArrowRules`)                                                                                         |
+| Main menu       | on screen: nickname and planet (profile chip), Play, Blitz, Online, mission and settings icons; nickname and skins live in the Profile window; quick play, room and code live in the Online window                                                            |
 
 ### 2.1. Scope decisions (November 16, 2026)
 
@@ -64,7 +65,7 @@ drop what duplicates something that already works. The feel reference is Slither
 | What                                                                   | Why                                                                                                                                      | Phase |
 |------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|-------|
 | Full PlayMode run without failures, moon-reset regressions             | We cannot ship with a known death/continue defect; the reset exists in code, the tests are not confirmed                                 | 5     |
-| FPS and traffic measurement on a weak Android device with 2000 food    | Data-only food is implemented; sustained device performance still needs measurement                                                                        | 5     |
+| FPS and traffic measurement on a weak Android device with 2000 food    | Data-only food is implemented; sustained device performance still needs measurement                                                      | 5     |
 | Host/client check: replication, late join, reconnect                   | Rooms by code are part of the update; the 13 Nov report marks this Not Run                                                               | 5     |
 | Smart respawn                                                          | The first minute after death decides "play again"; it used to be a random point, often empty or next to a big body                       | 6     |
 | On-device tuning: camera, speed, food, magnet, boost cost, growth pace | All changed on 16 Nov without hands-on checks; boost now costs the full mass                                                             | 6     |
@@ -164,11 +165,12 @@ described in section 5 removed these stalls: four probe runs showed none and rea
 ## 5. Comparison with Slither.io
 
 Movement indicator revision (November 17, 2026): use a small open chevron with two strokes,
-soft white at 75% opacity and a subtle dark edge. Its longest dimension stays at 1.8% of screen
+soft white at 75% opacity and a subtle dark edge. Its longest dimension stays at 2.25% of screen
 height through growth, camera zoom and boost. Place its center beyond the larger of the body collider
 and visible sprite radius (including 12% outline clearance), plus half the marker and a half-marker gap.
 Unlike Slither.io, the planet has no head to communicate its heading, so retain this minimal direction cue.
-The marker rotates with movement; it does not pulse or enlarge during boost. This is a visual-only change.
+The marker rotates with movement and renders on the Player sorting layer, above world rings.
+Its size stays constant during boost.
 
 Food replication implementation (November 17-18, 2026): replace per-pellet network objects with a server-owned
 FoodWorld table and spatial grid. Keep 2000 ambient slots and separate temporary drops. Every record has
@@ -182,6 +184,11 @@ All food queries (body pickup, inside-body sweep, magnet, bots and smart respawn
 Magnet motion stays within the arena bounds; coordinates keep full float precision on the wire to avoid
 quantization changing collection geometry. Client records use 26 bytes plus bounded packet headers.
 Magnet positions remain authoritative and replicate only while changing; clients interpolate corrections.
+
+A joining client requests the food baseline after its Game scene registers the food message handler.
+The host sends the full table on that request and starts sending deltas to that client. Clients retry
+after a snapshot stalls or fails validation. Host migration rebaselines clients against the restored epoch.
+
 Migration format version 2 stores binary food records alongside JSON metadata; incompatible older snapshots
 are rejected. Host migration stores records, generations, field occupancy, remaining expiry/immunity and dropper/loot
 references independently of NGO object IDs; restored worlds start a fresh replication epoch.
@@ -226,8 +233,7 @@ require hands-on playtesting.
 
 Verification: 534 project EditMode checks passed. Selected PlayMode checks passed for damage feedback,
 moon clashes/strikes/protection/continue, bot raid retreat, difficulty damage, camera growth and actual movement.
-The 600-second feeding probe ended at mass 5.423; milestones and limitations are recorded in
-[balance verification report](Testing-Balance-2026-11-17.md). This verifies implementation, not human competitive
+The 600-second feeding probe ended at mass 5.423. This verifies implementation, not human competitive
 balance.
 
 Appearance and localization revision (November 17, 2026): remove manual planet color selection from the
@@ -354,6 +360,11 @@ limited to a radius, and the base does not follow the finger. A touch in the con
 the pinned center; releasing or cancelling the touch zeroes the input. Switching the mode applies immediately and resets
 the current touch. This is an extra mobile-comfort setting added at the user's request; the core Slither.io principle
 (finger sets the direction, a second finger boosts) holds in both modes.
+
+Floating joystick (November 18, 2026): the base appears under the first touch (kept inside the control zone) and stays
+there until release; it never follows the finger. The knob tracks the finger and is clamped to the travel radius; the
+direction is the vector from the base center to the finger, so dragging past the ring keeps steering without moving the
+base. This is the Slither.io behavior; the earlier drag-the-base-along variant was removed at the user's request.
 
 | Slither.io                    | Planet IO now                                            | Planet IO target                                 |
 |-------------------------------|----------------------------------------------------------|--------------------------------------------------|
@@ -784,7 +795,8 @@ backup folders, before writing the new build. Other build directories are preser
    binary snapshots and batched change messages; render food only on graphical clients (including the host).
    Keep the full 2000 ambient records on clients initially; local visibility culling does not need network
    subscriptions. Add region subscriptions only if measured traffic requires them. The detailed
-   implementation is in [Food Replication Plan](Food-Replication-Plan.md). Compare the data-only implementation with the former object baseline on the same device. The phase 5 target remains 55 FPS.
+   implementation is in [Food Replication Plan](Food-Replication-Plan.md). Compare the data-only implementation with the
+   former object baseline on the same device. The phase 5 target remains 55 FPS.
    Performance pass (November 16, 2026, from a code read, not yet measured on a device): the HUD reads
    `PlanetDirectory` instead of scanning every spawned `NetworkObject`; the minimap refreshes at 10 Hz and writes only
    changed styles; dropped food expires from one heap-based queue in `FoodSpawner.Update` instead of one async loop
@@ -793,7 +805,8 @@ backup folders, before writing the new build. Other build directories are preser
    2 s (was 1 s) with fast gzip, so the rollback window after an abrupt host loss is up to 2 s; weak devices
    (`DeviceTierRules`) start on the Low quality level (no HDR, render scale 0.85); `NetworkRigidbody2D` is removed
    from the food prefab. Deliberately not done, reasons recorded in section 15: distance-based food visibility and
-   ambient food as data (both were deferred then; the data-only replacement is now implemented), tick alignment (tunneling
+   ambient food as data (both were deferred then; the data-only replacement is now implemented), tick alignment
+   (tunneling
    at boost speed), a higher
    `NetworkTransform` threshold (bodies always move, so it saves nothing).
    Performance follow-up (November 17, 2026): keep the 60 FPS gameplay target, but cap mobile menu/loading
@@ -806,6 +819,10 @@ backup folders, before writing the new build. Other build directories are preser
    root when its planet leaves the view, so stale moon transforms cannot remain visible or render unnecessarily.
    These changes do not alter growth, food quantity, movement, zoom or magnet rules. Device heat reduction
    and sustained frame times remain unmeasured; do not infer a device speedup from Editor results.
+   Visual quality follow-up: use FXAA on the game and menu cameras. Use trilinear mipmaps on the
+   Gameplay and Controls atlases, repeating grid and world rings for scaled views. Keep Controls atlas textures
+   lossless on Android to preserve thin alpha edges. Use antialiased circular artwork for the two
+   touch controls, keeping their dimensions and active colors.
 8. **Anti-cheat before leaderboards.** Server-side validation of speed, bounds and teleports of the owner-authoritative
    transform. Deferred together with global leaderboards (phase 8).
 9. **Analytics:** `run_start`, `run_end{cause, tier, mass_peak, duration, killer_tier}`, `perk_offered/picked`,
@@ -895,17 +912,17 @@ Target hypotheses (not guarantees; recheck against test data):
 | Crash-free            | ≥ 99.5%               |
 | FPS on a weak Android | ≥ 55                  |
 
-| Risk                                    | Mitigation                                                                                                                                                                                                                                                                                                                                                                                         |
+| Risk                                    | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 |-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Too many mechanics for a 5-second pitch | Disclosure by tier, FTUE, threat ring                                                                                                                                                                                                                                                                                                                                                              |
-| Network load                            | Moons are computed analytically, perks sit in a bit mask, events are one `NetworkVariable`; food uses 2000 table records and binary delta replication; online rooms retain periodic recovery checkpoints                                                                                                                                                                                              |
-| Food replication migration    | Data-only food replication is implemented (Food-Replication-Plan.md): magnet, bot, respawn, comet trail and migration use the table; food colliders and NGO prefabs are removed. Editor tests cover two clients, late join and host migration; on-device multiplayer measurement remains open. Aligning the 30 Hz network tick with 50 Hz physics risks tunneling at boost speed (9.6 u/s); a larger `NetworkTransform` threshold saves nothing because bodies never stand still |
-| Leader snowball                         | Bounty, burnout above 1.2 if needed                                                                                                                                                                                                                                                                                                                                                                |
-| Perk imbalance                          | A pick-rate table in analytics, a downside on every perk, all numbers in a `ScriptableObject`                                                                                                                                                                                                                                                                                                      |
-| Localization cost                       | Icons and numbers instead of phrases, ≤ 20 strings per phase                                                                                                                                                                                                                                                                                                                                       |
-| Cheating                                | Global lists accept client-reported numbers after a plausibility check only; a trusted backend is the real fix (section 7.2). Lists can be reset in Play Console                                                                                                                                                                                                                                   |
-| Cloud save overwrites progress          | The side with more XP wins, skins are unioned; the merge is a pure function with tests; the local file is never deleted by a sync                                                                                                                                                                                                                                                                  |
-| Low player count                        | Bots fill an empty room, the mode does not depend on the number of humans                                                                                                                                                                                                                                                                                                                          |
+| Too many mechanics for a 5-second pitch | Disclosure by tier, FTUE, threat ring                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Network load                            | Moons are computed analytically, perks sit in a bit mask, events are one `NetworkVariable`; food uses 2000 table records and binary delta replication; online rooms retain periodic recovery checkpoints                                                                                                                                                                                                                                                                         |
+| Food replication migration              | Data-only food replication is implemented (Food-Replication-Plan.md): magnet, bot, respawn, comet trail and migration use the table; food colliders and NGO prefabs are removed. Editor tests cover two clients, late join and host migration; on-device multiplayer measurement remains open. Aligning the 30 Hz network tick with 50 Hz physics risks tunneling at boost speed (9.6 u/s); a larger `NetworkTransform` threshold saves nothing because bodies never stand still |
+| Leader snowball                         | Bounty, burnout above 1.2 if needed                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Perk imbalance                          | A pick-rate table in analytics, a downside on every perk, all numbers in a `ScriptableObject`                                                                                                                                                                                                                                                                                                                                                                                    |
+| Localization cost                       | Icons and numbers instead of phrases, ≤ 20 strings per phase                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Cheating                                | Global lists accept client-reported numbers after a plausibility check only; a trusted backend is the real fix (section 7.2). Lists can be reset in Play Console                                                                                                                                                                                                                                                                                                                 |
+| Cloud save overwrites progress          | The side with more XP wins, skins are unioned; the merge is a pure function with tests; the local file is never deleted by a sync                                                                                                                                                                                                                                                                                                                                                |
+| Low player count                        | Bots fill an empty room, the mode does not depend on the number of humans                                                                                                                                                                                                                                                                                                                                                                                                        |
 
 ## 16. Assumptions and open questions
 
@@ -987,7 +1004,8 @@ was verified to advance gradually and settle while mass updates immediately. Men
 HUD captures are under `Temp/FeelAudit/`.
 
 The separately selected 600-second controlled feeding probe passed: masses 0.35 / 0.8 / 1.4 /
-2.0 / 4.0 were reached at 14.6 / 40.4 / 84.2 / 147.6 / 384.8 simulated seconds. End: t=600.0s mass=4.7938; defeated=False
+2.0 / 4.0 were reached at 14.6 / 40.4 / 84.2 / 147.6 / 384.8 simulated seconds. End: t=600.0s mass=4.7938; defeated=
+False
 The pilot uses randomized food, no boosts, no perks, and no opponents or events; these results are
 not human-play averages and do not validate section 4's human pace targets. Raw output:
 `Logs/GrowthPace.txt`. Phone touch comfort, safe-area behavior and hands-on steering remain device checks.

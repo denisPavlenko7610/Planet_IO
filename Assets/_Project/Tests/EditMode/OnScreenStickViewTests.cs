@@ -13,10 +13,10 @@ namespace PlanetIO.Tests
         private sealed class TestWindow : EditorWindow { }
 
         [UnityTest]
-        public IEnumerator LeftJoystick_FixedAnchorAndFloatingFollowWork() => VerifyModes(false);
+        public IEnumerator LeftJoystick_BaseNeverFollowsTheFingerInEitherMode() => VerifyModes(false);
 
         [UnityTest]
-        public IEnumerator RightJoystick_FixedAnchorAndFloatingFollowWork() => VerifyModes(true);
+        public IEnumerator RightJoystick_BaseNeverFollowsTheFingerInEitherMode() => VerifyModes(true);
 
         private static IEnumerator VerifyModes(bool swapped)
         {
@@ -77,8 +77,13 @@ namespace PlanetIO.Tests
 
                 Vector2 floatingStart = GetField<Vector2>(view, "_anchor");
                 Assert.That(Vector2.Distance(floatingStart, finger), Is.LessThan(0.01f));
-                Invoke(view, "Drive", floatingStart + new Vector2(0, -180));
-                Assert.That(Vector2.Distance(GetField<Vector2>(view, "_anchor"), floatingStart), Is.GreaterThan(50));
+				Vector2 floatingPosition = new(stick.style.left.value.value, stick.style.top.value.value);
+				Invoke(view, "Drive", floatingStart + new Vector2(0, -180));
+				Assert.That(Vector2.Distance(GetField<Vector2>(view, "_anchor"), floatingStart), Is.LessThan(0.01f));
+				Assert.That(stick.style.left.value.value, Is.EqualTo(floatingPosition.x).Within(0.01f));
+				Assert.That(stick.style.top.value.value, Is.EqualTo(floatingPosition.y).Within(0.01f));
+				Vector2 floatingOffset = new(knob.style.translate.value.x.value, knob.style.translate.value.y.value);
+				Assert.That(floatingOffset.magnitude, Is.EqualTo(78).Within(0.01f));
                 Invoke(view, "SetFixedJoystick", true);
                 Assert.That(GetField<int>(view, "_pointerId"), Is.EqualTo(-1));
                 Assert.That(stick.ClassListContains("stick-active"), Is.False);
