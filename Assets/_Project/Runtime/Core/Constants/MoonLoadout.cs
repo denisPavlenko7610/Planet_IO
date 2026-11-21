@@ -59,6 +59,18 @@ namespace PlanetIO
             return true;
         }
 
+		public bool Break(int index)
+		{
+			if (!IsAlive(index))
+			{
+				return false;
+			}
+
+			_durability[index] = 1;
+
+			return Hit(index);
+		}
+
         public bool Tick(float deltaTime)
         {
             bool changed = false;

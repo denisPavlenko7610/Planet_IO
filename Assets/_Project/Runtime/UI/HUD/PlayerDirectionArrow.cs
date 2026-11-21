@@ -13,6 +13,7 @@ namespace PlanetIO.UI.Hud
 		[SerializeField, Range(0f, 1f)] private float _alpha = 0.75f;
 
 		private SpriteRenderer _bodyRenderer;
+		private LeaderBeaconView _beacon;
 
         private PlayerMovement _playerMovement;
         private Transform _arrowTransform;
@@ -35,6 +36,7 @@ namespace PlanetIO.UI.Hud
         {
             _playerMovement = playerMovement;
 			_bodyRenderer = playerMovement != null ? playerMovement.Player.GetComponent<SpriteRenderer>() : null;
+			_beacon = playerMovement != null ? playerMovement.Player.GetComponent<LeaderBeaconView>() : null;
         }
 
         public void Hide()
@@ -114,7 +116,8 @@ namespace PlanetIO.UI.Hud
 				? Mathf.Max(_bodyRenderer.bounds.extents.x, _bodyRenderer.bounds.extents.y) +
 				Vector2.Distance(_bodyRenderer.bounds.center, player.transform.position)
 				: 0f;
-			float radius = DirectionArrowRules.ClearanceRadius(player.BodyRadius, spriteRadius);
+			float beaconRadius = _beacon != null ? _beacon.OuterWorldRadius : 0f;
+			float radius = DirectionArrowRules.ClearanceRadius(player.BodyRadius, spriteRadius, beaconRadius);
 			float distance = DirectionArrowRules.Distance(radius, worldSize, _edgeGapInArrowSizes);
 
             float scale = worldSize / spriteSize / parentScale;

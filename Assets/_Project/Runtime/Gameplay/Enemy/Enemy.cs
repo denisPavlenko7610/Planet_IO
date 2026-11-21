@@ -21,6 +21,7 @@ namespace PlanetIO
         private IGameStateService _gameStateService;
         private IRespawnService<Enemy> _enemyRespawnService;
         private bool _servicesReady;
+		private float _magnetTimer;
 
         private readonly NetworkVariable<bool> _networkBoosting = new(false);
         public bool IsBoosting => IsSpawned && _networkBoosting.Value;
@@ -33,12 +34,14 @@ namespace PlanetIO
             }
         }
 
-        internal bool TrySpendBoostMass()
+        internal bool TrySpendBoostMass(out float spent)
         {
+			spent = BotDifficultyRules.BoostCostFor(Capacity);
+
             return IsServer &&
                 IsSpawned &&
                 BotDifficultyRules.CanAffordBoost(Capacity, Mathf.Max(InitialCapacity, MinCapacity)) &&
-                Shrink(BotDifficultyRules.BoostCost);
+                Shrink(spent);
         }
 
         protected override bool IsCombatActive => _servicesReady && _gameStateService.IsGameplayActive;
@@ -46,7 +49,8 @@ namespace PlanetIO
         protected override float IncomingDamageMultiplier => BotDifficultyRules.BotIncomingDamage(DifficultyLevel);
         protected override float MoonDamageMultiplier => BotDifficultyRules.BotOutgoingDamage(DifficultyLevel);
 
-        protected override float FoodGrowthMultiplier => _enemyFoodGrowthMultiplier;
+        protected override float FoodGrowthMultiplier =>
+			_enemyFoodGrowthMultiplier * BotDifficultyRules.FoodGrowthScale(DifficultyLevel);
         protected override float CometDamageMultiplier => _enemyCometDamageMultiplier;
         protected override string GetFallbackDisplayName() => BotNames.Get(NetworkObjectId);
 
@@ -143,33 +147,69 @@ namespace PlanetIO
 
             if (collider2D.TryGetComponent(out Enemy otherEnemy))
             {
-                if (otherEnemy == this)
-                {
-                    return;
-                }
-
-                if (CanDevour(otherEnemy))
-                {
-                    AbsorbVictim(otherEnemy);
-                    _enemyRespawnService.Respawn(otherEnemy);
-                }
+				TryEatEnemy(otherEnemy);
             }
             else if (collider2D.TryGetComponent(out Player player))
             {
-                if (!player.IsDefeated &&
-                    !player.IsSpawnProtected &&
-                    CanDevour(player) &&
-                    !player.TryConsumeAblativeCrust())
-                {
-                    AbsorbVictim(player);
-                    player.Defeat(DisplayName);
-                }
+				TryEatPlayer(player);
             }
             else
             {
                 HandleEntityCollision(collider2D);
             }
         }
+
+		protected override void ResolvePlanetContact(PlanetScale other)
+		{
+			if (other is Enemy otherEnemy)
+			{
+				TryEatEnemy(otherEnemy);
+			}
+			else if (other is Player player)
+			{
+				TryEatPlayer(player);
+			}
+		}
+
+		protected override void ServerFeedingStep(float deltaTime)
+		{
+			if (!FoodSweepRules.Advance(ref _magnetTimer, deltaTime))
+			{
+				return;
+			}
+
+			if (!BotDifficultyRules.UsesFoodMagnet(DifficultyLevel))
+			{
+				return;
+			}
+
+			PullFoodTowardsBody(FoodMagnetRules.BaseReach, 1f, FoodMagnetRules.PullSpeed, FoodSweepRules.Interval);
+		}
+
+		private void TryEatEnemy(Enemy otherEnemy)
+		{
+			if (otherEnemy == this || !CanDevour(otherEnemy))
+			{
+				return;
+			}
+
+			AbsorbVictim(otherEnemy);
+			_enemyRespawnService.Respawn(otherEnemy);
+		}
+
+		private void TryEatPlayer(Player player)
+		{
+			if (player.IsDefeated ||
+				player.IsSpawnProtected ||
+				!CanDevour(player) ||
+				player.TryConsumeAblativeCrust())
+			{
+				return;
+			}
+
+			AbsorbVictim(player);
+			player.Defeat(DisplayName);
+		}
 
         private void SetDeterministicSprite()
         {

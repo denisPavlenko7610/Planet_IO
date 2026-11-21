@@ -10,7 +10,7 @@ namespace PlanetIO
 {
 	public sealed partial class FoodSpawner : MonoBehaviour, IFoodService, ILootSpawnService, IFoodFieldGuide, ICometFoodTrail, IMigrationLootFactory
 	{
-		public const float LootMassFraction = 0.6f;
+		public const float LootMassFraction = CombatRules.LootMassFraction;
 		private const float GoldenValueMultiplier = 8f;
 		[SerializeField] private float _droppedPointLifetime = 10f;
 		[SerializeField] private float _lootLifetime = 20f;

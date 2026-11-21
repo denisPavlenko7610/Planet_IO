@@ -5,7 +5,7 @@ namespace PlanetIO
     [DisallowMultipleComponent]
     public sealed class LeaderBeaconView : MonoBehaviour
     {
-        private const float RingScaleMargin = 1.3f;
+        private const float RingScaleMargin = 1.2f;
         private const float PulseSpeed = 3f;
         private const float PulseAmount = 0.05f;
 
@@ -15,6 +15,21 @@ namespace PlanetIO
         private SpriteRenderer _body;
         private SpriteRenderer _ring;
         private float _baseScale;
+
+        public float OuterWorldRadius
+        {
+            get
+            {
+                if (_ring == null || !_ring.enabled || _ring.sprite == null)
+                {
+                    return 0f;
+                }
+
+                float maxScale = _baseScale * (1f + PulseAmount);
+
+                return maxScale * _ring.sprite.bounds.extents.x * Mathf.Abs(transform.lossyScale.x);
+            }
+        }
 
         private void Awake()
         {

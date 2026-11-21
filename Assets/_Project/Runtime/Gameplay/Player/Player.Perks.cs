@@ -41,7 +41,7 @@ namespace PlanetIO
 
         protected override float CometHealFraction => PerkRules.CometHealFraction(PerkMask);
 
-        private float BoostCost => _boostMassCost * PerkRules.BoostCostMultiplier(PerkMask);
+        private float BoostCost => BoostRules.Cost(Capacity, _boostMassCost, PerkRules.BoostCostMultiplier(PerkMask));
 
         private PlanetGravity Gravity
         {
@@ -77,6 +77,8 @@ namespace PlanetIO
             _invincibilityTimeRemaining = _spawnInvincibilityTime;
 
             float restored = Mathf.Max(InitialCapacity, Capacity * PerkRules.AblativeSurvivalFraction);
+			float lost = Mathf.Max(0f, Capacity - restored);
+
             if (deferRestore)
             {
                 _pendingCapacityRestore = restored;
@@ -85,6 +87,11 @@ namespace PlanetIO
             {
                 Capacity = restored;
             }
+
+			if (lost > 0f)
+			{
+				_lootSpawnService?.SpawnLoot(transform.position, CombatRules.LootSourceCapacity(lost));
+			}
 
             return true;
         }
@@ -231,6 +238,7 @@ namespace PlanetIO
         {
             ClearOffers();
             _pendingCapacityRestore = 0f;
+			ClearCometHealCooldown();
             _highestTier = TierRules.MinTier;
             _networkPerks.Value = 0;
             ResetAbilitiesForNewLife();

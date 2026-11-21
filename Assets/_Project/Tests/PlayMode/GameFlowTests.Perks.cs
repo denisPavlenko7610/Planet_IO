@@ -214,9 +214,37 @@ namespace PlanetIO.Tests
 
             TouchWith(player, comet.GetComponent<Collider2D>());
 
-            Assert.That(player.Capacity, Is.EqualTo(before * 1.25f).Within(1e-5f));
+            Assert.That(player.Capacity, Is.EqualTo(before * 1.1f).Within(1e-5f));
+
+			comet.transform.position = player.transform.position;
+			Physics2D.SyncTransforms();
+			float afterFirst = player.Capacity;
+			TouchWith(player, comet.GetComponent<Collider2D>());
+
+			Assert.That(player.Capacity, Is.EqualTo(afterFirst), "A second comet during the cooldown neither heals nor hurts.");
             yield return null;
         }
+
+		[UnityTest, SharedWorld, Timeout(45000)]
+		public IEnumerator Perks_AblativeCrustDropsTheLostMassAsLoot()
+		{
+			yield return StartSharedMoonGame();
+			Player victim = PrepareMoonPlayer();
+			victim.Capacity = 1f;
+			GrantPerk(victim, PerkId.AblativeCrust);
+			Enemy hunter = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
+			hunter.Capacity = 2f;
+			hunter.transform.position = victim.transform.position;
+			Physics2D.SyncTransforms();
+			float dropsBefore = SumDroppedNutrition();
+
+			MethodInfo trigger = typeof(Enemy).GetMethod(
+				"OnTriggerEnter2D", BindingFlags.Instance | BindingFlags.NonPublic);
+			trigger.Invoke(hunter, new object[] { victim.GetComponent<Collider2D>() });
+
+			Assert.That(SumDroppedNutrition() - dropsBefore, Is.EqualTo(0.7f).Within(0.01f), "The mass the crust removes must drop as loot.");
+			yield return null;
+		}
 
         [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Perks_NebulaVeilHidesPlayerAfterBoostEnds()

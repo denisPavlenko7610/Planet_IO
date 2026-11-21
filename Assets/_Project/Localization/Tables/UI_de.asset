@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: Kometen heilen 50% des Schadens
+    m_Localized: Kometen heilen 20% des Schadens; Nahrung -10%
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

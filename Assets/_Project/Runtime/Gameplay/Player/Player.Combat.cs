@@ -27,18 +27,44 @@ namespace PlanetIO
 
         private void AttractFood()
         {
-            float reach = FoodMagnetRules.Reach(
-                BodyRadius,
-                _foodAttractionRadius,
-                PerkRules.MagnetRadiusMultiplier(PerkMask));
-			FoodRespawnService.Query(transform.position, reach, _foodBuffer);
-			float pullStep = _foodAttractionSpeed * Time.deltaTime;
-			foreach (FoodRecord food in _foodBuffer)
-			{
-				if (food.IsMagnetImmuneFor(NetworkObjectId)) continue;
-				food.Position = Vector2.MoveTowards(food.Position, transform.position, pullStep);
-			}
+			PullFoodTowardsBody(
+				_foodAttractionRadius,
+				PerkRules.MagnetRadiusMultiplier(PerkMask),
+				_foodAttractionSpeed,
+				Time.deltaTime);
         }
+
+		protected override void ResolvePlanetContact(PlanetScale other)
+		{
+			if (!CanActInGameplay)
+			{
+				return;
+			}
+
+			if (other is Player otherPlayer)
+			{
+				if (!IsSpawnProtected)
+				{
+					TryEatPlayer(otherPlayer);
+				}
+			}
+			else if (other is Enemy enemy)
+			{
+				TryEatEnemy(enemy);
+			}
+		}
+
+		private void TryEatEnemy(Enemy enemy)
+		{
+			if (!CanDevour(enemy))
+			{
+				return;
+			}
+
+			AbsorbVictim(enemy);
+			NotifyKillRpc(enemy.DisplayName, Constants.CapacityToScore(enemy.Capacity));
+			_enemyRespawnService.Respawn(enemy);
+		}
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -60,12 +86,7 @@ namespace PlanetIO
             }
             else if (other.TryGetComponent(out Enemy enemy))
             {
-                if (CanDevour(enemy))
-                {
-                    AbsorbVictim(enemy);
-                    NotifyKillRpc(enemy.DisplayName, Constants.CapacityToScore(enemy.Capacity));
-                    _enemyRespawnService.Respawn(enemy);
-                }
+				TryEatEnemy(enemy);
             }
             else if (!protectedFromHarm)
             {

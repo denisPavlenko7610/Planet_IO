@@ -164,7 +164,7 @@ namespace PlanetIO.Tests
             Assert.That(PerkRules.MoonDamageMultiplier(PerkRules.Bit(PerkId.HeavyMoons)), Is.EqualTo(1.5f));
             Assert.That(PerkRules.GravityZoneMultiplier(PerkRules.Bit(PerkId.GravityWell)), Is.EqualTo(1.4f));
             Assert.That(PerkRules.AbsorbMultiplier(PerkRules.Bit(PerkId.Predator)), Is.EqualTo(1.2f));
-            Assert.That(PerkRules.CometHealFraction(PerkRules.Bit(PerkId.CometRider)), Is.EqualTo(0.5f));
+            Assert.That(PerkRules.CometHealFraction(PerkRules.Bit(PerkId.CometRider)), Is.EqualTo(0.2f));
             Assert.That(PerkRules.BoostCostMultiplier(PerkRules.Bit(PerkId.IonTrail)), Is.EqualTo(1.25f));
         }
 
@@ -190,6 +190,7 @@ namespace PlanetIO.Tests
                 PerkRules.Bit(PerkId.SolarSail),
                 PerkRules.Bit(PerkId.GravityWell),
                 PerkRules.Bit(PerkId.Predator),
+                PerkRules.Bit(PerkId.CometRider),
                 PerkRules.Bit(PerkId.IonTrail)
             };
 

@@ -71,7 +71,16 @@ namespace PlanetIO
 			_ => new(0.4f, 1f, MediumHuntRatio, 0.25f, 0.65f, 5f)
         };
 
-        public static bool CanAffordBoost(float capacity, float startingMass) => capacity > startingMass + BoostCost;
+		public const float MatchedFoodGrowthScale = 1.5f;
+
+		public static float FoodGrowthScale(BotDifficulty difficulty) =>
+			difficulty == BotDifficulty.Easy ? 1f : MatchedFoodGrowthScale;
+
+		public static bool UsesFoodMagnet(BotDifficulty difficulty) => difficulty != BotDifficulty.Easy;
+
+		public static float BoostCostFor(float capacity) => BoostRules.Cost(capacity, BoostCost, 1f);
+
+        public static bool CanAffordBoost(float capacity, float startingMass) => capacity > startingMass + BoostCostFor(capacity);
 
         public static bool ShouldBoost(BotDifficulty difficulty, bool evading, bool hunting, float capacity,
             float startingMass, float targetMass, float distanceToTarget, float alignment)
@@ -82,7 +91,7 @@ namespace PlanetIO
                 return true;
             if (!hunting || difficulty == BotDifficulty.Easy || distanceToTarget < 1.5f)
                 return false;
-            float budget = Mathf.Ceil(For(difficulty).BoostSeconds / BoostTickSeconds) * BoostCost;
+            float budget = Mathf.Ceil(For(difficulty).BoostSeconds / BoostTickSeconds) * BoostCostFor(capacity);
             return capacity - budget >= targetMass * CombatRules.DefaultEatSizeRatio;
         }
 

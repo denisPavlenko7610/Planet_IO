@@ -1,6 +1,7 @@
 # Planet IO: GDD and development plan
 
-Updated: November 18, 2026 (qualified leaderboard records, cloud upload queue and cleanup, section 7.2). Earlier
+Updated: November 20, 2026 (rules audit, section 5; the November 18 update covered qualified leaderboard records, cloud
+upload queue and cleanup, section 7.2). Earlier
 sections:
 November 13, 2026. Implementation status was checked against the working tree, including uncommitted changes.
 Code
@@ -34,14 +35,14 @@ One-line pitch: *"Slither.io where your tail is moons and your weapon is gravity
 | Area            | Now                                                                                                                                                                                                                                                           |
 |-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Mass            | `Capacity` 0.08 → 8.0, start 0.08; scale = 0.08 × √(mass / 0.08) (`PlanetSizeRules`): size varies 10× across the full mass range                                                                                                                              |
-| Eating          | contact, if mass ≥ 1.08× the victim's; base absorption 40%, loot 60%; the Predator perk and bounty raise absorption                                                                                                                                           |
-| Speed           | player 3.6 (boost 7.2), bot 3.0; no mass penalty: a big planet is neither faster nor slower than a small one (as in Slither.io)                                                                                                                               |
+| Eating          | contact or overlap (rechecked every 0.1 s), if mass ≥ 1.08× the victim's; base absorption 40%, loot 60%; the Predator perk and bounty raise absorption                                                                                                        |
+| Speed           | player 3.6 (boost 7.2), bot 3.0 on purpose (the player can always outrun a bot; section 5, November 20 audit); no mass penalty: a big planet is neither faster nor slower than a small one (as in Slither.io)                                                 |
 | Camera          | base size 3.6, zoom = 3.6 × (mass / 0.08)^0.10 with delayed growth response, look-ahead of 16% of the size along the heading, +8% size while boosting                                                                                                         |
-| Boost           | 0.004 mass every 0.15 s, drops food worth 80% of the cost beyond the body edge (body radius + 0.3); the owner's magnet ignores its own drop for 1 s                                                                                                           |
+| Boost           | max(0.004, 0.2% of mass) every 0.15 s, drops food worth 80% of the cost beyond the body edge (body radius + 0.3); the owner's magnet ignores its own drop for 1 s                                                                                             |
 | Border          | movement is blocked at the edge (`WorldBounds.KeepInside`); entering the zone costs max(regular boost cost, 8% mass); red vignette when close                                                                                                                 |
 | Food            | 2000 server table records; binary snapshots and 10 Hz deltas; client-only pooled views, ambient nutrition x3, falloff 0.5, 16 migrating fields (45 s), golden 4% (×8); client-side visual ×1.2 × zoom^0.7, capped at ×3 (`FoodViewScale`), collider unchanged |
-| Enemies         | pool of 16 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade)                                                                                                                                                               |
-| Comets          | pool of 30, speed 2.5–3.5, damage 50% of victim mass; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                                                                           |
+| Enemies         | pool of 16 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade); Medium and Hard bots feed and use the magnet like the player (section 5)                                                                                     |
+| Comets          | pool of 30, speed 2.5–3.5, damage 50% of victim mass, then the comet respawns elsewhere; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                                        |
 | Network         | NGO + UGS Sessions, rooms by code (default 8, max 16), owner-authoritative movement                                                                                                                                                                           |
 | Meta            | 14 languages, skins (some for ads), continue via rewarded (50% mass), leaderboard, minimap                                                                                                                                                                    |
 | Tiers and moons | 4 tiers, base slots 0/2/4/6; server-side strikes, comet interception, ring clashes; HUD and camera account for moons                                                                                                                                          |
@@ -50,7 +51,7 @@ One-line pitch: *"Slither.io where your tail is moons and your weapon is gravity
 | Leader          | ring, minimap highlight, bounty +25%; minimum mass 0.4, refreshed every 0.5 s                                                                                                                                                                                 |
 | Progression     | rank (30), stardust, 3 missions a day, streak, results screen, FTUE, 12 skins (4 free); each new rank pays stardust 5 + rank                                                                                                                                  |
 | Respawn         | 8 random candidates, the best by "food nearby + distance from bodies that can eat you" wins (`RespawnRules`)                                                                                                                                                  |
-| Movement arrow  | open chevron, constant on-screen size (1.8% of screen height), outside the visible body with a half-marker gap; does not grow with the planet (`DirectionArrowRules`)                                                                                         |
+| Movement arrow  | open chevron, constant on-screen size (2.25% of screen height), outside the visible body with a half-marker gap; does not grow with the planet (`DirectionArrowRules`)                                                                                        |
 | Main menu       | on screen: nickname and planet (profile chip), Play, Blitz, Online, mission and settings icons; nickname and skins live in the Profile window; quick play, room and code live in the Online window                                                            |
 
 ### 2.1. Scope decisions (November 16, 2026)
@@ -68,7 +69,7 @@ drop what duplicates something that already works. The feel reference is Slither
 | FPS and traffic measurement on a weak Android device with 2000 food    | Data-only food is implemented; sustained device performance still needs measurement                                                      | 5     |
 | Host/client check: replication, late join, reconnect                   | Rooms by code are part of the update; the 13 Nov report marks this Not Run                                                               | 5     |
 | Smart respawn                                                          | The first minute after death decides "play again"; it used to be a random point, often empty or next to a big body                       | 6     |
-| On-device tuning: camera, speed, food, magnet, boost cost, growth pace | All changed on 16 Nov without hands-on checks; boost now costs the full mass                                                             | 6     |
+| On-device tuning: camera, speed, food, magnet, boost cost, growth pace | All changed on 16 Nov without hands-on checks; boost cost and bot food parity retuned on 20 Nov                                          | 6     |
 | Active perk badges in the HUD                                          | A perk with no indicator cannot be read, so counter-play is impossible                                                                   | 6     |
 | Rank reward: stardust `5 + rank`                                       | The "death is a step forward" pillar; ranks without a prize are empty; about 600 over 30 ranks, less than half the price of 8 paid skins | 6     |
 | Three new sounds: moon hit, tier-up, event warning                     | They used to be Kill/Hit at another pitch; sound is the main combat feedback                                                             | 6     |
@@ -111,6 +112,25 @@ comet changes. After these changes, 60 selected EditMode tests and 7 selected Pl
 The last full PlayMode run passed 53 of 55, and `World_WormholeTeleportsOncePerCooldown` fails
 regardless of speed.
 
+### 2.2. Current parameters (quick reference)
+
+The numbers below are the current code values; section 5 explains how each one was reached.
+
+| Area       | Value                                                                                                                                                              |
+|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Mass       | start and minimum 0.08, cap 8.0; body scale 0.08 × √(mass / 0.08)                                                                                                  |
+| Tiers      | I 0–0.35, II 0.35–0.8 (2 moons), III 0.8–1.4 (4), IV 1.4–8.0 (6); IV is the last tier                                                                              |
+| Eating     | mass ratio 1.08; the killer gets 40% (Predator ×1.2, leader bounty ×1.25), 60% drops as loot                                                                       |
+| Speed      | player 3.6 (boost 7.2); bot 3.0 (boost ×2, personalities 0.95–1.08); independent of mass                                                                           |
+| Boost      | max(0.004, 0.2% of mass) every 0.15 s; 80% of it drops as food; needs more than the starting mass plus one tick                                                    |
+| Food       | 2000 slots; growth = food size × eater multiplier × 3 / (1 + 0.5 × mass); multiplier 0.015 for the player and Medium/Hard bots, 0.01 for Easy bots                 |
+| Magnet     | base reach 0.2 at 5 u/s on top of the body radius; player, Medium and Hard bots                                                                                    |
+| Moons      | 10% of the victim's mass per hit (minimum 0.004), 1 s shared immunity, the owner gains 50% of the damage; 2 durability, regrow 16 s; a comet breaks a moon at once |
+| Comets     | pool of 30 at 2.5–3.5 u/s; a hit takes 50% of the victim's mass; the comet respawns after any contact and cannot be destroyed                                      |
+| Border     | max(boost cost, 8% of mass) on entering; players only, bots steer away                                                                                             |
+| Gravity    | pulls bodies up to 0.6 × its mass inside 3 × radius, up to 1.05 u/s                                                                                                |
+| Protection | 2 s after spawn, 5 s after a continue; players only                                                                                                                |
+
 ## 3. Vision and pillars
 
 Platform: Android, played with one thumb, sessions of 5–10 minutes, 3–5 runs in a row.
@@ -131,7 +151,8 @@ Platform: Android, played with one thumb, sessions of 5–10 minutes, 3–5 runs
 | 5–10 min     | Becomes the leader or dies                             | Bounty, loot, run result                |
 | Between runs | Looks at the results, spends stardust, takes a mission | Rank, cosmetics, daily streak           |
 
-Food/comet balance revision (November 16, 2026): reduce ambient food from 2250 to 1800 (-20%) and
+Food/comet balance revision (November 16, 2026; the ambient count later became 2000 slots, see section 2): reduce
+ambient food from 2250 to 1800 (-20%) and
 multiply regular and golden food nutrition by 2 for both players and bots. Golden food remains 4% at x8
 relative to regular food; boost drops and kill loot retain their exact mass budgets. This raises the total
 ambient mass budget by 60% while clearing some visual clutter. As in Slither.io, feeding must show visible
@@ -145,8 +166,10 @@ at 1.4 and retains six base moon slots. Keep the camera curve, movement speed an
 This follows Slither.io's continued growth after the early progression milestones; the finite cap is a
 practical match-size bound. Check camera framing and repeat the growth probe at the expanded cap.
 
-Target pace to verify: mass 0.35 in about a minute, 0.8 in 3–4 minutes, 1.4 in 6–8 minutes, 2.0 in 8–10 minutes of
-continuous feeding. Tier-ups every 1–3 minutes should give a regular perk pick.
+Target pace to verify (hypothesis, revised on November 20, 2026 for the x3 food and the 0.5 falloff): mass 0.35 in
+45–60 seconds, 0.8 in 2–3 minutes, 1.4 in 4–6 minutes, 2.0 in 6–8 minutes of active feeding with bots and comets on (the
+earlier 1 / 3–4 / 6–8 / 8–10 minute targets predate the food changes). Tier-ups every 1–3 minutes should give a regular
+perk pick.
 
 November 16 camera/perk verification: 53 selected EditMode and 5 selected PlayMode checks passed.
 A controlled nearest-food probe reached masses 0.35 / 0.8 / 1.4 in 21.6 / 106.4 / 242.8 simulated seconds,
@@ -170,6 +193,11 @@ height through growth, camera zoom and boost. Place its center beyond the larger
 and visible sprite radius (including 12% outline clearance), plus half the marker and a half-marker gap.
 Unlike Slither.io, the planet has no head to communicate its heading, so retain this minimal direction cue.
 The marker rotates with movement and renders on the Player sorting layer, above world rings.
+
+Leader ring clearance (November 20, 2026): the gold leader beacon ring sat outside the arrow's clearance
+radius and covered the marker. Shrink the ring margin from 1.3 to 1.2 of the body radius, and when the ring is
+visible place the marker beyond its outer edge (including the pulse) plus the half-marker gap, so the cue is never
+hidden by the ring. The ring sprite and thickness stay shared with the other world rings.
 Its size stays constant during boost.
 
 Food replication implementation (November 17-18, 2026): replace per-pellet network objects with a server-owned
@@ -279,7 +307,8 @@ Death loot remains 60% of the victim's remaining mass in 4-30 food pieces at the
 discards that life's drop as before.
 
 Host migration target (November 16, 2026): use Multiplayer Services Relay migration with an application-owned,
-versioned and compressed world snapshot every second. Graceful departure freezes gameplay and uploads a final
+versioned and compressed world snapshot every 2 seconds (section 12). Graceful departure freezes gameplay and uploads a
+final
 snapshot before leaving. A surviving session member becomes host, restores the arena and reconnects players
 by their stable session player IDs, never by old NGO client IDs. Preserve mass, positions, appearance, moons,
 perks/offers, defeat/continue state, loot ownership/lifetimes, bots, food fields, comets, world-event clocks,
@@ -345,12 +374,20 @@ for up to one physical pixel of dimension rounding when UI Toolkit snaps rectang
 
 Planet nicknames (November 17, 2026): reduce player and bot nameplate font size from 5 to 4.25 (15%)
 at the user's request to keep labels less prominent beside planets. Retain the existing size-dependent scaling.
+Further reduction (November 20, 2026): lower player and bot nameplate font size from 4.25 to 3.19 (25%)
+at the user's request. Comet labels are unchanged.
+Constant label size (November 20, 2026): the player and bot nameplate no longer grows with planet mass. Its
+on-screen size stays constant at every camera zoom (`NameplateRules`, 0.55 label scale at the 3.6 base zoom,
+matching the old starting size), and its gap to the visible planet edge scales with zoom so the name never overlaps
+the body. This also matches Slither.io, where the name tag does not balloon with the snake.
 
 Perk presentation (November 16, 2026): place the three choices in a compact top dock inside the safe area,
 below the top HUD controls, keeping the center and bottom thumb zones clear. Each choice uses a distinct icon,
 a localized name and a short localized effect/cost summary. Reuse those icons for active perks. Keep the
 countdown and server-authoritative selection. Solar Sail retains +12% movement speed and -10% food;
 Ion Trail additionally gives +15% boost speed, retaining its damaging trail and +25% boost mass cost.
+Its visual warning uses thin orange sparks aligned with the planet's heading, fading over the trail's two-second
+lifetime.
 Speed bonuses depend on chosen perks, never mass; these are deliberate progression choices beyond Slither.io.
 
 Controls (November 16, 2026): the floating joystick stays the default. Settings have a persisted "Fixed joystick"
@@ -393,6 +430,48 @@ request. Restarting a run never shows an ad. Rewarded gates retain their existin
 with other available rewards requested individually. Review prompts appear only after a rank-up. Global lists
 are best-effort because Planet IO has no trusted score server (section 7.2).
 
+Rules audit (November 20, 2026): the GDD was checked against the code; the holes and unequal conditions found, and the
+decisions taken, are recorded here before the code is changed.
+
+- Planet contact: eating a planet used to fire only on the trigger enter event, so a planet that grew past the 1.08
+  ratio, or a victim whose spawn protection or Ablative Crust ended while the bodies still overlapped, was not eaten
+  until they separated and touched again (the same gap the food sweep closed). The server now also checks the overlaps
+  of
+  every combat-active planet every 0.1 s and runs the trigger-enter eating path, with the same protection rules.
+  Slither.io eats on overlap with no such gap.
+- Comets after the November 20 update (a contact removes the comet and the server respawns it elsewhere; a moon
+  intercepts it and breaks at once): the damage stays at 50%, because a comet now hits at most once and the earlier
+  worry about stacked hits is gone, so no repeat-hit immunity is added. A planet below 0.16 mass still dies to one hit
+  by
+  the existing minimum-mass rule.
+- Comet Rider: with comets respawning after one touch, healing half of the damage gave about +25% mass per comet,
+  roughly
+  one comet every 10 seconds, which is unbounded growth up to the cap. It now heals 20% of the calculated damage (about
+  +10% mass), at most once every 5 seconds (comets touched during the cooldown pass harmlessly), and food gives
+  -10%, like Solar Sail and Predator. The unwired "visible glow" downside is dropped.
+- Ablative Crust: the mass above the surviving 30% used to vanish, so the attacker got nothing and the perk had no
+  cost. It now drops as loot at the planet (the whole lost mass, in the standard loot pieces), so an attacker next to it
+  can still pick it up, the perk has the downside every perk needs, and mass is conserved.
+- Bots against the player. Kept on purpose: bots are slower (3.0 against 3.6, boost 6.0 against 7.2) because the
+  difficulty setting scales reactions, not speed, so a player can always outrun a bot; bots never die from damage (they
+  shrink to the minimum mass and can only be eaten); bots have no spawn protection (they respawn at least 30 u from
+  players) and take no border penalty (they steer away from the border); a protected player can eat bots but not other
+  players, because bots have no protection to respect. Changed: bots grew 1.5 times slower from food (multiplier 0.01
+  against 0.015) and had no food magnet, so the player picked food up from about 1.7 times its body radius at the start
+  (about 1.4 times at the cap) while bots had to touch it; by the numbers bots stay small and the player becomes the
+  permanent leader of a solo run (not yet measured). Medium and Hard bots now use the player's multiplier
+  and the same magnet (reach 0.2, 5 u/s, applied every 0.1 s); Easy bots keep the old handicap.
+- Boost cost: a flat 0.004 per 0.15 s was 27% of the mass per second at mass 0.1 but 0.3% at mass 8, so "every decision
+  costs mass" held only for small planets. The cost per tick is now max(0.004, 0.2% of mass): unchanged below mass 2.0
+  and about 1.3% of the mass per second at the cap. The Ion Trail multiplier applies on top, bots use the same rule,
+  and 80% still returns as food.
+- Tier IV: tiers end at IV by design. Slither.io has no tiers: after mass 1.4 growth is continuous through size, score
+  and the leader bounty, and a fifth tier would need new HUD, achievement and mission content without a new mechanic.
+- Not changed: the XP weights (1 XP per 2 s of life up to 900 s against 1 XP per 2 score points) favor survival over
+  play; revisit them if playtests show idle farming.
+- Verification gap: the growth probes disable comets, bots and events (appendix B), so the pace targets in section 4
+  must be measured again with them on.
+
 ## 6. Mechanics
 
 ### Comets: agreed design (November 16, 2026)
@@ -409,10 +488,15 @@ are best-effort because Planet IO has no trusted score server (section 7.2).
   points
   per world; after 8 seconds an uneaten point returns to its field. Pause stops both movement and trail creation.
 - An unprotected hit removes 50% of the victim's current mass and current mass score, independent of comet size.
-  Existing minimum-mass/death rules apply; peak score and earned XP are retained. A moon still intercepts the hit; Comet
-  Rider restores half of the calculated damage instead. This deliberately harsher moving hazard, absent in Slither.io,
+  Existing minimum-mass/death rules apply (mass never drops below the planet's minimum; a hit that would take it
+  there defeats the planet); peak score and earned XP are retained. A moon still intercepts the hit; Comet
+  Rider restores 20% of the calculated damage instead, at most once per 5 s. This deliberately harsher moving hazard,
+  absent in Slither.io,
   makes avoidance meaningful as requested by the user.
   Strengthening the damage is decided separately after playtests.
+- Comets cannot be killed (November 20, 2026, at the user's request): no planet can eat or destroy one, the only
+  answer is to avoid it. A contact with a planet or an intercepting moon removes the comet from that spot and the
+  server respawns it elsewhere by the safe-spawn rule above.
 - The meteor shower keeps its 6 s warning, the strip, 12 consecutive passes at about 8 u/s, and 5 loot piles after the
   event; it uses the same tails and the capped food trail.
 - Checks: EditMode for safe spawning and the trail budget, PlayMode for movement, respawn, interception, labels and the
@@ -447,6 +531,8 @@ Rules:
 - A new life resets perks; continue keeps perks and returns 50% of the mass. Satellites reset on death and form again on
   revival according to the current tier.
 - Progressive disclosure: on tier I the player only knows "eat and run"; moons and perks are explained when they appear.
+- Tier IV is the last tier: from 1.4 to the cap of 8.0 growth is continuous (size, score, leader bounty), as in
+  Slither.io (section 5, November 20 audit).
 
 Current differences: a tier drop has a hysteresis of 0.03 mass (`TierRules`); a perk pick is granted on the first
 arrival at each new tier in a life. The server adds a 0.75 s margin to the 5 s pick window. Cards and tutorial are
@@ -462,11 +548,11 @@ Satellites orbit the planet and let it hurt a bigger opponent without a size adv
 | Orbit radius                           | 1.7 × body radius (collider radius × scale)                                                                       |
 | Angular speed                          | 90°/s, all moons turn the same way, each planet has its own starting phase                                        |
 | Moon radius                            | 0.2 × body radius; visual is a shrunken copy of the owner's skin                                                  |
-| Damage to another planet on moon touch | max(0.004, 6% of its mass), effectively 6% at mass ≥ 0.067                                                        |
+| Damage to another planet on moon touch | max(0.004, 10% of its mass), effectively 10% at mass ≥ 0.04                                                       |
 | Knockback                              | 6 u/s, fades in ~0.4 s; the target is immune to any moons for 1.0 s                                               |
 | Moon durability                        | 2 hits, then it disappears; regrows in 16 s                                                                       |
 | Moon vs moon                           | "ring clash": contacting moons lose one durability; no core damage; both bodies pushed back at 3 u/s, 0.8 s pause |
-| Moon vs comet                          | the moon intercepts the comet: the comet respawns, the moon takes a hit, the planet takes no damage               |
+| Moon vs comet                          | the moon intercepts the comet: the comet respawns, that moon disappears at once, the planet takes no damage       |
 | Lost mass                              | 50% of the damage goes to the moon's owner immediately (no food falls on the ground)                              |
 | Own moon                               | does not hurt its owner; under spawn protection moons neither hit nor get hit                                     |
 
@@ -499,13 +585,13 @@ orbit. The server finds contacts with circle queries; hit and ring-clash buffers
 
 Every planet creates a pull zone for bodies much smaller than itself (mass ≤ 0.6 × its mass).
 
-| Parameter                     | Value                                                                                         |
-|-------------------------------|-----------------------------------------------------------------------------------------------|
-| Zone radius                   | 3 × planet radius                                                                             |
-| Velocity offset at the center | up to +35% of the target's speed, falling off quadratically toward the edge                   |
-| Slingshot                     | moving tangentially (60–120° to the radius) for ≥ 0.5 s gives +20% speed for 2 s, then decays |
-| Food                          | magnet: body radius + 0.2 × perk × growth (`FoodMagnetRules`); the gravity zone is not used   |
-| Indication                    | a ring around planets bigger than you: orange, pulsing                                        |
+| Parameter                     | Value                                                                                                       |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------|
+| Zone radius                   | 3 × planet radius                                                                                           |
+| Velocity offset at the center | up to 1.05 u/s (about 29% of the player's speed, 35% of a bot's), falling off quadratically toward the edge |
+| Slingshot                     | moving tangentially (60–120° to the radius) for ≥ 0.5 s gives +20% speed for 2 s, then decays               |
+| Food                          | magnet: body radius + 0.2 × perk × growth (`FoodMagnetRules`); the gravity zone is not used                 |
+| Indication                    | a ring around planets bigger than you: orange, pulsing                                                      |
 
 Implemented: shared `GravityRules`, pull and slingshot in `PlanetGravity`, indication in `ThreatRingView`. The owner
 computes it for the player, the server for bots. No separate network messages for pull strength were added.
@@ -518,17 +604,17 @@ avoiding wells and using the slingshot are deferred.
 
 ### 6.5. Perks (starting pool: 9)
 
-| Perk           | Effect                                               | Cost                       |
-|----------------|------------------------------------------------------|----------------------------|
-| Ion trail      | boost speed +15%; damaging trail for 2 s             | boost costs 25% more       |
-| Magnetosphere  | magnet radius ×1.5                                   | speed −8%                  |
-| Heavy moons    | +1 moon slot, moon damage +50%                       | speed −5%                  |
-| Ablative crust | survives one lethal hit, 30% mass remains            | consumed when triggered    |
-| Solar sail     | speed +12%                                           | food gives −10%            |
-| Gravity well   | gravity zone ×1.4                                    | moons spin 20% slower      |
-| Nebula veil    | disappear from enemy minimaps for 10 s after a boost | 40 s cooldown              |
-| Comet rider    | comets heal 50% of the damage instead of hurting     | visible glow, enemies know |
-| Predator       | a kill gives +20% absorbed mass                      | food gives −10%            |
+| Perk           | Effect                                                          | Cost                        |
+|----------------|-----------------------------------------------------------------|-----------------------------|
+| Ion trail      | boost speed +15%; damaging trail for 2 s                        | boost costs 25% more        |
+| Magnetosphere  | magnet radius ×1.5                                              | speed −8%                   |
+| Heavy moons    | +1 moon slot, moon damage +50%                                  | speed −5%                   |
+| Ablative crust | survives one lethal hit, 30% mass remains                       | consumed, 70% drops as loot |
+| Solar sail     | speed +12%                                                      | food gives −10%             |
+| Gravity well   | gravity zone ×1.4                                               | speed −6%                   |
+| Nebula veil    | disappear from enemy minimaps for 10 s after a boost            | 40 s cooldown               |
+| Comet rider    | comets heal 20% of the damage (once per 5 s) instead of hurting | food −10%                   |
+| Predator       | a kill gives +20% absorbed mass                                 | food gives −10%             |
 
 The pool is a starter set; expand it after playtests. Each perk must have a downside and one strong counter.
 
@@ -549,25 +635,28 @@ Balance and implementation differences:
   to the minimum mass, the restore is applied on the next frame, because `Capacity` cannot be changed inside its own
   `OnValueChanged`: assigning again after that does not fire the callback. The deferred restore must never lower mass
   already gained from food in the meantime; healing must not trigger another lethal minimum-mass transition.
+- The mass the crust removes (everything above the 30% that survives) drops as loot at the planet, so an attacker that
+  failed to eat it can pick the mass up.
 - "Nebula veil" invisibility shows only as disappearing from the minimap and bots losing the target; there is no
   separate
   effect on the planet.
 - "Ion trail" deals 70% of moon damage, and the victim gets the same one-second immunity as from moons.
-- The "Comet rider" glow is not wired (low priority).
+- The "Comet rider" glow was dropped: its downside is the 10% food penalty, a heal of only 20% of the damage and a 5 s
+  cooldown between heals.
 - Active perks are shown as badges under the score (color per perk, the letter comes from the localized name); rerolling
   the cards for ads is deferred.
 
 ### 6.6. Combat: rule summary
 
-| Contact                     | Result                                                                                                            |
-|-----------------------------|-------------------------------------------------------------------------------------------------------------------|
-| Core ≥ 1.08 × target core   | eaten; the owner gets a base 40% of the victim's mass, 60% becomes loot; absorption is boosted by perk and bounty |
-| Core × enemy moon           | damage, knockback, the moon loses durability                                                                      |
-| Moon × moon                 | bounce                                                                                                            |
-| Planet × comet              | mass damage; a moon intercepts                                                                                    |
-| Planet × border             | movement blocked at the edge, mass lost on entering the zone, red vignette; no push-back needed                   |
-| Planet × black hole (event) | −25% mass, then food is spat out                                                                                  |
-| Tier III+ death             | deferred: "supernova", a 6 u shockwave pushes away, loot flies out in a ring over 1 s                             |
+| Contact                     | Result                                                                                                                                  |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| Core ≥ 1.08 × target core   | eaten on contact or overlap; the owner gets a base 40% of the victim's mass, 60% becomes loot; absorption is boosted by perk and bounty |
+| Core × enemy moon           | damage, knockback, the moon loses durability                                                                                            |
+| Moon × moon                 | bounce                                                                                                                                  |
+| Planet × comet              | 50% mass damage, then the comet respawns; a moon intercepts it instead                                                                  |
+| Planet × border             | movement blocked at the edge, mass lost on entering the zone, red vignette; no push-back needed                                         |
+| Planet × black hole (event) | −25% mass, then food is spat out                                                                                                        |
+| Tier III+ death             | deferred: "supernova", a 6 u shockwave pushes away, loot flies out in a ring over 1 s                                                   |
 
 The calculations are split among the pure `CombatRules`, `GrowthRules`, `MoonRules`, `GravityRules`, `TierRules` and
 `PerkRules`; they have EditMode tests. Contacts and network state changes stay in gameplay classes. The black hole is
@@ -874,7 +963,7 @@ replaced in phase 6; comet names stay and are always shown, only the visibility 
 | `Enemy`                        | Done: a bot is a planet plus an AI controller with a shared combat component, see 12.4                          |
 | Border                         | Done: red vignette, blocking at the edge, 8% loss; the push-back is cancelled                                   |
 | Comets                         | Telegraphed in advance, intercepted by moons, part of events                                                    |
-| Boost                          | Same cost, add a cosmetic trail; the Ion trail perk makes it a weapon                                           |
+| Boost                          | Cost max(0.004, 0.2% of mass) per tick, add a cosmetic trail; the Ion trail perk makes it a weapon              |
 | Respawn                        | Done: near food and away from bodies bigger than you (`RespawnRules`)                                           |
 | Food over the network          | Phase 5: baseline 2000 items, then server records, spatial queries and binary delta replication                 |
 | Death screen                   | Exists: killer and their tier, rank progress, "Play again" more prominent than "Continue"; perk reroll deferred |
@@ -1057,3 +1146,14 @@ pause/failure handling, and food eaten before deferred Ablative Crust healing. T
 cold-menu waits were stabilized. UI aspect checks use physical-pixel rounding bounds rather than a fixed
 ratio tolerance; the temporary minimap flex-shrink experiment was reverted. Device and real Play Games
 acceptance checks remain separate.
+
+### Rules audit verification (November 20, 2026)
+
+After the section 5 rules audit, all 625 EditMode tests passed, including the new `RulesAuditTests` (planet contact,
+boost cost, bot food parity and magnet, Comet Rider). The full PlayMode run passed 86 of 88 with one skipped (the
+explicit growth probe) and one failure in the new bot-magnet scenario, which was a test flaw (the bot was still growing,
+so the food ended inside its body); after the fix the scenario passed on its own. New PlayMode scenarios cover eating an
+overlapping planet once the ratio reaches 1.08, the Ablative Crust loot (0.7 of the mass), the Comet Rider cooldown and
+the bot magnet on Easy against Medium and Hard. Not done: the growth probe after the magnet refactor (the editor closed
+before it could run), a growth probe with comets and bots on, and any device or network-peer check. The loot, magnet and
+boost numbers remain hypotheses for playtests.

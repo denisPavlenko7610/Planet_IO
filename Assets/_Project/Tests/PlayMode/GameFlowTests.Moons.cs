@@ -75,19 +75,19 @@ namespace PlanetIO.Tests
         }
 
         [UnityTest, SharedWorld, Timeout(45000)]
-        public IEnumerator Moons_InterceptCometsAndBreakAfterFullDurability()
+        public IEnumerator Moons_CometDestroysTheHitMoonAtOnceAndSparesTheOwner()
         {
             yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             Comet comet = Object.FindObjectsByType<Comet>(FindObjectsInactive.Exclude).First();
-            for (int hit = 0; hit < MoonRules.MaxDurability; hit++)
-            {
-                Vector2 contact = PlaceAtMoon(player, comet.transform);
-                StepMoons(player);
-                Assert.That(Vector2.Distance(comet.transform.position, contact), Is.GreaterThan(0.1f), "Intercepted comet must respawn.");
-                Assert.That(player.Capacity, Is.EqualTo(0.4f), "Intercept must not damage the owner.");
-                Assert.That(player.MoonMask, Is.EqualTo(hit < MoonRules.MaxDurability - 1 ? 3 : 2), "Moon breaks when its durability is exhausted.");
-            }
+            Assert.That(player.MoonMask, Is.EqualTo(3));
+
+            Vector2 contact = PlaceAtMoon(player, comet.transform);
+            StepMoons(player);
+
+            Assert.That(Vector2.Distance(comet.transform.position, contact), Is.GreaterThan(0.1f), "Intercepted comet must respawn.");
+            Assert.That(player.Capacity, Is.EqualTo(0.4f), "Intercept must not damage the owner.");
+            Assert.That(player.MoonMask, Is.EqualTo(2), "Only the hit moon disappears, regardless of its durability.");
         }
 
         [UnityTest, SharedWorld, Timeout(45000)]

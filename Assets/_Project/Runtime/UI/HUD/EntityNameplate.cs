@@ -8,8 +8,6 @@ namespace PlanetIO.UI.Hud
     public sealed class EntityNameplate : MonoBehaviour
     {
         private const float MinimumParentScale = 0.0001f;
-        private const float MinimumLabelScale = 0.45f;
-        private const float MaximumLabelScale = 1.6f;
         private const float LabelReach = 3f;
 
         [SerializeField] private TextMeshPro _label;
@@ -18,6 +16,7 @@ namespace PlanetIO.UI.Hud
 
         private PlanetScale _entity;
         private Transform _labelTransform;
+		private UnityEngine.Camera _camera;
 
         private void Awake()
         {
@@ -62,7 +61,9 @@ namespace PlanetIO.UI.Hud
 
         private void LateUpdate()
         {
-            if (!ViewBounds.IsVisible(transform.position, _entity.BodyRadius + LabelReach))
+			float zoomRatio = ResolveZoomRatio();
+
+            if (!ViewBounds.IsVisible(transform.position, _entity.BodyRadius + LabelReach * zoomRatio))
             {
                 return;
             }
@@ -79,17 +80,29 @@ namespace PlanetIO.UI.Hud
             }
 
             float parentScale = transform.lossyScale.x;
-            float sizeFactor = Mathf.Clamp(MinimumLabelScale + _entity.Capacity, MinimumLabelScale, MaximumLabelScale);
-            float labelHalfHeight = _label.preferredHeight * 0.5f * sizeFactor;
-            _labelTransform.SetPositionAndRotation(
-                transform.position + Vector3.up * (PlanetRadius(parentScale) + _edgePadding + labelHalfHeight),
-                Quaternion.identity);
+			float sizeFactor = NameplateRules.LabelScale * zoomRatio;
+			float labelHalfHeight = _label.preferredHeight * 0.5f * sizeFactor;
+			float gap = _edgePadding * zoomRatio;
+
+			_labelTransform.SetPositionAndRotation(
+				transform.position + Vector3.up * (PlanetRadius(parentScale) + gap + labelHalfHeight),
+				Quaternion.identity);
 
             if (parentScale > MinimumParentScale)
             {
                 _labelTransform.localScale = Vector3.one * (sizeFactor / parentScale);
             }
         }
+
+		private float ResolveZoomRatio()
+		{
+			if (_camera == null)
+			{
+				_camera = UnityEngine.Camera.main;
+			}
+
+			return _camera != null ? NameplateRules.ZoomRatio(_camera.orthographicSize) : 1f;
+		}
 
         private float PlanetRadius(float parentScale)
         {

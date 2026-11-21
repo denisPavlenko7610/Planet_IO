@@ -50,20 +50,22 @@ namespace PlanetIO
 
             _boostTimer = _boostMassConsumptionInterval;
 
-            if (!Shrink(BoostCost))
+			float cost = BoostCost;
+
+            if (!Shrink(cost))
             {
                 SetServerBoosting(false);
                 return;
             }
 
-            CreateFoodBehindPlayer();
+            CreateFoodBehindPlayer(cost);
             if (!CanBoost)
             {
                 SetServerBoosting(false);
             }
         }
 
-        private void CreateFoodBehindPlayer()
+        private void CreateFoodBehindPlayer(float cost)
         {
             if (_pointSpawnTransform == null)
             {
@@ -76,7 +78,7 @@ namespace PlanetIO
                 travelDirection = _rigidbody2D.linearVelocity;
             }
 
-			DropBoostFood(_foodSpawnService, _pointSpawnTransform, travelDirection, BoostCost * BoostDropNutritionFraction);
+			DropBoostFood(_foodSpawnService, _pointSpawnTransform, travelDirection, cost * BoostDropNutritionFraction);
         }
 
         private void OnBoostingChanged(bool _, bool boosting)

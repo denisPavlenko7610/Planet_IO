@@ -6,9 +6,11 @@ namespace PlanetIO
     {
 		public const float ScreenHeightFraction = 0.0225f;
 
-		public static float ClearanceRadius(float bodyRadius, float spriteRadius)
+		public static float ClearanceRadius(float bodyRadius, float spriteRadius, float overlayRadius = 0f)
 		{
-			return Mathf.Max(0f, bodyRadius, spriteRadius) * 1.12f;
+			float bodyClearance = Mathf.Max(0f, bodyRadius, spriteRadius) * 1.12f;
+
+			return Mathf.Max(bodyClearance, overlayRadius);
 		}
 
         public static float WorldSize(float orthographicSize, float screenHeightFraction)

@@ -303,7 +303,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Cometas: curan 50% del da\xF1o"
+    m_Localized: "Cometas: curan 20% del da\xF1o; comida -10%"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

@@ -9,6 +9,9 @@ namespace PlanetIO
         private const float SpawnInterval = 0.1f;
         private const float MaximumAlpha = 0.8f;
 
+		private const float SparkLengthFactor = 0.85f;
+		private const float SparkWidthFactor = 0.18f;
+
         private static readonly Color TrailColor = new(1f, 0.55f, 0.2f, 1f);
 
         private readonly SpriteRenderer[] _dots = new SpriteRenderer[DotCapacity];
@@ -95,10 +98,9 @@ namespace PlanetIO
             _remaining[_next] = PerkRules.IonTrailPointSeconds;
             _next = (_next + 1) % DotCapacity;
 
-            float diameter = _player.TrailRadius * 2f;
-            Vector3 position = transform.position;
-            dot.transform.SetPositionAndRotation(position, Quaternion.identity);
-            dot.transform.localScale = new Vector3(diameter, diameter, 1f);
+			float diameter = _player.TrailRadius * 2f;
+			dot.transform.SetPositionAndRotation(transform.position, transform.rotation);
+			dot.transform.localScale = new Vector3(diameter * SparkLengthFactor, diameter * SparkWidthFactor, 1f);
             dot.sortingLayerID = _body.sortingLayerID;
             dot.sortingOrder = _body.sortingOrder - 1;
             dot.color = TrailColor;

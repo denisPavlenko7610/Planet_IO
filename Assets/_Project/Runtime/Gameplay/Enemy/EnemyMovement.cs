@@ -304,18 +304,18 @@ namespace PlanetIO
 			_boostTick -= deltaTime;
 			if (_boostTick <= 0f)
 			{
-				if (!_enemy.TrySpendBoostMass())
+				if (!_enemy.TrySpendBoostMass(out float spent))
 				{
 					StopBoost();
 					return;
 				}
 				_boostTick += BotDifficultyRules.BoostTickSeconds;
-				DropBoostFood();
+				DropBoostFood(spent);
 			}
 			_enemy.SetBoosting(_boostRemaining > 0f);
 		}
 
-		private void DropBoostFood()
+		private void DropBoostFood(float spent)
 		{
 			if (_foodSpawner == null)
 			{
@@ -330,7 +330,7 @@ namespace PlanetIO
 				_foodSpawner,
 				_boostDropPoint,
 				Direction,
-				BotDifficultyRules.BoostCost * BotDifficultyRules.BoostFoodFraction
+				spent * BotDifficultyRules.BoostFoodFraction
 			);
 		}
 

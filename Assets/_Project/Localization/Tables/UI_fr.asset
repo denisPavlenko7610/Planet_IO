@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Com\xE8tes : soin de 50 % des d\xE9g\xE2ts"
+    m_Localized: "Com\xE8tes : soin de 20 % des d\xE9g\xE2ts ; nourriture -10 %"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

@@ -21,7 +21,7 @@ namespace PlanetIO.Application
         private const float MeteorStagger = 6f;
         private const float WormholeHitFactor = 0.3f;
         private const float BlackHoleHitFactor = 0.5f;
-        private const float LootMassFraction = 0.6f;
+        private const float LootMassFraction = CombatRules.LootMassFraction;
 
         private readonly NetworkManager _networkManager;
         private readonly ILootSpawnService _loot;

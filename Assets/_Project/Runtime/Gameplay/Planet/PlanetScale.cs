@@ -38,6 +38,7 @@ namespace PlanetIO
 
 		private float _targetScale;
         private float _localCapacity;
+		private float _cometHealCooldown;
         private ISettingsService _difficultySettings;
         private INetworkSessionService _difficultySession;
         protected NetworkSessionMode DifficultySessionMode => _difficultySession?.Mode ?? NetworkSessionMode.None;
@@ -183,6 +184,11 @@ namespace PlanetIO
         {
         }
 
+		protected void ClearCometHealCooldown()
+		{
+			_cometHealCooldown = 0f;
+		}
+
         protected void HandleEntityCollision(Collider2D other)
         {
             if (other == null)
@@ -195,7 +201,11 @@ namespace PlanetIO
                 float cometMass = CometRules.Damage(Capacity, CometDamageMultiplier);
                 if (CometHealFraction > 0f)
                 {
-                    Grow(cometMass * CometHealFraction);
+                    if (_cometHealCooldown <= 0f)
+                    {
+                        Grow(cometMass * CometHealFraction);
+                        _cometHealCooldown = PerkRules.CometHealCooldownSeconds;
+                    }
                 }
                 else
                 {

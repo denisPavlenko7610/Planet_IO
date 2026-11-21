@@ -14,6 +14,19 @@ namespace PlanetIO.Tests
             Assert.That(loadout.IsAlive(0), Is.False);
         }
 
+		[Test]
+		public void Break_RemovesOnlyTheHitMoonAtFullDurability()
+		{
+			MoonLoadout loadout = new MoonLoadout();
+			loadout.SetSlots(3);
+
+			bool broken = loadout.Break(1);
+
+			Assert.That(broken, Is.True);
+			Assert.That(loadout.AliveMask, Is.EqualTo(0b101));
+			Assert.That(loadout.Break(1), Is.False);
+		}
+
         [Test]
         public void SetSlots_CreatesFullHealthMoons()
         {

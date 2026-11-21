@@ -41,6 +41,29 @@ namespace PlanetIO.Tests
             }
         }
 
+		[UnityTest, SharedWorld, Timeout(45000)]
+		public IEnumerator Comets_DisappearAndRespawnElsewhereAfterHittingAPlanet()
+		{
+			yield return StartSharedMoonGame();
+			Player player = PrepareMoonPlayer();
+			Enemy enemy = Object.FindObjectsByType<Enemy>(FindObjectsInactive.Exclude).First();
+			Comet comet = Object.FindObjectsByType<Comet>(FindObjectsInactive.Exclude).First();
+			Collider2D cometCollider = comet.GetComponent<Collider2D>();
+			MethodInfo enemyTouch = typeof(Enemy).GetMethod("OnTriggerEnter2D", BindingFlags.Instance | BindingFlags.NonPublic);
+
+			comet.transform.position = player.transform.position;
+			Vector2 contact = comet.transform.position;
+			TouchWith(player, cometCollider);
+
+			Assert.That(Vector2.Distance(comet.transform.position, contact), Is.GreaterThan(1f), "A comet must respawn elsewhere after hitting a player.");
+
+			comet.transform.position = enemy.transform.position;
+			contact = comet.transform.position;
+			enemyTouch.Invoke(enemy, new object[] { cometCollider });
+
+			Assert.That(Vector2.Distance(comet.transform.position, contact), Is.GreaterThan(1f), "A comet must respawn elsewhere after hitting a bot.");
+		}
+
         [UnityTest, SharedWorld, Timeout(45000)]
         public IEnumerator Comets_AtMinimumMassRetainExistingDefeatRule()
         {

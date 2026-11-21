@@ -167,7 +167,7 @@ PlayerSettings:
   - {fileID: 11400000, guid: a1763f7e521264543b7bc917f7a3879a, type: 2}
   - {fileID: 11400000, guid: 3f5b5dff67a942289a9defa416b206f3, type: 2}
   - {fileID: 11400000, guid: dafc5443cd90af348b02a4c458584bfb, type: 2}
-  - {fileID: 11400000, guid: bc6a6919807bf8240a88ad30b31fe792, type: 2}
+  - {fileID: 11400000, guid: 5e3e966b4a877ba478cb8c759d6354fe, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -195,7 +195,7 @@ PlayerSettings:
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 11
+  AndroidBundleVersionCode: 12
   AndroidMinSdkVersion: 26
   AndroidTargetSdkVersion: 36
   AndroidCompileSdkVersion: 0

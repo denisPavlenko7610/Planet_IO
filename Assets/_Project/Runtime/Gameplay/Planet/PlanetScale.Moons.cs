@@ -133,12 +133,19 @@ namespace PlanetIO
                 _moonImmunityRemaining -= deltaTime;
             }
 
+			if (_cometHealCooldown > 0f)
+			{
+				_cometHealCooldown -= deltaTime;
+			}
+
             if (!IsCombatActive)
             {
                 return;
             }
 
             SweepFoodInsideBody(deltaTime);
+			SweepPlanetContacts(deltaTime);
+			ServerFeedingStep(deltaTime);
 
             if (_moons.Tick(deltaTime))
             {
@@ -366,7 +373,10 @@ namespace PlanetIO
             comet.PlayImpactEffect();
             CometRespawnService?.Respawn(comet);
 
-			HitMoon(moonIndex);
+			if (_moons.Break(moonIndex))
+			{
+				PublishMoonMask();
+			}
         }
 
         internal bool TryReceiveStrike(PlanetScale attacker, Vector2 sourcePosition, float damageScale, out float dealt)

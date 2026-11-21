@@ -25,6 +25,8 @@ namespace PlanetIO
         public const float StealthCooldownSeconds = 40f;
         public const float IonTrailPointSeconds = 2f;
         public const float IonTrailDamageScale = 0.7f;
+		public const float CometHealDamageShare = 0.2f;
+		public const float CometHealCooldownSeconds = 5f;
 
         public static ushort Bit(PerkId id) => (ushort)(1 << (int)id);
 
@@ -63,6 +65,7 @@ namespace PlanetIO
             float value = 1f;
             value *= Has(mask, PerkId.SolarSail) ? 0.9f : 1f;
             value *= Has(mask, PerkId.Predator) ? 0.9f : 1f;
+			value *= Has(mask, PerkId.CometRider) ? 0.9f : 1f;
             return value;
         }
 
@@ -76,7 +79,7 @@ namespace PlanetIO
 
         public static float AbsorbMultiplier(ushort mask) => Has(mask, PerkId.Predator) ? 1.2f : 1f;
 
-        public static float CometHealFraction(ushort mask) => Has(mask, PerkId.CometRider) ? 0.5f : 0f;
+        public static float CometHealFraction(ushort mask) => Has(mask, PerkId.CometRider) ? CometHealDamageShare : 0f;
 
         public static float BoostCostMultiplier(ushort mask) => Has(mask, PerkId.IonTrail) ? 1.25f : 1f;
 
