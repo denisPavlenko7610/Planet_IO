@@ -39,18 +39,26 @@ namespace PlanetIO.Tests
         {
             yield return StartSharedMoonGame();
 			Player player = PreparePerkPlayer();
-            bool shown = false;
-            bool closed = false;
-            player.PerkOfferShown += (_, _) => shown = true;
+			PerkId[] offered = null;
+			float duration = 0f;
+			bool closed = false;
+			player.PerkOfferShown += (perks, seconds) =>
+			{
+				offered = perks;
+				duration = seconds;
+			};
             player.PerkOfferClosed += () => closed = true;
 
             player.Capacity = 0.4f;
-            yield return WaitUntil(() => shown, 3f);
-            SetMoonField(player, "_offerRemaining", 0.01f);
+			yield return WaitUntil(() => offered != null, 3f);
+			Assert.That(offered, Is.Not.Null);
+			Assert.That(duration, Is.EqualTo(10f));
+			SetMoonField(player, "_offerRemaining", 0.01f);
             yield return WaitUntil(() => closed, 3f);
 
             Assert.That(closed, Is.True);
-            Assert.That(PerkRules.OwnedCount(player.PerkMask), Is.EqualTo(1), "Timeout picks one random perk.");
+			Assert.That(PerkRules.OwnedCount(player.PerkMask), Is.EqualTo(1));
+			Assert.That(player.HasPerk(offered[0]), Is.True);
         }
 
         [UnityTest, SharedWorld, Timeout(45000)]

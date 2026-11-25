@@ -63,12 +63,11 @@ namespace PlanetIO.UI.Menu
             _roomCodeInput = root.Q<TextField>("room-code-input");
             _statusText = root.Q<Label>("status-text");
             _bestScoreText = root.Q<Label>("best-score");
-            root.Q<Label>("version-text").text = "v" + Application.version;
+			root.Q<Label>("version-text").text = "v" + UnityEngine.Application.version;
             _menuRoot = root.Q<VisualElement>("menu-root");
             _menuRoot.RegisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
             EnableProgressView(root);
             EnablePlayGamesView(root);
-            EnableModeView(root);
             EnableScreens(root);
 
             _roomCodeInput.maxLength = RoomRules.MaximumRoomCodeLength;
@@ -108,7 +107,6 @@ namespace PlanetIO.UI.Menu
             _menuRoot.UnregisterCallback<GeometryChangedEvent>(OnMenuGeometryChanged);
             DisableProgressView();
             DisablePlayGamesView();
-            DisableModeView();
             DisableScreens();
             _labels?.Dispose();
             _labels = null;

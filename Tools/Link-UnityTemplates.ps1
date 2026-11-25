@@ -19,6 +19,7 @@ $units = @(
     'Modules/Core/SceneFlow',
     'Modules/Core/Settings',
     'Modules/Framework/Localization',
+    'Modules/Framework/Tutorials',
     'Modules/Framework/Addressables',
     'Modules/Core/Save',
     'Modules/Core/Startup',

@@ -452,18 +452,6 @@ MonoBehaviour:
     m_Localized: "Aujourd'hui : ru\xE9e vers l'or, butin plus riche"
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: 'Blitz : partie de 5 minutes'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: "Temps \xE9coul\xE9 !"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: Place {0} sur {1}
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: "Joystick \xE0 droite"
     m_Metadata:
@@ -506,6 +494,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: "Succ\xE8s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: "\xC9quiper"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: "\xC9quip\xE9e"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: "{0} poussi\xE8res d\u2019\xE9toiles"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: "D\xE9bloquer avec une pub"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: "Renouvellement \xE0 {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} poussi\xE8res d\u2019\xE9toiles"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: Choix auto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: "Com\xE8te"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: "Choc d\u2019une lune"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: "Bord de l\u2019ar\xE8ne"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: "Tra\xEEn\xE9e ionique"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Trou noir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: Passer le tutoriel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: "Mange les petites plan\xE8tes. \xC9vite les grandes plan\xE8tes et leurs lunes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: "Les com\xE8tes sont rapides. Un choc te fait perdre de la masse. \xC9vite-les ou suis leur tra\xEEn\xE9e pour te nourrir."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: "Un trou noir attire les plan\xE8tes. Son c\u0153ur fait perdre de la masse. Reste hors de l\u2019anneau."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: "Ta plan\xE8te a \xE9volu\xE9. Les lunes en orbite peuvent frapper tes rivales. Choisis un atout pour cette partie."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: "Tu as gagn\xE9 un rang. Les parties donnent de l\u2019XP et chaque rang rapporte de la poussi\xE8re d\u2019\xE9toiles. D\xE9pense-la pour des plan\xE8tes dans ton profil."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: Verte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Violette
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: Soleil
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: Bonbon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: "C\u0153ur"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: Cristal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Tourbillon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: Burger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: Fromage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: "G\xE2teau"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Continuer
     m_Metadata:
       m_Items: []
   references:

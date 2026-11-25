@@ -186,7 +186,7 @@ namespace PlanetIO
                 _offerRemaining -= deltaTime;
                 if (_offerRemaining <= 0f)
                 {
-                    ResolveOffer(Random.Range(0, _offerCount));
+					ResolveOffer(0);
                 }
 
                 return;

@@ -452,18 +452,6 @@ MonoBehaviour:
     m_Localized: 'Oggi: corsa all''oro, bottino ricco'
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: 'Blitz: partita da 5 minuti'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: Tempo scaduto!
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: Posto {0} su {1}
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: Joystick a destra
     m_Metadata:
@@ -506,6 +494,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: Obiettivi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: Equipaggia
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: Equipaggiato
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: '{0} polvere di stelle'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: Sblocca con un annuncio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: Ripristino alle {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} polvere di stelle"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: Scelta automatica
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: Cometa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: Impatto lunare
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: "Confine dell\u2019arena"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: Scia ionica
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Buco nero
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: Salta tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: "Divora i pianeti pi\xF9 piccoli. Evita quelli pi\xF9 grandi e le loro lune."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: Le comete sono veloci. Un impatto costa massa. Schivale o segui la scia per trovare cibo.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: "Un buco nero attira i pianeti. Il nucleo sottrae massa. Resta fuori dall\u2019anello."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: "Il tuo pianeta si \xE8 evoluto. Le lune in orbita possono colpire i rivali. Scegli un potenziamento per la partita."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: Sei salito di grado. Le partite danno XP e ogni nuovo grado premia con polvere di stelle. Usala per ottenere pianeti nel profilo.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: Verde
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Viola
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: Sole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: Caramella
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: Cuore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: Cristallo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Vortice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: Hamburger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: Formaggio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: Torta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lava
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Continua
     m_Metadata:
       m_Items: []
   references:

@@ -452,18 +452,6 @@ MonoBehaviour:
     m_Localized: 'Hoje: corrida do ouro, mais saque'
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: 'Blitz: partida de 5 minutos'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: Tempo esgotado!
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: "Posi\xE7\xE3o {0} de {1}"
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: "Joystick \xE0 direita"
     m_Metadata:
@@ -506,6 +494,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: Conquistas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: Equipar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: Equipado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: '{0} de poeira estelar'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: "Ver an\xFAncio para desbloquear"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: "Renova\xE7\xE3o \xE0s {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} de poeira estelar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: "Escolha autom\xE1tica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: Cometa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: Impacto lunar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: Limite da arena
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: "Rastro i\xF4nico"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Buraco negro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: Pular tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: Devore planetas menores. Evite os maiores e suas luas.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: "Cometas s\xE3o r\xE1pidos. Colis\xF5es tiram massa. Desvie deles ou siga o rastro para coletar comida."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: "Um buraco negro atrai planetas. O n\xFAcleo tira massa. Fique fora do anel."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: "Seu planeta evoluiu. Luas em \xF3rbita podem atingir rivais. Escolha um aprimoramento para esta partida."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: "Voc\xEA subiu de ranque. Partidas d\xE3o XP e cada ranque novo rende poeira estelar. Use-a para obter planetas no perfil."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: Verde
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Violeta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: Sol
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: Doce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: "Cora\xE7\xE3o"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: Cristal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Redemoinho
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: "Hamb\xFArguer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: Queijo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: Bolo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lava
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Continuar
     m_Metadata:
       m_Items: []
   references:

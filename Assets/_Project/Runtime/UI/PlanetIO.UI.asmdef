@@ -12,6 +12,7 @@
         "RD.Settings",
         "RD.Haptics",
         "RD.Pause",
+        "RD.Tutorials",
         "RD.Foundation",
         "RD.Attributes"
     ],

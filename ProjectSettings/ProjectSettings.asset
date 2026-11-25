@@ -51,7 +51,7 @@ PlayerSettings:
   m_ActiveColorSpace: 0
   unsupportedMSAAFallback: 0
   m_SpriteBatchMaxVertexCount: 65535
-  m_SpriteBatchVertexThreshold: 300
+  m_SpriteBatchVertexThreshold: 512
   m_MTRendering: 1
   mipStripping: 0
   numberOfMipsStripped: 0
@@ -98,6 +98,7 @@ PlayerSettings:
   androidAutoRotationBehavior: 1
   androidPredictiveBackSupport: 1
   androidApplicationEntry: 1
+  androidInputEmulation: 0
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
   runInBackground: 1
@@ -166,8 +167,6 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 11400000, guid: a1763f7e521264543b7bc917f7a3879a, type: 2}
   - {fileID: 11400000, guid: 3f5b5dff67a942289a9defa416b206f3, type: 2}
-  - {fileID: 11400000, guid: dafc5443cd90af348b02a4c458584bfb, type: 2}
-  - {fileID: 11400000, guid: 5e3e966b4a877ba478cb8c759d6354fe, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1

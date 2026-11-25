@@ -12,8 +12,7 @@ namespace PlanetIO.Bootstrap
             builder.RegisterComponentInHierarchy<MainMenuView>()
                 .As<IMainMenuView>()
                 .As<IProgressView>()
-                .As<IPlayGamesMenuView>()
-                .As<IModeView>();
+				.As<IPlayGamesMenuView>();
 
             builder.RegisterComponentInHierarchy<NicknameInputView>()
                 .As<INicknameInputView>();
@@ -32,7 +31,6 @@ namespace PlanetIO.Bootstrap
             builder.RegisterEntryPoint<MenuPresenter>();
             builder.RegisterEntryPoint<ProgressMenuPresenter>();
             builder.RegisterEntryPoint<PlayGamesMenuPresenter>();
-            builder.RegisterEntryPoint<ModeMenuPresenter>();
         }
     }
 }

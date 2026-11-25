@@ -16,10 +16,11 @@ namespace PlanetIO.Infrastructure.Audio
 		private const string GameMusicAddress = "audio/game-theme";
 		private const float MaximumMusicVolume = 0.45f;
 		private const float FadeDurationSeconds = 0.25f;
+		private const float RetryDelaySeconds = 5f;
 		private static readonly string[] MenuMusicAddresses =
-			{ MenuMusicAddress, "audio/exploration-theme", "audio/steller-dreams" };
+			{ MenuMusicAddress, "audio/steller-dreams" };
 		private static readonly string[] GameMusicAddresses =
-			{ GameMusicAddress, "audio/exploration-theme", "audio/steller-dreams" };
+			{ GameMusicAddress, "audio/exploration-theme" };
 
 		private readonly IContentInitializationService _contentInitializationService;
 		private readonly ISettingsService _settings;
@@ -28,8 +29,9 @@ namespace PlanetIO.Infrastructure.Audio
 		private readonly AddressableService _addressables;
 		private readonly CancellationTokenSource _lifetime = new();
 		private string _currentAddress = string.Empty;
-		private string _requestedAddress = string.Empty;
 		private int _playGeneration;
+		private int _nextMenuTrack;
+		private int _nextGameTrack;
 		private bool _disposed;
 		private string _musicSceneName = string.Empty;
 
@@ -58,7 +60,7 @@ namespace PlanetIO.Infrastructure.Audio
 			Object.DontDestroyOnLoad(audioObject);
 			_audioSource = audioObject.AddComponent<AudioSource>();
 			_audioSource.playOnAwake = false;
-			_audioSource.loop = true;
+			_audioSource.loop = false;
 			_audioSource.spatialBlend = 0f;
 			_audioSource.volume = 0f;
 
@@ -101,9 +103,8 @@ namespace PlanetIO.Infrastructure.Audio
 				return;
 			}
 
-			if (scene.name == _musicSceneName && !string.IsNullOrEmpty(_requestedAddress))
+			if (scene.name == _musicSceneName)
 			{
-				ResumeIfNeeded();
 				return;
 			}
 
@@ -120,41 +121,55 @@ namespace PlanetIO.Infrastructure.Audio
 			}
 
 			_musicSceneName = scene.name;
-			string historyKey = "PlanetIO.Audio.LastTrack." + scene.name;
-			string previousAddress = PlayerPrefs.GetString(historyKey, string.Empty);
-			int previousIndex = Array.IndexOf(addresses, previousAddress);
-			int index = UnityEngine.Random.Range(0, addresses.Length - (previousIndex >= 0 ? 1 : 0));
-			if (previousIndex >= 0 && index >= previousIndex)
-			{
-				index++;
-			}
-
-			string address = addresses[index];
-			PlayerPrefs.SetString(historyKey, address);
-			PlayerPrefs.Save();
-
-			if (string.Equals(address, _requestedAddress, StringComparison.Ordinal))
-			{
-				ResumeIfNeeded();
-				return;
-			}
-
-			if (string.Equals(address, _currentAddress, StringComparison.Ordinal) &&
-				_audioSource != null &&
-				_audioSource.clip != null)
-			{
-				int generation = ++_playGeneration;
-				_requestedAddress = address;
-				ResumeIfNeeded();
-				_ = FadeToAsync(TargetVolume, generation);
-				return;
-			}
-
-			_requestedAddress = address;
-			_ = LoadAndPlayAsync(address, ++_playGeneration);
+			_ = PlayPlaylistAsync(addresses, ++_playGeneration);
 		}
 
-		private async Awaitable LoadAndPlayAsync(string address, int generation)
+		private async Awaitable PlayPlaylistAsync(string[] addresses, int generation)
+		{
+			bool menu = addresses == MenuMusicAddresses;
+			int index = menu ? _nextMenuTrack : _nextGameTrack;
+			int failures = 0;
+
+			while (IsCurrentRequest(generation))
+			{
+				string address = addresses[index];
+				index = (index + 1) % addresses.Length;
+
+				if (menu)
+				{
+					_nextMenuTrack = index;
+				}
+				else
+				{
+					_nextGameTrack = index;
+				}
+
+				if ((address == _currentAddress && _audioSource.isPlaying) ||
+					await LoadAndPlayAsync(address, generation))
+				{
+					failures = 0;
+					while (IsCurrentRequest(generation) && (_audioSource.isPlaying || AudioListener.pause))
+					{
+						await Awaitable.NextFrameAsync();
+					}
+
+					continue;
+				}
+
+				failures++;
+				if (IsCurrentRequest(generation) && failures == addresses.Length)
+				{
+					failures = 0;
+					float retryAt = Time.realtimeSinceStartup + RetryDelaySeconds;
+					while (IsCurrentRequest(generation) && Time.realtimeSinceStartup < retryAt)
+					{
+						await Awaitable.NextFrameAsync();
+					}
+				}
+			}
+		}
+
+		private async Awaitable<bool> LoadAndPlayAsync(string address, int generation)
 		{
 			AddressableAssetLease<AudioClip> lease = null;
 			bool ownershipTransferred = false;
@@ -165,30 +180,34 @@ namespace PlanetIO.Infrastructure.Audio
 				if (!_contentInitializationService.IsReady ||
 					!IsCurrentRequest(generation))
 				{
-					return;
+					return false;
 				}
 
 				lease = await _addressables.LoadAssetAsync<AudioClip>(address, _lifetime.Token);
-				if (!IsCurrentRequest(generation))
+				if (!IsCurrentRequest(generation) || lease.Asset == null)
 				{
-					return;
+					return false;
 				}
 
-				await FadeToAsync(0f, generation);
+				if (_audioSource.isPlaying)
+				{
+					await FadeToAsync(0f, generation);
+				}
+
 				if (!IsCurrentRequest(generation))
 				{
-					return;
+					return false;
 				}
 
 				ReleaseClip();
 				_clipLease = lease;
 				ownershipTransferred = true;
 				_currentAddress = address;
-				_requestedAddress = address;
 				_audioSource.clip = lease.Asset;
 				_audioSource.volume = 0f;
 				_audioSource.Play();
 				await FadeToAsync(TargetVolume, generation);
+				return IsCurrentRequest(generation);
 			}
 			catch (OperationCanceledException) { }
 			catch (Exception exception)
@@ -201,12 +220,9 @@ namespace PlanetIO.Infrastructure.Audio
 				{
 					lease?.Dispose();
 				}
-
-				if (!ownershipTransferred && generation == _playGeneration)
-				{
-					_requestedAddress = _currentAddress;
-				}
 			}
+
+			return false;
 		}
 
 		private void OnSettingsChanged(SettingChanged _)
@@ -247,16 +263,6 @@ namespace PlanetIO.Infrastructure.Audio
 		private bool IsCurrentRequest(int generation)
 		{
 			return !_disposed && generation == _playGeneration;
-		}
-
-		private void ResumeIfNeeded()
-		{
-			if (_audioSource != null &&
-				_audioSource.clip != null &&
-				!_audioSource.isPlaying)
-			{
-				_audioSource.UnPause();
-			}
 		}
 
 		private void ReleaseClip()

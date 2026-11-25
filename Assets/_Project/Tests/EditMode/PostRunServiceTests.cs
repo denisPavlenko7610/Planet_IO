@@ -122,11 +122,12 @@ namespace PlanetIO.Tests
             };
         }
 
-        private static RunEndInfo Run(long id, float seconds = 120f, int score = 300, int tier = 2, int kills = 3, bool rankUp = false, bool blitz = false)
+		private static RunEndInfo Run(long id, float seconds = 120f, int score = 300, int tier = 2, int kills = 3, bool rankUp = false)
         {
             var summary = new RunSummary(id, seconds, score, tier, kills, 0);
             var reward = new RunReward(10, 5, 0, 10, 1, rankUp ? 2 : 1, 0);
-            return new RunEndInfo(summary, reward, blitz);
+
+			return new RunEndInfo(summary, reward);
         }
 
         [Test]

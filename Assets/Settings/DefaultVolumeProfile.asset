@@ -290,6 +290,7 @@ MonoBehaviour:
   - {fileID: 6228131356921235888}
   - {fileID: -6020730609108169362}
   - {fileID: 4944119270258603932}
+  - {fileID: 4480976246472127105}
 --- !u!114 &353831045060068793
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -448,6 +449,9 @@ MonoBehaviour:
   lightTransportPunctualLightCandidateCount:
     m_OverrideState: 1
     m_Value: 4
+  lightTransportRayTracingNormalBias:
+    m_OverrideState: 1
+    m_Value: 0
   patchFilteringTemporalSmoothing:
     m_OverrideState: 1
     m_Value: 0.8
@@ -553,6 +557,37 @@ MonoBehaviour:
   balance:
     m_OverrideState: 1
     m_Value: 0
+--- !u!114 &4480976246472127105
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a8f8364e4564d979b2a63400c85adea, type: 3}
+  m_Name: ShadowsVolumeOverride
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.ShadowsVolumeOverride
+  active: 1
+  maxShadowDistance:
+    m_OverrideState: 1
+    m_Value: 50
+  cascadeCount:
+    m_OverrideState: 1
+    m_Value: 1
+  cascadeSplit0:
+    m_OverrideState: 1
+    m_Value: 0.067
+  cascadeSplit1:
+    m_OverrideState: 1
+    m_Value: 0.2
+  cascadeSplit2:
+    m_OverrideState: 1
+    m_Value: 0.467
+  lastCascadeBorder:
+    m_OverrideState: 1
+    m_Value: 0.2
 --- !u!114 &4944119270258603932
 MonoBehaviour:
   m_ObjectHideFlags: 3

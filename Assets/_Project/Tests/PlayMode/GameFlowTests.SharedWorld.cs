@@ -135,6 +135,9 @@ namespace PlanetIO.Tests
 		public IEnumerator EndSharedWorldAfterFixture()
 		{
 			yield return EndSharedWorld();
+			RD.Settings.ISettingsService settings = Resolve<RD.Settings.ISettingsService>();
+			settings.Set(GameSettingKeys.TutorialCompleted, _tutorialCompletedBeforeTests);
+			settings.Flush();
 		}
 	}
 }

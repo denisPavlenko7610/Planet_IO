@@ -452,18 +452,6 @@ MonoBehaviour:
     m_Localized: 'Heute: Goldrausch, mehr Beute'
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: 'Blitz: 5-Minuten-Match'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: Zeit ist um!
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: Platz {0} von {1}
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: Joystick rechts
     m_Metadata:
@@ -506,6 +494,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: Erfolge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: "Ausr\xFCsten"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: "Ausger\xFCstet"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: '{0} Sternenstaub'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: Per Werbung freischalten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: "T\xE4glicher Wechsel um {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} Sternenstaub"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: Automatische Wahl
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: Komet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: Mondtreffer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: Arenarand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: Ionenspur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Schwarzes Loch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: "Tutorial \xFCberspringen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: "Friss kleinere Planeten. Meide gr\xF6\xDFere Planeten und ihre Monde."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: Kometen sind schnell. Treffer kosten Masse. Weiche aus oder sammle Futter in ihrer Spur.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: "Ein Schwarzes Loch zieht Planeten an. Im Kern verlierst du Masse. Bleib au\xDFerhalb des Rings."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: "Dein Planet hat sich entwickelt. Umlaufende Monde k\xF6nnen Gegner treffen. W\xE4hle einen Vorteil f\xFCr diese Runde."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: "Du bist aufgestiegen. Partien bringen EP und jeder neue Rang gibt Sternenstaub. Gib ihn im Profil f\xFCr Planeten aus."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: "Gr\xFCne Welt"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Violett
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: Sonne
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: Bonbon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: Herz
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: Kristall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Wirbel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: Burger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: "K\xE4se"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: Kuchen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lava
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Weiter
     m_Metadata:
       m_Items: []
   references:

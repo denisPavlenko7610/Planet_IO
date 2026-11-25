@@ -118,9 +118,9 @@ namespace PlanetIO.Tests
             player.ContinueRpc();
 
             Assert.That(player.IsDefeated, Is.False);
-            Assert.That(player.Capacity, Is.EqualTo(0.5f).Within(1e-5f));
-            Assert.That(player.Tier, Is.EqualTo(2));
-            Assert.That(player.MoonMask, Is.EqualTo(3), "GDD 6.2: death resets satellites; continue retains perks and restores 50% mass.");
+			Assert.That(player.Capacity, Is.EqualTo(1f).Within(1e-5f));
+			Assert.That(player.Tier, Is.EqualTo(3));
+			Assert.That(player.MoonMask, Is.EqualTo(15), "Continue rebuilds all moons for the restored tier.");
         }
 
 		[UnityTest, SharedWorld, Timeout(45000)]

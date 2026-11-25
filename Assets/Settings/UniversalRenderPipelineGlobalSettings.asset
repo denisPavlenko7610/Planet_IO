@@ -103,7 +103,7 @@ MonoBehaviour:
       - rid: 384944775298809861
       - rid: 384944775298809863
       - rid: 384944775298809864
-  m_AssetVersion: 16
+  m_AssetVersion: 17
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:
   - Light Layer default
@@ -172,7 +172,7 @@ MonoBehaviour:
       type: {class: RenderingCapabilitiesSettings, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         m_Version: 0
-        m_UseGlobalConstantBuffer: 0
+        m_UsePersistentGlobalConstantBuffer: 0
     - rid: 384944775298809862
       type: {class: SurfaceCacheRenderPipelineResourceSet, ns: UnityEngine.Rendering, asm: Unity.SurfaceCache.Runtime}
       data:

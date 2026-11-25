@@ -69,7 +69,17 @@ namespace PlanetIO
                 : GetFallbackDisplayName();
 
         public event Action<float> CapacityChanged;
+		public enum DamageSource : byte
+		{
+			Comet,
+			Moon,
+			Border,
+			IonTrail,
+			BlackHole
+		}
+
         public event Action<float, float> Damaged;
+		public event Action<float, float, DamageSource> DamageReported;
         public event Action<string> DisplayNameChanged;
 
         protected virtual void Awake()
@@ -146,7 +156,7 @@ namespace PlanetIO
             return ChangeCapacity(-Mathf.Abs(amount));
         }
 
-        protected bool TakeDamage(float amount)
+		protected bool TakeDamage(float amount, DamageSource source)
         {
             if (!IsServer || !IsSpawned || amount <= 0f || !float.IsFinite(amount))
 			{
@@ -157,16 +167,17 @@ namespace PlanetIO
             bool changed = Shrink(amount);
             if (lost > 0f)
 			{
-				ReportDamageRpc(lost, before);
+				ReportDamageRpc(lost, before, source);
 			}
 			return changed;
         }
 
         [Rpc(SendTo.Owner)]
-        private void ReportDamageRpc(float lost, float before)
-        {
-            Damaged?.Invoke(lost, before);
-        }
+		private void ReportDamageRpc(float lost, float before, DamageSource source)
+		{
+			Damaged?.Invoke(lost, before);
+			DamageReported?.Invoke(lost, before, source);
+		}
 
         public bool CanDevour(PlanetScale victim)
         {
@@ -180,7 +191,7 @@ namespace PlanetIO
 			spawner.SpawnAt(point, nutrition)?.SetDropper(NetworkObjectId, FoodMagnetRules.OwnDropGraceSeconds);
 		}
 
-        protected virtual void DeathCheck(float capacity)
+        protected virtual void DeathCheck(float capacity, float previousCapacity)
         {
         }
 
@@ -209,7 +220,7 @@ namespace PlanetIO
                 }
                 else
                 {
-                    TakeDamage(cometMass * IncomingDamageMultiplier);
+					TakeDamage(cometMass * IncomingDamageMultiplier, DamageSource.Comet);
                 }
 
                 comet.PlayImpactEffect();
@@ -243,7 +254,7 @@ namespace PlanetIO
             {
                 if (value < clamped)
                 {
-                    DeathCheck(clamped);
+                    DeathCheck(clamped, 0f);
                 }
 
                 return false;
@@ -287,7 +298,7 @@ namespace PlanetIO
                 CapacityChanged?.Invoke(capacity);
                 if (capacity < previousCapacity)
                 {
-                    DeathCheck(capacity);
+                    DeathCheck(capacity, 0f);
                 }
             }
         }

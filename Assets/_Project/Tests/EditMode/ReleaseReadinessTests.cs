@@ -5,7 +5,7 @@ using NUnit.Framework;
 using PlanetIO.Editor;
 using Unity.Netcode;
 using UnityEditor;
-using UnityEditor.Build.Player;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace PlanetIO.Tests
@@ -18,29 +18,56 @@ namespace PlanetIO.Tests
         private const string AdMobSettingsPath = "Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset";
         private const string AdMobSampleAppId = "ca-app-pub-3940256099942544~3347511713";
 
-        [Test]
-        [Category("Slow")]
-        [Timeout(600000)]
-        public void PlayerScripts_CompileForAndroid()
-        {
-            Assume.That(
-                BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android, BuildTarget.Android),
-                Is.True,
-                "Android Build Support is not installed.");
+		[Test]
+		[Category("Slow")]
+		[Explicit("Builds the Android player and requires the Android SDK, NDK, and JDK.")]
+		public void AndroidRelease_BuildsAppBundle()
+		{
+			Assume.That(
+				BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android, BuildTarget.Android),
+				Is.True,
+				"Android Build Support is not installed."
+			);
+			Assert.That(
+				EditorUserBuildSettings.activeBuildTarget,
+				Is.EqualTo(BuildTarget.Android),
+				"Select Android as the active build target before running the release build check."
+			);
 
-            string outputDirectory = Path.Combine("Temp", "PlanetIO_AndroidScriptCheck");
-            ScriptCompilationSettings settings = new()
-            {
-                group = BuildTargetGroup.Android,
-                target = BuildTarget.Android,
-                options = ScriptCompilationOptions.None
-            };
+			string outputDirectory = Path.GetFullPath(Path.Combine("Temp", "PlanetIO_AndroidReleaseCheck"));
+			Directory.CreateDirectory(outputDirectory);
+			BuildPlayerOptions options = new()
+			{
+				scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray(),
+				locationPathName = Path.Combine(outputDirectory, "PlanetIO.aab"),
+				targetGroup = BuildTargetGroup.Android,
+				target = BuildTarget.Android,
+				options = BuildOptions.None
+			};
 
-            ScriptCompilationResult result = PlayerBuildInterface.CompilePlayerScripts(settings, outputDirectory);
+			bool buildAppBundle = EditorUserBuildSettings.buildAppBundle;
+			bool exportProject = EditorUserBuildSettings.exportAsGoogleAndroidProject;
+			bool useCustomKeystore = PlayerSettings.Android.useCustomKeystore;
 
-            Assert.That(result.assemblies, Is.Not.Empty, "Android player scripts failed to compile.");
-            Assert.That(result.assemblies, Does.Contain("PlanetIO.Infrastructure.dll"));
-        }
+			try
+			{
+				// Use the full player pipeline so Unity resolves the Android Entities module.
+				EditorUserBuildSettings.buildAppBundle = true;
+				EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+				PlayerSettings.Android.useCustomKeystore = false;
+
+				BuildReport report = BuildPipeline.BuildPlayer(options);
+
+				Assert.That(report.summary.result, Is.EqualTo(BuildResult.Succeeded));
+				Assert.That(new FileInfo(options.locationPathName).Length, Is.GreaterThan(0));
+			}
+			finally
+			{
+				PlayerSettings.Android.useCustomKeystore = useCustomKeystore;
+				EditorUserBuildSettings.exportAsGoogleAndroidProject = exportProject;
+				EditorUserBuildSettings.buildAppBundle = buildAppBundle;
+			}
+		}
 
         [Test]
         public void BuildSettings_StartWithBootAndReferenceExistingScenes()

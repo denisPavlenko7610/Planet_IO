@@ -4,13 +4,11 @@ namespace PlanetIO
     {
         public readonly RunSummary Summary;
         public readonly RunReward Reward;
-        public readonly bool IsBlitz;
 
-        public RunEndInfo(RunSummary summary, RunReward reward, bool isBlitz)
+		public RunEndInfo(RunSummary summary, RunReward reward)
         {
             Summary = summary;
             Reward = reward;
-            IsBlitz = isBlitz;
         }
     }
 

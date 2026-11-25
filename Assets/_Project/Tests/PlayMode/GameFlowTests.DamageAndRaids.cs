@@ -99,7 +99,8 @@ namespace PlanetIO.Tests
 			Assert.That(player.TryApplyHazard(0.1f, out float dealt), Is.True);
 			Assert.That(hits, Is.EqualTo(1));
 			Assert.That(lost, Is.EqualTo(dealt).Within(0.00001f));
-			Assert.That(popup.text, Is.EqualTo($"−{Mathf.Max(1, Constants.CapacityToScore(dealt)):N0}"));
+			string source = Resolve<RD.Localization.ILocalizationService>().Get(LocalizationKeys.DamageBlackHole);
+			Assert.That(popup.text, Is.EqualTo($"{source}\n−{Constants.CapacityToScore(dealt):N0}"));
 			Assert.That(
 				(float)typeof(PlayerCamera).GetField(
 						"_shakeTimeRemaining",
@@ -114,7 +115,7 @@ namespace PlanetIO.Tests
 			Assert.That(root.Q("border-warning").resolvedStyle.opacity, Is.GreaterThan(0f));
 			ScreenCapture.CaptureScreenshot("Temp/DamageFeedback.png");
 			yield return null;
-			yield return new WaitForSecondsRealtime(1f);
+			yield return new WaitForSecondsRealtime(1.5f);
 
 			Assert.That(popup.resolvedStyle.opacity, Is.Zero);
 			Assert.That(root.Q("border-warning").resolvedStyle.opacity, Is.Zero);

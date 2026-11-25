@@ -452,18 +452,6 @@ MonoBehaviour:
     m_Localized: "Bug\xFCn: alt\u0131na h\xFCcum, bol ganimet"
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: "Blitz: 5 dakikal\u0131k ma\xE7"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: "S\xFCre doldu!"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: "{1} oyuncu aras\u0131nda {0}."
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: "Joystick sa\u011Fda"
     m_Metadata:
@@ -506,6 +494,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: "Ba\u015Far\u0131mlar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: "Ku\u015Fan"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: "Ku\u015Fan\u0131ld\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: "{0} y\u0131ld\u0131z tozu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: "Reklam izle ve a\xE7"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: "Her g\xFCn {0} saatinde yenilenir"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} y\u0131ld\u0131z tozu"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: "Otomatik se\xE7im"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: "Kuyruklu y\u0131ld\u0131z"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: Ay darbesi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: "Arena s\u0131n\u0131r\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: "\u0130yon izi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Kara delik
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: "E\u011Fitimi atla"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: "K\xFC\xE7\xFCk gezegenleri ye. B\xFCy\xFCk gezegenlerden ve uydular\u0131ndan uzak dur."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: "Kuyruklu y\u0131ld\u0131zlar h\u0131zl\u0131d\u0131r. \xC7arp\u0131\u015Fma k\xFCtle kaybettirir. Etraf\u0131ndan dola\u015F ya da yiyecek i\xE7in izini takip et."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: "Kara delik gezegenleri \xE7eker. \xC7ekirde\u011Fi k\xFCtle kaybettirir. Halkan\u0131n d\u0131\u015F\u0131nda kal."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: "Gezegenin evrim ge\xE7irdi. Y\xF6r\xFCngendeki uydular rakiplere vurabilir. Bu tur i\xE7in bir yetenek se\xE7."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: "R\xFCtbe atlad\u0131n. Turlar XP kazand\u0131r\u0131r ve her yeni r\xFCtbe y\u0131ld\u0131z tozu verir. Profilinde gezegen almak i\xE7in harca."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: "Ye\u015Fil"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Mor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: "G\xFCne\u015F"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: "\u015Eeker"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: Kalp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: Kristal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Girdap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: Burger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: Peynir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: Pasta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lav
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Devam et
     m_Metadata:
       m_Items: []
   references:

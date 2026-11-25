@@ -74,7 +74,7 @@ namespace PlanetIO
             }
 
             float before = Capacity;
-            TakeDamage(before * massFraction * IncomingDamageMultiplier);
+			TakeDamage(before * massFraction * IncomingDamageMultiplier, DamageSource.BlackHole);
             dealt = Mathf.Max(0f, before - Capacity);
             return true;
         }

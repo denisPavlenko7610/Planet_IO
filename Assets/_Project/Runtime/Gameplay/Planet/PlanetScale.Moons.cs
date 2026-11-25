@@ -357,7 +357,7 @@ namespace PlanetIO
 
         private void StrikeWithMoon(PlanetScale victim, int moonIndex, Vector2 moonPosition, float moonRadius)
         {
-            if (!victim.TryReceiveStrike(this, moonPosition, MoonDamageMultiplier, out float dealt))
+            if (!victim.TryReceiveStrike(this, moonPosition, MoonDamageMultiplier, DamageSource.Moon, out float dealt))
             {
                 return;
             }
@@ -379,7 +379,8 @@ namespace PlanetIO
 			}
         }
 
-        internal bool TryReceiveStrike(PlanetScale attacker, Vector2 sourcePosition, float damageScale, out float dealt)
+		internal bool TryReceiveStrike(
+			PlanetScale attacker, Vector2 sourcePosition, float damageScale, DamageSource source, out float dealt)
         {
             dealt = 0f;
             if (!IsServer ||
@@ -396,7 +397,7 @@ namespace PlanetIO
 
             LastAttackerName = attacker.DisplayName;
             LastAttackerClientId = attacker.AttributionClientId;
-            TakeDamage(MoonRules.Damage(before) * damageScale * IncomingDamageMultiplier);
+			TakeDamage(MoonRules.Damage(before) * damageScale * IncomingDamageMultiplier, source);
             LastAttackerName = null;
             LastAttackerClientId = Constants.UnassignedClientId;
 

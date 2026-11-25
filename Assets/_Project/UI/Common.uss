@@ -36,6 +36,11 @@
     flex-grow: 1;
 }
 
+.safe-modal {
+    align-items: center;
+    justify-content: center;
+}
+
 .hidden {
     display: none;
 }

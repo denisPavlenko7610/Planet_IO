@@ -450,18 +450,6 @@ MonoBehaviour:
     m_Localized: "Hoy: fiebre del oro, bot\xEDn mayor"
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: 'Blitz: partida de 5 minutos'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: "\xA1Se acab\xF3 el tiempo!"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: Puesto {0} de {1}
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: Joystick a la derecha
     m_Metadata:
@@ -504,6 +492,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: Logros
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: Equipar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: Equipada
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: '{0} de polvo estelar'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: Desbloquear con anuncio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: Cambio diario a las {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} de polvo estelar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: "Elecci\xF3n autom\xE1tica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: Cometa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: Impacto lunar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: Borde de la arena
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: "Estela i\xF3nica"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Agujero negro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: Saltar tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: "Come planetas m\xE1s peque\xF1os. Evita los grandes y sus lunas."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: "Los cometas son r\xE1pidos. Un impacto te quita masa. Esqu\xEDvalos o recoge comida en su estela."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: "Un agujero negro atrae planetas. Su n\xFAcleo resta masa. Qu\xE9date fuera del anillo."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: "Tu planeta evolucion\xF3. Las lunas que te orbitan pueden golpear a tus rivales. Elige una mejora para esta partida."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: "Has subido de rango. Las partidas dan XP y cada rango nuevo otorga polvo estelar. \xDAsalo para conseguir planetas en tu perfil."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: Verde
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Violeta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: Sol
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: Caramelo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: "Coraz\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: Cristal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Remolino
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: Hamburguesa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: Queso
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: Pastel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lava
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Continuar
     m_Metadata:
       m_Items: []
   references:

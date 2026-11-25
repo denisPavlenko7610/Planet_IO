@@ -44,8 +44,8 @@ namespace PlanetIO.UI.Menu
         event Action<int> MissionClaimRequested;
         event Action<int> MissionRerollRequested;
 
-        void ShowRankAndDust(string text);
-        void SetMissionsAlert(bool visible);
+		void ShowMissionsEntry(string label, int claimableCount);
+		void ShowMissionsReset(string text);
         void ShowMissions(string title, string streak, string bonus, string close, MissionRow[] rows);
         void SetMissionsVisible(bool visible);
     }
@@ -61,7 +61,8 @@ namespace PlanetIO.UI.Menu
         private readonly Action[] _claimHandlers = new Action[MissionSlots];
         private readonly Action[] _rerollHandlers = new Action[MissionSlots];
         private VisualElement _missionsOverlay;
-        private Label _rankDustText;
+		private Label _missionsButtonLabel;
+		private Label _missionsReset;
         private Label _missionsTitle;
         private Label _missionsStreak;
         private Label _missionsBonus;
@@ -76,7 +77,8 @@ namespace PlanetIO.UI.Menu
 
         private void EnableProgressView(VisualElement root)
         {
-            _rankDustText = root.Q<Label>("rank-dust");
+			_missionsButtonLabel = root.Q<Label>("missions-button-label");
+			_missionsReset = root.Q<Label>("missions-reset");
             _missionsOverlay = root.Q<VisualElement>("missions-overlay");
             _missionsTitle = root.Q<Label>("missions-title");
             _missionsStreak = root.Q<Label>("missions-streak");
@@ -114,15 +116,14 @@ namespace PlanetIO.UI.Menu
             }
         }
 
-        public void ShowRankAndDust(string text)
-        {
-            _rankDustText.text = text ?? string.Empty;
-        }
+		public void ShowMissionsEntry(string label, int claimableCount)
+		{
+			_missionsButtonLabel.text = label;
+			_missionsBadge.text = claimableCount.ToString();
+			_missionsBadge.SetDisplayed(claimableCount > 0);
+		}
 
-        public void SetMissionsAlert(bool visible)
-        {
-            _missionsBadge.SetDisplayed(visible);
-        }
+		public void ShowMissionsReset(string text) => _missionsReset.text = text;
 
         public void ShowMissions(string title, string streak, string bonus, string close, MissionRow[] rows)
         {
@@ -147,7 +148,7 @@ namespace PlanetIO.UI.Menu
                 _missionProgress[index].text = data.Progress;
                 _missionClaims[index].text = data.ActionLabel;
                 _missionClaims[index].SetEnabled(data.State == MissionRowState.Claimable);
-                _missionClaims[index].style.opacity = data.State == MissionRowState.InProgress ? 0.45f : 1f;
+                _missionClaims[index].SetDisplayed(data.State != MissionRowState.InProgress);
                 _missionRerolls[index].text = data.RerollLabel;
                 _missionRerolls[index].SetDisplayed(data.CanReroll);
             }

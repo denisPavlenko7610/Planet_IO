@@ -452,18 +452,6 @@ MonoBehaviour:
     m_Localized: "Dzi\u015B: gor\u0105czka z\u0142ota, wi\u0119cej \u0142up\xF3w"
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: 'Blitz: mecz na 5 minut'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: Koniec czasu!
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: Miejsce {0} z {1}
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: Joystick po prawej
     m_Metadata:
@@ -506,6 +494,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: "Osi\u0105gni\u0119cia"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: "Za\u0142\xF3\u017C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: "Za\u0142o\u017Cona"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: "{0} gwiezdnego py\u0142u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: "Odblokuj za reklam\u0119"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: Zmiana codziennie o {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} gwiezdnego py\u0142u"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: "Automatyczny wyb\xF3r"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: Kometa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: "Uderzenie ksi\u0119\u017Cyca"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: "Kraw\u0119d\u017A areny"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: "Jonowy \u015Blad"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Czarna dziura
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: "Pomi\u0144 samouczek"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: "Zjadaj mniejsze planety. Omijaj wi\u0119ksze planety i ich ksi\u0119\u017Cyce."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: "Komety s\u0105 szybkie. Zderzenie kosztuje mas\u0119. Omi\u0144 komet\u0119 lub zbierz pokarm z jej \u015Bladu."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: "Czarna dziura przyci\u0105ga planety. Rdze\u0144 odbiera mas\u0119. Trzymaj si\u0119 poza pier\u015Bcieniem."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: "Twoja planeta ewoluowa\u0142a. Ksi\u0119\u017Cyce na orbicie mog\u0105 uderza\u0107 w rywali. Wybierz ulepszenie na t\u0119 rund\u0119."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: "Awansujesz. Rundy daj\u0105 PD, a ka\u017Cda nowa ranga daje gwiezdny py\u0142. Wydaj go na planety w profilu."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: Zielona
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Fioletowa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: "S\u0142o\u0144ce"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: Cukierek
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: Serce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: "Kryszta\u0142"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Wir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: Burger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: Ser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: Tort
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lawa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Kontynuuj
     m_Metadata:
       m_Items: []
   references:

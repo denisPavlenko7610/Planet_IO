@@ -134,13 +134,14 @@ namespace PlanetIO.Tests
         }
 
         [UnityTest, Timeout(60000)]
-        public IEnumerator Progress_MenuShowsRankDustAndMissions()
+        public IEnumerator Progress_MenuHidesRankAndShowsVersionAndMissions()
         {
             yield return OpenMenu();
             IProgressionService progression = Resolve<IProgressionService>();
             yield return null;
 
-            Assert.That(FindLabel("rank-dust").text, Does.Contain(progression.Dust.ToString()));
+			Assert.That(FindLabel("rank-dust"), Is.Null);
+			Assert.That(FindLabel("version-text").text, Is.EqualTo("v" + UnityEngine.Application.version));
             Assert.That(progression.Missions.Count, Is.EqualTo(MissionRules.DailyCount));
             VisualElement overlay = FindElement("missions-overlay");
             Assert.That(overlay.resolvedStyle.display, Is.EqualTo(DisplayStyle.None));

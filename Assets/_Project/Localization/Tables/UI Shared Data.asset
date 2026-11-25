@@ -435,18 +435,6 @@ MonoBehaviour:
     m_Key: modifier.gold_rush
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Key: mode.blitz
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Key: blitz.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Key: blitz.rank
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Key: settings.controls_swapped
     m_Metadata:
@@ -489,6 +477,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Key: settings.achievements
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Key: menu.skin_select
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Key: menu.skin_equipped
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Key: menu.skin_buy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Key: menu.skin_watch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Key: missions.reset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Key: missions.progress_reward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Key: perk.auto_pick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Key: damage.comet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Key: damage.moon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Key: damage.border
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Key: damage.ion_trail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Key: damage.black_hole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Key: tutorial.skip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Key: tutorial.bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Key: tutorial.comet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Key: tutorial.black_hole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Key: tutorial.evolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Key: tutorial.rank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Key: skin.green
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Key: skin.violet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Key: skin.sun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Key: skin.candy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Key: skin.heart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Key: skin.crystal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Key: skin.swirl
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Key: skin.pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Key: skin.burger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Key: skin.cheese
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Key: skin.cake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Key: skin.lava
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Key: tutorial.continue
     m_Metadata:
       m_Items: []
   m_Metadata:

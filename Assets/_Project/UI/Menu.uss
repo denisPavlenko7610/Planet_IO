@@ -41,24 +41,25 @@
     justify-content: center;
     align-items: center;
     flex-grow: 1;
-    margin-top: 190px;
+    margin-top: 215px;
     margin-bottom: 100px;
 }
 
 .menu--portrait #columns {
     flex-direction: column;
-    margin-top: 220px;
+    margin-top: 245px;
     margin-bottom: 150px;
 }
 
-.menu-item {
-    margin: 12px 0;
+#columns > .menu-item {
+    width: 460px;
+    max-width: 90%;
+    margin: 10px 0;
 }
 
 .profile-chip {
     flex-direction: row;
     align-items: center;
-    width: 520px;
     height: 116px;
     padding: 0 28px 0 16px;
     border-radius: 58px;
@@ -163,50 +164,79 @@
 }
 
 .skins {
+    align-items: center;
+}
+
+.skin-carousel {
     flex-direction: row;
-    flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
-    align-content: center;
-    min-height: 210px;
+    align-self: stretch;
+}
+
+#skin-preview {
+    width: 260px;
+    height: 260px;
+    margin: 0 16px;
+    flex-shrink: 1;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.skin-arrow {
     flex-shrink: 0;
 }
 
-.skin {
-    width: 88px;
-    height: 88px;
-    margin: 5px 6px;
-    -unity-background-scale-mode: scale-to-fit;
-    border-radius: 44px;
-    transition-property: scale;
-    transition-duration: 0.1s;
+.skin-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-.skin--selected {
-    scale: 1.12 1.12;
-    border-width: 3px;
-    border-color: var(--gold);
+.skin-actions .btn-small {
+    min-width: 190px;
+    margin: 6px;
+    white-space: normal;
 }
 
-.skin--locked {
-    -unity-background-image-tint-color: rgb(115, 115, 140);
+.menu-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 78%;
+    margin-top: 8px;
 }
 
-.skin__badge {
-    position: absolute;
-    left: 2px;
-    right: 2px;
-    bottom: -2px;
-    height: 28px;
-    border-radius: 14px;
-    background-color: rgb(14, 74, 178);
-    border-width: 2px;
-    border-color: rgb(21, 10, 51);
-    font-size: 17px;
-    color: white;
-    -unity-font-style: bold;
+.menu-stats .menu-stat {
+    margin: 4px 6px;
+    padding: 6px 16px;
+    background-color: var(--panel);
+    border-radius: 18px;
+    white-space: normal;
     -unity-text-align: middle-center;
-    padding: 0;
-    margin: 0;
+}
+
+.menu--portrait .menu-stats {
+    max-width: 92%;
+}
+
+#missions-button-label {
+    position: absolute;
+    top: 96%;
+    left: -24px;
+    right: -24px;
+    color: white;
+    font-size: 22px;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    white-space: normal;
+}
+
+#missions-reset {
+    color: rgb(200, 190, 230);
+    font-size: 25px;
+    -unity-text-align: middle-center;
+    margin-bottom: 8px;
 }
 
 #status-text {
@@ -236,16 +266,6 @@
     font-size: 22px;
     color: rgba(255, 255, 255, 0.45);
     -unity-text-align: lower-right;
-    margin: 0;
-    padding: 0;
-}
-
-#rank-dust {
-    font-size: 32px;
-    color: white;
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: rgb(21, 10, 51);
-    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
     margin: 0;
     padding: 0;
 }
@@ -350,6 +370,7 @@
 }
 
 .mission-progress {
+    white-space: normal;
     font-size: 26px;
     color: rgb(200, 190, 230);
     margin: 4px 0 0 0;
@@ -363,19 +384,4 @@
 
 #missions-close {
     align-self: center;
-}
-
-#blitz-row {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-}
-
-#blitz-label {
-    font-size: 28px;
-    color: white;
-    margin: 0 0 0 14px;
-    padding: 0;
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: rgb(21, 10, 51);
 }

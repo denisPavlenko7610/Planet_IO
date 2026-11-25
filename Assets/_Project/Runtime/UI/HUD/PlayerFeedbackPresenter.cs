@@ -68,7 +68,7 @@ namespace PlanetIO.UI.Hud
                 _localPlayer.Killed -= OnLocalKill;
                 _localPlayer.Revived -= OnRevived;
                 _localPlayer.CapacityChanged -= OnCapacityChanged;
-                _localPlayer.Damaged -= OnDamaged;
+                _localPlayer.DamageReported -= OnDamaged;
                 _localPlayer.TierChanged -= OnTierChanged;
                 _localPlayer.MoonStruck -= OnMoonStruck;
                 _localPlayer.Slingshot -= OnSlingshot;
@@ -84,7 +84,7 @@ namespace PlanetIO.UI.Hud
             _localPlayer.Killed += OnLocalKill;
             _localPlayer.Revived += OnRevived;
             _localPlayer.CapacityChanged += OnCapacityChanged;
-            _localPlayer.Damaged += OnDamaged;
+            _localPlayer.DamageReported += OnDamaged;
             _localPlayer.TierChanged += OnTierChanged;
             _localPlayer.MoonStruck += OnMoonStruck;
             _localPlayer.Slingshot += OnSlingshot;
@@ -174,7 +174,7 @@ namespace PlanetIO.UI.Hud
             }
         }
 
-        private void OnDamaged(float lost, float before)
+		private void OnDamaged(float lost, float before, PlanetScale.DamageSource source)
 		{
 			if (IsFeedbackMuted)
 			{
@@ -182,7 +182,18 @@ namespace PlanetIO.UI.Hud
 			}
 			_sfxPlayer.Play(SfxId.Hit);
 			Haptics.Play(HapticPreset.LightImpact);
-			_damageView?.ShowDamage(GetLocalPlayerScreenPosition(), Constants.CapacityToScore(lost), lost / before);
+			string key = source switch
+			{
+				PlanetScale.DamageSource.Comet => LocalizationKeys.DamageComet,
+				PlanetScale.DamageSource.Moon => LocalizationKeys.DamageMoon,
+				PlanetScale.DamageSource.Border => LocalizationKeys.DamageBorder,
+				PlanetScale.DamageSource.IonTrail => LocalizationKeys.DamageIonTrail,
+				PlanetScale.DamageSource.BlackHole => LocalizationKeys.DamageBlackHole,
+				_ => null
+			};
+
+			_damageView?.ShowDamage(GetLocalPlayerScreenPosition(), Constants.CapacityToScore(lost), lost / before,
+				key == null ? string.Empty : _localization.Get(key));
 		}
 
         private void OnLocalKill(string victimName, int score)

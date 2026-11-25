@@ -452,18 +452,6 @@ MonoBehaviour:
     m_Localized: 'Today: gold rush, richer loot'
     m_Metadata:
       m_Items: []
-  - m_Id: 17782441014448136
-    m_Localized: 'Blitz: 5-minute match'
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448137
-    m_Localized: Time's up!
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17782441014448138
-    m_Localized: Place {0} of {1}
-    m_Metadata:
-      m_Items: []
   - m_Id: 17797599656923136
     m_Localized: Joystick on the right
     m_Metadata:
@@ -506,6 +494,130 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18266357120937985
     m_Localized: Achievements
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280072556544
+    m_Localized: Equip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802752
+    m_Localized: Equipped
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802753
+    m_Localized: '{0} stardust'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802754
+    m_Localized: Watch ad to unlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802755
+    m_Localized: Daily reset at {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802756
+    m_Localized: "{0}/{1} \xB7 +{2} stardust"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802757
+    m_Localized: Auto-pick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802758
+    m_Localized: Comet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802759
+    m_Localized: Moon strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802760
+    m_Localized: Arena edge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802761
+    m_Localized: Ion trail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802762
+    m_Localized: Black hole
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802763
+    m_Localized: Skip tutorial
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802764
+    m_Localized: Eat smaller planets. Steer clear of larger planets and their orbiting moons.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802765
+    m_Localized: Comets move fast. A direct hit costs mass. Steer around the comet or follow its trail for food.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802766
+    m_Localized: A black hole pulls planets inward. Its core drains mass. Stay outside the ring to avoid the pull.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802767
+    m_Localized: Your planet evolved. Moons orbit you and can strike rivals. Choose a perk for this run.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802768
+    m_Localized: You gained a rank. Runs earn XP and each new rank awards stardust. Spend it on planets in your profile.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802769
+    m_Localized: Verdant
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802770
+    m_Localized: Violet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802771
+    m_Localized: Sun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802772
+    m_Localized: Candy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802773
+    m_Localized: Heart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802774
+    m_Localized: Crystal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802775
+    m_Localized: Swirl
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802776
+    m_Localized: Pizza
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802777
+    m_Localized: Burger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802778
+    m_Localized: Cheese
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802779
+    m_Localized: Cake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802780
+    m_Localized: Lava
+    m_Metadata:
+      m_Items: []
+  - m_Id: 21402280185802781
+    m_Localized: Continue
     m_Metadata:
       m_Items: []
   references:

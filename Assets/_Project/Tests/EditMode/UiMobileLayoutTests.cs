@@ -78,6 +78,14 @@ namespace PlanetIO.Tests
             StringAssert.Contains("flex-direction: column", block);
         }
 
+		[Test]
+		public void Menu_VersionLabelIsAnchoredToTheBottom()
+		{
+			string block = GetBlock("Menu.uss", "#version-text");
+			StringAssert.Contains("position: absolute", block);
+			StringAssert.Contains("bottom: 8px", block);
+		}
+
         private static string GetBlock(string file, string selector)
         {
             string text = File.ReadAllText(UiFolder + file);

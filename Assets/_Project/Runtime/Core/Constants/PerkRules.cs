@@ -19,7 +19,7 @@ namespace PlanetIO
     {
         public const int Count = 9;
         public const int OfferSize = 3;
-        public const float OfferSeconds = 5f;
+		public const float OfferSeconds = 10f;
         public const float AblativeSurvivalFraction = 0.3f;
         public const float StealthSeconds = 10f;
         public const float StealthCooldownSeconds = 40f;

@@ -21,6 +21,11 @@ namespace PlanetIO.Application
         private readonly NetworkManager _networkManager;
         private readonly NetworkWorldReadyState _worldReadyState;
         private readonly IGameLoadingView _loadingView;
+		private INetworkSessionService _session;
+
+		[Inject]
+		public void ConfigureSession(INetworkSessionService session) => _session = session;
+
         private bool _worldInitialized;
         private MatchMigrationStore _migration;
         private MigrationWorldService _migrationWorld;
@@ -57,6 +62,7 @@ namespace PlanetIO.Application
 
         public async Awaitable StartAsync(CancellationToken cancellation = default)
         {
+			OrbitClock.UseSoloTime(_session?.Mode == NetworkSessionMode.SinglePlayer);
             TransitionTo(GameState.Initializing);
             _loadingView.Show();
 
@@ -126,6 +132,7 @@ namespace PlanetIO.Application
         public void Dispose()
         {
             _disposed = true;
+			OrbitClock.UseSoloTime(false);
             _loadingView.Hide();
             BeginShutdown();
         }

@@ -78,7 +78,7 @@ namespace PlanetIO.UI.Hud
         {
             if (_migration?.IsRecovering != true && _player != null && _player.IsSpawned && !_player.IsDefeated)
             {
-                _duration += Time.unscaledDeltaTime;
+				_duration += Time.deltaTime;
             }
         }
 

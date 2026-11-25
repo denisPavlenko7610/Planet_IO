@@ -42,7 +42,7 @@ namespace PlanetIO
         [FormerlySerializedAs("_respawnInvincibilityTime")]
         [SerializeField, Min(0f)] private float _spawnInvincibilityTime = 2f;
         [SerializeField, Min(0f)] private float _continueProtectionTime = 5f;
-        [SerializeField, Range(0f, 1f)] private float _continueMassFraction = 0.5f;
+		[SerializeField, Range(0f, 1f)] private float _continueMassFraction = 1f;
 
         [Header("Food magnet")]
         [SerializeField, Min(0f)] private float _foodAttractionRadius = 0.2f;

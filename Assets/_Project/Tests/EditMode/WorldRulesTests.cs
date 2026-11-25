@@ -252,36 +252,5 @@ namespace PlanetIO.Tests
             Assert.That(WorldSeedRules.FromDay(20000), Is.Not.EqualTo(WorldSeedRules.FromDay(20001)));
             Assert.That(WorldSeedRules.FromDay(20000), Is.EqualTo(WorldSeedRules.FromDay(20000)));
         }
-
-        [Test]
-        public void Blitz_ClockCountsDownToZero()
-        {
-            Assert.That(BlitzRules.Remaining(0f), Is.EqualTo(BlitzRules.DurationSeconds));
-            Assert.That(BlitzRules.Remaining(120f), Is.EqualTo(180f));
-            Assert.That(BlitzRules.Remaining(999f), Is.Zero);
-            Assert.That(BlitzRules.Remaining(-5f), Is.EqualTo(BlitzRules.DurationSeconds));
-            Assert.That(BlitzRules.IsOver(299.9f), Is.False);
-            Assert.That(BlitzRules.IsOver(300f), Is.True);
-        }
-
-        [TestCase(300f, "5:00")]
-        [TestCase(61.2f, "1:02")]
-        [TestCase(59f, "0:59")]
-        [TestCase(0f, "0:00")]
-        [TestCase(-3f, "0:00")]
-        public void Blitz_FormatsClock(float seconds, string expected)
-        {
-            Assert.That(BlitzRules.FormatClock(seconds), Is.EqualTo(expected));
-        }
-
-        [Test]
-        public void Blitz_RankCountsBiggerPlanetsOnly()
-        {
-            float[] capacities = { 0.5f, 1.2f, 0.8f, 1.2f };
-
-            Assert.That(BlitzRules.RankOf(1.2f, capacities), Is.EqualTo(1));
-            Assert.That(BlitzRules.RankOf(0.8f, capacities), Is.EqualTo(3));
-            Assert.That(BlitzRules.RankOf(0.1f, capacities), Is.EqualTo(5));
-        }
     }
 }

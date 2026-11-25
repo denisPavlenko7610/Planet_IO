@@ -5,11 +5,8 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using PlanetIO.Application;
-using PlanetIO.UI.Hud;
-using RD.Settings;
 using UnityEngine;
 using UnityEngine.TestTools;
-using UnityEngine.UIElements;
 using VContainer;
 using Object = UnityEngine.Object;
 
@@ -251,56 +248,6 @@ namespace PlanetIO.Tests
             Assert.That(order, Is.EqualTo(new[] { "warn:Supernova", "start:Supernova", "end:Supernova" }));
             Assert.That(director.HasMarker, Is.False);
             yield return null;
-        }
-
-        [UnityTest, Timeout(90000)]
-        public IEnumerator Blitz_FinishesAfterFiveMinutesAndShowsTheRank()
-        {
-            ISettingsService settings = null;
-            try
-            {
-                yield return OpenMenu();
-                settings = Resolve<ISettingsService>();
-                settings.Set(GameSettingKeys.BlitzMode, true);
-                yield return StartSoloGame();
-                yield return WaitForGameplay(8f);
-
-                var blitz = (BlitzDirector)ResolveGame<IBlitzMatch>();
-                Player player = FindLocalPlayer();
-                Assert.That(blitz.IsEnabled, Is.True);
-                Assert.That(blitz.IsFinished, Is.False);
-                FieldInfo elapsed = typeof(BlitzDirector).GetField("_elapsed", BindingFlags.Instance | BindingFlags.NonPublic);
-                elapsed.SetValue(blitz, BlitzRules.DurationSeconds - 0.05f);
-
-                yield return WaitForDefeatView(4f);
-
-                Assert.That(blitz.IsFinished, Is.True);
-                Assert.That(blitz.FinalRank, Is.InRange(1, blitz.FinalCount));
-                Assert.That(player.IsDefeated, Is.True);
-                Assert.That(FindLabel("defeat-title").text, Is.EqualTo(Resolve<RD.Localization.ILocalizationService>().Get(LocalizationKeys.BlitzTitle)));
-
-                Click(FindButton("play-again"));
-                yield return null;
-
-                Assert.That(blitz.IsFinished, Is.False);
-                Assert.That((float)elapsed.GetValue(blitz), Is.LessThan(1f));
-            }
-            finally
-            {
-                settings?.Set(GameSettingKeys.BlitzMode, false);
-                settings?.Flush();
-            }
-        }
-
-        [UnityTest, Timeout(60000)]
-        public IEnumerator Blitz_IsOffUnlessTheToggleIsOn()
-        {
-            yield return OpenMenu();
-            Resolve<ISettingsService>().Set(GameSettingKeys.BlitzMode, false);
-            yield return StartSoloGame();
-            yield return WaitForGameplay(8f);
-
-            Assert.That(ResolveGame<IBlitzMatch>().IsEnabled, Is.False);
         }
     }
 }

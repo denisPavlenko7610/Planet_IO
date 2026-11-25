@@ -31,8 +31,7 @@ namespace PlanetIO.Tests
 
 		private static RunEndInfo Run(long id, float seconds, int score, int kills) => new(
 			new RunSummary(id, seconds, score, 2, kills, 0),
-			new RunReward(10, 5, 0, 10, 1, 1, 0),
-			false
+			new RunReward(10, 5, 0, 10, 1, 1, 0)
 		);
 
 		[Test]

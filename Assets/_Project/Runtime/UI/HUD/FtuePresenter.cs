@@ -1,250 +1,372 @@
 using System;
+using System.Collections.Generic;
 using RD.Localization;
+using RD.Pause;
 using RD.Settings;
+using RD.Tutorials;
 using UnityEngine;
+using UnityEngine.UIElements;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud
 {
-    public sealed class FtuePresenter : IStartable, ITickable, IDisposable
-    {
-        private enum Step : byte
-        {
-            Move,
-            Eat,
-            Avoid,
-            Hunt,
-            Tier,
-            Boost,
-            Done
-        }
+	public sealed class FtuePresenter : IStartable, ITickable, IDisposable
+	{
+		private enum Lesson
+		{
+			Move,
+			Food,
+			Bot,
+			Comet,
+			BlackHole,
+			Evolution,
+			Boost,
+			Rank,
+			Count
+		}
 
-        private const float StartDelaySeconds = 4.5f;
-        private const float MoveDistance = 4f;
-        private const float EatGain = 0.01f;
-        private const float NearbyDistance = 14f;
-        private const float BoostHintSeconds = 5f;
-        private const float ScanIntervalSeconds = 0.3f;
+		private const float ScanInterval = 0.2f;
+		private const float FoodNoticeDistance = 4f;
+		private const float CometNoticeDistance = 5f;
+		private const float BotNoticeDistance = 6f;
 
-        private readonly ISessionHudView _view;
-        private readonly ILocalPlayerProvider _localPlayerProvider;
-        private readonly ILocalizationService _localization;
-        private readonly ISettingsService _settings;
-        private readonly IAnalyticsService _analytics;
-        private Player _player;
-        private Step _step = Step.Move;
-        private bool _active;
-        private bool _stepShown;
-        private float _stepTime;
-        private float _scanTimer;
-        private Vector2 _startPosition;
-        private float _startCapacity;
+		private readonly SessionHudView _hud;
+		private readonly ILocalPlayerProvider _players;
+		private readonly ILocalizationService _localization;
+		private readonly ISettingsService _settings;
+		private readonly IAnalyticsService _analytics;
+		private readonly INetworkSessionService _session;
+		private readonly IGameStateService _game;
+		private readonly IPauseService _pauses;
+		private readonly IFoodService _food;
+		private readonly IProgressionService _progression;
+		private readonly TutorialService _tutorials = new(new PlayerPrefsTutorialProgressStore("PlanetIO.Onboarding."));
+		private readonly TutorialDefinition[] _lessons = new TutorialDefinition[(int)Lesson.Count];
+		private readonly List<FoodRecord> _nearbyFood = new();
+		private IDisposable _pause;
+		private int _lessonsRemaining;
+		private int _lastRank;
+		private bool _rankIncreased;
+		private float _nextScan;
 
-        public FtuePresenter(
-            ISessionHudView view,
-            ILocalPlayerProvider localPlayerProvider,
-            ILocalizationService localization,
-            ISettingsService settings,
-            IAnalyticsService analytics)
-        {
-            _view = view ?? throw new ArgumentNullException(nameof(view));
-            _localPlayerProvider = localPlayerProvider ?? throw new ArgumentNullException(nameof(localPlayerProvider));
-            _localization = localization ?? throw new ArgumentNullException(nameof(localization));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            _analytics = analytics ?? throw new ArgumentNullException(nameof(analytics));
-        }
+		public FtuePresenter(
+			ISessionHudView view,
+			ILocalPlayerProvider players,
+			ILocalizationService localization,
+			ISettingsService settings,
+			IAnalyticsService analytics,
+			INetworkSessionService session,
+			IGameStateService game,
+			IPauseService pauses,
+			IFoodService food,
+			IProgressionService progression)
+		{
+			_hud = (SessionHudView)view;
+			_players = players;
+			_localization = localization;
+			_settings = settings;
+			_analytics = analytics;
+			_session = session;
+			_game = game;
+			_pauses = pauses;
+			_food = food;
+			_progression = progression;
+		}
 
-        public void Start()
-        {
-            _active = !_settings.Get(GameSettingKeys.TutorialCompleted);
-            _localPlayerProvider.LocalPlayerChanged += BindPlayer;
-            BindPlayer(_localPlayerProvider.LocalPlayer);
-        }
+		public void Start()
+		{
+			if (_session.Mode != NetworkSessionMode.SinglePlayer || _settings.Get(GameSettingKeys.TutorialCompleted))
+			{
+				return;
+			}
 
-        public void Dispose()
-        {
-            _localPlayerProvider.LocalPlayerChanged -= BindPlayer;
-        }
+			AddLesson(Lesson.Move, "move", LocalizationKeys.FtueMove);
+			AddLesson(Lesson.Food, "food", LocalizationKeys.TutorialEat);
+			AddLesson(Lesson.Bot, "bot", LocalizationKeys.TutorialBot);
+			AddLesson(Lesson.Comet, "comet", LocalizationKeys.TutorialComet);
+			AddLesson(Lesson.BlackHole, "black-hole", LocalizationKeys.TutorialBlackHole);
+			AddLesson(Lesson.Evolution, "evolution", LocalizationKeys.TutorialEvolution);
+			AddLesson(Lesson.Boost, "boost", LocalizationKeys.TutorialBoost);
+			AddLesson(Lesson.Rank, "rank", LocalizationKeys.TutorialRank);
+			_lastRank = _progression.Rank;
 
-        public void Tick()
-        {
-            if (!_active || _player == null || !_player.IsSpawned || _player.IsDefeated)
-            {
-                return;
-            }
+			_tutorials.Started += OnLessonStarted;
+			_tutorials.StepChanged += RenderLesson;
+			_tutorials.Ended += OnLessonEnded;
+			_progression.Changed += OnProgressionChanged;
+			_localization.LocaleChanged += OnLocaleChanged;
+			_hud.TutorialContinued += OnContinue;
+			_hud.TutorialSkipped += OnSkip;
+		}
 
-            _stepTime += Time.unscaledDeltaTime;
-            if (_stepTime < StartDelaySeconds && _step == Step.Move)
-            {
-                return;
-            }
+		public void Dispose()
+		{
+			_tutorials.Cancel();
+			_tutorials.Started -= OnLessonStarted;
+			_tutorials.StepChanged -= RenderLesson;
+			_tutorials.Ended -= OnLessonEnded;
+			_progression.Changed -= OnProgressionChanged;
+			_localization.LocaleChanged -= OnLocaleChanged;
+			_hud.TutorialContinued -= OnContinue;
+			_hud.TutorialSkipped -= OnSkip;
 
-            if (!_stepShown)
-            {
-                ShowStep();
-            }
+			foreach (TutorialDefinition lesson in _lessons)
+			{
+				if (lesson != null)
+				{
+					UnityEngine.Object.Destroy(lesson);
+				}
+			}
+		}
 
-            _scanTimer -= Time.unscaledDeltaTime;
-            bool scan = _scanTimer <= 0f;
-            if (scan)
-            {
-                _scanTimer = ScanIntervalSeconds;
-            }
+		public void Tick()
+		{
+			if (_lessonsRemaining == 0 || _pauses.IsPaused || _session.Mode != NetworkSessionMode.SinglePlayer)
+			{
+				return;
+			}
 
-            EvaluateStep(scan);
-        }
+			Player player = _players.LocalPlayer;
+			if (player == null || !player.IsSpawned)
+			{
+				return;
+			}
 
-        private void BindPlayer(Player player)
-        {
-            _player = player;
-            if (_player == null)
-            {
-                return;
-            }
+			if (player.IsDefeated)
+			{
+				if (_rankIncreased && _hud.IsShowingDefeat)
+				{
+					TryShow(Lesson.Rank);
+				}
 
-            _startPosition = _player.transform.position;
-            _startCapacity = _player.Capacity;
-        }
+				return;
+			}
 
-        private void ShowStep()
-        {
-            _stepShown = true;
-            string key = _step switch
-            {
-                Step.Move => LocalizationKeys.FtueMove,
-                Step.Eat => LocalizationKeys.TutorialEat,
-                Step.Avoid => null,
-                Step.Hunt => null,
-                Step.Tier => LocalizationKeys.FtueTier,
-                Step.Boost => LocalizationKeys.TutorialBoost,
-                _ => null
-            };
+			if (!_game.IsGameplayActive || !_hud.CanShowTutorial)
+			{
+				return;
+			}
 
-            if (key != null)
-            {
-                _view.ShowHint(_localization.Get(key));
-            }
-        }
+			if (TryShow(Lesson.Move) ||
+				(player.Tier > TierRules.MinTier && TryShow(Lesson.Evolution)) ||
+				(player.Capacity >= 0.12f && TryShow(Lesson.Boost)))
+			{
+				return;
+			}
 
-        private void EvaluateStep(bool scan)
-        {
-            switch (_step)
-            {
-                case Step.Move:
-                    if (Vector2.Distance(_player.transform.position, _startPosition) >= MoveDistance)
-                    {
-                        Advance(false);
-                    }
-                    else if (_stepTime >= StartDelaySeconds + 10f)
-                    {
-                        Advance(true);
-                    }
+			if (Time.time < _nextScan)
+			{
+				return;
+			}
 
-                    break;
+			_nextScan = Time.time + ScanInterval;
+			ScanEncounters(player);
+		}
 
-                case Step.Eat:
-                    if (_player.Capacity >= _startCapacity + EatGain)
-                    {
-                        Advance(false);
-                    }
-                    else if (_stepTime >= 12f)
-                    {
-                        Advance(true);
-                    }
+		private void AddLesson(Lesson lesson, string id, string description)
+		{
+			TutorialDefinition definition = TutorialDefinition.CreateRuntime(id,
+				new TutorialStep(id).WithDescriptionKey(description));
+			if (_tutorials.IsFinished(definition))
+			{
+				UnityEngine.Object.Destroy(definition);
+				return;
+			}
 
-                    break;
+			_lessons[(int)lesson] = definition;
+			_lessonsRemaining++;
+		}
 
-                case Step.Avoid:
-                    if (scan && FindNearby(true))
-                    {
-                        _view.ShowHint(_localization.Get(LocalizationKeys.FtueAvoid));
-                        Advance(false);
-                    }
-                    else if (_stepTime >= 10f)
-                    {
-                        Advance(true);
-                    }
+		private void ScanEncounters(Player player)
+		{
+			Vector2 position = player.transform.position;
+			UnityEngine.Camera camera = UnityEngine.Camera.main;
+			if (camera == null)
+			{
+				return;
+			}
 
-                    break;
+			MapFeatureField.Anchor hole = MapFeatureField.Anchors[MapFeatureField.BlackHoleSlot];
+			float holeNoticeDistance = hole.ZoneRadius + 2f;
+			if (IsPending(Lesson.BlackHole) && hole.Radius > 0f &&
+				IsNear(hole.Position, position, holeNoticeDistance) && TryShow(Lesson.BlackHole))
+			{
+				return;
+			}
 
-                case Step.Hunt:
-                    if (scan && FindNearby(false))
-                    {
-                        _view.ShowHint(_localization.Get(LocalizationKeys.FtueHunt));
-                        Advance(false);
-                    }
-                    else if (_stepTime >= 10f)
-                    {
-                        Advance(true);
-                    }
+			if (IsPending(Lesson.Comet))
+			{
+				Comet[] comets = UnityEngine.Object.FindObjectsByType<Comet>(FindObjectsSortMode.None);
+				foreach (Comet comet in comets)
+				{
+					if (comet.IsSpawned && IsNear(comet.transform.position, position, CometNoticeDistance) &&
+						IsVisible(camera, comet.transform.position) && TryShow(Lesson.Comet))
+					{
+						return;
+					}
+				}
+			}
 
-                    break;
+			if (IsPending(Lesson.Food) && _food.World != null)
+			{
+				_food.Query(position, FoodNoticeDistance, _nearbyFood);
+				foreach (FoodRecord food in _nearbyFood)
+				{
+					if (IsVisible(camera, food.Position) && TryShow(Lesson.Food))
+					{
+						return;
+					}
+				}
+			}
 
-                case Step.Tier:
-                    if (_player.Tier >= 2)
-                    {
-                        Advance(false);
-                    }
-                    else if (_stepTime >= 18f)
-                    {
-                        Advance(true);
-                    }
+			if (IsPending(Lesson.Bot))
+			{
+				foreach (PlanetScale planet in PlanetDirectory.All)
+				{
+					if (planet is Enemy enemy && enemy.IsSpawned && enemy.AreMoonsVisible &&
+						IsNear(enemy.transform.position, position, BotNoticeDistance) &&
+						IsVisible(camera, enemy.transform.position) && TryShow(Lesson.Bot))
+					{
+						return;
+					}
+				}
+			}
+		}
 
-                    break;
+		private static bool IsNear(Vector2 target, Vector2 position, float range)
+		{
+			return (target - position).sqrMagnitude <= range * range;
+		}
 
-                case Step.Boost:
-                    if (_stepTime >= BoostHintSeconds)
-                    {
-                        Advance(false);
-                    }
+		private static bool IsVisible(UnityEngine.Camera camera, Vector3 position)
+		{
+			Vector3 point = camera.WorldToViewportPoint(position);
 
-                    break;
-            }
-        }
+			return point.z > 0f && point.x >= 0f && point.x <= 1f && point.y >= 0f && point.y <= 1f;
+		}
 
-        private bool FindNearby(bool dangerous)
-        {
-            var planets = PlanetDirectory.All;
-            Vector2 position = _player.transform.position;
-            for (int index = 0; index < planets.Count; index++)
-            {
-                PlanetScale planet = planets[index];
-                if (planet == null ||
-                    planet == _player ||
-                    !planet.isActiveAndEnabled ||
-                    !planet.IsSpawned ||
-                    !planet.AreMoonsVisible ||
-                    Vector2.Distance(position, planet.transform.position) > NearbyDistance)
-                {
-                    continue;
-                }
+		private bool IsPending(Lesson lesson) => _lessons[(int)lesson] != null;
 
-                if (dangerous ? planet.CanDevour(_player) : _player.CanDevour(planet))
-                {
-                    return true;
-                }
-            }
+		private bool TryShow(Lesson lesson)
+		{
+			TutorialDefinition definition = _lessons[(int)lesson];
 
-            return false;
-        }
+			return definition != null && _tutorials.Start(definition);
+		}
 
-        private void Advance(bool skipped)
-        {
-            _analytics.Track(AnalyticsEvents.TutorialStep, ("step", _step.ToString()), ("skipped", skipped ? 1 : 0));
+		private void OnProgressionChanged()
+		{
+			int rank = _progression.Rank;
+			_rankIncreased |= rank > _lastRank;
+			_lastRank = rank;
+		}
 
-            _step++;
-            _stepShown = false;
-            _stepTime = 0f;
-            _startCapacity = _player.Capacity;
+		private void OnLessonStarted(TutorialDefinition _) => _pause = _pauses.RequestPause("tutorial");
 
-            if (_step != Step.Done)
-            {
-                return;
-            }
+		private void RenderLesson(TutorialStepState state)
+		{
+			_hud.ShowTutorial(
+				_localization.Get(state.Step.DescriptionKey),
+				_localization.Get(LocalizationKeys.TutorialContinue),
+				_localization.Get(LocalizationKeys.TutorialSkip));
+		}
 
-            _active = false;
-            _settings.Set(GameSettingKeys.TutorialCompleted, true);
-            _settings.Flush();
-        }
-    }
+		private void OnLocaleChanged(LocaleChanged _)
+		{
+			if (_tutorials.TryGetCurrentStep(out TutorialStepState state))
+			{
+				RenderLesson(state);
+			}
+		}
+
+		private void OnContinue()
+		{
+			if (_tutorials.IsActive)
+			{
+				_tutorials.CompleteCurrentStep();
+			}
+		}
+
+		private void OnSkip()
+		{
+			if (_tutorials.IsActive)
+			{
+				_tutorials.Skip();
+			}
+		}
+
+		private void OnLessonEnded(TutorialEnded ended)
+		{
+			_hud.HideTutorial();
+			_pause?.Dispose();
+			_pause = null;
+
+			if (ended.Reason == TutorialEndReason.Cancelled)
+			{
+				return;
+			}
+
+			int index = Array.IndexOf(_lessons, ended.Tutorial);
+			_analytics.Track(AnalyticsEvents.TutorialStep, ("step", ended.Tutorial.Id),
+				("skipped", ended.Reason == TutorialEndReason.Skipped ? 1 : 0));
+
+			_lessons[index] = null;
+			UnityEngine.Object.Destroy(ended.Tutorial);
+			_lessonsRemaining--;
+
+			if (ended.Reason == TutorialEndReason.Skipped || _lessonsRemaining == 0)
+			{
+				_lessonsRemaining = 0;
+				_settings.Set(GameSettingKeys.TutorialCompleted, true);
+				_settings.Flush();
+			}
+		}
+	}
+
+	public sealed partial class SessionHudView
+	{
+		private VisualElement _tutorialOverlay;
+		private Label _tutorialDescription;
+		private Button _tutorialContinue;
+		private Button _tutorialSkip;
+
+		public event Action TutorialContinued;
+		public event Action TutorialSkipped;
+
+		public bool IsShowingDefeat => _defeatVisible;
+
+		public bool CanShowTutorial => !_defeatVisible && _root?.panel != null;
+
+		private void EnableTutorial()
+		{
+			_tutorialOverlay = _root.Q("tutorial-overlay");
+			_tutorialDescription = _root.Q<Label>("tutorial-description");
+			_tutorialContinue = _root.Q<Button>("tutorial-continue");
+			_tutorialSkip = _root.Q<Button>("tutorial-skip");
+			_tutorialContinue.clicked += OnTutorialContinued;
+			_tutorialSkip.clicked += OnTutorialSkipped;
+		}
+
+		private void DisableTutorial()
+		{
+			_tutorialContinue.clicked -= OnTutorialContinued;
+			_tutorialSkip.clicked -= OnTutorialSkipped;
+			HideTutorial();
+		}
+
+		private void OnTutorialContinued() => TutorialContinued?.Invoke();
+
+		private void OnTutorialSkipped() => TutorialSkipped?.Invoke();
+
+		public void ShowTutorial(string description, string continueLabel, string skipLabel)
+		{
+			_tutorialDescription.text = description;
+			_tutorialContinue.text = continueLabel;
+			_tutorialSkip.text = skipLabel;
+			_tutorialOverlay.style.display = DisplayStyle.Flex;
+			_tutorialContinue.Focus();
+		}
+
+		public void HideTutorial() => _tutorialOverlay.style.display = DisplayStyle.None;
+	}
 }

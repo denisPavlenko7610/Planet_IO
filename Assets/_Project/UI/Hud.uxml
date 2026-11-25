@@ -26,7 +26,6 @@
             <ui:VisualElement name="hud-center" picking-mode="Ignore">
                 <ui:Label name="kill-feed" picking-mode="Ignore" />
                 <ui:Label name="event-banner" picking-mode="Ignore" />
-                <ui:Label name="blitz-timer" picking-mode="Ignore" />
             </ui:VisualElement>
             <ui:VisualElement name="hud-right" picking-mode="Ignore">
                 <ui:VisualElement name="top-buttons" picking-mode="Ignore">
@@ -75,31 +74,42 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="defeat-panel" class="screen">
-            <ui:ScrollView name="defeat-card" class="card" horizontal-scroller-visibility="Hidden">
-                <ui:VisualElement name="defeat-layout">
-                    <ui:VisualElement name="defeat-results">
-                        <ui:Label name="defeat-title" />
-                        <ui:Label name="defeat-body" />
-                        <ui:Label name="result-details" />
-                        <ui:VisualElement name="rank-row">
-                            <ui:Label name="rank-text" />
-                            <ui:VisualElement name="rank-bar">
-                                <ui:VisualElement name="rank-fill" />
+            <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+                <ui:ScrollView name="defeat-card" class="card" horizontal-scroller-visibility="Hidden">
+                    <ui:VisualElement name="defeat-layout">
+                        <ui:VisualElement name="defeat-results">
+                            <ui:Label name="defeat-title" />
+                            <ui:Label name="defeat-body" />
+                            <ui:Label name="result-details" />
+                            <ui:VisualElement name="rank-row">
+                                <ui:Label name="rank-text" />
+                                <ui:VisualElement name="rank-bar">
+                                    <ui:VisualElement name="rank-fill" />
+                                </ui:VisualElement>
                             </ui:VisualElement>
+                            <ui:Label name="reward-text" />
                         </ui:VisualElement>
-                        <ui:Label name="reward-text" />
+                        <ui:VisualElement name="defeat-actions">
+                            <ui:Button name="play-again" class="btn btn-cta btn-yellow" />
+                            <ui:Button name="continue-button" class="btn btn-long btn-green" />
+                            <ui:Button name="double-dust" class="btn btn-long btn-blue" />
+                            <ui:Button name="defeat-leave" class="btn btn-hud btn-red" />
+                        </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="defeat-actions">
-                        <ui:Button name="play-again" class="btn btn-cta btn-yellow" />
-                        <ui:Button name="continue-button" class="btn btn-long btn-green" />
-                        <ui:Button name="double-dust" class="btn btn-long btn-blue" />
-                        <ui:Button name="defeat-leave" class="btn btn-hud btn-red" />
-                    </ui:VisualElement>
-                </ui:VisualElement>
-            </ui:ScrollView>
+                </ui:ScrollView>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="loading-overlay" class="screen">
             <ui:Label name="loading-title" text="Loading Session" />
+        </ui:VisualElement>
+        <ui:VisualElement name="tutorial-overlay" class="screen" focusable="true">
+            <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+                <ui:ScrollView name="tutorial-card" class="card" horizontal-scroller-visibility="Hidden">
+                    <ui:Label name="tutorial-description" />
+                    <ui:Button name="tutorial-continue" class="btn btn-long btn-green" />
+                    <ui:Button name="tutorial-skip" class="btn btn-long btn-blue" />
+                </ui:ScrollView>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:Instance template="Settings" name="settings" class="screen" picking-mode="Ignore" />
     </ui:VisualElement>

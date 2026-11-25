@@ -24,7 +24,7 @@ namespace PlanetIO.Tests
 		{
 			yield return OpenMenu();
 
-			string[] menuTracks = { "MenuTheme", "ExplorationTheme", "StellerDreams" };
+			string[] menuTracks = { "MenuTheme", "StellerDreams" };
 			yield return WaitForMusicClip(menuTracks, 5f);
 
 			string initialMenuTrack = GameObject.Find("Addressable Music").GetComponent<AudioSource>().clip.name;
@@ -35,7 +35,7 @@ namespace PlanetIO.Tests
 
 			yield return WaitForScene(SceneNames.Game, 18f);
 			yield return WaitForOpponentCount(10, 5f);
-			yield return WaitForMusicClip(new[] { "GameTheme", "ExplorationTheme", "StellerDreams" }, 5f);
+			yield return WaitForMusicClip(new[] { "GameTheme", "ExplorationTheme" }, 5f);
 
 			Assert.That(GameObject.Find("SessionHud"), Is.Not.Null);
 			Assert.That(
@@ -83,14 +83,21 @@ namespace PlanetIO.Tests
 
 		[UnityTest]
 		[Timeout(45000)]
-		public IEnumerator Continue_AfterStarving_RevivesAboveMinimumCapacity()
+		public IEnumerator Continue_AfterLethalDamage_RestoresMassPerksAndPosition()
 		{
 			yield return StartSoloGame();
 
 			Player localPlayer = FindLocalPlayer();
 			Assert.That(localPlayer, Is.Not.Null);
 
+			localPlayer.Capacity = 0.5f;
+			GrantPerk(localPlayer, PerkId.SolarSail);
+			ushort perks = localPlayer.PerkMask;
 			localPlayer.Capacity = 0f;
+			Vector3 defeatPosition = localPlayer.transform.position;
+			Vector3 revivePosition = default;
+			localPlayer.Revived += () => revivePosition = localPlayer.transform.position;
+
 			yield return WaitForDefeatView(2f);
 
 			Assert.That(localPlayer.IsDefeated, Is.True);
@@ -106,7 +113,9 @@ namespace PlanetIO.Tests
 			}
 
 			Assert.That(localPlayer.IsDefeated, Is.False);
-			Assert.That(localPlayer.Capacity, Is.GreaterThanOrEqualTo(localPlayer.MinCapacity));
+			Assert.That(localPlayer.Capacity, Is.EqualTo(0.5f).Within(1e-5f));
+			Assert.That(localPlayer.PerkMask, Is.EqualTo(perks));
+			Assert.That(revivePosition, Is.EqualTo(defeatPosition));
 			Assert.That(localPlayer.IsSpawnProtected, Is.True);
 
 			yield return LeaveToMenu();
@@ -151,7 +160,7 @@ namespace PlanetIO.Tests
 
 		[UnityTest, SharedWorld]
 		[Timeout(45000)]
-		public IEnumerator Defeat_DropsLootAndContinueRestoresConfiguredFraction()
+		public IEnumerator Defeat_DropsLootAndContinueRestoresFullMass()
 		{
 			yield return StartSharedMoonGame();
 
@@ -170,15 +179,10 @@ namespace PlanetIO.Tests
 				Is.EqualTo(capacity * FoodSpawner.LootMassFraction).Within(1e-3f)
 			);
 
-			float continueFraction = ReadPrivateField<float>(localPlayer, "_continueMassFraction");
-			float initialCapacity = localPlayer.InitialCapacity;
 			localPlayer.ContinueRpc();
 
 			Assert.That(localPlayer.IsDefeated, Is.False);
-			Assert.That(
-				localPlayer.Capacity,
-				Is.EqualTo(Mathf.Max(initialCapacity, capacity * continueFraction)).Within(1e-4f)
-			);
+			Assert.That(localPlayer.Capacity, Is.EqualTo(capacity).Within(1e-4f));
 			Assert.That(SumDroppedNutrition() - droppedBefore, Is.EqualTo(0f).Within(1e-3f));
 
 			float continuedCapacity = localPlayer.Capacity;

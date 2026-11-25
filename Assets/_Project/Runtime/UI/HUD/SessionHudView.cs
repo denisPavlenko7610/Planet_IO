@@ -56,7 +56,6 @@ namespace PlanetIO.UI.Hud
     public interface IWorldHudView
     {
         void ShowEventBanner(string text);
-        void SetBlitzTimer(string text, bool visible);
     }
 
     public interface IPerkView
@@ -103,7 +102,6 @@ namespace PlanetIO.UI.Hud
         private Button _continueButton;
         private Button _defeatLeaveButton;
         private Label _eventBannerText;
-        private Label _blitzTimerText;
         private float _eventBannerRemaining;
         private Label _resultDetails;
         private Label _rankText;
@@ -147,6 +145,7 @@ namespace PlanetIO.UI.Hud
         private void OnEnable()
         {
             _root = GetComponent<UIDocument>().rootVisualElement;
+			EnableTutorial();
             _defeatPanel = _root.Q<VisualElement>("defeat-panel");
             _borderWarning = _root.Q<VisualElement>("border-warning");
             _sessionText = _root.Q<Label>("session-text");
@@ -168,9 +167,7 @@ namespace PlanetIO.UI.Hud
             _defeatLeaveButton = _root.Q<Button>("defeat-leave");
 
             _eventBannerText = _root.Q<Label>("event-banner");
-            _blitzTimerText = _root.Q<Label>("blitz-timer");
             _eventBannerText.style.opacity = 0f;
-            _blitzTimerText.style.display = DisplayStyle.None;
             _eventBannerRemaining = 0f;
             _resultDetails = _root.Q<Label>("result-details");
             _rankText = _root.Q<Label>("rank-text");
@@ -214,6 +211,7 @@ namespace PlanetIO.UI.Hud
 
         private void OnDisable()
         {
+			DisableTutorial();
             ClearDamage();
             _leaveButton.clicked -= OnLeaveClicked;
             _settingsButton.clicked -= OnSettingsClicked;
@@ -367,12 +365,6 @@ namespace PlanetIO.UI.Hud
             _eventBannerText.text = text;
             _eventBannerText.style.opacity = 1f;
             _eventBannerRemaining = EventBannerSeconds;
-        }
-
-        public void SetBlitzTimer(string text, bool visible)
-        {
-            _blitzTimerText.text = text ?? string.Empty;
-            _blitzTimerText.SetDisplayed(visible);
         }
 
         public void ShowRunResult(

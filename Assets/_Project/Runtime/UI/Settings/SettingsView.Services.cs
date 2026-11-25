@@ -76,12 +76,18 @@ namespace PlanetIO.UI.Settings
             }
         }
 
-        private void DisableServices()
-        {
-            _signInButton.clicked -= OnSignIn;
-            _leaderboardsButton.clicked -= OnLeaderboards;
-            _achievementsButton.clicked -= OnAchievements;
-        }
+		private void DisableServices()
+		{
+			if (_servicesBlock == null)
+			{
+				return;
+			}
+
+			_signInButton.clicked -= OnSignIn;
+			_leaderboardsButton.clicked -= OnLeaderboards;
+			_achievementsButton.clicked -= OnAchievements;
+			_servicesBlock = null;
+		}
 
         private static void SetVisible(VisualElement element, bool visible) =>
             element.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;

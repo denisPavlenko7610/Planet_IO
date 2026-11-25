@@ -686,7 +686,7 @@ MonoBehaviour:
   _pointSpawnTransform: {fileID: 82095068}
   _spawnInvincibilityTime: 2
   _continueProtectionTime: 5
-  _continueMassFraction: 0.5
+  _continueMassFraction: 1
   _foodAttractionRadius: 0.2
   _foodAttractionSpeed: 5
 --- !u!114 &8517843457492819222

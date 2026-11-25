@@ -53,7 +53,7 @@ namespace PlanetIO.UI.Hud
                 return;
             }
 
-            float remaining = _offerEndTime - Time.unscaledTime;
+            float remaining = _offerEndTime - Time.time;
             _view.SetPerkTimer(_offerDuration > 0f ? remaining / _offerDuration : 0f);
         }
 
@@ -116,11 +116,14 @@ namespace PlanetIO.UI.Hud
             {
                 ids[index] = (int)perks[index];
                 names[index] = _localization.Get(LocalizationKeys.PerkName(perks[index]));
-                descriptions[index] = _localization.Get(LocalizationKeys.PerkDescription(perks[index]));
+				string description = _localization.Get(LocalizationKeys.PerkDescription(perks[index]));
+				descriptions[index] = index == 0
+					? description + "\n" + _localization.Get(LocalizationKeys.PerkAutoPick)
+					: description;
             }
 
             _offerDuration = seconds;
-            _offerEndTime = Time.unscaledTime + seconds;
+            _offerEndTime = Time.time + seconds;
             _offerVisible = true;
             _view.SetPerkIcons(ids);
             _view.ShowPerkOffer(_localization.Get(LocalizationKeys.PerkTitle), names, descriptions);

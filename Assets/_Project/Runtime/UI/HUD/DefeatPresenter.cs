@@ -18,7 +18,6 @@ namespace PlanetIO.UI.Hud
         private readonly IRunStats _runStats;
         private readonly IProgressionService _progression;
         private readonly IAnalyticsService _analytics;
-        private readonly IBlitzMatch _blitz;
         private readonly IPostRunService _postRun;
         private int _finalScore;
         private Player _localPlayer;
@@ -41,11 +40,9 @@ namespace PlanetIO.UI.Hud
             IRunStats runStats,
             IProgressionService progression,
             IAnalyticsService analytics,
-            IBlitzMatch blitz,
             IPostRunService postRun)
         {
             _postRun = postRun ?? throw new ArgumentNullException(nameof(postRun));
-            _blitz = blitz ?? throw new ArgumentNullException(nameof(blitz));
             _resultView = resultView ?? throw new ArgumentNullException(nameof(resultView));
             _runStats = runStats ?? throw new ArgumentNullException(nameof(runStats));
             _progression = progression ?? throw new ArgumentNullException(nameof(progression));
@@ -64,7 +61,6 @@ namespace PlanetIO.UI.Hud
             _view.PlayAgainRequested += OnPlayAgainRequested;
             _view.ContinueRequested += OnContinueRequested;
             _resultView.DoubleDustRequested += OnDoubleDustRequested;
-            _blitz.Finished += OnBlitzFinished;
             _localPlayerProvider.LocalPlayerChanged += BindPlayer;
             BindPlayer(_localPlayerProvider.LocalPlayer);
         }
@@ -75,7 +71,6 @@ namespace PlanetIO.UI.Hud
             _view.PlayAgainRequested -= OnPlayAgainRequested;
             _view.ContinueRequested -= OnContinueRequested;
             _resultView.DoubleDustRequested -= OnDoubleDustRequested;
-            _blitz.Finished -= OnBlitzFinished;
             _localPlayerProvider.LocalPlayerChanged -= BindPlayer;
             BindPlayer(null);
         }
@@ -134,7 +129,7 @@ namespace PlanetIO.UI.Hud
 
             _finalScore = finalScore;
             RenderDefeatTexts();
-            bool canContinue = !_blitz.IsFinished && !_continueUsedThisLife && _rewardedAdsService.CanShowAd;
+			bool canContinue = !_continueUsedThisLife && _rewardedAdsService.CanShowAd;
             _view.SetContinueVisible(canContinue);
             _view.SetLeaveButtonInteractable(true);
             if (canContinue)
@@ -145,31 +140,12 @@ namespace PlanetIO.UI.Hud
             ShowRunResult();
         }
 
-        private void RenderDefeatTexts()
-        {
-            string score = _localization.Get(
-                LocalizationKeys.HudFinalScore, _finalScore.ToString("N0"), _playerProfileService.BestScore.ToString("N0"));
-            if (_blitz.IsFinished)
-            {
-                _view.ShowDefeat(
-                    _localization.Get(LocalizationKeys.BlitzTitle),
-                    _localization.Get(LocalizationKeys.BlitzRank, _blitz.FinalRank, _blitz.FinalCount) + "\n" + score);
-                return;
-            }
-
-            _view.ShowDefeat(_localization.Get(LocalizationKeys.HudYouLost), score);
-        }
-
-        private void OnBlitzFinished()
-        {
-            if (!_isDefeated)
-            {
-                return;
-            }
-
-            RenderDefeatTexts();
-            _view.SetContinueVisible(false);
-        }
+		private void RenderDefeatTexts()
+		{
+			string score = _localization.Get(
+				LocalizationKeys.HudFinalScore, _finalScore.ToString("N0"), _playerProfileService.BestScore.ToString("N0"));
+			_view.ShowDefeat(_localization.Get(LocalizationKeys.HudYouLost), score);
+		}
 
         private void ShowRunResult()
         {
@@ -218,7 +194,7 @@ namespace PlanetIO.UI.Hud
 
             if (!restored)
             {
-                _postRun.OnRunEnded(new RunEndInfo(summary, _lastReward, _blitz.IsFinished));
+				_postRun.OnRunEnded(new RunEndInfo(summary, _lastReward));
             }
         }
 
@@ -262,6 +238,7 @@ namespace PlanetIO.UI.Hud
 
         private void OnRevived()
         {
+			_continueInProgress = false;
             _isDefeated = false;
             _view.HideDefeat();
         }
@@ -278,17 +255,13 @@ namespace PlanetIO.UI.Hud
 
         private void PlayAgain()
         {
-            if (!_isDefeated || _localPlayer == null)
+			if (_continueInProgress || !_isDefeated || _localPlayer == null)
             {
                 return;
             }
 
             _peakCapacity = 0f;
             _continueUsedThisLife = false;
-            if (_blitz.IsFinished)
-            {
-                _blitz.Restart();
-            }
 
             _view.HideDefeat();
             _localPlayer.RespawnRpc();
@@ -297,7 +270,7 @@ namespace PlanetIO.UI.Hud
 
         private void OnContinueRequested()
         {
-            if (_continueInProgress || _localPlayer == null)
+			if (_continueInProgress || !_isDefeated || _continueUsedThisLife || _localPlayer == null)
             {
                 return;
             }
@@ -305,15 +278,14 @@ namespace PlanetIO.UI.Hud
             _continueInProgress = true;
             _rewardedAdsService.Show(granted =>
             {
-                _continueInProgress = false;
                 _analytics.Track(AnalyticsEvents.AdResult, ("placement", "continue"), ("accepted", 1), ("completed", granted ? 1 : 0));
-                if (!granted || !_isDefeated || _localPlayer == null)
-                {
-                    return;
-                }
+				if (!granted || !_isDefeated || _localPlayer == null)
+				{
+					_continueInProgress = false;
+					return;
+				}
 
-                _continueUsedThisLife = true;
-                _view.HideDefeat();
+				_continueUsedThisLife = true;
                 _localPlayer.ContinueRpc();
             });
         }

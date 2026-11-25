@@ -1,16 +1,18 @@
 using System;
+using System.Collections.Generic;
 using RD.Haptics;
 using RD.Localization;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Menu
 {
-    public sealed class ProgressMenuPresenter : IStartable, IDisposable
+    public sealed class ProgressMenuPresenter : IStartable, ITickable, IDisposable
     {
         private readonly IProgressView _view;
         private readonly IProgressionService _progression;
         private readonly ILocalizationService _localization;
         private bool _missionsOpen;
+		private DateTime _nextResetUtc;
 
         public ProgressMenuPresenter(
             IProgressView view,
@@ -31,8 +33,7 @@ namespace PlanetIO.UI.Menu
             _progression.Changed += Render;
             _localization.LocaleChanged += OnLocaleChanged;
 
-            _progression.RefreshDay();
-            Render();
+			RefreshDay(DateTime.UtcNow);
         }
 
         public void Dispose()
@@ -44,6 +45,22 @@ namespace PlanetIO.UI.Menu
             _progression.Changed -= Render;
             _localization.LocaleChanged -= OnLocaleChanged;
         }
+
+		public void Tick()
+		{
+			DateTime now = DateTime.UtcNow;
+			if (now >= _nextResetUtc)
+			{
+				RefreshDay(now);
+			}
+		}
+
+		private void RefreshDay(DateTime now)
+		{
+			_nextResetUtc = now.Date.AddDays(1);
+			_progression.RefreshDay();
+			Render();
+		}
 
         private void OnLocaleChanged(LocaleChanged _) => Render();
 
@@ -75,8 +92,17 @@ namespace PlanetIO.UI.Menu
 
         private void Render()
         {
-            _view.ShowRankAndDust(_localization.Get(LocalizationKeys.ProgressRankDust, _progression.Rank, _progression.Dust));
-            _view.SetMissionsAlert(_progression.HasClaimableMission);
+			IReadOnlyList<MissionView> missions = _progression.Missions;
+			int claimableCount = 0;
+			foreach (MissionView mission in missions)
+			{
+				if (mission.Complete && !mission.Claimed)
+				{
+					claimableCount++;
+				}
+			}
+
+			_view.ShowMissionsEntry(_localization.Get(LocalizationKeys.MissionsButton), claimableCount);
 
             if (_missionsOpen)
             {
@@ -86,8 +112,8 @@ namespace PlanetIO.UI.Menu
 
         private void RenderMissions()
         {
-            var views = _progression.Missions;
-            var rows = new MissionRow[views.Count];
+			IReadOnlyList<MissionView> views = _progression.Missions;
+			MissionRow[] rows = new MissionRow[views.Count];
             string claim = _localization.Get(LocalizationKeys.MissionsDone);
             string reroll = _localization.Get(LocalizationKeys.MissionsReroll);
 
@@ -97,13 +123,14 @@ namespace PlanetIO.UI.Menu
                 MissionRowState state = mission.Claimed
                     ? MissionRowState.Claimed
                     : mission.Complete ? MissionRowState.Claimable : MissionRowState.InProgress;
-                string action = state == MissionRowState.Claimable
-                    ? _localization.Get(LocalizationKeys.MissionsClaim, mission.Reward)
-                    : state == MissionRowState.Claimed ? claim : $"+{mission.Reward}";
+				string action = state == MissionRowState.Claimable
+					? _localization.Get(LocalizationKeys.MissionsClaim, mission.Reward)
+					: state == MissionRowState.Claimed ? claim : string.Empty;
 
                 rows[index] = new MissionRow(
                     _localization.Get(LocalizationKeys.MissionName(mission.Definition), mission.Target),
-                    $"{mission.Progress}/{mission.Target}",
+					_localization.Get(LocalizationKeys.MissionProgressReward, Math.Min(mission.Progress, mission.Target),
+						mission.Target, mission.Reward),
                     action,
                     reroll,
                     state,
@@ -113,6 +140,8 @@ namespace PlanetIO.UI.Menu
             string bonus = _progression.LastStreakReward > 0
                 ? _localization.Get(LocalizationKeys.MissionsStreakBonus, _progression.LastStreakReward)
                 : string.Empty;
+
+			_view.ShowMissionsReset(_localization.Get(LocalizationKeys.MissionsReset, _nextResetUtc.ToLocalTime().ToString("t")));
 
             _view.ShowMissions(
                 _localization.Get(LocalizationKeys.MissionsTitle),

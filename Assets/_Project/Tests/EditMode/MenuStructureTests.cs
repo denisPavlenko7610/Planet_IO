@@ -20,7 +20,6 @@ namespace PlanetIO.Tests
 
         [TestCase("profile-button")]
         [TestCase("play-with-bots")]
-        [TestCase("blitz-toggle")]
         [TestCase("online-button")]
         public void MainColumn_HoldsOnlyTheEverydayActions(string name)
         {
@@ -57,10 +56,18 @@ namespace PlanetIO.Tests
             Assert.That(_root.Q<VisualElement>(name), Is.Not.Null, name);
         }
 
-        [Test]
-        public void MainColumn_HasAtMostFourDirectItems()
-        {
-            Assert.That(_root.Q<VisualElement>("columns").childCount, Is.LessThanOrEqualTo(4));
-        }
+		[Test]
+		public void MainColumn_HasThreeDirectItems()
+		{
+			Assert.That(_root.Q<VisualElement>("columns").childCount, Is.EqualTo(3));
+		}
+
+		[Test]
+		public void MainMenu_ShowsVersionButKeepsProgressionRankOffScreen()
+		{
+			Assert.That(_root.Q<VisualElement>("version-text"), Is.Not.Null);
+			Assert.That(_root.Q<VisualElement>("rank-dust"), Is.Null);
+			Assert.That(_root.Q<VisualElement>("menu-rank-progress-fill"), Is.Null);
+		}
     }
 }

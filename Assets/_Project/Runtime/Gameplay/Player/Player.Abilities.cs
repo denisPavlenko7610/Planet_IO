@@ -148,7 +148,7 @@ namespace PlanetIO
                         continue;
                     }
 
-                    if (victim.TryReceiveStrike(this, point, PerkRules.IonTrailDamageScale, out float dealt))
+					if (victim.TryReceiveStrike(this, point, PerkRules.IonTrailDamageScale, DamageSource.IonTrail, out float dealt))
                     {
                         Grow(dealt * MoonRules.OwnerGainFraction);
                     }

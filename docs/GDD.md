@@ -44,7 +44,7 @@ One-line pitch: *"Slither.io where your tail is moons and your weapon is gravity
 | Enemies         | pool of 16 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade); Medium and Hard bots feed and use the magnet like the player (section 5)                                                                                     |
 | Comets          | pool of 30, speed 2.5–3.5, damage 50% of victim mass, then the comet respawns elsewhere; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                                        |
 | Network         | NGO + UGS Sessions, rooms by code (default 8, max 16), owner-authoritative movement                                                                                                                                                                           |
-| Meta            | 14 languages, skins (some for ads), continue via rewarded (50% mass), leaderboard, minimap                                                                                                                                                                    |
+| Meta            | 14 languages, skins (some for ads), rewarded continue (full pre-defeat mass and perks at the defeat location), leaderboard, minimap                                                                                                                           |
 | Tiers and moons | 4 tiers, base slots 0/2/4/6; server-side strikes, comet interception, ring clashes; HUD and camera account for moons                                                                                                                                          |
 | Gravity         | pull and slingshot in `PlanetGravity`; the owner simulates the player, the server simulates bots                                                                                                                                                              |
 | Perks           | 9 perks, server-side offer of 3 cards with a timer, pick screen in the HUD; compact top-docked choices and colored icon badges under the score                                                                                                                |
@@ -52,7 +52,7 @@ One-line pitch: *"Slither.io where your tail is moons and your weapon is gravity
 | Progression     | rank (30), stardust, 3 missions a day, streak, results screen, FTUE, 12 skins (4 free); each new rank pays stardust 5 + rank                                                                                                                                  |
 | Respawn         | 8 random candidates, the best by "food nearby + distance from bodies that can eat you" wins (`RespawnRules`)                                                                                                                                                  |
 | Movement arrow  | open chevron, constant on-screen size (2.25% of screen height), outside the visible body with a half-marker gap; does not grow with the planet (`DirectionArrowRules`)                                                                                        |
-| Main menu       | on screen: nickname and planet (profile chip), Play, Blitz, Online, mission and settings icons; nickname and skins live in the Profile window; quick play, room and code live in the Online window                                                            |
+| Main menu       | on screen: nickname and planet (profile chip), personal best, Play, Online, mission and settings icons; app version at the bottom; rank is kept off the menu and shown on run results; nickname and skins live in the Profile window; quick play, room and code live in the Online window |
 
 ### 2.1. Scope decisions (November 16, 2026)
 
@@ -187,6 +187,26 @@ described in section 5 removed these stalls: four probe runs showed none and rea
 
 ## 5. Comparison with Slither.io
 
+### First playtest feedback release (November 25, 2026)
+
+- Put a large planet preview in the profile, with previous/next controls and an explicit select, stardust purchase,
+  or rewarded unlock action. Keep the current catalogue and ownership. New unlock conditions are a separate release.
+- Give missions a visible entry and keep the personal best distinct from progression rank. Show rank on run results,
+  not on the main menu; make mission progress, rewards, claim state and the daily reset clear.
+- Identify the source and actual amount of damage in the HUD. Keep normal boost spending separate from damage
+  feedback. Keep existing threat rules and mass-independent movement, following Slither.io.
+- Give the three evolution cards 10 seconds and mark the first card as the fallback. Use the same countdown in
+  solo and online play so the arena keeps moving in both modes.
+- Remove the five-minute Blitz mode to simplify the main menu and keep solo play focused on untimed runs.
+- Replace timed first-run hints with encounter lessons in Play with Bots. Use UnityTemplates Tutorials to persist
+  each acknowledgment. Show movement on entry, then food, bots, comets, black holes, evolution, boost and the first
+  rank-up when encountered. Pause solo play while a lesson is open. Leave online play and existing completed
+  tutorials alone. Resume incomplete lessons across bot runs and allow the player to skip the tutorial.
+- Use separate playlists for the menu and arena, rotating on track end and scene re-entry without restarting
+  the active track when the same scene is reported again.
+- Defer food and movement balance changes until live Android measurements. Defer gameplay passives, revised
+  unlock thresholds and store purchases to later releases.
+
 Movement indicator revision (November 17, 2026): use a small open chevron with two strokes,
 soft white at 75% opacity and a subtle dark edge. Its longest dimension stays at 2.25% of screen
 height through growth, camera zoom and boost. Place its center beyond the larger of the body collider
@@ -269,6 +289,10 @@ Profile window, profile persistence and cloud sync. Player skins render with a n
 including after respawn and host migration; temporary boost and protection effects remain. Old saved
 color choices are ignored without resetting nickname, skins or progression. Skin selection remains the
 cosmetic control, adapting Slither.io customization to textured planets whose artwork is damaged by tinting.
+Gameplay layers the `Background.svg` gradient, `Stars.svg` star field, `Grid` and `Planets.svg` artwork in the scene.
+The SVG layers share the Background Vector Gradient material, which samples the imported vector gradient atlases in URP.
+The grid uses its tiled sprite between the star field and planet artwork.
+The main camera's far clip plane must include those sprites at z=0; the camera clear color is not a background image.
 Localized buttons keep horizontal space inside their artwork and wrap within a readable bounded font size.
 Settings labels wrap and rows grow; controls must leave space for longer translations. Profile, online
 and mission windows scroll when their content exceeds the available height. The results panel wraps its
@@ -281,7 +305,7 @@ save and remaining owner-RPC checks passed. The PlayMode spawn-protection scenar
 neutral white body tint. Android hardware and independent network peers were not checked for this revision.
 
 Bot difficulty (November 16, 2026): Settings offers Easy, Medium and Hard, persisted with Medium as the default.
-In SinglePlayer (including solo Blitz), changes take effect on the next AI decision. In multiplayer, the host's
+In SinglePlayer, changes take effect on the next AI decision. In multiplayer, the host's
 selection at room creation becomes a shared room property; joining clients cannot override it. Online settings
 show that shared value with the selector locked for the current match. The host may choose a new value before
 creating the next room.
@@ -369,7 +393,10 @@ and 20% dead zone: this keeps the knob inside the ring. Floating remains the def
 controls stay supported. Increase icon button hit areas to 104 pixels, stepper buttons to 96 pixels,
 and toggle hit areas to 88 pixels while retaining the 60-pixel switch graphic. Text links receive an
 80-pixel minimum touch height. Verify menus, settings and HUD in portrait and landscape in the Editor;
-physical comfort and gesture-navigation clearance still require device testing. UI aspect-ratio tests account
+physical comfort and gesture-navigation clearance still require device testing. Align the three main menu
+controls to a shared width and use equal side insets for the arena HUD. Keep modal backdrops full-screen
+and center their cards within the safe area, with vertical scrolling when the content is taller than the
+available space. UI aspect-ratio tests account
 for up to one physical pixel of dimension rounding when UI Toolkit snaps rectangle edges to the pixel grid.
 
 Planet nicknames (November 17, 2026): reduce player and bot nameplate font size from 5 to 4.25 (15%)
@@ -524,11 +551,12 @@ Finger control, perpetual motion, food and fields, field migration, golden food,
 
 Rules:
 
-- A tier-up comes with a flash, haptics, new moons appearing and a perk pick screen (3 cards, 5 seconds to choose,
-  otherwise random).
+- A tier-up comes with a flash, haptics, new moons appearing and a perk pick screen (3 cards, 10 seconds to choose,
+  otherwise the first card is applied).
 - Dropping below a tier threshold removes the tier, but **perks stay** until the end of the life (otherwise the penalty
   is doubled).
-- A new life resets perks; continue keeps perks and returns 50% of the mass. Satellites reset on death and form again on
+- A new life resets perks; rewarded continue keeps perks and restores the full mass from before the lethal hit at the
+  defeat location. Satellites reset on death and form again on
   revival according to the current tier.
 - Progressive disclosure: on tier I the player only knows "eat and run"; moons and perks are explained when they appear.
 - Tier IV is the last tier: from 1.4 to the cap of 8.0 growth is continuous (size, score, leader bounty), as in
@@ -618,8 +646,9 @@ avoiding wells and using the slingshot are deferred.
 
 The pool is a starter set; expand it after playtests. Each perk must have a downside and one strong counter.
 
-Status: all nine perks work. The server stores an offer of three cards, validates the pick index and picks a random perk
-itself after 5 s (+0.75 s for network delay). The pick screen is `perk-panel` in `Hud.uxml`, shown by `PerkPresenter`
+Status: all nine perks work. The server stores an offer of three cards, validates the pick index and applies the first
+card
+after 10 s (+0.75 s for network delay). The pick screen is `perk-panel` in `Hud.uxml`, shown by `PerkPresenter`
 through `IPerkView` (`SessionHudView`); texts live in `UIStrings.csv` in 14 languages (names and descriptions should be
 proofread by native speakers). Bots get no perks.
 
@@ -676,7 +705,7 @@ leader. The existing arrow shows the player's own movement direction.
 
 ### 6.8. Cosmic events
 
-Phase 4 status: events, the map, the daily modifier and Blitz are implemented in code. The event schedule is not sent
+Phase 4 status: events, the map and the daily modifier are implemented in code. The event schedule is not sent
 over
 the network: every participant computes it from the day number (UTC) and server time (`CosmicEventRules`), only the
 server applies effects, everyone draws the visuals (`WorldDirector`). One event every 90–150 s, a banner 6 s before
@@ -704,10 +733,11 @@ session the schedule can diverge between participants.
   teleport exits 5 u from the other entrance, 10 s cooldown per planet), 3 nebulae (a planet inside disappears from the
   minimap and from bots' view). Positions come from `MapFeatureRules` by day number, outside 40 u from the center, stars
   no closer than 90 u.
-- Respawn: the owner scores 8 random candidates (`Player.Respawn`): score = food within radius 12 (up to 40 items) /
+- Respawn: the server scores 8 random candidates (`Player.Respawn`): score = food within radius 12 (up to 40 items) /
   40 +
   2 × min(1, distance to the edge of the nearest body that can eat the player / 22). Food and planets come from
-  replicated objects, so a server density map is not needed. It also applies to continue.
+  the live arena state. Rewarded continue revives at the defeat location with five seconds of protection. The full mass
+  and perk reward preserves the run the player chose to continue.
 
 ## 7. Progression and meta
 
@@ -742,8 +772,8 @@ storage. Google Play Games sign-in, cloud save, leaderboards and achievements ar
 | Storage        | `ProgressionService`                              | `player-progress` slot in `SaveStore`; the "day" is counted by UTC on the device clock                                                                   |
 | Run statistics | `RunStatsTracker`                                 | lifetime, peak mass and tier, kills, perks, killer                                                                                                       |
 | Results        | `DefeatPresenter` + `IRunResultView`              | time, kills, tier, killer, an animated rank bar, reward, a "Double stardust" ad button                                                                   |
-| Menu           | `ProgressMenuPresenter` + `MainMenuView.Progress` | rank and stardust in the header, the missions screen, a "!" badge on the button when a reward is ready                                                   |
-| FTUE           | `FtuePresenter`                                   | condition-driven steps: movement, food, red ring, green ring, tier II, boost; each step times out, about a minute at most                                |
+| Menu           | `ProgressMenuPresenter` + `MainMenuView.Progress` | the missions screen and a "!" badge on the button when a reward is ready; the app version is shown at the bottom of the main menu and progression rank stays on run results |
+| FTUE           | `FtuePresenter`                                   | encounter-driven lessons in Play with Bots; each acknowledgment is saved, and the arena pauses while a lesson is open                                    |
 | Analytics      | `LocalAnalyticsService`                           | events from Appendix A go to the debug build log; there is no external backend                                                                           |
 
 Saving goes through `RD.Save`, day and streak timers through `RD.Timers`, haptic feedback through `RD.Haptics`, settings
@@ -784,7 +814,6 @@ Console.
 | Classic arena (endless)                | exists                                                         |
 | Single player against bots             | exists                                                         |
 | Private room by code                   | exists                                                         |
-| 5-minute Blitz with a final scoreboard | exists (single player only, enabled with a toggle in the menu) |
 | Daily modifier                         | exists                                                         |
 | "Solar system" teams                   | not planned                                                    |
 
@@ -819,12 +848,13 @@ Only player-requested rewarded ads are supported. Ad consent (UMP) is already im
   also coded by shape, without a setting: a dangerous planet has a thick pulsing ring, the others a thin one.
 - HUD: a mass bar with tier ticks, perk badges, a kill feed, a small movement arrow at the planet edge, and a minimap
   with the leader beacon, an event banner.
-- Main menu: at most four actions on screen (profile, Play, Online, the Blitz toggle) and two corner icons (missions,
+- Main menu: three actions on screen (profile, Play, Online) and two corner icons (missions,
   settings). Everything else opens in separate windows, as in Slither.io, where the main screen has only a nickname,
-  Play and a skin picker.
-- 60-second FTUE: eat food → see the big planet's red ring and run → eat a small one → get tier II and the first
-  perk.
-  The `onboarding.tutorial-completed` key already exists.
+  Play and a skin picker. Keep progression rank off the main menu; show rank progress on the run-results screen instead.
+  Show the application version discreetly at the bottom of the main menu.
+- In Play with Bots, show one tutorial lesson at a time as its encounter or milestone appears. The player
+  resumes play by acknowledging the lesson and can skip the remaining lessons. The existing
+  `onboarding.tutorial-completed` key suppresses all lessons for returning players. These lessons appear only in Play with Bots.
 - Haptics: moon hit, kill, tier-up, death.
 - Every new screen is built on UI Toolkit (UXML/USS in `Assets/_Project/UI`), localized through `UIStrings.csv`. For 14
   languages write as little text as possible: icons and numbers instead of phrases, no more than 20 new strings per
@@ -951,7 +981,7 @@ replaced in phase 6; comet names stay and are always shown, only the visibility 
 | Google Play Games: sign-in, cloud save, leaderboards, achievements | after release, done in code (7.2) |
 | In-App Review                                                      | after release, done in code (7.2) |
 | Cosmic events                                                      | 4                                 |
-| Blitz mode and the daily modifier                                  | 4                                 |
+| Daily modifier                                                      | 4                                 |
 | Neutral stars, wormholes, nebulae                                  | 4                                 |
 | Analytics                                                          | 0 (event schema), 3 (funnels)     |
 
@@ -979,7 +1009,7 @@ the update release and are ordered by the rules in section 2.1.
 
 | Phase                                                | Duration | Content                                                                                                                                                                                                     | Exit criteria                                                                                                                                                            |
 |------------------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0–4. Foundation, moons, gravity, perks, meta, events | done     | Sections 6–8; rank, stardust, missions, streak, FTUE, events, Blitz, map features                                                                                                                           | Code implemented; on-device verification not finished (the 13 Nov report has scenarios marked Not Run)                                                                   |
+| 0–4. Foundation, moons, gravity, perks, meta, events | done     | Sections 6–8; rank, stardust, missions, streak, FTUE, events, map features                                                                                                                                  | Code implemented; on-device verification not finished (the 13 Nov report has scenarios marked Not Run)                                                                   |
 | 5. Stabilization                                     | 1        | Full PlayMode without failures, moon-reset regressions, host/client on two devices, FPS and traffic measurement on a weak Android with 2000 food                                                            | All tests green; ≥ 55 FPS on a weak Android; validate data-only food replication (12.7)                                                                                  |
 | 6. First minute and feel                             | 1–2      | Done in code: smart respawn, perk badges, rank reward, threat ring shape, small movement arrow, menu split into windows, three sounds. Left: on-device tuning of camera, speed, food, magnet and boost cost | A series of playtests (≥ 5 people): growth pace from section 4 within ±25%; ≥ 80% finish the FTUE; on tier II testers kill a tier III planet in at least 1 of 5 attempts |
 | 7. Update release                                    | 1        | AAB build, device smoke test, closed testing, store listing and screenshots                                                                                                                                 | crash-free ≥ 99.5% in closed testing; D1 ≥ 35% from Play Console after release                                                                                           |
@@ -1018,7 +1048,7 @@ Target hypotheses (not guarantees; recheck against test data):
 The plan for phases 5–8 is built on the assumptions below; confirm or replace them:
 
 1. The audience is casual: short runs, 9 perks, gravity without manual tuning. We do not deepen the system.
-2. Bots come first (single player and Blitz); rooms by code are an extra mode, so anti-cheat and matchmaking are
+2. Single player with bots comes first; rooms by code are an extra mode, so anti-cheat and matchmaking are
    deferred.
 3. The time to the update release is 3–4 weeks of active work (phases 5–7).
 
@@ -1046,7 +1076,8 @@ nicknames in events.
 | `signin`           | `ok` (0/1), `auto` (0/1)                                                                                    | Play Games sign-in finished  |
 | `cloud_sync`       | `result` (uploaded, downloaded, merged, same, failed)                                                       | a cloud save sync finished   |
 
-Funnels for checking hypotheses: FTUE (steps in sequence), first run → second run, death → continue / "play again",
+Funnels for checking hypotheses: FTUE (lessons acknowledged by encounter), first run → second run, death → continue /
+"play again",
 tier II → tier III, ad offer → acceptance.
 
 ## Appendix B. Verification history and release checks

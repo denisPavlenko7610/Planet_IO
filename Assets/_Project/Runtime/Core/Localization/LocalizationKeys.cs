@@ -116,9 +116,6 @@ namespace PlanetIO
         public const string ModifierLowGravity = "modifier.low_gravity";
         public const string ModifierHeavyGravity = "modifier.heavy_gravity";
         public const string ModifierGoldRush = "modifier.gold_rush";
-        public const string ModeBlitz = "mode.blitz";
-        public const string BlitzTitle = "blitz.title";
-        public const string BlitzRank = "blitz.rank";
 
         public static string EventWarning(CosmicEventType type) => type switch
         {
@@ -188,6 +185,28 @@ namespace PlanetIO
             _ => PerkPredatorDesc
         };
 
+		public const string MenuSkinSelect = "menu.skin_select";
+		public const string MenuSkinEquipped = "menu.skin_equipped";
+		public const string MenuSkinBuy = "menu.skin_buy";
+		public const string MenuSkinWatch = "menu.skin_watch";
+		public const string MissionsReset = "missions.reset";
+		public const string MissionProgressReward = "missions.progress_reward";
+		public const string PerkAutoPick = "perk.auto_pick";
+		public const string DamageComet = "damage.comet";
+		public const string DamageMoon = "damage.moon";
+		public const string DamageBorder = "damage.border";
+		public const string DamageIonTrail = "damage.ion_trail";
+		public const string DamageBlackHole = "damage.black_hole";
+		public const string TutorialContinue = "tutorial.continue";
+		public const string TutorialSkip = "tutorial.skip";
+		public const string TutorialBot = "tutorial.bot";
+		public const string TutorialComet = "tutorial.comet";
+		public const string TutorialBlackHole = "tutorial.black_hole";
+		public const string TutorialEvolution = "tutorial.evolution";
+		public const string TutorialRank = "tutorial.rank";
+
+		public static string SkinName(string id) => "skin." + id;
+
         public static readonly string[] All =
         {
             MenuNicknamePlaceholder, MenuRandomNickname, MenuPlayWithBots, MenuCreateRoom, MenuQuickPlay, MenuJoinRoom,
@@ -204,8 +223,16 @@ namespace PlanetIO
             MissionsButton, MissionsTitle, MissionsStreak, MissionsStreakBonus, MissionsClaim, MissionsReroll, MissionsDone,
             MissionKills, MissionPeakTier, MissionSurvive, MissionPeakScore, MissionPerks, MissionRuns,
             MenuSkinLockedPrice, FtueMove, FtueAvoid, FtueHunt, FtueTier,
+			MenuSkinSelect, MenuSkinEquipped, MenuSkinBuy, MenuSkinWatch,
+			MissionsReset, MissionProgressReward, PerkAutoPick, DamageComet,
+			DamageMoon, DamageBorder, DamageIonTrail, DamageBlackHole,
+			TutorialContinue, TutorialSkip, TutorialBot, TutorialComet, TutorialBlackHole,
+			TutorialEvolution, TutorialRank, SkinName("green"), SkinName("violet"),
+			SkinName("sun"), SkinName("candy"), SkinName("heart"), SkinName("crystal"),
+			SkinName("swirl"), SkinName("pizza"), SkinName("burger"), SkinName("cheese"),
+			SkinName("cake"), SkinName("lava"),
             EventMeteorWarn, EventMeteorNow, EventSupernovaWarn, EventSupernovaNow, EventBlackHoleWarn, EventBlackHoleNow,
-            ModifierLowGravity, ModifierHeavyGravity, ModifierGoldRush, ModeBlitz, BlitzTitle, BlitzRank,
+			ModifierLowGravity, ModifierHeavyGravity, ModifierGoldRush,
             PerkTitle,
             PerkIonTrailName, PerkIonTrailDesc, PerkMagnetosphereName, PerkMagnetosphereDesc,
             PerkHeavyMoonsName, PerkHeavyMoonsDesc, PerkAblativeCrustName, PerkAblativeCrustDesc,

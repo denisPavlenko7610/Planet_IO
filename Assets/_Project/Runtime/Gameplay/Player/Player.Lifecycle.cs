@@ -5,7 +5,7 @@ namespace PlanetIO
 {
     public sealed partial class Player
     {
-        protected override void DeathCheck(float capacity)
+		protected override void DeathCheck(float capacity, float previousCapacity)
         {
             if (IsServer && capacity <= MinCapacity)
             {
@@ -14,12 +14,17 @@ namespace PlanetIO
                     return;
                 }
 
-                Defeat(LastAttackerName, LastAttackerClientId);
+				DefeatWithMass(previousCapacity, LastAttackerName, LastAttackerClientId);
             }
         }
 
         public void Defeat(string killerName = null, ulong killerClientId = Constants.UnassignedClientId)
         {
+			DefeatWithMass(Capacity, killerName, killerClientId);
+		}
+
+		private void DefeatWithMass(float restoreCapacity, string killerName, ulong killerClientId)
+		{
             if (!IsServer || IsDefeated)
             {
                 return;
@@ -31,7 +36,7 @@ namespace PlanetIO
             }
 
             ResetBoost();
-            _capacityAtDefeat = Capacity;
+			_capacityAtDefeat = restoreCapacity;
             _lootDrop = _lootSpawnService?.SpawnLoot(transform.position, Capacity);
 
             if (_rigidbody2D != null)
@@ -66,7 +71,6 @@ namespace PlanetIO
 
             if (IsOwner)
             {
-                TeleportLocal(PickRespawnPosition());
                 Revived?.Invoke();
             }
         }
@@ -113,14 +117,17 @@ namespace PlanetIO
             _continueUsedThisLife = false;
             _lootDrop = null;
             ResetBoost();
-            Revive(_spawnInvincibilityTime, InitialCapacity);
-            ResetPerksForNewLife();
+			ResetPerksForNewLife();
+			Capacity = InitialCapacity;
+			Teleport(PickRespawnPosition());
+			Revive(_spawnInvincibilityTime, InitialCapacity);
         }
 
         private void Revive(float protectionTime, float capacity)
         {
             _invincibilityTimeRemaining = protectionTime;
-            Capacity = capacity;
+			Capacity = capacity;
+			_networkSpawnProtected.Value = protectionTime > 0f;
             _networkDefeated.Value = false;
             RefreshMoonSlots();
         }
