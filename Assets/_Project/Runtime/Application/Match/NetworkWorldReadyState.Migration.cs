@@ -80,7 +80,7 @@ namespace PlanetIO.Application
                 return;
             }
 
-            _acknowledged[rpc.Receive.SenderClientId] = (WorldBounds.Clamp(position), rotation);
+			_acknowledged[rpc.Receive.SenderClientId] = (WorldBounds.Clamp(position), rotation);
         }
     }
 }

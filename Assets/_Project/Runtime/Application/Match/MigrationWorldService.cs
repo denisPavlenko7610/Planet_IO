@@ -38,7 +38,7 @@ namespace PlanetIO.Application
 
         public void MarkReady() => _ready = true;
 
-        private PlanetMigrationState CapturePlanet(PlanetBody planet)
+		private PlanetMigrationState CapturePlanet(PlanetBody planet)
         {
             var state = planet.CaptureMigration();
             state.ObjectId = _store.StableId(planet.NetworkObjectId);

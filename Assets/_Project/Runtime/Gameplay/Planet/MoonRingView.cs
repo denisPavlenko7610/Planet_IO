@@ -10,13 +10,13 @@ namespace PlanetIO
         private readonly SpriteRenderer[] _moons = new SpriteRenderer[MoonLoadout.MaxSlots];
         private readonly float[] _appear = new float[MoonLoadout.MaxSlots];
 
-        private PlanetBody _planet;
+		private PlanetBody _planet;
         private SpriteRenderer _body;
         private Transform _root;
 
         private void Awake()
         {
-            _planet = GetComponent<PlanetBody>();
+			_planet = GetComponent<PlanetBody>();
             _body = GetComponent<SpriteRenderer>();
         }
 

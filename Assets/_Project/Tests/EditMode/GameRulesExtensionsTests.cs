@@ -42,7 +42,7 @@ namespace PlanetIO.Tests
         [Test]
         public void WorldBounds_StopsVelocityPushingOutward()
         {
-            Rect bounds = WorldBounds.Area;
+			Rect bounds = WorldBounds.Area;
             Vector2 atRightEdge = new(bounds.xMax, 0f);
 
             Vector2 velocity = WorldBounds.KeepInside(atRightEdge, new Vector2(3f, 2f));
@@ -54,7 +54,7 @@ namespace PlanetIO.Tests
         [Test]
         public void WorldBounds_DistanceToEdgeIsZeroOnBorder()
         {
-            Rect bounds = WorldBounds.Area;
+			Rect bounds = WorldBounds.Area;
 
             Assert.That(
                 WorldBounds.DistanceToEdge(new Vector2(bounds.xMin, bounds.center.y)),

@@ -12,7 +12,7 @@ namespace PlanetIO
 
         private MatchMigrationStore _migration;
         [Inject] public void ConfigureMigration(MatchMigrationStore store) => _migration = store;
-        private PlanetBody _planet;
+		private PlanetBody _planet;
         private Rigidbody2D _rigidbody2D;
 
         public float SlingshotBoost => _slingshot.Boost;
@@ -21,7 +21,7 @@ namespace PlanetIO
 
         private void Awake()
         {
-            _planet = GetComponent<PlanetBody>();
+			_planet = GetComponent<PlanetBody>();
             _rigidbody2D = GetComponent<Rigidbody2D>();
         }
 

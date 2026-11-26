@@ -233,7 +233,7 @@ namespace PlanetIO.Application
             var planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
-                PlanetBody planet = planets[index];
+				PlanetBody planet = planets[index];
                 if (!IsAlive(planet) || _blackHoleVictims.Contains(planet.NetworkObjectId))
                 {
                     continue;
@@ -258,7 +258,7 @@ namespace PlanetIO.Application
             var planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
-                PlanetBody planet = planets[index];
+				PlanetBody planet = planets[index];
                 if (!IsAlive(planet))
                 {
                     continue;
@@ -283,12 +283,12 @@ namespace PlanetIO.Application
             }
         }
 
-        private void Teleport(PlanetBody planet, Vector2 entrance, Vector2 exit, double now)
+		private void Teleport(PlanetBody planet, Vector2 entrance, Vector2 exit, double now)
         {
             Vector2 direction = Constants.NormalizedOrRight((Vector2)planet.transform.position - entrance);
             Vector2 target = exit + direction * (MapFeatureRules.WormholeExitOffset + planet.BodyRadius);
             _portalReady[planet.NetworkObjectId] = now + MapFeatureRules.WormholeCooldownSeconds;
-            planet.Teleport(WorldBounds.Clamp(target));
+			planet.Teleport(WorldBounds.Clamp(target));
         }
 
         private void LaunchMeteors()
@@ -341,7 +341,7 @@ namespace PlanetIO.Application
                 case CosmicEventType.BlackHole:
                     Vector2 exit = _event.PositionAt(_event.EndTime);
                     float mass = Mathf.Max(0.3f, _absorbedMass) * _lootScale;
-                    _loot.SpawnLoot(WorldBounds.Clamp(exit), mass / LootMassFraction);
+					_loot.SpawnLoot(WorldBounds.Clamp(exit), mass / LootMassFraction);
                     break;
             }
         }
@@ -352,7 +352,7 @@ namespace PlanetIO.Application
             for (int index = -2; index <= 2; index++)
             {
                 Vector2 point = _event.Position + direction * (index * 35f);
-                _loot.SpawnLoot(WorldBounds.Clamp(point), 0.8f * _lootScale);
+				_loot.SpawnLoot(WorldBounds.Clamp(point), 0.8f * _lootScale);
             }
         }
 
@@ -363,11 +363,11 @@ namespace PlanetIO.Application
             {
                 float angle = index * (360f / piles) * Mathf.Deg2Rad;
                 Vector2 point = _event.Position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * 6f;
-                _loot.SpawnLoot(WorldBounds.Clamp(point), 2f * _lootScale);
+				_loot.SpawnLoot(WorldBounds.Clamp(point), 2f * _lootScale);
             }
         }
 
-        private static bool IsAlive(PlanetBody planet)
+		private static bool IsAlive(PlanetBody planet)
         {
             return planet != null && planet.isActiveAndEnabled && planet.IsSpawned && planet.AreMoonsVisible;
         }

@@ -70,7 +70,7 @@ namespace PlanetIO.Tests
         private static void RunFoodSweep(Player player)
         {
             SetMoonField(player, "_bodyFoodSweepTimer", FoodSweepRules.Interval);
-            typeof(PlanetBody).GetMethod("SweepFoodInsideBody", BindingFlags.Instance | BindingFlags.NonPublic)
+			typeof(PlanetBody).GetMethod("SweepFoodInsideBody", BindingFlags.Instance | BindingFlags.NonPublic)
                 .Invoke(player, new object[] { Time.fixedDeltaTime });
         }
     }

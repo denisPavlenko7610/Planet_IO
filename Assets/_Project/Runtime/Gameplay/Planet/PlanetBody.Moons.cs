@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-    public abstract partial class PlanetBody
+	public abstract partial class PlanetBody
     {
         private const float MoonStepInterval = 0.04f;
         private const float MoonClashInterval = 0.12f;
@@ -335,7 +335,7 @@ namespace PlanetIO
                         continue;
                     }
 
-                    if (hit.TryGetComponent(out PlanetBody victim))
+					if (hit.TryGetComponent(out PlanetBody victim))
                     {
                         if (victim != this)
                         {
@@ -355,7 +355,7 @@ namespace PlanetIO
             }
         }
 
-        private void StrikeWithMoon(PlanetBody victim, int moonIndex, Vector2 moonPosition, float moonRadius)
+		private void StrikeWithMoon(PlanetBody victim, int moonIndex, Vector2 moonPosition, float moonRadius)
         {
             if (!victim.TryReceiveStrike(this, moonPosition, MoonDamageMultiplier, DamageSource.Moon, out float dealt))
             {
@@ -419,7 +419,7 @@ namespace PlanetIO
             {
                 Collider2D hit = _clashContacts[contact];
                 if (hit == null ||
-                    !hit.TryGetComponent(out PlanetBody other) ||
+					!hit.TryGetComponent(out PlanetBody other) ||
                     other == this ||
                     !other.CanClashMoons)
                 {
@@ -437,7 +437,7 @@ namespace PlanetIO
         private bool CanClashMoons =>
             IsServer && IsSpawned && IsCombatActive && !IsHarmImmune && _clashCooldown <= 0f && _moons.AliveMask != 0;
 
-        private bool TryFindMoonClash(PlanetBody other, double time, out Vector2 clashPoint, out int ownMoon, out int otherMoon)
+		private bool TryFindMoonClash(PlanetBody other, double time, out Vector2 clashPoint, out int ownMoon, out int otherMoon)
         {
             clashPoint = default;
             ownMoon = otherMoon = -1;
@@ -486,7 +486,7 @@ namespace PlanetIO
             return false;
         }
 
-        private void StartMoonClash(PlanetBody other, Vector2 clashPoint, int ownMoon, int otherMoon)
+		private void StartMoonClash(PlanetBody other, Vector2 clashPoint, int ownMoon, int otherMoon)
         {
 			HitMoon(ownMoon);
 			other.HitMoon(otherMoon);

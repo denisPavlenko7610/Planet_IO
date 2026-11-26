@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-    public abstract partial class PlanetBody
+	public abstract partial class PlanetBody
     {
         private readonly NetworkVariable<bool> _networkLeader = new(
             false,
@@ -25,7 +25,7 @@ namespace PlanetIO
 
         protected virtual float CometHealFraction => 0f;
 
-        protected void AbsorbVictim(PlanetBody victim)
+		protected void AbsorbVictim(PlanetBody victim)
         {
             if (victim == null)
             {
@@ -37,7 +37,7 @@ namespace PlanetIO
             Grow(gained * AbsorbMultiplier * bounty);
         }
 
-        public bool Pulls(PlanetBody body)
+		public bool Pulls(PlanetBody body)
         {
             return body != null && body != this && GravityRules.Affects(Capacity, body.Capacity);
         }

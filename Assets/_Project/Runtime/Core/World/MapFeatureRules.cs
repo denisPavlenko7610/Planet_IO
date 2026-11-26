@@ -48,7 +48,7 @@ namespace PlanetIO
                 result[placed++] = point;
             }
 
-            Rect bounds = WorldBounds.Area;
+			Rect bounds = WorldBounds.Area;
             Vector2[] fallback =
             {
                 new(bounds.xMin + 80f, bounds.yMax - 60f),
@@ -79,7 +79,7 @@ namespace PlanetIO
                 }
             }
 
-            Rect bounds = WorldBounds.Area;
+			Rect bounds = WorldBounds.Area;
             first = new Vector2(bounds.xMin + 70f, bounds.center.y);
             second = new Vector2(bounds.xMax - 70f, bounds.center.y);
         }
@@ -87,7 +87,7 @@ namespace PlanetIO
         public static void Nebulae(int seed, MapDisc[] result)
         {
             var random = new System.Random(seed * 68239 + 17);
-            Rect bounds = WorldBounds.Area;
+			Rect bounds = WorldBounds.Area;
             for (int index = 0; index < result.Length; index++)
             {
                 float radius = 28f + (float)random.NextDouble() * 12f;
@@ -117,7 +117,7 @@ namespace PlanetIO
 
         private static Vector2 RandomPoint(System.Random random)
         {
-            Rect bounds = WorldBounds.Area;
+			Rect bounds = WorldBounds.Area;
             return new Vector2(
                 Mathf.Lerp(bounds.xMin + EdgeMargin, bounds.xMax - EdgeMargin, (float)random.NextDouble()),
                 Mathf.Lerp(bounds.yMin + EdgeMargin, bounds.yMax - EdgeMargin, (float)random.NextDouble()));

@@ -7,7 +7,7 @@ using VContainer;
 namespace PlanetIO
 {
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D))]
-    public sealed partial class Player : PlanetBody
+	public sealed partial class Player : PlanetBody
     {
         public readonly struct DefeatAnnouncement
         {

@@ -87,7 +87,7 @@ namespace PlanetIO.Tests
             Physics2D.SyncTransforms();
             Assert.That(player.IsHiddenFromRivals, Is.True);
 
-            Vector2 outside = new(WorldBounds.Area.xMax - 2f, WorldBounds.Area.yMax - 2f);
+			Vector2 outside = new(WorldBounds.Area.xMax - 2f, WorldBounds.Area.yMax - 2f);
             bool outsideAll = !MapFeatureRules.InsideAny(discs, outside);
             if (outsideAll)
             {

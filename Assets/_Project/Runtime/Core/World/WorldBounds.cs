@@ -23,7 +23,7 @@ namespace PlanetIO
 
 		public static Vector2 KeepInside(Vector2 position, Vector2 velocity)
 		{
-			Rect bounds = WorldBounds.Area;
+			Rect bounds = Area;
 			if (position.x <= bounds.xMin && velocity.x < 0f || position.x >= bounds.xMax && velocity.x > 0f)
 			{
 				velocity.x = 0f;
@@ -39,7 +39,7 @@ namespace PlanetIO
 
 		public static float DistanceToEdge(Vector2 position)
 		{
-			Rect bounds = WorldBounds.Area;
+			Rect bounds = Area;
 			return Mathf.Min(
 				Mathf.Min(position.x - bounds.xMin, bounds.xMax - position.x),
 				Mathf.Min(position.y - bounds.yMin, bounds.yMax - position.y));

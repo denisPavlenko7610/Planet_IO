@@ -111,7 +111,7 @@ namespace PlanetIO.Bootstrap
             builder.RegisterEntryPoint<DefeatPresenter>();
             builder.RegisterEntryPoint<PlayerFeedbackPresenter>();
             builder.RegisterEntryPoint<PerkPresenter>();
-            builder.RegisterEntryPoint<GameplayTutorialPresenter>();
+			builder.RegisterEntryPoint<GameplayTutorialPresenter>();
             builder.RegisterEntryPoint<EventBannerPresenter>();
             builder.RegisterEntryPoint<HudNavigationPresenter>();
             builder.RegisterEntryPoint<ControlsLayoutPresenter>();

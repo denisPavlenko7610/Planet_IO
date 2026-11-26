@@ -11,13 +11,13 @@ namespace PlanetIO
         {
             for (int index = 0; index < RespawnRules.CandidateCount; index++)
             {
-                Vector2 candidate = WorldBounds.RandomPosition();
+				Vector2 candidate = WorldBounds.RandomPosition();
                 _respawnCandidates[index] = candidate;
                 _respawnScores[index] = RespawnRules.Score(CountFoodAround(candidate), NearestThreatEdgeDistance(candidate));
             }
 
             int best = RespawnRules.PickBest(_respawnScores);
-            return best >= 0 ? _respawnCandidates[best] : WorldBounds.RandomPosition();
+			return best >= 0 ? _respawnCandidates[best] : WorldBounds.RandomPosition();
         }
 
         private int CountFoodAround(Vector2 position)
@@ -32,7 +32,7 @@ namespace PlanetIO
             var planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
-                PlanetBody planet = planets[index];
+				PlanetBody planet = planets[index];
                 if (planet == null || planet == this || !planet.IsSpawned || !planet.CanDevour(this))
                 {
                     continue;

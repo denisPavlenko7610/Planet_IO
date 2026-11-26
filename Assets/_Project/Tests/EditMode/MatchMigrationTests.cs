@@ -84,7 +84,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void BinaryFoodMigrationPreservesTombstonesAndRejectsAmbiguousSlots()
 		{
-			var world = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld world = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord active = world.Create(Vector2.one, 0.3f, 2);
 			FoodRecord removed = world.Create(Vector2.zero, 0.2f);
 			world.Remove(removed);

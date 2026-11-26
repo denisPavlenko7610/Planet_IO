@@ -11,7 +11,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void GridMatchesBruteForceAfterMovementRemovalAndSlotReuse()
 		{
-			var world = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld world = new FoodWorld(true, WorldBounds.Area);
 			var random = new System.Random(42);
 			var records = new List<FoodRecord>();
 			var result = new List<FoodRecord>(256);
@@ -32,7 +32,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void RemovedHandleCannotClaimTheReplacementAndClaimsAreExclusive()
 		{
-			var world = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld world = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord food = world.Create(Vector2.zero, 0.2f);
 			ulong old = food.Id;
 			Assert.That(food.TryClaim(), Is.True);
@@ -47,7 +47,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void MigrationPreservesGenerationExpiryImmunityAndInactiveSlots()
 		{
-			var world = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld world = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord food = world.Create(Vector2.one, 0.3f);
 			world.Configure(food, true, false, -1, 0.1f, 2f, 20f);
 			food.SetDropper(7, 5f);
@@ -55,7 +55,7 @@ namespace PlanetIO.Tests
 			FoodRecord inactive = world.Create(Vector2.zero, 0.2f);
 			ulong expired = inactive.Id;
 			world.Remove(inactive);
-			var restored = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld restored = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord copy = restored.Restore(world.Capture(food));
 			restored.Restore(world.Capture(inactive));
 			restored.RebuildFreeSlots();
@@ -79,7 +79,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void GridIncludesTouchingFoodAndMagnetCannotMoveItOutsideTheArena()
 		{
-			var world = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld world = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord food = world.Create(new Vector2(1.1f, 0f), 0.2f);
 			var buffer = new List<FoodRecord>();
 			world.Query(Vector2.zero, 1f, buffer);
@@ -92,7 +92,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void WarmGridQueriesAndMagnetMovementDoNotAllocateManagedMemory()
 		{
-			var world = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld world = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord food = world.Create(Vector2.zero, 0.2f);
 			var buffer = new List<FoodRecord>(32);
 			for (int i = 0; i < 100; i++) { food.Position = Vector2.right * (i % 2); world.Query(Vector2.zero, 4f, buffer); }
@@ -136,7 +136,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void TwoThousandRecordSnapshotAndDeltasConvergeForTwoReplicasAndLateJoin()
 		{
-			var server = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld server = new FoodWorld(true, WorldBounds.Area);
 			for (int i = 0; i < 2000; i++) server.Create(new Vector2(i % 40 - 20, i / 40 - 25), 0.2f);
 			var first = new FoodReplica(); var second = new FoodReplica();
 			Snapshot(server, first, 1, 0, 1);
@@ -156,7 +156,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void GapRequestsRepairAndMigrationEpochRejectsOldPackets()
 		{
-			var server = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld server = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord food = server.Create(Vector2.zero, 0.2f);
 			var replica = new FoodReplica(); Snapshot(server, replica, 1, 0, 1);
 			Delta(replica, food, 2);
@@ -174,7 +174,7 @@ namespace PlanetIO.Tests
 		[Test]
 		public void DuplicateEffectsAreNotReplayedAndMalformedPacketsDoNotPartiallyApply()
 		{
-			var server = new FoodWorld(true, WorldBounds.Area);
+			FoodWorld server = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord food = server.Create(Vector2.zero, 0.2f);
 			var replica = new FoodReplica(); Snapshot(server, replica, 1, 0, 1);
 			int effects = 0; replica.Eaten += _ => effects++;

@@ -47,7 +47,7 @@ namespace PlanetIO.UI.Hud
                 var planets = PlanetDirectory.All;
                 for (int index = 0; index < planets.Count; index++)
                 {
-                    PlanetBody planet = planets[index];
+					PlanetBody planet = planets[index];
                     if (planet != null && planet.IsSpawned && planet.DisplayName == KillerName)
                     {
                         return planet.Tier;

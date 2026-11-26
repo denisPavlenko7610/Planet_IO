@@ -14,7 +14,7 @@ namespace PlanetIO.Tests
         [SetUp]
         public void SetUp()
         {
-            _foodWorld = new FoodWorld(true, WorldBounds.Area);
+			_foodWorld = new FoodWorld(true, WorldBounds.Area);
 			_food = _foodWorld.Create(Vector2.zero, 0.2f);
         }
 

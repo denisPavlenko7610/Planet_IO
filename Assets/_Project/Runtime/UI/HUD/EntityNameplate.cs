@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PlanetIO.UI.Hud
 {
-    [RequireComponent(typeof(PlanetBody))]
+	[RequireComponent(typeof(PlanetBody))]
     public sealed class EntityNameplate : MonoBehaviour
     {
         private const float MinimumParentScale = 0.0001f;
@@ -14,13 +14,13 @@ namespace PlanetIO.UI.Hud
         [SerializeField, Assign] private SpriteRenderer _entityRenderer;
         [SerializeField, Min(0f)] private float _edgePadding = 0.35f;
 
-        private PlanetBody _entity;
+		private PlanetBody _entity;
         private Transform _labelTransform;
 		private UnityEngine.Camera _camera;
 
         private void Awake()
         {
-            _entity = GetComponent<PlanetBody>();
+			_entity = GetComponent<PlanetBody>();
             _labelTransform = _label.transform;
             if (_entityRenderer == null)
             {

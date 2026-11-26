@@ -75,7 +75,7 @@ namespace PlanetIO
             double jitter = (random.NextDouble() * 2.0 - 1.0) * MaxJitter;
             double start = FirstEventDelay + safeIndex * Period + jitter;
             CosmicEventType type = TypeFor(seed, safeIndex);
-            Rect bounds = WorldBounds.Area;
+			Rect bounds = WorldBounds.Area;
 
             switch (type)
             {

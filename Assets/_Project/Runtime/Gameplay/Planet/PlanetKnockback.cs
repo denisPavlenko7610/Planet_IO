@@ -37,7 +37,7 @@ namespace PlanetIO
 
             float deltaTime = Time.fixedDeltaTime;
             Vector2 target = _rigidbody2D.position + _velocity * deltaTime;
-            _rigidbody2D.position = WorldBounds.Clamp(target);
+			_rigidbody2D.position = WorldBounds.Clamp(target);
             _velocity = Vector2.MoveTowards(_velocity, Vector2.zero, Deceleration * deltaTime);
         }
     }

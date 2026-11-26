@@ -8,7 +8,7 @@ namespace PlanetIO
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D), typeof(EnemyMovement))]
-    public sealed partial class Enemy : PlanetBody
+	public sealed partial class Enemy : PlanetBody
     {
         [Header("Presentation")]
         [SerializeField] private EnemyConfig _enemyConfig;

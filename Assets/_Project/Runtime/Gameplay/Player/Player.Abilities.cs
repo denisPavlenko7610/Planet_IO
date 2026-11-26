@@ -143,7 +143,7 @@ namespace PlanetIO
                 for (int contact = 0; contact < count; contact++)
                 {
                     Collider2D hit = _trailContacts[contact];
-                    if (hit == null || !hit.TryGetComponent(out PlanetBody victim) || victim == this)
+					if (hit == null || !hit.TryGetComponent(out PlanetBody victim) || victim == this)
                     {
                         continue;
                     }

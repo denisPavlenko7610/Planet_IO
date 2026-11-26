@@ -191,13 +191,13 @@ namespace PlanetIO.Tests
 					{
 						enemy, Vector2.left, BotDifficultyRules.BotOutgoingDamage(difficulty), PlanetBody.DamageSource.Moon, 0f
 					};
-                    typeof(PlanetBody).GetMethod("TryReceiveStrike", BindingFlags.Instance | BindingFlags.NonPublic)
+					typeof(PlanetBody).GetMethod("TryReceiveStrike", BindingFlags.Instance | BindingFlags.NonPublic)
                         .Invoke(player, attack);
                     Assert.That(player.Capacity, Is.EqualTo(1f - 0.10f * BotDifficultyRules.BotOutgoingDamage(difficulty) * playerScale).Within(0.00001f));
                     enemy.Capacity = 1f;
                     SetMoonField(enemy, "_moonImmunityRemaining", 0f);
 					object[] retaliation = { player, Vector2.left, 1f, PlanetBody.DamageSource.Moon, 0f };
-                    typeof(PlanetBody).GetMethod("TryReceiveStrike", BindingFlags.Instance | BindingFlags.NonPublic)
+					typeof(PlanetBody).GetMethod("TryReceiveStrike", BindingFlags.Instance | BindingFlags.NonPublic)
                         .Invoke(enemy, retaliation);
                     Assert.That(enemy.Capacity, Is.EqualTo(1f - 0.10f * botScale).Within(0.00001f));
                 }

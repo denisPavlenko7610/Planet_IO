@@ -142,7 +142,7 @@ namespace PlanetIO.Tests
         [TestCase(EnemyPrefabPath)]
         public void PlanetPrefab_CapacityBoundsAreConsistent(string prefabPath)
         {
-            SerializedObject planet = LoadComponent<PlanetBody>(prefabPath);
+			SerializedObject planet = LoadComponent<PlanetBody>(prefabPath);
 
             float min = planet.FindProperty("_minCapacity").floatValue;
             float max = planet.FindProperty("_maxCapacity").floatValue;

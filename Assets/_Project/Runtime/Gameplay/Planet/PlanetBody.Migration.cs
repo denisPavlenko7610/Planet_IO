@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-    public abstract partial class PlanetBody
+	public abstract partial class PlanetBody
     {
         public virtual PlanetMigrationState CaptureMigration()
         {

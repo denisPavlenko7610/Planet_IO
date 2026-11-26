@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 namespace PlanetIO
 {
-    public abstract partial class PlanetBody : NetworkBehaviour, ICapacity
+	public abstract partial class PlanetBody : NetworkBehaviour, ICapacity
     {
         private const float MinAllowedCapacity = 0.01f;
         private const float ScaleDepth = 1f;
@@ -179,7 +179,7 @@ namespace PlanetIO
 			DamageReported?.Invoke(lost, before, source);
 		}
 
-        public bool CanDevour(PlanetBody victim)
+		public bool CanDevour(PlanetBody victim)
         {
             return victim != null && CombatRules.CanDevour(Capacity, victim.Capacity, _eatSizeRatio);
         }

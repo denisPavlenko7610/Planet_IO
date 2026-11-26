@@ -99,19 +99,19 @@ namespace PlanetIO
 
             for (int attempt = 0; attempt < 24; attempt++)
             {
-                Vector2 position = WorldBounds.RandomPosition(4f);
+				Vector2 position = WorldBounds.RandomPosition(4f);
                 if (_players?.IsAnyPlayerWithinDistance(position, CometRules.SpawnClearance) == true)
                 {
                     continue;
                 }
 
-                Vector2 target = WorldBounds.RandomPosition(20f);
+				Vector2 target = WorldBounds.RandomPosition(20f);
                 Launch(position, target - position, Random.Range(_minimumSpeed, _maximumSpeed));
                 return;
             }
 
             Launch(
-                new Vector2(WorldBounds.Area.xMin - 100f, WorldBounds.Area.yMin - 100f),
+				new Vector2(WorldBounds.Area.xMin - 100f, WorldBounds.Area.yMin - 100f),
                 Vector2.right,
                 0f
             );
