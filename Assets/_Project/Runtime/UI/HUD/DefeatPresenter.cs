@@ -18,7 +18,7 @@ namespace PlanetIO.UI.Hud
         private readonly IRunStats _runStats;
         private readonly IProgressionService _progression;
         private readonly IAnalyticsService _analytics;
-        private readonly IPostRunService _postRun;
+		private readonly IRunCompletionService _runCompletion;
         private int _finalScore;
         private Player _localPlayer;
         private RunReward _lastReward;
@@ -40,9 +40,9 @@ namespace PlanetIO.UI.Hud
             IRunStats runStats,
             IProgressionService progression,
             IAnalyticsService analytics,
-            IPostRunService postRun)
+			IRunCompletionService runCompletion)
         {
-            _postRun = postRun ?? throw new ArgumentNullException(nameof(postRun));
+			_runCompletion = runCompletion ?? throw new ArgumentNullException(nameof(runCompletion));
             _resultView = resultView ?? throw new ArgumentNullException(nameof(resultView));
             _runStats = runStats ?? throw new ArgumentNullException(nameof(runStats));
             _progression = progression ?? throw new ArgumentNullException(nameof(progression));
@@ -137,7 +137,12 @@ namespace PlanetIO.UI.Hud
                 _analytics.Track(AnalyticsEvents.AdOffered, ("placement", "continue"));
             }
 
-            ShowRunResult();
+			RunSummary summary = _runStats.Current;
+			_lastReward = _runCompletion.Complete(
+				summary, _runStats.KillerTier, _restoredReward ? _lastReward : null);
+			_doubleDustClaimed = _restoredReward && _doubleDustClaimed;
+			_restoredReward = false;
+			RenderRunResult(summary);
         }
 
 		private void RenderDefeatTexts()
@@ -147,56 +152,32 @@ namespace PlanetIO.UI.Hud
 			_view.ShowDefeat(_localization.Get(LocalizationKeys.HudYouLost), score);
 		}
 
-        private void ShowRunResult()
-        {
-            RunSummary summary = _runStats.Current;
-            bool restored = _restoredReward;
-            if (!_restoredReward)
+		private void RenderRunResult(RunSummary summary)
+		{
+			string details = _localization.Get(
+				LocalizationKeys.ResultDetails, FormatDuration(summary.DurationSeconds), summary.Kills, summary.PeakTier);
+			if (!string.IsNullOrEmpty(_runStats.KillerName))
 			{
-				_lastReward = _progression.ApplyRun(summary);
+				details += "\n" + _localization.Get(LocalizationKeys.ResultKilledBy, _runStats.KillerName);
 			}
-			if (!_restoredReward)
+
+			_resultView.ShowRunResult(
+				details,
+				_localization.Get(LocalizationKeys.ResultRank, _lastReward.RankAfter),
+				XpRules.Progress(_lastReward.XpBefore),
+				XpRules.Progress(_lastReward.XpAfter),
+				_lastReward.RankedUp,
+				BuildRewardText(_doubleDustClaimed
+					? _lastReward.DustGained * DustRules.DoubleMultiplier
+					: _lastReward.DustGained));
+
+			bool canDouble = !_doubleDustClaimed && _lastReward.DustGained > 0 && _rewardedAdsService.CanShowAd;
+			_resultView.SetDoubleDust(canDouble, _localization.Get(LocalizationKeys.ResultDoubleDust));
+			if (canDouble)
 			{
-				_doubleDustClaimed = false;
+				_analytics.Track(AnalyticsEvents.AdOffered, ("placement", "dust_x2"));
 			}
-			_restoredReward = false;
-
-            string details = _localization.Get(
-                LocalizationKeys.ResultDetails, FormatDuration(summary.DurationSeconds), summary.Kills, summary.PeakTier);
-            if (!string.IsNullOrEmpty(_runStats.KillerName))
-            {
-                details += "\n" + _localization.Get(LocalizationKeys.ResultKilledBy, _runStats.KillerName);
-            }
-
-            _resultView.ShowRunResult(
-                details,
-                _localization.Get(LocalizationKeys.ResultRank, _lastReward.RankAfter),
-                XpRules.Progress(_lastReward.XpBefore),
-                XpRules.Progress(_lastReward.XpAfter),
-                _lastReward.RankedUp,
-                BuildRewardText(_lastReward.DustGained));
-
-            bool canDouble = _lastReward.DustGained > 0 && _rewardedAdsService.CanShowAd;
-            _resultView.SetDoubleDust(canDouble, _localization.Get(LocalizationKeys.ResultDoubleDust));
-            if (canDouble)
-            {
-                _analytics.Track(AnalyticsEvents.AdOffered, ("placement", "dust_x2"));
-            }
-
-            _analytics.Track(
-                AnalyticsEvents.RunEnd,
-                ("duration_s", Mathf.RoundToInt(summary.DurationSeconds)),
-                ("mass_peak", summary.PeakScore),
-                ("tier_peak", summary.PeakTier),
-                ("kills", summary.Kills),
-                ("killer_tier", _runStats.KillerTier),
-                ("xp", _lastReward.XpGained));
-
-            if (!restored)
-            {
-				_postRun.OnRunEnded(new RunEndInfo(summary, _lastReward));
-            }
-        }
+		}
 
         private string BuildRewardText(int dust)
         {

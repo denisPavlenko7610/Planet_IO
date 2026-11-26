@@ -67,7 +67,14 @@ namespace PlanetIO.Tests
             public IReadOnlyList<MissionView> Missions { get; } = new List<MissionView>();
 
             public void RefreshDay() => Changed?.Invoke();
-            public RunReward ApplyRun(RunSummary summary) => default;
+			public int RewardApplications { get; private set; }
+
+			public RunReward ApplyRun(RunSummary summary)
+			{
+				RewardApplications++;
+
+				return new RunReward(10, 5, 0, 10, 1, 1, 0);
+			}
             public bool TryClaimMission(int index) => false;
             public bool TryRerollMission(int index) => false;
             public bool TrySpendDust(int amount) => false;
@@ -129,6 +136,21 @@ namespace PlanetIO.Tests
 
 			return new RunEndInfo(summary, reward);
         }
+
+		[Test]
+		public void Complete_RestoredResultReusesRewardWithoutReportingAgain()
+		{
+			RunCompletionService completion = new(_progression, _service, _analytics);
+			RunSummary summary = Run(1).Summary;
+			RunReward reward = completion.Complete(summary, 3, null);
+
+			RunReward restored = completion.Complete(summary, 3, reward);
+
+			Assert.That(restored, Is.EqualTo(reward));
+			Assert.That(_progression.RewardApplications, Is.EqualTo(1));
+			Assert.That(_state.Dirty, Is.EqualTo(1));
+			Assert.That(_analytics.Events, Is.EqualTo(new[] { AnalyticsEvents.RunEnd }));
+		}
 
         [Test]
         public void OnRunEnded_ReportsLeaderboardsAndAchievementsForAPlausibleRun()

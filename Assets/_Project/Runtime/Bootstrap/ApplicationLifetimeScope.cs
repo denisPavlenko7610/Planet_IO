@@ -113,6 +113,7 @@ namespace PlanetIO.Bootstrap
             builder.Register<RunDifficultyProvider>(Lifetime.Singleton).As<IRunDifficultyProvider>();
             builder.Register<CloudSyncService>(Lifetime.Singleton).As<ICloudSyncService>();
             builder.Register<PostRunService>(Lifetime.Singleton).As<IPostRunService>();
+			builder.Register<RunCompletionService>(Lifetime.Singleton).As<IRunCompletionService>();
             builder.RegisterEntryPoint<AddressableMusicService>();
 			builder.RegisterEntryPoint<NetworkSessionService>()
                 .AsSelf()
