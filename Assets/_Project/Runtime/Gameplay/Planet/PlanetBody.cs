@@ -186,7 +186,7 @@ namespace PlanetIO
 
 		internal void DropBoostFood(ISpawnService<FoodRecord> spawner, Transform point, Vector2 travelDirection, float nutrition)
 		{
-			point.position = Constants.ClampToWorld(
+			point.position = WorldBounds.Clamp(
 				BoostDropRules.SpawnPosition(transform.position, travelDirection, BodyRadius));
 			spawner.SpawnAt(point, nutrition)?.SetDropper(NetworkObjectId, FoodMagnetRules.OwnDropGraceSeconds);
 		}

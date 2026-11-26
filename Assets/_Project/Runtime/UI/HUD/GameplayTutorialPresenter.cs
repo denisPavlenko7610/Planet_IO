@@ -5,7 +5,6 @@ using RD.Pause;
 using RD.Settings;
 using RD.Tutorials;
 using UnityEngine;
-using UnityEngine.UIElements;
 using VContainer.Unity;
 
 namespace PlanetIO.UI.Hud

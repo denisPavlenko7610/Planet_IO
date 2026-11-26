@@ -74,7 +74,7 @@ namespace PlanetIO.Tests
 
 		private static IEnumerator ResetSharedWorld()
 		{
-			var bounds = Constants.WorldBounds;
+			var bounds = WorldBounds.Area;
 			Vector2 junkyard = new(bounds.xMax - 10f, bounds.yMax - 10f);
 			Player player = FindLocalPlayer();
 			Park(player.transform, junkyard);

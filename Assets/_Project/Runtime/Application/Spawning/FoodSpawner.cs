@@ -44,7 +44,7 @@ namespace PlanetIO
 			if (_world != null) return;
 			NetworkManager manager = network != null ? network : NetworkManager.Singleton;
 			_network = manager;
-			_world = new FoodWorld(manager != null && manager.IsServer, Constants.WorldBounds);
+			_world = new FoodWorld(manager != null && manager.IsServer, WorldBounds.Area);
 			if (_world.Authoritative)
 				_fieldMap = new FoodFieldMap(Rect.MinMaxRect(_horizontalSpawnRange.x, _verticalSpawnRange.x,
 					_horizontalSpawnRange.y, _verticalSpawnRange.y), configuration.Capacity, _fieldSettings, Random.Range(int.MinValue, int.MaxValue));
@@ -68,7 +68,7 @@ namespace PlanetIO
 		public FoodRecord SpawnAt(Transform position, float nutrition)
 		{
 			if (position == null) throw new ArgumentNullException(nameof(position));
-			FoodRecord food = _world.Create(Constants.ClampToWorld(position.position), _sizeTiers.ResolveDropped(Random.value), (byte)Random.Range(0, FoodPool.Colors.Length));
+			FoodRecord food = _world.Create(WorldBounds.Clamp(position.position), _sizeTiers.ResolveDropped(Random.value), (byte)Random.Range(0, FoodPool.Colors.Length));
 			_world.Configure(food, true, false, -1, nutrition, 1f, _droppedPointLifetime);
 			_expiry.Enqueue(food.Id, 0, food.ExpiresAt);
 			return food;
@@ -85,7 +85,7 @@ namespace PlanetIO
 			{
 				float angle = (start + index * (360f / count)) * Mathf.Deg2Rad;
 				Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (spread * Random.Range(0.5f, 1.2f));
-				FoodRecord food = _world.Create(Constants.ClampToWorld(position + offset), scale, (byte)Random.Range(0, FoodPool.Colors.Length));
+				FoodRecord food = _world.Create(WorldBounds.Clamp(position + offset), scale, (byte)Random.Range(0, FoodPool.Colors.Length));
 				_world.Configure(food, true, false, -1, nutrition, 2f, _lootLifetime);
 				drop.Add(food);
 				_expiry.Enqueue(food.Id, 0, food.ExpiresAt);

@@ -76,7 +76,7 @@ namespace PlanetIO
 		private ulong _snapshotId, _stagingEpoch, _baseline;
 		private int _expected, _received;
 		private uint _hash;
-		public FoodWorld World { get; private set; } = new(false, Constants.WorldBounds);
+		public FoodWorld World { get; private set; } = new(false, WorldBounds.Area);
 		public ulong Epoch { get; private set; }
 		public ulong Revision { get; private set; }
 		public uint SnapshotProgress { get; private set; }
@@ -107,7 +107,7 @@ namespace PlanetIO
 				if (epoch == Epoch && (revision < Revision || token <= _snapshotId)) return;
 				_stagingEpoch = epoch; _baseline = revision; _snapshotId = token;
 				_expected = count; _received = 0; _hash = 2166136261;
-				_staging = new FoodWorld(false, Constants.WorldBounds);
+				_staging = new FoodWorld(false, WorldBounds.Area);
 				NeedsSnapshot = true;
 				SnapshotProgress++;
 
@@ -173,7 +173,7 @@ namespace PlanetIO
 				ulong id = reader.UInt64(); Vector2 position = new(reader.Float(), reader.Float());
 				float capacity = reader.Float(), value = reader.Float(); byte flavor = reader.Byte(), active = reader.Byte();
 				if (!FoodWorld.IsValidId(id) ||
-					capacity <= 0 || capacity > 10f || value < 1f || active > 1 || (position.x < Constants.WorldBounds.xMin || position.x > Constants.WorldBounds.xMax || position.y < Constants.WorldBounds.yMin || position.y > Constants.WorldBounds.yMax))
+					capacity <= 0 || capacity > 10f || value < 1f || active > 1 || (position.x < WorldBounds.Area.xMin || position.x > WorldBounds.Area.xMax || position.y < WorldBounds.Area.yMin || position.y > WorldBounds.Area.yMax))
 					throw new InvalidDataException("Invalid food record.");
 				_updates[i] = new Update { Id = id, Position = position, Capacity = capacity, Value = value, Flavor = flavor, Active = active != 0 };
 			}

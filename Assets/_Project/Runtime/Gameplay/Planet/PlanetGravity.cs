@@ -55,7 +55,7 @@ namespace PlanetIO
 
 			if (pull.StrongestSpeed > 0f)
 			{
-				_rigidbody2D.position = Constants.ClampToWorld(position + pull.Total * deltaTime);
+				_rigidbody2D.position = WorldBounds.Clamp(position + pull.Total * deltaTime);
 			}
 
 			bool tangential = pull.StrongestSpeed > 0f &&

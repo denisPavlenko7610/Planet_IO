@@ -49,7 +49,7 @@ namespace PlanetIO.UI.Hud
             _refreshTimeRemaining = RefreshIntervalSeconds;
             _blips.Clear();
             Player localPlayer = _localPlayerProvider.LocalPlayer;
-            Rect bounds = Constants.WorldBounds;
+            Rect bounds = WorldBounds.Area;
 			MinimapBlip? localBlip = null;
             IReadOnlyList<PlanetBody> planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
@@ -110,7 +110,7 @@ namespace PlanetIO.UI.Hud
             }
 
             Vector2 position = _events.MarkerPosition;
-            Rect bounds = Constants.WorldBounds;
+            Rect bounds = WorldBounds.Area;
             Vector2 normalized = new(
                 Mathf.Clamp01((position.x - bounds.xMin) / bounds.width),
                 Mathf.Clamp01((position.y - bounds.yMin) / bounds.height));

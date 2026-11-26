@@ -28,8 +28,8 @@ namespace PlanetIO
         }
 
         protected override Vector2 GetRandomPosition() => new(
-            Constants.WorldBounds.xMin - 100f,
-            Constants.WorldBounds.yMin - 100f
+            WorldBounds.Area.xMin - 100f,
+            WorldBounds.Area.yMin - 100f
         );
 
         private void OnDisable()

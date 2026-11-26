@@ -80,7 +80,7 @@ namespace PlanetIO.Tests
         [Test]
         public void Events_StartInsideTheWorld()
         {
-            Rect bounds = Constants.WorldBounds;
+            Rect bounds = WorldBounds.Area;
             foreach (int seed in Seeds)
             {
                 for (int index = 0; index < 60; index++)
@@ -112,7 +112,7 @@ namespace PlanetIO.Tests
         [Test]
         public void Events_BlackHoleCrossesTheMapAndStopsAtTheEnd()
         {
-            Rect bounds = Constants.WorldBounds;
+            Rect bounds = WorldBounds.Area;
             for (int index = 0; index < 60; index++)
             {
                 CosmicEvent worldEvent = CosmicEventRules.Get(9, index);
@@ -149,7 +149,7 @@ namespace PlanetIO.Tests
         [Test]
         public void Stars_AreSpreadAwayFromHomeAndInsideTheWorld()
         {
-            Rect bounds = Constants.WorldBounds;
+            Rect bounds = WorldBounds.Area;
             foreach (int seed in Seeds)
             {
                 var stars = new Vector2[MapFeatureRules.StarCount];
@@ -182,7 +182,7 @@ namespace PlanetIO.Tests
         [Test]
         public void Wormholes_AreFarApartAndInsideTheWorld()
         {
-            Rect bounds = Constants.WorldBounds;
+            Rect bounds = WorldBounds.Area;
             foreach (int seed in Seeds)
             {
                 MapFeatureRules.Wormholes(seed, out Vector2 first, out Vector2 second);
@@ -196,7 +196,7 @@ namespace PlanetIO.Tests
         [Test]
         public void Nebulae_FitInsideTheWorld()
         {
-            Rect bounds = Constants.WorldBounds;
+            Rect bounds = WorldBounds.Area;
             foreach (int seed in Seeds)
             {
                 var discs = new MapDisc[MapFeatureRules.NebulaCount];

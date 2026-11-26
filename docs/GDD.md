@@ -971,7 +971,7 @@ backup folders, before writing the new build. Other build directories are preser
 |--------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | Duplicated combat logic in `Player` and `Enemy`                                      | Every new mechanic is written twice and balance drifts apart                |
 | The `ShowCometNames` setting and its toggle                                          | Comet names are always shown, in a smaller font                             |
-| Random respawn anywhere on the map (`Constants.RandomWorldPosition` in `TeleportTo`) | The player appears in the desert; replace with smart respawn (see "Rework") |
+| Random respawn anywhere on the map (`WorldBounds.RandomPosition` in `TeleportTo`) | The player appears in the desert; replace with smart respawn (see "Rework") |
 | Dead README links to `Docs/Food-GDD.md` and `Docs/Template-Sources.md`               | The documents were removed in a6a0037; links fixed in phase 0               |
 | "Score = mass × 100" as the only metric                                              | Replaced by XP and rank; the number stays only as peak mass in the results  |
 

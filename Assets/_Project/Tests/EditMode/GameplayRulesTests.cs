@@ -11,7 +11,7 @@ namespace PlanetIO.Tests
     {
 		private sealed class FoodTestScope : System.IDisposable
 		{
-			public readonly FoodWorld World = new(true, Constants.WorldBounds);
+			public readonly FoodWorld World = new(true, WorldBounds.Area);
 			public readonly FoodRecord Food;
 			public FoodTestScope() { Food = World.Create(Vector2.zero, 0.2f); }
 			public void Dispose() { }
@@ -51,7 +51,7 @@ namespace PlanetIO.Tests
 			Assert.That(scope.Food.ValueMultiplier, Is.EqualTo(1f));
 			scope.Food.SetValueMultiplier(8f);
 			Assert.That(scope.Food.ValueMultiplier, Is.EqualTo(8f));
-			var replica = new FoodWorld(false, Constants.WorldBounds);
+			var replica = new FoodWorld(false, WorldBounds.Area);
 			replica.ApplyVisual(scope.Food.Id, Vector2.zero, 0.2f, 1f, 0, true);
 			Assert.Throws<System.InvalidOperationException>(() => replica.Find(scope.Food.Id).SetValueMultiplier(8f));
 		}
@@ -164,7 +164,7 @@ namespace PlanetIO.Tests
         [Test]
         public void Constants_ClampToWorldKeepsInsidePoint()
         {
-            Vector3 clamped = Constants.ClampToWorld(new Vector3(10f, 20f, 5f));
+            Vector3 clamped = WorldBounds.Clamp(new Vector3(10f, 20f, 5f));
 
             Assert.That(clamped, Is.EqualTo(new Vector3(10f, 20f, 5f)));
         }
@@ -172,10 +172,10 @@ namespace PlanetIO.Tests
         [Test]
         public void Constants_ClampToWorldPullsOutsidePointToBorder()
         {
-            Vector3 clamped = Constants.ClampToWorld(new Vector3(-300f, 300f, 5f));
+            Vector3 clamped = WorldBounds.Clamp(new Vector3(-300f, 300f, 5f));
 
-            Assert.That(clamped.x, Is.EqualTo(Constants.WorldBounds.xMin));
-            Assert.That(clamped.y, Is.EqualTo(Constants.WorldBounds.yMax));
+            Assert.That(clamped.x, Is.EqualTo(WorldBounds.Area.xMin));
+            Assert.That(clamped.y, Is.EqualTo(WorldBounds.Area.yMax));
         }
 
         [Test]

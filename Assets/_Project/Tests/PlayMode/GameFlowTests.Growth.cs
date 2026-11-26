@@ -86,7 +86,7 @@ namespace PlanetIO.Tests
 			hud.HidePerkOffer();
 			var root = hud.GetComponent<UIDocument>().rootVisualElement;
 			var map = root.Q("minimap");
-			float worldAspect = Constants.WorldBounds.width / Constants.WorldBounds.height;
+			float worldAspect = WorldBounds.Area.width / WorldBounds.Area.height;
 			float logicalPixel = root.worldBound.width / Screen.width;
 			float minimumAspect = (map.layout.width - logicalPixel) / (map.layout.height + logicalPixel);
 			float maximumAspect = (map.layout.width + logicalPixel) / (map.layout.height - logicalPixel);

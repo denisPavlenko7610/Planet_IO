@@ -288,7 +288,7 @@ namespace PlanetIO.Application
             Vector2 direction = Constants.NormalizedOrRight((Vector2)planet.transform.position - entrance);
             Vector2 target = exit + direction * (MapFeatureRules.WormholeExitOffset + planet.BodyRadius);
             _portalReady[planet.NetworkObjectId] = now + MapFeatureRules.WormholeCooldownSeconds;
-            planet.Teleport(Constants.ClampToWorld(target));
+            planet.Teleport(WorldBounds.Clamp(target));
         }
 
         private void LaunchMeteors()
@@ -341,7 +341,7 @@ namespace PlanetIO.Application
                 case CosmicEventType.BlackHole:
                     Vector2 exit = _event.PositionAt(_event.EndTime);
                     float mass = Mathf.Max(0.3f, _absorbedMass) * _lootScale;
-                    _loot.SpawnLoot(Constants.ClampToWorld(exit), mass / LootMassFraction);
+                    _loot.SpawnLoot(WorldBounds.Clamp(exit), mass / LootMassFraction);
                     break;
             }
         }
@@ -352,7 +352,7 @@ namespace PlanetIO.Application
             for (int index = -2; index <= 2; index++)
             {
                 Vector2 point = _event.Position + direction * (index * 35f);
-                _loot.SpawnLoot(Constants.ClampToWorld(point), 0.8f * _lootScale);
+                _loot.SpawnLoot(WorldBounds.Clamp(point), 0.8f * _lootScale);
             }
         }
 
@@ -363,7 +363,7 @@ namespace PlanetIO.Application
             {
                 float angle = index * (360f / piles) * Mathf.Deg2Rad;
                 Vector2 point = _event.Position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * 6f;
-                _loot.SpawnLoot(Constants.ClampToWorld(point), 2f * _lootScale);
+                _loot.SpawnLoot(WorldBounds.Clamp(point), 2f * _lootScale);
             }
         }
 

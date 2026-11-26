@@ -34,7 +34,7 @@ namespace PlanetIO.UI.Hud
 		private readonly List<BlipSlot> _slots = new();
 		private VisualElement _map;
 
-		private static float FallbackHeight => FallbackSize * Constants.WorldBounds.height / Constants.WorldBounds.width;
+		private static float FallbackHeight => FallbackSize * WorldBounds.Area.height / WorldBounds.Area.width;
 
 		private void OnEnable()
 		{

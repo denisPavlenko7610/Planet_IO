@@ -451,7 +451,7 @@ namespace PlanetIO
 						? targetBody.linearVelocity
 						: Vector2.zero;
 					SetTarget(
-						Constants.ClampToWorld(
+						WorldBounds.Clamp(
 							BotDifficultyRules.PursuitPoint(
 								nearestPlayer.transform.position,
 								velocity,
@@ -606,7 +606,7 @@ namespace PlanetIO
 		{
 			Vector2 border = BotDifficultyRules.BorderAvoidance(
 				_enemyTransform.position,
-				Constants.WorldBounds,
+				WorldBounds.Area,
 				_enemy.BodyRadius + 3f
 			);
 			Vector2 target = border != Vector2.zero ? border : _desiredDirection;

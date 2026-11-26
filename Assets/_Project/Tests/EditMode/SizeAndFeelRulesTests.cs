@@ -181,7 +181,7 @@ namespace PlanetIO.Tests
         [Test]
         public void Food_MagnetImmunityAppliesOnlyToDropperDuringGrace()
         {
-            var world = new FoodWorld(true, Constants.WorldBounds);
+            var world = new FoodWorld(true, WorldBounds.Area);
 			FoodRecord food = world.Create(Vector2.zero, 0.2f);
             try
             {
