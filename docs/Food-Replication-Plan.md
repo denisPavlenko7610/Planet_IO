@@ -90,7 +90,7 @@ Unity's instanced mesh culling operates on groups. An atlas does not guarantee a
 |--------------------------------------------------------------|-------------------------------------------------------------------|
 | FoodSpawner, Spawner and food pool                           | Array allocation, generations, respawn and lifetime service       |
 | Player.Combat.AttractFood                                    | Grid search, authoritative motion and replicated attraction state |
-| PlanetScale.FoodSweep and food collision branches            | Grid pickup with existing growth rules                            |
+| PlanetBody.FoodSweep and food collision branches            | Grid pickup with existing growth rules                            |
 | EnemyMovement food search                                    | Grid queries preserving targeting and awareness                   |
 | Player.Respawn food-density queries                          | Spatial density queries                                           |
 | FoodFieldMap, comet trail, boost drops and LootDrop          | Stable food handles instead of component references               |

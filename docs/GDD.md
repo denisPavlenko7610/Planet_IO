@@ -587,7 +587,7 @@ Satellites orbit the planet and let it hurt a bigger opponent without a size adv
 Implemented in code:
 
 - Tiers and moon slots (`TierRules`, 0/2/4/6), moon state (`MoonLoadout`), geometry and damage (`MoonRules`).
-- Server logic for strikes, comet interception and ring clashes in `PlanetScale.Moons.cs` (strikes every 0.04 s, rings
+- Server logic for strikes, comet interception and ring clashes in `PlanetBody.Moons.cs` (strikes every 0.04 s, rings
   every 0.12 s).
 - Moon display `MoonRingView`, threat ring `ThreatRingView`, knockback `PlanetKnockback`, tier-up flash.
 - HUD: a Roman-numeral tier and a progress bar to the next tier under the score (`tier-panel` in `Hud.uxml`, the bar
@@ -773,7 +773,7 @@ storage. Google Play Games sign-in, cloud save, leaderboards and achievements ar
 | Run statistics | `RunStatsTracker`                                 | lifetime, peak mass and tier, kills, perks, killer                                                                                                       |
 | Results        | `DefeatPresenter` + `IRunResultView`              | time, kills, tier, killer, an animated rank bar, reward, a "Double stardust" ad button                                                                   |
 | Menu           | `ProgressMenuPresenter` + `MainMenuView.Progress` | the missions screen and a "!" badge on the button when a reward is ready; the app version is shown at the bottom of the main menu and progression rank stays on run results |
-| FTUE           | `FtuePresenter`                                   | encounter-driven lessons in Play with Bots; each acknowledgment is saved, and the arena pauses while a lesson is open                                    |
+| FTUE           | `GameplayTutorialPresenter`                                   | encounter-driven lessons in Play with Bots; each acknowledgment is saved, and the arena pauses while a lesson is open                                    |
 | Analytics      | `LocalAnalyticsService`                           | events from Appendix A go to the debug build log; there is no external backend                                                                           |
 
 Saving goes through `RD.Save`, day and streak timers through `RD.Timers`, haptic feedback through `RD.Haptics`, settings
@@ -887,6 +887,20 @@ rewards and death; the persisted haptics toggle controls all these calls.
 
 ## 12. Technical plan
 
+### Runtime organization
+
+- Keep the existing runtime assemblies. Group core rules by feature and use the world bounds type as
+  the source of truth for arena geometry. Keep bot decision rules in Core.
+- Group application services by match, progression, and profile. Keep match migration and network
+  player spawning with match orchestration.
+- Use GameplayTutorialPresenter for tutorial orchestration and SessionHudView.Tutorial for the
+  tutorial overlay bindings. Use PlanetBody for the shared networked base of players and bots.
+- Handle reward application and post-run reporting in the application layer. The defeat UI presents
+  the resulting reward. Preserve the saved reward and ad claim state when restoring a result after
+  host migration so completed runs are not reported or rewarded again.
+- Preserve script asset GUIDs, serialized fields, network behavior ordering, and gameplay tuning.
+
+
 Editor workflow (November 17, 2026): keep only `Build release AAB` and `Set signing password` in the
 `Planet IO > Android` menu. Release settings, icons, validation and version codes are handled automatically
 by the build command; remove the other project menu shortcuts while retaining their callable editor methods.
@@ -896,14 +910,14 @@ backup folders, before writing the new build. Other build directories are preser
 1. **Rules in pure classes with tests.** `CombatRules`, `TierRules`, `GravityRules`, `PerkRules`, `XpRules` modeled on
    `GrowthRules`; tests in `Tests/EditMode`.
 2. **Shared combat code.** Done in phase 0: the eating threshold and absorption share moved into `CombatRules`;
-   `_eatSizeRatio` and `_initialCapacity` were lifted into `PlanetScale` (same field names, so prefabs do not change);
+   `_eatSizeRatio` and `_initialCapacity` were lifted into `PlanetBody` (same field names, so prefabs do not change);
    `Player` and `Enemy` call `CanDevour`. A single `OnTriggerEnter2D` was not made: tests call it through reflection on
    `Player`, and the protection rules differ for player and bot.
 3. **Split `Player.cs`.** Done as `partial`: the main file, `Boost`, `Border`, `Combat`, `Lifecycle`, `Appearance`,
    `Perks`, `Abilities`, `Respawn`. Keep serialized fields and RPCs. Extract separate components only when needed;
    adding a
    mechanic does not require a new architecture.
-4. **Bots as the same planet object with an AI controller.** Moons and gravity are shared through `PlanetScale`; perks
+4. **Bots as the same planet object with an AI controller.** Moons and gravity are shared through `PlanetBody`; perks
    still belong to `Player`. Deeper AI (keeping moons toward the enemy, avoiding the pull zone, using the slingshot) is
    deferred; perks for bots are not planned.
 5. **Network fields:** `NetworkVariable<byte>` for the tier and the moon mask, `NetworkVariable<ushort>` for perks, and
@@ -1104,7 +1118,7 @@ opponent collisions, events, gravity, boosts and perks are disabled. Fields are 
 a human or Android playtest, and its milestones are not representative match averages.
 
 Plateau diagnostics found eligible, unclaimed trigger food already overlapping the body without a fresh
-trigger-enter event. The server-side `PlanetScale.SweepFoodInsideBody` fix uses the normal claim/growth
+trigger-enter event. The server-side `PlanetBody.SweepFoodInsideBody` fix uses the normal claim/growth
 path every 0.1 s; 4 EditMode and 3 PlayMode sweep checks passed. Four subsequent probe runs had no stalls:
 mass 0.35 at 12-21 s, 0.8 at 35-55 s, 1.4 at 84-142 s, 2.0 at 146-234 s, and final mass 3.75-4.20.
 These are historical tuning results; section 5 records later revisions and probes. Human growth targets
