@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "Turbo +15%; \u015Blad 2 s; koszt +25%"
+    m_Localized: "Pr\u0119dko\u015B\u0107 zrywu +15%. \u015Alad zadaje obra\u017Cenia przez 2 s. Koszt masy zrywu +25%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "Prze\u017Cyj raz; zachowaj 30% masy"
+    m_Localized: "Przetrwaj jedno \u015Bmiertelne trafienie z 30% masy sprzed trafienia, ale co najmniej z mas\u0105 pocz\u0105tkow\u0105."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Komety lecz\u0105 20% obra\u017Ce\u0144; pokarm -10%"
+    m_Localized: "Uderzenia komet lecz\u0105 20% zwyk\u0142ych obra\u017Ce\u0144 raz na 5 s. Odporno\u015B\u0107 na uderzenia. Naturalny pokarm \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

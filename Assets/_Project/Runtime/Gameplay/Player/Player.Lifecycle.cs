@@ -9,7 +9,7 @@ namespace PlanetIO
         {
             if (IsServer && capacity <= MinCapacity)
             {
-                if (TryConsumeAblativeCrust(true))
+				if (TryConsumeAblativeCrust(previousCapacity, true))
                 {
                     return;
                 }

@@ -199,8 +199,7 @@ described in section 5 removed these stalls: four probe runs showed none and rea
   solo and online play so the arena keeps moving in both modes.
 - Remove the five-minute Blitz mode to simplify the main menu and keep solo play focused on untimed runs.
 - Replace timed first-run hints with encounter lessons in Play with Bots. Use UnityTemplates Tutorials to persist
-  each acknowledgment. Show movement on entry, then food, bots, comets, black holes, evolution, boost and the first
-  rank-up when encountered. Pause solo play while a lesson is open. Leave online play and existing completed
+  each acknowledgment. Show movement on entry, then food, bots, comets, black holes and the first rank-up when encountered. Pause solo play while a lesson is open. Leave online play and existing completed
   tutorials alone. Resume incomplete lessons across bot runs and allow the player to skip the tutorial.
 - Use separate playlists for the menu and arena, rotating on track end and scene re-entry without restarting
   the active track when the same scene is reported again.
@@ -637,12 +636,15 @@ avoiding wells and using the slingshot are deferred.
 | Ion trail      | boost speed +15%; damaging trail for 2 s                        | boost costs 25% more        |
 | Magnetosphere  | magnet radius ×1.5                                              | speed −8%                   |
 | Heavy moons    | +1 moon slot, moon damage +50%                                  | speed −5%                   |
-| Ablative crust | survives one lethal hit, 30% mass remains                       | consumed, 70% drops as loot |
+| Ablative crust | survives one lethal hit with 30% of pre-hit mass (at least starting mass)                       | consumed, lost mass drops as loot |
 | Solar sail     | speed +12%                                                      | food gives −10%             |
 | Gravity well   | gravity zone ×1.4                                               | speed −6%                   |
 | Nebula veil    | disappear from enemy minimaps for 10 s after a boost            | 40 s cooldown               |
 | Comet rider    | comets heal 20% of the damage (once per 5 s) instead of hurting | food −10%                   |
 | Predator       | a kill gives +20% absorbed mass                                 | food gives −10%             |
+
+The food penalty applies to wild food. Dropped mass retains its full nutrition. Comet Rider prevents
+comet impact damage during its five-second healing cooldown as well.
 
 The pool is a starter set; expand it after playtests. Each perk must have a downside and one strong counter.
 

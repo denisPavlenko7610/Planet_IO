@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: "Turbo +15 % ; tra\xEEn\xE9e 2 s ; co\xFBt +25 %"
+    m_Localized: "Vitesse du boost +15 %. Tra\xEEn\xE9e dangereuse pendant 2 s. Co\xFBt en masse du boost +25 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "Survie \xD71 ; conserve 30 % de masse"
+    m_Localized: "Survis \xE0 un coup fatal avec 30 % de ta masse avant le choc, au minimum ta masse de d\xE9part."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Com\xE8tes : soin de 20 % des d\xE9g\xE2ts ; nourriture -10 %"
+    m_Localized: "Un choc de com\xE8te rend 20 % de ses d\xE9g\xE2ts habituels toutes les 5 s. Chocs sans d\xE9g\xE2ts. Nourriture naturelle \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

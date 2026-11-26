@@ -75,6 +75,7 @@ MonoBehaviour:
   m_ConservativeEnclosingSphere: 1
   m_NumIterationsEnclosingSphere: 64
   m_SoftShadowQuality: 2
+  m_SoftShadowKernelRadiusPercent: 0
   m_MainLightShadowsPCSS: 0
   m_AdditionalLightShadowsPCSS: 0
   m_AdditionalLightsCookieResolution: 2048

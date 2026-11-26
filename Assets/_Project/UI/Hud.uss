@@ -608,33 +608,97 @@
 
 #tutorial-overlay {
     display: none;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(8, 3, 22, 0.66);
+    background-color: rgba(8, 3, 22, 0.76);
 }
 
 #tutorial-card {
-    width: 760px;
+    --tutorial-accent: rgb(179, 155, 255);
+    width: 660px;
     max-width: 92%;
-    max-height: 96%;
+    max-height: 94%;
     min-height: 0;
     flex-shrink: 1;
-    padding: 24px 32px;
-    background-color: var(--panel-modal);
-    border-radius: 32px;
+    padding: 0;
+    background-color: rgb(30, 20, 56);
+    border-color: rgb(105, 81, 161);
+    border-top-color: var(--tutorial-accent);
+    border-top-width: 4px;
+}
+
+.tutorial-content {
+    align-items: center;
+    padding: 28px 34px 14px;
+}
+
+.tutorial-emblem {
+    width: 96px;
+    height: 96px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 48px;
+    border-width: 2px;
+    border-color: rgb(116, 91, 174);
+    background-color: rgb(55, 39, 96);
+}
+
+.tutorial-planet {
+    width: 68px;
+    height: 68px;
+    background-image: url("/Assets/_Project/Sprites/Planets/Planet 1@4x.png");
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 #tutorial-description {
-    margin: 0 0 20px 0;
-    color: white;
+    align-self: stretch;
+    margin: 20px 0 24px;
+    padding: 0;
+    color: rgb(248, 244, 255);
     font-size: 32px;
+    -unity-font-style: normal;
     white-space: normal;
     -unity-text-align: middle-center;
 }
 
-#tutorial-card .btn {
-    align-self: center;
-    max-width: 100%;
-    margin: 6px 0;
+.tutorial-action {
+    align-self: stretch;
+    flex-shrink: 0;
+    min-height: 60px;
+    margin: 0;
+    padding: 10px 16px;
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    border-radius: 18px;
     white-space: normal;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+#tutorial-continue {
+    min-height: 72px;
+    background-color: var(--tutorial-accent);
+    color: rgb(25, 15, 48);
+    font-size: 30px;
+}
+
+#tutorial-continue:hover,
+#tutorial-continue:focus {
+    background-color: rgb(211, 193, 255);
+    border-color: rgb(248, 244, 255);
+}
+
+#tutorial-skip {
+    margin-top: 4px;
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(219, 204, 250);
+    font-size: 24px;
+}
+
+#tutorial-skip:hover,
+#tutorial-skip:focus {
+    background-color: rgb(55, 39, 96);
+    border-color: var(--tutorial-accent);
+}
+
+.tutorial-action:active {
+    scale: 0.97 0.97;
 }

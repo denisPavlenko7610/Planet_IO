@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: Boost +15%; Spur 2 s; Kosten +25%
+    m_Localized: Boosttempo +15 %. Schadensspur bleibt 2 s. Massekosten des Boosts +25 %.
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "1\xD7 \xFCberleben; 30% Masse behalten"
+    m_Localized: "\xDCberlebe einen t\xF6dlichen Treffer mit 30 % der Masse vor dem Treffer, mindestens aber deiner Startmasse."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: Kometen heilen 20% des Schadens; Nahrung -10%
+    m_Localized: "Kometentreffer heilen alle 5 s 20 % ihres \xFCblichen Schadens. Kein Aufprallschaden. Nat\xFCrliches Futter \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

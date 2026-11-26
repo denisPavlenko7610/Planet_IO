@@ -167,6 +167,8 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 11400000, guid: a1763f7e521264543b7bc917f7a3879a, type: 2}
   - {fileID: 11400000, guid: 3f5b5dff67a942289a9defa416b206f3, type: 2}
+  - {fileID: 11400000, guid: dafc5443cd90af348b02a4c458584bfb, type: 2}
+  - {fileID: 11400000, guid: 390bdb5190a4db84083f29865b79a044, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -194,7 +196,7 @@ PlayerSettings:
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 12
+  AndroidBundleVersionCode: 13
   AndroidMinSdkVersion: 26
   AndroidTargetSdkVersion: 36
   AndroidCompileSdkVersion: 0
@@ -211,6 +213,7 @@ PlayerSettings:
   keepLoadedShadersAlive: 0
   StripUnusedMeshComponents: 0
   strictShaderVariantMatching: 0
+  warnAboutOutOfDateShaders: 1
   VertexChannelCompressionMask: 4054
   iPhoneSdkVersion: 988
   iOSTargetOSVersionString: 16.0

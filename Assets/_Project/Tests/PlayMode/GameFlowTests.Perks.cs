@@ -142,15 +142,18 @@ namespace PlanetIO.Tests
         {
             yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
-            GrantPerk(player, PerkId.AblativeCrust);
+			player.Capacity = 1f;
+			GrantPerk(player, PerkId.AblativeCrust);
+			float dropsBefore = SumDroppedNutrition();
 
-            player.Capacity = player.MinCapacity;
+			player.Capacity = player.MinCapacity;
             yield return null;
             yield return null;
 
             Assert.That(player.IsDefeated, Is.False);
             Assert.That(player.HasPerk(PerkId.AblativeCrust), Is.False, "The crust is consumed.");
-            Assert.That(player.Capacity, Is.GreaterThanOrEqualTo(player.MinCapacity));
+			Assert.That(player.Capacity, Is.EqualTo(0.3f).Within(1e-4f), "The survivor keeps 30% of its pre-hit mass.");
+			Assert.That(SumDroppedNutrition() - dropsBefore, Is.EqualTo(0.7f).Within(0.01f));
             Assert.That(player.IsSpawnProtected, Is.True);
 
             SetMoonField(player, "_invincibilityTimeRemaining", 0f);

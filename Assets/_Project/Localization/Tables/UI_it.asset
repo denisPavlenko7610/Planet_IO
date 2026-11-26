@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: Turbo +15%; scia 2 s; costo +25%
+    m_Localized: "Velocit\xE0 dello scatto +15%. Scia dannosa per 2 s. Costo in massa dello scatto +25%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: Sopravvivi 1 volta; resta il 30% di massa
+    m_Localized: Sopravvivi a un colpo letale con il 30% della massa prima del colpo, almeno pari alla massa iniziale.
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: 'Comete: curano il 20% dei danni; cibo -10%'
+    m_Localized: "Gli impatti con le comete curano il 20% del danno normale ogni 5 s. Immune agli impatti. Cibo naturale \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

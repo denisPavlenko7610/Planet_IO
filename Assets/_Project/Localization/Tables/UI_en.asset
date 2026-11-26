@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: Boost +15%; trail 2 s; cost +25%
+    m_Localized: Boost speed +15%. Damaging trail lasts 2 s. Boost mass cost +25%.
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: Survive once; keep 30% mass
+    m_Localized: Survive one lethal hit with 30% of your pre-hit mass or your starting mass, whichever is higher.
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: Comets heal 20% of damage; food -10%
+    m_Localized: "Comet impacts heal 20% of their usual damage every 5 s. Immune to impacts. Wild food growth \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

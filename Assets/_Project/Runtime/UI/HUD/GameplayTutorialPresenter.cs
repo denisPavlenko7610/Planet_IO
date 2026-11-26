@@ -18,8 +18,6 @@ namespace PlanetIO.UI.Hud
 			Bot,
 			Comet,
 			BlackHole,
-			Evolution,
-			Boost,
 			Rank,
 			Count
 		}
@@ -84,8 +82,6 @@ namespace PlanetIO.UI.Hud
 			AddLesson(Lesson.Bot, "bot", LocalizationKeys.TutorialBot);
 			AddLesson(Lesson.Comet, "comet", LocalizationKeys.TutorialComet);
 			AddLesson(Lesson.BlackHole, "black-hole", LocalizationKeys.TutorialBlackHole);
-			AddLesson(Lesson.Evolution, "evolution", LocalizationKeys.TutorialEvolution);
-			AddLesson(Lesson.Boost, "boost", LocalizationKeys.TutorialBoost);
 			AddLesson(Lesson.Rank, "rank", LocalizationKeys.TutorialRank);
 			_lastRank = _progression.Rank;
 
@@ -146,9 +142,7 @@ namespace PlanetIO.UI.Hud
 				return;
 			}
 
-			if (TryShow(Lesson.Move) ||
-				(player.Tier > TierRules.MinTier && TryShow(Lesson.Evolution)) ||
-				(player.Capacity >= 0.12f && TryShow(Lesson.Boost)))
+			if (TryShow(Lesson.Move))
 			{
 				return;
 			}

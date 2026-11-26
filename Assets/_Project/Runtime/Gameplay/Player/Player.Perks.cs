@@ -67,7 +67,12 @@ namespace PlanetIO
         public bool HasPerk(PerkId id) => PerkRules.Has(PerkMask, id);
 
         public bool TryConsumeAblativeCrust(bool deferRestore = false)
-        {
+		{
+			return TryConsumeAblativeCrust(Capacity, deferRestore);
+		}
+
+		private bool TryConsumeAblativeCrust(float preHitCapacity, bool deferRestore)
+		{
             if (!IsServer || IsDefeated || !HasPerk(PerkId.AblativeCrust))
             {
                 return false;
@@ -76,8 +81,8 @@ namespace PlanetIO
             _networkPerks.Value = (ushort)(_networkPerks.Value & ~PerkRules.Bit(PerkId.AblativeCrust));
             _invincibilityTimeRemaining = _spawnInvincibilityTime;
 
-            float restored = Mathf.Max(InitialCapacity, Capacity * PerkRules.AblativeSurvivalFraction);
-			float lost = Mathf.Max(0f, Capacity - restored);
+			float restored = Mathf.Max(InitialCapacity, preHitCapacity * PerkRules.AblativeSurvivalFraction);
+			float lost = Mathf.Max(0f, preHitCapacity - restored);
 
             if (deferRestore)
             {

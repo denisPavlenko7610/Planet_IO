@@ -105,9 +105,14 @@
         <ui:VisualElement name="tutorial-overlay" class="screen" focusable="true">
             <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
                 <ui:ScrollView name="tutorial-card" class="card" horizontal-scroller-visibility="Hidden">
-                    <ui:Label name="tutorial-description" />
-                    <ui:Button name="tutorial-continue" class="btn btn-long btn-green" />
-                    <ui:Button name="tutorial-skip" class="btn btn-long btn-blue" />
+                    <ui:VisualElement class="tutorial-content">
+                        <ui:VisualElement class="tutorial-emblem" picking-mode="Ignore">
+                            <ui:VisualElement class="tutorial-planet" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:Label name="tutorial-description" />
+                        <ui:Button name="tutorial-continue" class="tutorial-action" />
+                        <ui:Button name="tutorial-skip" class="tutorial-action" />
+                    </ui:VisualElement>
                 </ui:ScrollView>
             </ui:VisualElement>
         </ui:VisualElement>

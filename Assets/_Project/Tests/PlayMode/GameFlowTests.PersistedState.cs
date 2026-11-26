@@ -34,7 +34,7 @@ namespace PlanetIO.Tests
 			{
 				string key = "PlanetIO.Onboarding." + lessons[index];
 				saved[index] = PlayerPrefs.GetInt(key, -1);
-				PlayerPrefs.SetInt(key, lessons[index] == "move" || lessons[index] == "comet" ? 0 : 1);
+				PlayerPrefs.SetInt(key, lessons[index] is "move" or "comet" or "evolution" or "boost" ? 0 : 1);
 			}
 
 			settings.Set(GameSettingKeys.TutorialCompleted, false);

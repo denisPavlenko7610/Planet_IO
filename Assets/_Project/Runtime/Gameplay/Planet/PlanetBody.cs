@@ -254,7 +254,7 @@ namespace PlanetIO
             {
                 if (value < clamped)
                 {
-                    DeathCheck(clamped, 0f);
+					DeathCheck(clamped, Capacity);
                 }
 
                 return false;
@@ -298,7 +298,7 @@ namespace PlanetIO
                 CapacityChanged?.Invoke(capacity);
                 if (capacity < previousCapacity)
                 {
-                    DeathCheck(capacity, 0f);
+					DeathCheck(capacity, previousCapacity);
                 }
             }
         }

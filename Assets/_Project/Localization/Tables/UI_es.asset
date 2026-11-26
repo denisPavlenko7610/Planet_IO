@@ -247,7 +247,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: Turbo +15%; rastro 2 s; coste +25%
+    m_Localized: "Velocidad del impulso +15 %. Deja un rastro da\xF1ino durante 2 s. Coste de masa del impulso +25 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -271,7 +271,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: Sobrevive 1 vez; conserva 30% de masa
+    m_Localized: "Sobrevive a un golpe letal con el 30 % de tu masa previa, como m\xEDnimo tu masa inicial."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -303,7 +303,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Cometas: curan 20% del da\xF1o; comida -10%"
+    m_Localized: "Los cometas curan un 20 % del da\xF1o habitual cada 5 s. Choques sin da\xF1o. Alimento natural \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520

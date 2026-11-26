@@ -249,7 +249,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093505
-    m_Localized: Turbo +%15; iz 2 sn; maliyet +%25
+    m_Localized: "Takviye h\u0131z\u0131 +%15. Hasar veren iz 2 sn kal\u0131r. Takviyenin k\xFCtle bedeli +%25."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093506
@@ -273,7 +273,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093511
-    m_Localized: "1 kez hayatta kal; k\xFCtlenin %30\u2019u kal\u0131r"
+    m_Localized: "Bir \xF6l\xFCmc\xFCl darbeyi darbe \xF6ncesi k\xFCtlenin %30\u2019uyla atlat. En az ba\u015Flang\u0131\xE7 k\xFCtlen kal\u0131r."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093512
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Kuyruklu y\u0131ld\u0131zlar hasar\u0131n %20\u2019sini iyile\u015Ftirir; yiyecek -%10"
+    m_Localized: "Kuyruklu y\u0131ld\u0131z \xE7arpmas\u0131 5 sn\u2019de bir normal hasar\u0131n %20\u2019si kadar iyile\u015Ftirir. \xC7arpma hasar\u0131 yok. Do\u011Fal yiyecek \u2212%10."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
