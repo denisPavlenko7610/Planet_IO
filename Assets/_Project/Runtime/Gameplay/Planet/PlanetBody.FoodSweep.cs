@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-	public abstract partial class PlanetScale
+	public abstract partial class PlanetBody
 	{
 		private readonly List<FoodRecord> _bodyFood = new(128);
 		private float _bodyFoodSweepTimer;

@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace PlanetIO
 {
-	public abstract partial class PlanetScale
+	public abstract partial class PlanetBody
 	{
 		private float _contactSweepTimer;
 
-		protected virtual void ResolvePlanetContact(PlanetScale other)
+		protected virtual void ResolvePlanetContact(PlanetBody other)
 		{
 		}
 
@@ -20,11 +20,11 @@ namespace PlanetIO
 
 			Vector2 center = transform.position;
 			float radius = BodyRadius;
-			IReadOnlyList<PlanetScale> planets = PlanetDirectory.All;
+			IReadOnlyList<PlanetBody> planets = PlanetDirectory.All;
 
 			for (int index = 0; index < planets.Count; index++)
 			{
-				PlanetScale other = planets[index];
+				PlanetBody other = planets[index];
 
 				if (other == null || other == this || !other.IsSpawned || !other.isActiveAndEnabled || !CanDevour(other))
 				{

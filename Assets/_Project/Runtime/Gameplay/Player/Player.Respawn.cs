@@ -32,7 +32,7 @@ namespace PlanetIO
             var planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
-                PlanetScale planet = planets[index];
+                PlanetBody planet = planets[index];
                 if (planet == null || planet == this || !planet.IsSpawned || !planet.CanDevour(this))
                 {
                     continue;

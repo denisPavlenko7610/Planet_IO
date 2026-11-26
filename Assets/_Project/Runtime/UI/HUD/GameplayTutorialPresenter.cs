@@ -221,7 +221,7 @@ namespace PlanetIO.UI.Hud
 
 			if (IsPending(Lesson.Bot))
 			{
-				foreach (PlanetScale planet in PlanetDirectory.All)
+				foreach (PlanetBody planet in PlanetDirectory.All)
 				{
 					if (planet is Enemy enemy && enemy.IsSpawned && enemy.AreMoonsVisible &&
 						IsNear(enemy.transform.position, position, BotNoticeDistance) &&

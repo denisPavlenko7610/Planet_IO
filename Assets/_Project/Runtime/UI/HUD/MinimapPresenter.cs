@@ -51,10 +51,10 @@ namespace PlanetIO.UI.Hud
             Player localPlayer = _localPlayerProvider.LocalPlayer;
             Rect bounds = Constants.WorldBounds;
 			MinimapBlip? localBlip = null;
-            IReadOnlyList<PlanetScale> planets = PlanetDirectory.All;
+            IReadOnlyList<PlanetBody> planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
-                PlanetScale planet = planets[index];
+                PlanetBody planet = planets[index];
                 if (planet == null || !planet.IsSpawned)
                 {
                     continue;

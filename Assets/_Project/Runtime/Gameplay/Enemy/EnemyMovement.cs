@@ -89,7 +89,7 @@ namespace PlanetIO
 
 		private IFoodService _foodSpawner;
 		private BotDifficultyTuning _difficultyTuning;
-		private PlanetScale _targetPlanet;
+		private PlanetBody _targetPlanet;
 		private Transform _boostDropPoint;
 		private float _boostRemaining;
 		private float _boostCooldown;
@@ -416,7 +416,7 @@ namespace PlanetIO
 		{
 			ApplyDifficulty();
 			Vector2 position = _enemyTransform.position;
-			(PlanetScale nearestPlayer, Vector2 hazardPosition, float hazardDistanceSquared, Vector2 separationAccum) =
+			(PlanetBody nearestPlayer, Vector2 hazardPosition, float hazardDistanceSquared, Vector2 separationAccum) =
 				ScanSurroundings(position);
 			FoodRecord nearestFood = FindNearestFood(position);
 
@@ -472,13 +472,13 @@ namespace PlanetIO
 			}
 		}
 
-		private (PlanetScale NearestPlayer, Vector2 HazardPosition, float HazardDistanceSquared, Vector2 SeparationForce
+		private (PlanetBody NearestPlayer, Vector2 HazardPosition, float HazardDistanceSquared, Vector2 SeparationForce
 			)
 			ScanSurroundings(Vector2 position)
 		{
 			int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, _nonFoodFilter, _nearbyColliders);
 
-			PlanetScale nearestPlayer = null;
+			PlanetBody nearestPlayer = null;
 			Vector2 hazardPosition = default;
 			Vector2 separationAccum = Vector2.zero;
 			float playerDistanceSquared = float.PositiveInfinity;
@@ -497,7 +497,7 @@ namespace PlanetIO
 				Vector2 candidatePosition = candidate.transform.position;
 				float distanceSquared = (candidatePosition - position).sqrMagnitude;
 
-				if (candidate.TryGetComponent(out PlanetScale otherPlanet))
+				if (candidate.TryGetComponent(out PlanetBody otherPlanet))
 				{
 					if (otherPlanet.IsHiddenFromRivals ||
 						otherPlanet is Player { IsDefeated: true } ||

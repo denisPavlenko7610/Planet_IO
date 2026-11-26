@@ -204,7 +204,7 @@ namespace PlanetIO.Tests
         public void Growth_MaximumMassAllowsTwiceThePreviousMaximumDiameter(string prefabPath)
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-            SerializedObject planet = new(prefab.GetComponent<PlanetScale>());
+            SerializedObject planet = new(prefab.GetComponent<PlanetBody>());
             float maximum = planet.FindProperty("_maxCapacity").floatValue;
             Assert.That(maximum, Is.EqualTo(PlanetSizeRules.MaximumCapacity));
             Assert.That(PlanetSizeRules.Scale(maximum) / PlanetSizeRules.Scale(2f), Is.EqualTo(2f).Within(1e-5f));
@@ -217,7 +217,7 @@ namespace PlanetIO.Tests
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
             Assert.That(prefab, Is.Not.Null, prefabPath);
 
-            SerializedObject planet = new(prefab.GetComponent<PlanetScale>());
+            SerializedObject planet = new(prefab.GetComponent<PlanetBody>());
             float minCapacity = planet.FindProperty("_minCapacity").floatValue;
             float maxCapacity = planet.FindProperty("_maxCapacity").floatValue;
 

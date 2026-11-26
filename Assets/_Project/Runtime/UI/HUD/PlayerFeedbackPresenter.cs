@@ -174,7 +174,7 @@ namespace PlanetIO.UI.Hud
             }
         }
 
-		private void OnDamaged(float lost, float before, PlanetScale.DamageSource source)
+		private void OnDamaged(float lost, float before, PlanetBody.DamageSource source)
 		{
 			if (IsFeedbackMuted)
 			{
@@ -184,11 +184,11 @@ namespace PlanetIO.UI.Hud
 			Haptics.Play(HapticPreset.LightImpact);
 			string key = source switch
 			{
-				PlanetScale.DamageSource.Comet => LocalizationKeys.DamageComet,
-				PlanetScale.DamageSource.Moon => LocalizationKeys.DamageMoon,
-				PlanetScale.DamageSource.Border => LocalizationKeys.DamageBorder,
-				PlanetScale.DamageSource.IonTrail => LocalizationKeys.DamageIonTrail,
-				PlanetScale.DamageSource.BlackHole => LocalizationKeys.DamageBlackHole,
+				PlanetBody.DamageSource.Comet => LocalizationKeys.DamageComet,
+				PlanetBody.DamageSource.Moon => LocalizationKeys.DamageMoon,
+				PlanetBody.DamageSource.Border => LocalizationKeys.DamageBorder,
+				PlanetBody.DamageSource.IonTrail => LocalizationKeys.DamageIonTrail,
+				PlanetBody.DamageSource.BlackHole => LocalizationKeys.DamageBlackHole,
 				_ => null
 			};
 

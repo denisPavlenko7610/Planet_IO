@@ -10,13 +10,13 @@ namespace PlanetIO
         public const float LeaderMinimumCapacity = 0.4f;
         private const float LeaderRefreshSeconds = 0.5f;
 
-        private static readonly List<PlanetScale> Planets = new();
+        private static readonly List<PlanetBody> Planets = new();
         private static float _nextLeaderRefresh;
         private static ulong _leaderId = ulong.MaxValue;
 
-        public static IReadOnlyList<PlanetScale> All => Planets;
+        public static IReadOnlyList<PlanetBody> All => Planets;
 
-        public static void Register(PlanetScale planet)
+        public static void Register(PlanetBody planet)
         {
             if (planet != null && !Planets.Contains(planet))
             {
@@ -24,7 +24,7 @@ namespace PlanetIO
             }
         }
 
-        public static void Unregister(PlanetScale planet)
+        public static void Unregister(PlanetBody planet)
         {
             Planets.Remove(planet);
         }
@@ -43,10 +43,10 @@ namespace PlanetIO
 
         private static ulong FindLeaderId()
         {
-            PlanetScale leader = null;
+            PlanetBody leader = null;
             for (int index = 0; index < Planets.Count; index++)
             {
-                PlanetScale planet = Planets[index];
+                PlanetBody planet = Planets[index];
                 if (planet == null ||
                     !planet.isActiveAndEnabled ||
                     !planet.IsSpawned ||

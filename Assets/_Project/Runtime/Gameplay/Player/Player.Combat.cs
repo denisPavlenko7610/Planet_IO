@@ -34,7 +34,7 @@ namespace PlanetIO
 				Time.deltaTime);
         }
 
-		protected override void ResolvePlanetContact(PlanetScale other)
+		protected override void ResolvePlanetContact(PlanetBody other)
 		{
 			if (!CanActInGameplay)
 			{

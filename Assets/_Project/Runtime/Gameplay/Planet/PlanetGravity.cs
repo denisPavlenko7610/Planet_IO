@@ -12,7 +12,7 @@ namespace PlanetIO
 
         private MatchMigrationStore _migration;
         [Inject] public void ConfigureMigration(MatchMigrationStore store) => _migration = store;
-        private PlanetScale _planet;
+        private PlanetBody _planet;
         private Rigidbody2D _rigidbody2D;
 
         public float SlingshotBoost => _slingshot.Boost;
@@ -21,7 +21,7 @@ namespace PlanetIO
 
         private void Awake()
         {
-            _planet = GetComponent<PlanetScale>();
+            _planet = GetComponent<PlanetBody>();
             _rigidbody2D = GetComponent<Rigidbody2D>();
         }
 
@@ -71,7 +71,7 @@ namespace PlanetIO
 			var planets = PlanetDirectory.All;
 			for (int index = 0; index < planets.Count; index++)
 			{
-				PlanetScale well = planets[index];
+				PlanetBody well = planets[index];
 				if (well == null ||
 					well == _planet ||
 					!well.isActiveAndEnabled ||

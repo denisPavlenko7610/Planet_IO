@@ -158,7 +158,7 @@ namespace PlanetIO.Tests
 			);
 			large.transform.position = small.transform.position + (Vector3)(smallMoon - largeMoon);
 			Physics2D.SyncTransforms();
-			MethodInfo clash = typeof(PlanetScale).GetMethod(
+			MethodInfo clash = typeof(PlanetBody).GetMethod(
 				"ResolveMoonClashes",
 				BindingFlags.Instance | BindingFlags.NonPublic
 			);

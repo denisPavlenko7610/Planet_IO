@@ -8,7 +8,7 @@ namespace PlanetIO
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D), typeof(EnemyMovement))]
-    public sealed partial class Enemy : PlanetScale
+    public sealed partial class Enemy : PlanetBody
     {
         [Header("Presentation")]
         [SerializeField] private EnemyConfig _enemyConfig;
@@ -159,7 +159,7 @@ namespace PlanetIO
             }
         }
 
-		protected override void ResolvePlanetContact(PlanetScale other)
+		protected override void ResolvePlanetContact(PlanetBody other)
 		{
 			if (other is Enemy otherEnemy)
 			{

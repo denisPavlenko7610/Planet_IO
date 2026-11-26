@@ -38,7 +38,7 @@ namespace PlanetIO.Application
 
         public void MarkReady() => _ready = true;
 
-        private PlanetMigrationState CapturePlanet(PlanetScale planet)
+        private PlanetMigrationState CapturePlanet(PlanetBody planet)
         {
             var state = planet.CaptureMigration();
             state.ObjectId = _store.StableId(planet.NetworkObjectId);
@@ -114,7 +114,7 @@ namespace PlanetIO.Application
 			}
 		}
 
-		private PlanetMigrationState[] CapturePlanets<T>(List<T> planets) where T : PlanetScale
+		private PlanetMigrationState[] CapturePlanets<T>(List<T> planets) where T : PlanetBody
 		{
 			PlanetMigrationState[] states = new PlanetMigrationState[planets.Count];
 

@@ -109,9 +109,9 @@ namespace PlanetIO.Tests
             yield return StartSharedMoonGame();
             Player player = PrepareMoonPlayer();
             player.Capacity = 1f;
-            MoonLoadout loadout = (MoonLoadout)typeof(PlanetScale).GetField("_moons", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(player);
+            MoonLoadout loadout = (MoonLoadout)typeof(PlanetBody).GetField("_moons", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(player);
             for (int hit = 0; hit < MoonRules.MaxDurability; hit++) loadout.Hit(0);
-            typeof(PlanetScale).GetMethod("PublishMoonMask", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(player, null);
+            typeof(PlanetBody).GetMethod("PublishMoonMask", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(player, null);
             Assert.That(player.MoonMask, Is.EqualTo(14));
 
             player.Defeat();
@@ -178,7 +178,7 @@ namespace PlanetIO.Tests
             return player;
         }
 
-        private static Vector2 PlaceAtMoon(PlanetScale owner, Transform target)
+        private static Vector2 PlaceAtMoon(PlanetBody owner, Transform target)
         {
             Vector2 position = MoonRules.Position(owner.transform.position, owner.BodyRadius, 0,
                 TierRules.MoonSlots(owner.Tier), OrbitClock.Now, owner.MoonPhaseDegrees);
@@ -187,16 +187,16 @@ namespace PlanetIO.Tests
             return position;
         }
 
-        private static void StepMoons(PlanetScale owner)
+        private static void StepMoons(PlanetBody owner)
         {
             SetMoonField(owner, "_moonStepTimer", 0f);
-            typeof(PlanetScale).GetMethod("FixedUpdate", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(owner, null);
+            typeof(PlanetBody).GetMethod("FixedUpdate", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(owner, null);
         }
 
         private static void SetMoonField(object target, string name, object value)
         {
             FieldInfo field = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)
-                ?? typeof(PlanetScale).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+                ?? typeof(PlanetBody).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(field, Is.Not.Null, name);
             field.SetValue(target, value);
         }

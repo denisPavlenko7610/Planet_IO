@@ -24,7 +24,7 @@ namespace PlanetIO
         private static readonly Color DangerColor = new(1f, 0.28f, 0.22f, 0.95f);
         private static readonly Color GravityColor = new(1f, 0.6f, 0.15f, 0.4f);
 
-        private PlanetScale _planet;
+        private PlanetBody _planet;
         private SpriteRenderer _body;
         private CircleCollider2D _collider;
         private SpriteRenderer _ring;
@@ -35,7 +35,7 @@ namespace PlanetIO
 
         private void Awake()
         {
-            _planet = GetComponent<PlanetScale>();
+            _planet = GetComponent<PlanetBody>();
             _body = GetComponent<SpriteRenderer>();
             _collider = GetComponent<CircleCollider2D>();
             CreateRings();

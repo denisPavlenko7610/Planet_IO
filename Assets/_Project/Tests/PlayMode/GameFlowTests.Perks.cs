@@ -433,13 +433,13 @@ namespace PlanetIO.Tests
             FieldInfo field = typeof(Player).GetField("_networkPerks", BindingFlags.Instance | BindingFlags.NonPublic);
             var variable = (NetworkVariable<ushort>)field.GetValue(player);
             variable.Value = PerkRules.With(variable.Value, perk);
-            typeof(PlanetScale).GetMethod("RefreshMoonSlots", BindingFlags.Instance | BindingFlags.NonPublic)
+            typeof(PlanetBody).GetMethod("RefreshMoonSlots", BindingFlags.Instance | BindingFlags.NonPublic)
                 .Invoke(player, null);
         }
 
-        private static void SetLeader(PlanetScale planet, bool leader)
+        private static void SetLeader(PlanetBody planet, bool leader)
         {
-            FieldInfo field = typeof(PlanetScale).GetField("_networkLeader", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo field = typeof(PlanetBody).GetField("_networkLeader", BindingFlags.Instance | BindingFlags.NonPublic);
             ((NetworkVariable<bool>)field.GetValue(planet)).Value = leader;
         }
     }

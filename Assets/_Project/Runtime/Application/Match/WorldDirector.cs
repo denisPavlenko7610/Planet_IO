@@ -233,7 +233,7 @@ namespace PlanetIO.Application
             var planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
-                PlanetScale planet = planets[index];
+                PlanetBody planet = planets[index];
                 if (!IsAlive(planet) || _blackHoleVictims.Contains(planet.NetworkObjectId))
                 {
                     continue;
@@ -258,7 +258,7 @@ namespace PlanetIO.Application
             var planets = PlanetDirectory.All;
             for (int index = 0; index < planets.Count; index++)
             {
-                PlanetScale planet = planets[index];
+                PlanetBody planet = planets[index];
                 if (!IsAlive(planet))
                 {
                     continue;
@@ -283,7 +283,7 @@ namespace PlanetIO.Application
             }
         }
 
-        private void Teleport(PlanetScale planet, Vector2 entrance, Vector2 exit, double now)
+        private void Teleport(PlanetBody planet, Vector2 entrance, Vector2 exit, double now)
         {
             Vector2 direction = Constants.NormalizedOrRight((Vector2)planet.transform.position - entrance);
             Vector2 target = exit + direction * (MapFeatureRules.WormholeExitOffset + planet.BodyRadius);
@@ -367,7 +367,7 @@ namespace PlanetIO.Application
             }
         }
 
-        private static bool IsAlive(PlanetScale planet)
+        private static bool IsAlive(PlanetBody planet)
         {
             return planet != null && planet.isActiveAndEnabled && planet.IsSpawned && planet.AreMoonsVisible;
         }

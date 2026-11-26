@@ -4,7 +4,7 @@ namespace PlanetIO
 {
 	public sealed partial class EnemyMovement
 	{
-		private PlanetScale _raidTarget;
+		private PlanetBody _raidTarget;
 		private float _raidRemaining;
 		private float _raidCooldown;
 		private float _raidInitialMass;
@@ -44,7 +44,7 @@ namespace PlanetIO
 			EvadeFrom(threat);
 		}
 
-		private bool TryMoonRaid(PlanetScale target, bool hazard)
+		private bool TryMoonRaid(PlanetBody target, bool hazard)
 		{
 			bool permitted = target != null &&
 				MoonRaidRules.CanRaid(
