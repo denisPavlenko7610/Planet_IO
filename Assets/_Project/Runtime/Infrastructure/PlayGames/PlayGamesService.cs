@@ -110,73 +110,67 @@ namespace PlanetIO.Infrastructure.PlayGames
 #endif
         }
 
-        public void LoadCloud(Action<CloudLoadStatus, byte[]> completed)
-        {
+		public void SyncCloud(Func<byte[], byte[]> merge, TimeSpan playedTime, Action<bool> completed)
+		{
 #if UNITY_ANDROID
-            if (!_signedIn)
-            {
-                completed?.Invoke(CloudLoadStatus.Failed, null);
-                return;
-            }
+			if (!_signedIn)
+			{
+				completed(false);
+				return;
+			}
 
-            ISavedGameClient client = PlayGamesPlatform.Instance.SavedGame;
-            client.OpenWithAutomaticConflictResolution(
-                PlatformServiceIds.CloudSnapshotName,
-                DataSource.ReadNetworkOnly,
-                ConflictResolutionStrategy.UseMostRecentlySaved,
-                (openStatus, metadata) =>
-                {
-                    if (openStatus != SavedGameRequestStatus.Success)
-                    {
-                        completed?.Invoke(CloudLoadStatus.Failed, null);
-                        return;
-                    }
+			ISavedGameClient client = PlayGamesPlatform.Instance.SavedGame;
+			SavedGameMetadataUpdate update = new SavedGameMetadataUpdate.Builder()
+				.WithUpdatedPlayedTime(playedTime)
+				.WithUpdatedDescription("Planet IO progress")
+				.Build();
+			client.OpenWithManualConflictResolution(
+				PlatformServiceIds.CloudSnapshotName,
+				DataSource.ReadNetworkOnly,
+				true,
+				(resolver, original, originalBytes, unmerged, unmergedBytes) =>
+				{
+					CloudMergeResult result = CloudSaveRules.Merge(
+						CloudSaveRules.Deserialize(originalBytes), CloudSaveRules.Deserialize(unmergedBytes));
+					if (result.Data == null || !result.ChangesLocal)
+					{
+						resolver.ChooseMetadata(original);
+						return;
+					}
 
-                    client.ReadBinaryData(metadata, (readStatus, bytes) =>
-                    {
-                        completed?.Invoke(
-                            readStatus == SavedGameRequestStatus.Success ? CloudLoadStatus.Loaded : CloudLoadStatus.Failed,
-                            bytes);
-                    });
-                });
+					resolver.ResolveConflict(original, update, CloudSaveRules.Serialize(result.Data));
+				},
+				(openStatus, metadata) =>
+				{
+					if (openStatus != SavedGameRequestStatus.Success)
+					{
+						completed(false);
+						return;
+					}
+
+					client.ReadBinaryData(metadata, (readStatus, bytes) =>
+					{
+						if (readStatus != SavedGameRequestStatus.Success)
+						{
+							completed(false);
+							return;
+						}
+
+						byte[] merged = merge(bytes);
+						if (merged == null)
+						{
+							completed(true);
+							return;
+						}
+
+						client.CommitUpdate(metadata, update, merged,
+							(commitStatus, _) => completed(commitStatus == SavedGameRequestStatus.Success));
+					});
+				});
 #else
-            completed?.Invoke(CloudLoadStatus.Failed, null);
+			completed(false);
 #endif
-        }
-
-        public void SaveCloud(byte[] data, TimeSpan playedTime, Action<bool> completed)
-        {
-#if UNITY_ANDROID
-            if (!_signedIn || data == null || data.Length == 0)
-            {
-                completed?.Invoke(false);
-                return;
-            }
-
-            ISavedGameClient client = PlayGamesPlatform.Instance.SavedGame;
-            client.OpenWithAutomaticConflictResolution(
-                PlatformServiceIds.CloudSnapshotName,
-                DataSource.ReadNetworkOnly,
-                ConflictResolutionStrategy.UseMostRecentlySaved,
-                (openStatus, metadata) =>
-                {
-                    if (openStatus != SavedGameRequestStatus.Success)
-                    {
-                        completed?.Invoke(false);
-                        return;
-                    }
-
-                    SavedGameMetadataUpdate update = new SavedGameMetadataUpdate.Builder()
-                        .WithUpdatedPlayedTime(playedTime)
-                        .WithUpdatedDescription("Planet IO progress")
-                        .Build();
-                    client.CommitUpdate(metadata, update, data,
-                        (commitStatus, _) => completed?.Invoke(commitStatus == SavedGameRequestStatus.Success));
-                });
-#else
-            completed?.Invoke(false);
-#endif
-        }
+		}
 
 #if UNITY_ANDROID
         private void Activate()

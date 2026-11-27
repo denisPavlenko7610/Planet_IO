@@ -87,11 +87,18 @@ namespace PlanetIO.Application
                 throw new InvalidSaveDataException("Unsupported or invalid Planet_IO profile.");
         }
 
+		public event Action Changed;
+
         private void Save()
         {
             if (!_initialized) throw new InvalidOperationException("Player profile has not been initialized.");
-            _revision++;
-            if (!_saving) _ = SavePendingAsync();
+			_revision++;
+			if (!_saving)
+			{
+				_ = SavePendingAsync();
+			}
+
+			Changed?.Invoke();
         }
 
         private async Awaitable SavePendingAsync()

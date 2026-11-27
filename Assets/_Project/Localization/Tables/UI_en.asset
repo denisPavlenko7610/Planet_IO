@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: Magnet +50%; speed -8%
+    m_Localized: "Magnet radius +50%. Speed \u22128%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: +1 moon; damage +50%; speed -5%
+    m_Localized: "+1 moon. Moon damage +50%. Speed \u22125%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: Speed +12%; food -10%
+    m_Localized: "Speed +12%. Mass from wild food \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: 'Boost: off minimap 10 s; cooldown 40 s'
+    m_Localized: 'Boost to hide from the minimap for 10 s. Cooldown: 40 s.'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -305,7 +305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093519
-    m_Localized: "Comet impacts heal 20% of their usual damage every 5 s. Immune to impacts. Wild food growth \u221210%."
+    m_Localized: "Comet impacts deal no damage. A hit restores mass equal to 20% of its usual damage once every 5 s. Mass from wild food \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093520
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: Kill mass +20%; food -10%
+    m_Localized: "Mass from eaten planets +20%. Mass from wild food \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
@@ -321,7 +321,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: Eaten by {0}
+    m_Localized: "Defeated by {0}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
@@ -353,7 +353,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315720
-    m_Localized: 'Streak: {0} days'
+    m_Localized: 'Login streak: {0} d'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: Swap
+    m_Localized: "Swap (ad)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -478,10 +478,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18134015237541891
     m_Localized: Hard
-    m_Metadata:
-      m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Reconnecting to the match\u2026"
     m_Metadata:
       m_Items: []
   - m_Id: 18266357037051904

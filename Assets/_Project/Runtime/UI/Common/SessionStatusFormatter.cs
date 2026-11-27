@@ -16,7 +16,6 @@ namespace PlanetIO.UI
                 NetworkSessionState.StartingClient or NetworkSessionState.Connecting => mode == NetworkSessionMode.SinglePlayer
                     ? localization.Get(LocalizationKeys.StatusStartingSolo)
                     : localization.Get(LocalizationKeys.StatusConnecting, roomCode),
-                NetworkSessionState.Migrating => localization.Get(LocalizationKeys.StatusMigrating),
                 NetworkSessionState.StartingSinglePlayer => localization.Get(LocalizationKeys.StatusStartingSolo),
                 NetworkSessionState.Searching => localization.Get(LocalizationKeys.StatusSearching),
                 NetworkSessionState.Loading or NetworkSessionState.InGame => localization.Get(LocalizationKeys.StatusLoading),

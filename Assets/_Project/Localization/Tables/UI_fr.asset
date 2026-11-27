@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: Aimant +50 % ; vitesse -8 %
+    m_Localized: "Rayon d\u2019attraction +50 %. Vitesse \u22128 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 lune ; d\xE9g\xE2ts +50 % ; vitesse -5 %"
+    m_Localized: "+1 lune. D\xE9g\xE2ts des lunes +50 %. Vitesse \u22125 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: Vitesse +12 % ; nourriture -10 %
+    m_Localized: "Vitesse +12 %. Masse gagn\xE9e avec la nourriture naturelle \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: 'Turbo : hors carte 10 s ; recharge 40 s'
+    m_Localized: 'Le boost te masque sur la minicarte pendant 10 s. Recharge : 40 s.'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "Masse \xE9liminations +20 % ; nourriture -10 %"
+    m_Localized: "Masse gagn\xE9e en d\xE9vorant des plan\xE8tes +20 %. Masse tir\xE9e de la nourriture naturelle \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
@@ -321,7 +321,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: "Mang\xE9 par {0}"
+    m_Localized: "{0} t\u2019a vaincu"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: Changer
+    m_Localized: "Changer (pub)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -480,10 +480,6 @@ MonoBehaviour:
     m_Localized: Difficile
     m_Metadata:
       m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Reconnexion \xE0 la partie\u2026"
-    m_Metadata:
-      m_Items: []
   - m_Id: 18266357037051904
     m_Localized: "Connexion \xE0 Play Jeux"
     m_Metadata:
@@ -505,7 +501,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802753
-    m_Localized: "{0} poussi\xE8res d\u2019\xE9toiles"
+    m_Localized: "{0} de poussi\xE8re d\u2019\xE9toiles"
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802754
@@ -517,7 +513,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802756
-    m_Localized: "{0}/{1} \xB7 +{2} poussi\xE8res d\u2019\xE9toiles"
+    m_Localized: "{0}/{1} \xB7 +{2} de poussi\xE8re d\u2019\xE9toiles"
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802757
@@ -549,7 +545,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802764
-    m_Localized: "Mange les petites plan\xE8tes. \xC9vite les grandes plan\xE8tes et leurs lunes."
+    m_Localized: "D\xE9vore les plan\xE8tes plus petites que la tienne. \xC9vite les plus grandes et leurs lunes."
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802765

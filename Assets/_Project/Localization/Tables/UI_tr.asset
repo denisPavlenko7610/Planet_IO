@@ -257,15 +257,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "M\u0131knat\u0131s +%50; h\u0131z -%8"
+    m_Localized: "M\u0131knat\u0131s menzili +%50. H\u0131z \u2212%8."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
-    m_Localized: "A\u011F\u0131r Aylar"
+    m_Localized: "A\u011F\u0131r Uydular"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 ay; hasar +%50; h\u0131z -%5"
+    m_Localized: "+1 uydu. Uydu hasar\u0131 +%50. H\u0131z \u2212%5."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: "H\u0131z +%12; yiyecek -%10"
+    m_Localized: "H\u0131z +%12. Do\u011Fal yiyecekten kazan\u0131lan k\xFCtle \u2212%10."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: 'Turbo: haritada 10 sn gizlen; bekleme 40 sn'
+    m_Localized: "H\u0131zlan\u0131nca mini haritada 10 sn gizlenirsin. Bekleme s\xFCresi: 40 sn."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -313,15 +313,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "\xD6ld\xFCrme k\xFCtlesi +%20; yiyecek -%10"
+    m_Localized: "Yenen gezegenlerden kazan\u0131lan k\xFCtle +%20. Do\u011Fal yiyecekten kazan\u0131lan k\xFCtle \u2212%10."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
-    m_Localized: "S\xFCre: {0}   Yenen: {1}   Kademe: {2}"
+    m_Localized: "S\xFCre: {0}   Yutulan: {1}   Kademe: {2}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: "{0} taraf\u0131ndan yenildin"
+    m_Localized: "{0} seni ma\u011flup etti"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: "De\u011Fi\u015Ftir"
+    m_Localized: "De\u011fi\u015ftir (reklam)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -480,10 +480,6 @@ MonoBehaviour:
     m_Localized: Zor
     m_Metadata:
       m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Ma\xE7a yeniden ba\u011Flan\u0131l\u0131yor\u2026"
-    m_Metadata:
-      m_Items: []
   - m_Id: 18266357037051904
     m_Localized: "Play Oyunlar'a giri\u015F yap"
     m_Metadata:
@@ -529,7 +525,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802759
-    m_Localized: Ay darbesi
+    m_Localized: "Uydu \xE7arpmas\u0131"
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802760

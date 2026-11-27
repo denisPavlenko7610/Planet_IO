@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PlanetIO.Application
 {
-    public sealed class CloudSyncService : ICloudSyncService
+    public sealed class CloudSyncService : ICloudSyncService, IDisposable
     {
         public const float MinUploadIntervalSeconds = 60f;
 
@@ -13,6 +13,7 @@ namespace PlanetIO.Application
         private readonly ProgressionService _progression;
         private readonly PlayerProfileService _profile;
         private readonly IAnalyticsService _analytics;
+		private bool _applyingCloud;
         private bool _busy;
         private bool _synced;
         private bool _uploadPending;
@@ -31,10 +32,28 @@ namespace PlanetIO.Application
             _progression = progression ?? throw new ArgumentNullException(nameof(progression));
             _profile = profile ?? throw new ArgumentNullException(nameof(profile));
             _analytics = analytics ?? throw new ArgumentNullException(nameof(analytics));
-            Clock = () => Time.realtimeSinceStartup;
+			Clock = () => Time.realtimeSinceStartup;
+			_progression.Changed += MarkUploadPending;
+			_profile.Changed += MarkUploadPending;
+			_stateService.Changed += MarkUploadPending;
         }
 
-        public Func<float> Clock { get; set; }
+		public Func<float> Clock { get; set; }
+
+		public void Dispose()
+		{
+			_progression.Changed -= MarkUploadPending;
+			_profile.Changed -= MarkUploadPending;
+			_stateService.Changed -= MarkUploadPending;
+		}
+
+		private void MarkUploadPending()
+		{
+			if (!_applyingCloud)
+			{
+				_uploadPending = true;
+			}
+		}
 
         public void SignIn(bool interactive, Action<bool> completed = null)
         {
@@ -56,109 +75,91 @@ namespace PlanetIO.Application
             });
         }
 
-        public void SyncNow()
-        {
-            if (!_playGames.IsSignedIn || _busy || !_stateService.IsLoaded)
-            {
-                return;
-            }
+		public void RequestUpload()
+		{
+			_uploadPending = true;
+			if (!_synced || Clock() - _lastUploadAt >= MinUploadIntervalSeconds)
+			{
+				SyncNow();
+			}
+		}
 
-            _busy = true;
-            _playGames.LoadCloud(OnLoaded);
-        }
-
-        public void RequestUpload()
-        {
-            _uploadPending = true;
-            if (!_playGames.IsSignedIn || _busy)
-            {
-                return;
-            }
-
-            if (!_synced)
-            {
-                SyncNow();
-                return;
-            }
-
-            if (Clock() - _lastUploadAt >= MinUploadIntervalSeconds)
-            {
-                UploadCurrent();
-            }
-        }
-
-        public void FlushPending()
-        {
+		public void FlushPending()
+		{
 			if (!_uploadPending || !_playGames.IsSignedIn)
-            {
+			{
 				return;
 			}
+
 			if (_busy)
 			{
 				_flushRequested = true;
-                return;
-            }
+				return;
+			}
 
-            if (!_synced)
-            {
-                SyncNow();
-                return;
-            }
+			SyncNow();
+		}
 
-            UploadCurrent();
-        }
-
-        private void OnLoaded(CloudLoadStatus status, byte[] bytes)
-        {
-            if (status != CloudLoadStatus.Loaded)
-            {
-                Finish("failed", false);
-                return;
-            }
-
-            CloudSaveData cloud = CloudSaveRules.Deserialize(bytes);
-            CloudMergeResult result = CloudSaveRules.Merge(Capture(), cloud);
-            if (result.Data == null)
-            {
-                Finish("failed", false);
-                return;
-            }
-
-            if (result.ChangesLocal)
-            {
-                Apply(result.Data);
-            }
-
-            PushPlatformData();
-            _synced = true;
-            if (result.ChangesCloud)
-            {
-                Upload(result.Data, result.ChangesLocal ? "merged" : "uploaded");
-                return;
-            }
-
-            Finish(result.ChangesLocal ? "downloaded" : "same", true);
-        }
-
-        private void UploadCurrent()
-        {
-            _busy = true;
-            Upload(Capture(), "uploaded");
-        }
-
-		private void Upload(CloudSaveData data, string result)
+		public void SyncNow()
 		{
-			byte[] bytes = CloudSaveRules.Serialize(data);
-			_uploadPending = false;
-			_playGames.SaveCloud(bytes, TimeSpan.FromSeconds(Mathf.Max(0f, Clock())), ok =>
+			if (!_playGames.IsSignedIn || _busy || !_stateService.IsLoaded)
 			{
-				_lastUploadAt = Clock();
-				if (!ok)
+				return;
+			}
+
+			_busy = true;
+			string outcome = null;
+			bool writing = false;
+			_playGames.SyncCloud(bytes =>
+			{
+				CloudSaveData cloud = CloudSaveRules.Deserialize(bytes);
+				CloudMergeResult result = CloudSaveRules.Merge(Capture(), cloud);
+				if (result.Data == null)
+				{
+					return null;
+				}
+
+				if (result.ChangesLocal)
+				{
+					_applyingCloud = true;
+					try
+					{
+						Apply(result.Data);
+					}
+					finally
+					{
+						_applyingCloud = false;
+					}
+				}
+
+				CloudSaveData merged = Capture();
+				if (!_synced || result.ChangesLocal)
+				{
+					PushPlatformData();
+				}
+
+				_synced = true;
+				_uploadPending = false;
+				writing = result.ChangesCloud || merged.ToJson() != result.Data.ToJson();
+				outcome = result.ChangesLocal
+					? (writing ? "merged" : "downloaded")
+					: (writing ? "uploaded" : "same");
+
+				return writing ? CloudSaveRules.Serialize(merged) : null;
+			}, TimeSpan.FromSeconds(Mathf.Max(0f, Clock())), ok =>
+			{
+				if (writing)
+				{
+					_lastUploadAt = Clock();
+				}
+
+				bool synced = ok && outcome != null;
+				if (!synced)
 				{
 					_uploadPending = true;
 				}
 
-				Finish(ok ? result : "failed", ok);
+				Finish(synced ? outcome : "failed", synced);
 			});
 		}
 

@@ -15,7 +15,6 @@ namespace PlanetIO.Infrastructure.Networking
 
         private bool _initialized;
 
-        public IMigrationDataHandler MigrationHandler { get; set; }
         public string LocalIdentity => AuthenticationService.Instance.PlayerId;
         public ISession ActiveSession { get; private set; }
         public const string DifficultyProperty = "bot-difficulty";
@@ -41,7 +40,6 @@ namespace PlanetIO.Infrastructure.Networking
                 .WithRelayNetwork()
                 .WithNetworkHandler(networkHandler);
 
-            options.WithHostMigration(MigrationHandler, TimeSpan.FromDays(365), TimeSpan.FromSeconds(5));
             ActiveSession = await MultiplayerService.Instance.CreateSessionAsync(options);
             return ActiveSession;
         }
@@ -51,7 +49,6 @@ namespace PlanetIO.Infrastructure.Networking
             await EnsureInitializedAsync();
             JoinSessionOptions options = new JoinSessionOptions().WithNetworkHandler(networkHandler);
 
-            options.WithHostMigration(MigrationHandler, TimeSpan.FromDays(365), TimeSpan.FromSeconds(5));
             ActiveSession = await MultiplayerService.Instance.JoinSessionByCodeAsync(code, options);
             return ActiveSession;
         }
@@ -64,12 +61,11 @@ namespace PlanetIO.Infrastructure.Networking
                 .WithRelayNetwork()
                 .WithNetworkHandler(networkHandler);
 
-            options.WithHostMigration(MigrationHandler, TimeSpan.FromDays(365), TimeSpan.FromSeconds(5));
             ActiveSession = await MultiplayerService.Instance.MatchmakeSessionAsync(quickJoin, options);
             return ActiveSession;
         }
 
-        public async Awaitable LeaveAsync()
+        public async Awaitable LeaveAsync(bool closeRoom = false)
         {
             ISession session = ActiveSession;
             ActiveSession = null;
@@ -77,6 +73,20 @@ namespace PlanetIO.Infrastructure.Networking
             {
                 return;
             }
+
+			if (closeRoom && session.IsHost)
+			{
+				try
+				{
+					await session.AsHost().DeleteAsync();
+
+					return;
+				}
+				catch (Exception exception)
+				{
+					UnityLogger.LogWarning($"Closing room failed: {exception.Message}");
+				}
+			}
 
             try
             {

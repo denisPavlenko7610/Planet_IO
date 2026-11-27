@@ -5,7 +5,6 @@ namespace PlanetIO
 {
     public static class OrbitClock
     {
-		private static double _migrationOffset;
 		private static double? _soloOffset;
 
 		public static void UseSoloTime(bool enabled)
@@ -17,7 +16,6 @@ namespace PlanetIO
 			}
 		}
 
-        public static void SetMigrationOffset(double offset) => _migrationOffset = offset;
         public static double Now
         {
             get
@@ -28,7 +26,7 @@ namespace PlanetIO
 				}
 
                 NetworkManager manager = NetworkManager.Singleton;
-                return manager != null && manager.IsListening ? manager.ServerTime.Time + _migrationOffset : Time.timeAsDouble;
+                return manager != null && manager.IsListening ? manager.ServerTime.Time : Time.timeAsDouble;
             }
         }
     }

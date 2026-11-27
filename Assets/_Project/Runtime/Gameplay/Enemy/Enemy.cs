@@ -8,7 +8,7 @@ namespace PlanetIO
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider2D), typeof(Rigidbody2D), typeof(EnemyMovement))]
-	public sealed partial class Enemy : PlanetBody
+	public sealed class Enemy : PlanetBody
     {
         [Header("Presentation")]
         [SerializeField] private EnemyConfig _enemyConfig;
@@ -75,6 +75,10 @@ namespace PlanetIO
             _spriteRenderer ??= GetComponent<SpriteRenderer>();
         }
 
+		private readonly NetworkVariable<ulong> _appearanceSeed = new();
+
+		public ulong AppearanceSeed => _appearanceSeed.Value;
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -100,6 +104,12 @@ namespace PlanetIO
             _networkBoosting.OnValueChanged -= OnBoostChanged;
             base.OnNetworkDespawn();
         }
+
+		private void AppearanceChanged(ulong previous, ulong current)
+		{
+			SetDeterministicSprite();
+			ApplyDeterministicTint();
+		}
 
         private void OnBoostChanged(bool _, bool boosting)
         {

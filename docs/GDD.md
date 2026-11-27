@@ -41,7 +41,7 @@ One-line pitch: *"Slither.io where your tail is moons and your weapon is gravity
 | Boost           | max(0.004, 0.2% of mass) every 0.15 s, drops food worth 80% of the cost beyond the body edge (body radius + 0.3); the owner's magnet ignores its own drop for 1 s                                                                                             |
 | Border          | movement is blocked at the edge (`WorldBounds.KeepInside`); entering the zone costs max(regular boost cost, 8% mass); red vignette when close                                                                                                                 |
 | Food            | 2000 server table records; binary snapshots and 10 Hz deltas; client-only pooled views, ambient nutrition x3, falloff 0.5, 16 migrating fields (45 s), golden 4% (×8); client-side visual ×1.2 × zoom^0.7, capped at ×3 (`FoodViewScale`), collider unchanged |
-| Enemies         | pool of 16 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade); Medium and Hard bots feed and use the magnet like the player (section 5)                                                                                     |
+| Enemies         | pool of 20 bots, 3 personalities (Cautious/Balanced/Hunter), 4 intents (Roam/Forage/Hunt/Evade); Medium and Hard bots feed and use the magnet like the player (section 5)                                                                                     |
 | Comets          | pool of 30, speed 2.5–3.5, damage 50% of victim mass, then the comet respawns elsewhere; permanent names, a visual tail, a limited food trail (new, needs playtesting)                                                                                        |
 | Network         | NGO + UGS Sessions, rooms by code (default 8, max 16), owner-authoritative movement                                                                                                                                                                           |
 | Meta            | 14 languages, skins (some for ads), rewarded continue (full pre-defeat mass and perks at the defeat location), leaderboard, minimap                                                                                                                           |
@@ -223,7 +223,7 @@ Food replication implementation (November 17-18, 2026): replace per-pellet netwo
 FoodWorld table and spatial grid. Keep 2000 ambient slots and separate temporary drops. Every record has
 a generation-qualified handle; claims, respawns, expiry, comet relocation and magnet motion mutate the table.
 Clients receive a versioned binary snapshot followed by bounded reliable delta batches at 10 Hz; only
-changed records are sent. A scene replication service requests a new baseline after reconnect/migration,
+changed records are sent. A scene replication service requests a new baseline on late join or after a replication gap,
 rejects stale epochs/revisions and repairs gaps. Full-world replication is deliberate at this scale;
 camera culling remains local. Render only visible food through a shared sprite/material and pooled local
 views, including on the graphical host. Dedicated servers create no food renderers or food physics bodies.
@@ -234,14 +234,17 @@ Magnet positions remain authoritative and replicate only while changing; clients
 
 A joining client requests the food baseline after its Game scene registers the food message handler.
 The host sends the full table on that request and starts sending deltas to that client. Clients retry
-after a snapshot stalls or fails validation. Host migration rebaselines clients against the restored epoch.
+after a snapshot stalls or fails validation.
+The receiver assembles the table in a staging world using the snapshot token, epoch, baseline revision,
+and sequential record offsets. It publishes that world once the end packet's checksum and record counts
+match. Live record updates and eat effects share one revision sequence on the reliable ordered channel.
 
-Migration format version 2 stores binary food records alongside JSON metadata; incompatible older snapshots
-are rejected. Host migration stores records, generations, field occupancy, remaining expiry/immunity and dropper/loot
-references independently of NGO object IDs; restored worlds start a fresh replication epoch.
 Movement, growth, food sizes, nutrition, field distribution, magnet reach/speed and the 2000 ambient count
 remain unchanged. Re-run growth measurements because query scheduling and magnet integration change.
-Implementation and verification status is tracked in [Food Replication Plan](Food-Replication-Plan.md).
+The host flushes changed records and eat effects at 10 Hz and sends no idle food packets. Batches hold up to
+32 records. The NGO integration test measured 108,161 application payload bytes for two 2,000-record
+snapshots plus the tested movement and respawn deltas.
+Physical-device checks remain open for sustained frame rate, heat, battery use, and multiplayer traffic.
 
 Balance and damage feedback revision (November 17, 2026): player movement is 4.0 u/s, boost 8.0,
 and the base bot speed is 3.0. Speed remains independent of mass; perk and personality modifiers remain.
@@ -285,14 +288,15 @@ balance.
 
 Appearance and localization revision (November 17, 2026): remove manual planet color selection from the
 Profile window, profile persistence and cloud sync. Player skins render with a neutral white base tint,
-including after respawn and host migration; temporary boost and protection effects remain. Old saved
+including after respawn; temporary boost and protection effects remain. Old saved
 color choices are ignored without resetting nickname, skins or progression. Skin selection remains the
 cosmetic control, adapting Slither.io customization to textured planets whose artwork is damaged by tinting.
 Gameplay layers the `Background.svg` gradient, `Stars.svg` star field, `Grid` and `Planets.svg` artwork in the scene.
-The SVG layers share the Background Vector Gradient material, which samples the imported vector gradient atlases in URP.
+The SVG layers use a URP shader that samples the imported vector gradient atlases. The star field uses screen blending to preserve the colored highlights over the backdrop. The backdrop and planet artwork use premultiplied alpha.
 The grid uses its tiled sprite between the star field and planet artwork.
 The main camera's far clip plane must include those sprites at z=0; the camera clear color is not a background image.
 Localized buttons keep horizontal space inside their artwork and wrap within a readable bounded font size.
+The 14 UI locales use consistent terms for planet evolution, ranks, satellites, perks, and stardust. Perk descriptions identify the affected stat and the source of each effect. The named defeat result uses cause-neutral wording because both eating and lethal strikes can attribute the defeat to another planet.
 Settings labels wrap and rows grow; controls must leave space for longer translations. Profile, online
 and mission windows scroll when their content exceeds the available height. The results panel wraps its
 columns and scrolls on narrow screens.
@@ -329,23 +333,12 @@ damage rules and PvP moon damage. Multipliers compose when a bot attacks a solo 
 Death loot remains 60% of the victim's remaining mass in 4-30 food pieces at the death location; continue
 discards that life's drop as before.
 
-Host migration target (November 16, 2026): use Multiplayer Services Relay migration with an application-owned,
-versioned and compressed world snapshot every 2 seconds (section 12). Graceful departure freezes gameplay and uploads a
-final
-snapshot before leaving. A surviving session member becomes host, restores the arena and reconnects players
-by their stable session player IDs, never by old NGO client IDs. Preserve mass, positions, appearance, moons,
-perks/offers, defeat/continue state, loot ownership/lifetimes, bots, food fields, comets, world-event clocks,
-room difficulty and each surviving client's run accounting. Recovery pauses gameplay and blocks input; it
-must not create a new life, award duplicate rewards or silently reset an invalid snapshot. Abrupt loss can roll
-back at most to the latest successfully uploaded snapshot, so zero rollback is only promised for a successful
-graceful final upload. After 45 seconds without recovery, show a failure and return to the menu. This adapts
-the persistent arena expected from .io games to peer-hosted Relay rooms. Independent-peer tests are required
-before marking the feature verified;
-see [migration acceptance checks](#appendix-b-verification-history-and-release-checks).
-
-Graceful handoff first broadcasts a pause and waits up to two seconds for connected clients to acknowledge
-their final owned pose. Snapshot uploads are serialized by the application; the final upload waits for any
-older upload before writing, so an in-flight periodic request cannot overwrite the handoff state.
+Online rooms use a player host. The match ends when the host leaves or disconnects. Guests return to the
+menu with the room-closed status. An interrupted active run earns no rewards, and previously committed
+progress is retained. Room codes, Quick Play, late join and the local solo host use the same gameplay as before.
+A guest leaving does not end the match. At the current player population, maintaining world snapshots and
+restoring a peer-hosted arena adds more complexity than the continuity it provides. The arena has 20 bots
+to give solo players and small rooms more encounters while keeping the existing food budget.
 
 Verification after the difficulty damage/room revision: 464 EditMode checks and 8 selected PlayMode scenarios
 passed. The scenarios cover real boost velocity and cost, difficulty persistence, comet/moon/border damage,
@@ -355,8 +348,7 @@ skipped 2 (the explicit feeding probe and a skin purchase on an already-unlocked
 probe was run separately: masses 0.35/0.8/1.4/2 at 12.0/49.3/130.8/224.9 simulated seconds; mass 2.9087 at
 600 s, with a late plateau and no reach to 4 or 8. This is not a hands-on pace or active-bot balance validation.
 Room difficulty metadata and PvP damage isolation passed rule tests; independent network peers and Android
-hardware were not tested. See [migration acceptance checks](#appendix-b-verification-history-and-release-checks) for the
-required continuity work.
+hardware were not tested.
 
 Food inside the body (November 16, 2026): food is eaten on the trigger enter event, so a food that ends up inside a
 planet's body without a new enter event (a respawn or a magnet pull landing inside the body) used to stay uneaten while
@@ -380,7 +372,7 @@ Ease steering over 0.18 s with a 360 degree/s limit. This slower response is a p
 adaptation of Slither.io steering requested after playtesting. Ease body growth continuously toward its
 area-based target (95% in 0.45 s), including consecutive food pickups, with no overshoot. The visible
 body and collision radius grow together; mass, score and eating eligibility update immediately. Damage,
-initial spawn and migration restoration snap to their correct size to avoid a stale large hitbox.
+initial spawn snaps to their correct size to avoid a stale large hitbox.
 Keep the camera curve and food economy. Re-measure section 4 milestones after the speed/size change.
 
 The minimap must reject non-finite initial layout dimensions before caching marker coordinates; otherwise
@@ -756,7 +748,7 @@ storage. Google Play Games sign-in, cloud save, leaderboards and achievements ar
 | Rank                          | XP per run: lifetime, peak mass, kills, tier. 30 ranks, reward: stardust 5 + rank                         |
 | Stardust                      | soft currency per run, spent on cosmetics; rewarded gives ×2                                              |
 | Cosmetics                     | planet skins (exist, 12 of them, 4 free); moon sets, trail, explosion, nickname frame come after release  |
-| Missions                      | 3 a day ("eat 3 planets", "reach tier III", "survive 4 min"), reroll via rewarded                         |
+| Missions                      | 3 a day ("eat 3 planets", "reach tier III", "survive 4 min"), with UTC rollover before run credit. A completed rewarded ad grants one eligible swap for the day on which it was requested.                         |
 | Streak                        | daily login: growing reward, reset on a missed day                                                        |
 | Achievements and leaderboards | Google Play Games: peak mass, kills per run, total kills; 10 achievements (section 7.2)                   |
 | Cloud save                    | Google Play Games saved game: progression, profile, skins; highest XP wins on conflict (section 7.2)      |
@@ -798,12 +790,12 @@ the rewarded ad to grant its reward.
 | Service                | Where                                             | Rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 |------------------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | In-App Review          | `PlayReviewService`, `ReviewPromptRules`          | Right after a rank-up on the results screen; at least 5 finished runs and 2 days since the first run; at most 3 prompts in a lifetime, at least 90 days apart. The Play quota can still hide the dialog: that is not an error                                                                                                                                                                                                                                                                                                                                 |
-| Sign-in and cloud save | `PlayGamesService`, `CloudSaveRules`, `CloudSync` | Silent sign-in at start; a "Sign in" button in the menu if it failed or was cancelled. After sign-in the snapshot `planetio-progress` is merged with the local data: the side with more XP wins the progression, skins are unioned, best score and total kills take the maximum. Upload after each run (at most once per 60 s), when the app is paused and after a merge that changed anything. Dust earned on the losing side is lost: there is no spend ledger to merge, and a 5–10% loss on the rare two-device case is cheaper than a duplicated currency |
-| Leaderboards           | `PlayGamesService`, `ScoreValidationRules`        | Three boards: peak mass in a run, kills in a run, total kills. A run is reported only if it passes the plausibility check (duration at least 10 s, mass within the physical maximum, kills no faster than one per 2 s plus 3) and difficulty is not Easy, because Easy lowers incoming damage                                                                                                                                                                                                                                                                 |
+| Sign-in and cloud save | `PlayGamesService`, `CloudSaveRules`, `CloudSync` | Silent sign-in at start; a "Sign in" button in the menu if it failed or was cancelled. After sign-in the snapshot `planetio-progress` is merged with the local data: the side with more XP wins the progression, skins are unioned, best score and total kills take the maximum. Check for an upload after each run (at most once per 60 s) and flush pending profile, progression and service changes on pause. Each write merges with the latest snapshot before committing, and concurrent Play Games versions use the same merge rules. Dust earned on the losing side is lost: there is no spend ledger to merge, and a 5–10% loss on the rare two-device case is cheaper than a duplicated currency |
+| Leaderboards           | `PlayGamesService`, `ScoreValidationRules`        | Three boards: peak mass in a run, kills in a run, total kills. A run is reported only if it passes the plausibility check (duration at least 10 s, mass within the physical maximum, kills no faster than one per 2 s plus 3) and the run never used Easy, because Easy lowers incoming damage                                                                                                                                                                                                                                                                 |
 | Achievements           | `AchievementRules`                                | 10 achievements: tier II, III, IV; 5 and 15 kills in a run; survive 5 minutes; rank 5, 15, 30; a 7-day streak. Unlocked ones are cached locally and in the cloud save, so they are reported once                                                                                                                                                                                                                                                                                                                                                              |
 
 Anti-cheat decision. Global lists accept client-reported numbers: Play Games validates nothing. The movement is
-owner-authoritative and the host is a player's phone (host migration), so there is no trusted process that could
+owner-authoritative and the host is a player's device, so there is no trusted process that could
 validate speed, bounds or teleports, and Play Integrity needs a server to verify its token. The plausibility check
 above only stops accidental and crude cheating. Real protection needs a backend (Cloud Code or a small function that
 verifies a Play Integrity token and signs scores) and stays deferred; a spoiled leaderboard can be reset in Play
@@ -889,18 +881,29 @@ rewards and death; the persisted haptics toggle controls all these calls.
 
 ## 12. Technical plan
 
+### Project folders
+
+- Keep first-party assets under `Assets/_Project`. Store world graphics in `Art/World`,
+  interface graphics in `Art/UI`, atlases in `Art/Atlases`, and effect materials in `Art/VFX`.
+- Group UXML and USS by screen under `UI`, with common styles and panel settings in `UI/Shared`.
+  Put actor prefabs in `Prefabs/Actors`, group configuration by purpose under `Settings`, and
+  organize audio into `Audio/Music`, `Audio/SFX`, and `Audio/Cues`.
+- Group runtime scripts by feature within their existing assemblies. Organize editor scripts by
+  workflow and tests by feature within the existing EditMode and PlayMode assemblies.
+- Move assets with their `.meta` files. Update literal paths in UI Toolkit assets, editor tooling,
+  and tests, and preserve atlas membership and Addressables keys.
+
 ### Runtime organization
 
 - Keep the existing runtime assemblies. Group core rules by feature and use the world bounds type as
   the source of truth for arena geometry. Keep bot decision rules in Core.
-- Group application services by match, progression, and profile. Keep match migration and network
-  player spawning with match orchestration.
+- Group application services by match, progression, and profile. Keep network player spawning with match orchestration.
 - Use GameplayTutorialPresenter for tutorial orchestration and SessionHudView.Tutorial for the
   tutorial overlay bindings. Use PlanetBody for the shared networked base of players and bots.
-- Handle reward application and post-run reporting in the application layer. The defeat UI presents
-  the resulting reward. Preserve the saved reward and ad claim state when restoring a result after
-  host migration so completed runs are not reported or rewarded again.
+- Apply rewards and report completed runs in the application layer. The defeat UI presents the resulting reward.
 - Preserve script asset GUIDs, serialized fields, network behavior ordering, and gameplay tuning.
+- Spawn the server world before announcing readiness. Keep each perk card's UI bindings together, and make the
+  bot's threat priority explicit at the point of selection.
 
 
 Editor workflow (November 17, 2026): keep only `Build release AAB` and `Set signing password` in the
@@ -929,15 +932,14 @@ backup folders, before writing the new build. Other build directories are preser
 7. **Food and network.** Replace individual food network objects with server-owned records, a spatial index,
    binary snapshots and batched change messages; render food only on graphical clients (including the host).
    Keep the full 2000 ambient records on clients initially; local visibility culling does not need network
-   subscriptions. Add region subscriptions only if measured traffic requires them. The detailed
-   implementation is in [Food Replication Plan](Food-Replication-Plan.md). Compare the data-only implementation with the
+   subscriptions. Add region subscriptions only if measured traffic requires them. See section 5 for the food
+   wire protocol. Compare the data-only implementation with the
    former object baseline on the same device. The phase 5 target remains 55 FPS.
    Performance pass (November 16, 2026, from a code read, not yet measured on a device): the HUD reads
    `PlanetDirectory` instead of scanning every spawned `NetworkObject`; the minimap refreshes at 10 Hz and writes only
    changed styles; dropped food expires from one heap-based queue in `FoodSpawner.Update` instead of one async loop
    per item; the eat-effect RPC goes only to clients whose player is within `EatEffectRules` range; moon, threat and
-   nameplate views skip planets outside the camera rectangle (`ViewBounds`); the host migration snapshot is taken every
-   2 s (was 1 s) with fast gzip, so the rollback window after an abrupt host loss is up to 2 s; weak devices
+   nameplate views skip planets outside the camera rectangle (`ViewBounds`); weak devices
    (`DeviceTierRules`) start on the Low quality level (no HDR, render scale 0.85); `NetworkRigidbody2D` is removed
    from the food prefab. Deliberately not done, reasons recorded in section 15: distance-based food visibility and
    ambient food as data (both were deferred then; the data-only replacement is now implemented), tick alignment
@@ -1051,7 +1053,7 @@ Target hypotheses (not guarantees; recheck against test data):
 |-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Too many mechanics for a 5-second pitch | Disclosure by tier, FTUE, threat ring                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Network load                            | Moons are computed analytically, perks sit in a bit mask, events are one `NetworkVariable`; food uses 2000 table records and binary delta replication; online rooms retain periodic recovery checkpoints                                                                                                                                                                                                                                                                         |
-| Food replication migration              | Data-only food replication is implemented (Food-Replication-Plan.md): magnet, bot, respawn, comet trail and migration use the table; food colliders and NGO prefabs are removed. Editor tests cover two clients, late join and host migration; on-device multiplayer measurement remains open. Aligning the 30 Hz network tick with 50 Hz physics risks tunneling at boost speed (9.6 u/s); a larger `NetworkTransform` threshold saves nothing because bodies never stand still |
+| Food replication              | Data-only food replication is implemented (section 5): magnet, bot, respawn, comet trails use the table; food colliders and NGO prefabs are removed. Editor tests cover two clients and late join; on-device multiplayer measurement remains open. Aligning the 30 Hz network tick with 50 Hz physics risks tunneling at boost speed (9.6 u/s); a larger `NetworkTransform` threshold saves nothing because bodies never stand still |
 | Leader snowball                         | Bounty, burnout above 1.2 if needed                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Perk imbalance                          | A pick-rate table in analytics, a downside on every perk, all numbers in a `ScriptableObject`                                                                                                                                                                                                                                                                                                                                                                                    |
 | Localization cost                       | Icons and numbers instead of phrases, ≤ 20 strings per phase                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -1146,19 +1148,11 @@ The pilot uses randomized food, no boosts, no perks, and no opponents or events;
 not human-play averages and do not validate section 4's human pace targets. Raw output:
 `Logs/GrowthPace.txt`. Phone touch comfort, safe-area behavior and hands-on steering remain device checks.
 
-### Host migration acceptance
+### Hosted room acceptance
 
-Implemented components include `MatchMigrationStore`, `MigrationWorldService`, gameplay migration partials,
-`SessionMigrationDataHandler` and the recovery path in `NetworkSessionService`. Initial verification passed
-5 `MatchMigrationTests` and `Migration_RestartsNgoAndRestoresWorldWithoutStartingANewRun` in one process.
-Use `HostMigrationPeerProbe` (menu: `Planet IO/Tests/Build host migration probe`) for independent peers.
-
-Still required on separate processes/devices with real Relay: graceful host exit, forced termination,
-transport loss, late join during recovery, two consecutive host departures, and one surviving player.
-Compare ownership, mass, loot nutrition, perks, moons, progression and event timers before and after recovery.
-Require exactly one authoritative arena, no new lives or duplicate loot/rewards, bounded and measured
-abrupt-loss rollback, and correct ordinary client exit and intentional shutdown. See section 5 for the
-snapshot and recovery design. A single-process restore does not establish network continuity.
+Check room creation, code join, Quick Play and late join with independent peers over Relay. Verify ordinary guest
+exit leaves the match running. Verify graceful and abrupt host loss return guests to the menu without completing
+an active run or changing previously saved progression. Verify a new room and a solo game can start afterward.
 
 ### Android startup and rewarded ads (November 15, 2026)
 

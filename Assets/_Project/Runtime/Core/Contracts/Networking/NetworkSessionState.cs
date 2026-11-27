@@ -11,7 +11,6 @@ namespace PlanetIO
         InGame,
         ShuttingDown,
         Failed,
-        Searching,
-        Migrating
+        Searching
     }
 }

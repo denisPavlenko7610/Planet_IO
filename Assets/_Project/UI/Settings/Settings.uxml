@@ -1,0 +1,78 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/UI/Shared/Common.uss"/>
+    <ui:Style src="project://database/Assets/_Project/UI/Settings/Settings.uss"/>
+    <ui:VisualElement name="settings-overlay" class="screen">
+        <ui:VisualElement name="settings-backdrop" class="screen"/>
+        <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+            <ui:VisualElement name="settings-panel" class="card settings-panel">
+                <ui:Label name="settings-title"/>
+                <ui:VisualElement class="settings-divider"/>
+                <ui:ScrollView class="settings-list" horizontal-scroller-visibility="Hidden">
+                    <ui:VisualElement class="settings-row">
+                        <ui:Label name="music-label" class="settings-label"/>
+                        <ui:VisualElement class="settings-control">
+                            <ui:Slider name="music-slider" class="settings-slider" low-value="0" high-value="1"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="settings-row">
+                        <ui:Label name="sound-label" class="settings-label"/>
+                        <ui:VisualElement class="settings-control">
+                            <ui:Slider name="sound-slider" class="settings-slider" low-value="0" high-value="1"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="settings-row">
+                        <ui:Label name="haptics-label" class="settings-label"/>
+                        <ui:VisualElement class="settings-control settings-control--end settings-control--toggle">
+                            <ui:Toggle name="haptics-toggle" class="settings-toggle"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="settings-row">
+                        <ui:Label name="controls-swapped-label" class="settings-label"/>
+                        <ui:VisualElement class="settings-control settings-control--end settings-control--toggle">
+                            <ui:Toggle name="controls-swapped-toggle" class="settings-toggle"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="settings-row">
+                        <ui:Label name="fixed-joystick-label" class="settings-label"/>
+                        <ui:VisualElement class="settings-control settings-control--end settings-control--toggle">
+                            <ui:Toggle name="fixed-joystick-toggle" class="settings-toggle"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="settings-row">
+                        <ui:VisualElement class="settings-label difficulty-heading">
+                            <ui:Label name="difficulty-label"/>
+                            <ui:Label name="difficulty-hint" class="difficulty-hint"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="settings-control">
+                            <ui:VisualElement class="language-stepper">
+                                <ui:Button name="previous-difficulty" class="btn btn-blue stepper-button" text="&lt;"/>
+                                <ui:Label name="difficulty-value"/>
+                                <ui:Button name="next-difficulty" class="btn btn-blue stepper-button" text="&gt;"/>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="settings-row settings-row--last">
+                        <ui:Label name="language-label" class="settings-label"/>
+                        <ui:VisualElement class="settings-control">
+                            <ui:VisualElement class="language-stepper">
+                                <ui:Button name="previous-language" class="btn btn-blue stepper-button" text="&lt;"/>
+                                <ui:Label name="language-value"/>
+                                <ui:Button name="next-language" class="btn btn-blue stepper-button" text="&gt;"/>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="services-block" class="settings-services">
+                        <ui:Button name="play-games-signin" class="btn btn-long btn-green"/>
+                        <ui:Button name="leaderboards-button" class="btn btn-long btn-blue"/>
+                        <ui:Button name="achievements-button" class="btn btn-long btn-blue"/>
+                    </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:VisualElement class="settings-footer">
+                    <ui:Button name="ad-privacy" class="btn btn-long btn-blue"/>
+                    <ui:Button name="settings-close" class="btn btn-small btn-red"/>
+                </ui:VisualElement>
+                <ui:Button name="privacy-policy" class="link"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

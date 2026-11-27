@@ -69,7 +69,7 @@ namespace PlanetIO.Application
                 }
             }
 
-            if (!ScoreValidationRules.CountsForRanking(_difficulty.Current))
+            if (run.UsedEasyDifficulty || !ScoreValidationRules.CountsForRanking(_difficulty.Current))
             {
                 return;
             }

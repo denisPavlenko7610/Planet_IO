@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
     "com.unity.addressables": "4.2.0",
     "com.unity.external-dependency-manager": "2.2.0",
     "com.unity.feature.2d": "3.0.0",

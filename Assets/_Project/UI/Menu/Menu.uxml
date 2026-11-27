@@ -1,0 +1,121 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/UI/Shared/Common.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Menu/Menu.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Settings/Settings.uss" />
+    <ui:Template name="Settings" src="project://database/Assets/_Project/UI/Settings/Settings.uxml" />
+    <ui:VisualElement name="menu-root" class="screen menu-bg">
+        <ui:VisualElement name="safe-area" class="safe">
+            <ui:VisualElement name="header">
+                <ui:Label name="game-title" text="Planet IO" />
+                <ui:VisualElement class="menu-stats">
+                    <ui:Label name="best-score" class="menu-stat" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Button name="settings-button" class="btn btn-hud btn-icon btn-blue">
+                <ui:VisualElement class="btn-glyph glyph-settings" picking-mode="Ignore" />
+            </ui:Button>
+            <ui:Button name="missions-button" class="btn btn-hud btn-icon btn-yellow">
+                <ui:VisualElement class="btn-glyph glyph-missions" picking-mode="Ignore" />
+                <ui:Label name="missions-button-label" picking-mode="Ignore" />
+                <ui:Label name="missions-badge" class="btn-badge" text="!" picking-mode="Ignore" />
+            </ui:Button>
+            <ui:Button name="menu-leaderboards-button" class="btn btn-hud btn-icon btn-green">
+                <ui:VisualElement class="btn-glyph glyph-trophy" picking-mode="Ignore" />
+            </ui:Button>
+            <ui:Button name="menu-achievements-button" class="btn btn-hud btn-icon btn-green">
+                <ui:VisualElement class="btn-glyph glyph-medal" picking-mode="Ignore" />
+            </ui:Button>
+            <ui:VisualElement name="columns">
+                <ui:Button name="profile-button" class="profile-chip menu-item">
+                    <ui:VisualElement name="profile-skin" picking-mode="Ignore" />
+                    <ui:Label name="profile-name" picking-mode="Ignore" />
+                </ui:Button>
+                <ui:Button name="play-with-bots" class="btn btn-cta btn-yellow menu-item" />
+                <ui:Button name="online-button" class="btn btn-long btn-blue menu-item" />
+            </ui:VisualElement>
+            <ui:Label name="status-text" />
+            <ui:Label name="version-text" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="customize-overlay" class="screen overlay">
+            <ui:VisualElement name="customize-backdrop" class="screen overlay-backdrop" />
+            <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+                <ui:ScrollView name="customize-card" class="card overlay-card" horizontal-scroller-visibility="Hidden">
+                    <ui:VisualElement class="row">
+                        <ui:TextField name="nickname-input" class="field grow" />
+                        <ui:Button name="random-nickname" class="btn btn-small btn-blue" />
+                    </ui:VisualElement>
+                    <ui:Label name="planet-label" class="section-label overlay-section" />
+                    <ui:VisualElement name="skins" class="skins">
+                        <ui:VisualElement class="skin-carousel">
+                            <ui:Button name="skin-previous" class="btn btn-icon btn-blue skin-arrow" text="&lt;" />
+                            <ui:VisualElement name="skin-preview" picking-mode="Ignore" />
+                            <ui:Button name="skin-next" class="btn btn-icon btn-blue skin-arrow" text="&gt;" />
+                        </ui:VisualElement>
+                        <ui:Label name="skin-name" class="section-label" />
+                        <ui:VisualElement class="skin-actions">
+                            <ui:Button name="skin-select" class="btn btn-small btn-green" />
+                            <ui:Button name="skin-rewarded" class="btn btn-small btn-blue" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Label name="customize-status" class="overlay-status" />
+                    <ui:Button name="customize-close" class="btn btn-small btn-red overlay-close" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="online-overlay" class="screen overlay">
+            <ui:VisualElement name="online-backdrop" class="screen overlay-backdrop" />
+            <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+                <ui:ScrollView name="online-card" class="card overlay-card" horizontal-scroller-visibility="Hidden">
+                    <ui:Button name="quick-play" class="btn btn-long btn-green overlay-item" />
+                    <ui:Button name="create-room" class="btn btn-long btn-blue overlay-item" />
+                    <ui:VisualElement class="row join-row">
+                        <ui:TextField name="room-code-input" class="field grow" />
+                        <ui:Button name="join-room" class="btn btn-small btn-blue" />
+                    </ui:VisualElement>
+                    <ui:Label name="online-status" class="overlay-status" />
+                    <ui:Button name="online-close" class="btn btn-small btn-red overlay-close" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="missions-overlay" class="screen">
+            <ui:VisualElement name="missions-backdrop" class="screen" />
+            <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+                <ui:ScrollView name="missions-card" class="card" horizontal-scroller-visibility="Hidden">
+                    <ui:Label name="missions-title" />
+                    <ui:Label name="missions-reset" />
+                    <ui:Label name="missions-streak" />
+                    <ui:Label name="missions-bonus" />
+                    <ui:Label name="mission-reroll-status" />
+                    <ui:VisualElement name="mission-list">
+                        <ui:VisualElement class="mission-row">
+                            <ui:VisualElement class="mission-text">
+                                <ui:Label name="mission-name-0" class="mission-name" />
+                                <ui:Label name="mission-progress-0" class="mission-progress" />
+                            </ui:VisualElement>
+                            <ui:Button name="mission-reroll-0" class="btn btn-small btn-blue" />
+                            <ui:Button name="mission-claim-0" class="btn btn-small btn-green" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="mission-row">
+                            <ui:VisualElement class="mission-text">
+                                <ui:Label name="mission-name-1" class="mission-name" />
+                                <ui:Label name="mission-progress-1" class="mission-progress" />
+                            </ui:VisualElement>
+                            <ui:Button name="mission-reroll-1" class="btn btn-small btn-blue" />
+                            <ui:Button name="mission-claim-1" class="btn btn-small btn-green" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="mission-row">
+                            <ui:VisualElement class="mission-text">
+                                <ui:Label name="mission-name-2" class="mission-name" />
+                                <ui:Label name="mission-progress-2" class="mission-progress" />
+                            </ui:VisualElement>
+                            <ui:Button name="mission-reroll-2" class="btn btn-small btn-blue" />
+                            <ui:Button name="mission-claim-2" class="btn btn-small btn-green" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Button name="missions-close" class="btn btn-long btn-red" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Instance template="Settings" name="settings" class="screen" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

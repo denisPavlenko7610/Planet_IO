@@ -1,2 +1,2 @@
-m_EditorVersion: 7000.0.0a21
-m_EditorVersionWithRevision: 7000.0.0a21 (b2c0d9d3a6f3)
+m_EditorVersion: 7000.0.0a22
+m_EditorVersionWithRevision: 7000.0.0a22 (dbac4d68c4de)

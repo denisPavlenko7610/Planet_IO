@@ -12,7 +12,7 @@ namespace PlanetIO
         public const int DefaultMaxPlayers = 8;
         public const int QuickPlayMaxPlayers = 10;
         public const string DefaultRoomCode = "PLANET";
-        public const string ProtocolVersion = "planet-io/3";
+        public const string ProtocolVersion = "planet-io/4";
 
         public static string NormalizeRoomCode(string roomCode)
         {

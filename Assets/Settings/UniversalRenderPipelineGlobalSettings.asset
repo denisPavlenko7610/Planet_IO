@@ -81,28 +81,7 @@ MonoBehaviour:
       - rid: 384944775298809863
       - rid: 384944775298809864
     m_RuntimeSettings:
-      m_List:
-      - rid: 7003347545409454086
-      - rid: 7003347545409454087
-      - rid: 7003347545409454090
-      - rid: 7003347545409454093
-      - rid: 7003347545409454094
-      - rid: 7003347545409454095
-      - rid: 7003347545409454096
-      - rid: 7003347545409454104
-      - rid: 7003347545409454106
-      - rid: 7003347545409454108
-      - rid: 7003347545409454112
-      - rid: 7003347545409454114
-      - rid: 2420238679627792385
-      - rid: 2420238679627792386
-      - rid: 384944775298809856
-      - rid: 384944775298809858
-      - rid: 384944775298809859
-      - rid: 384944775298809860
-      - rid: 384944775298809861
-      - rid: 384944775298809863
-      - rid: 384944775298809864
+      m_List: []
   m_AssetVersion: 17
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:
@@ -138,8 +117,8 @@ MonoBehaviour:
       data:
         m_Version: 0
         m_Generators:
-        - rid: 384944775298809865
         - rid: 384944775298809866
+        - rid: 384944775298809865
         m_GeometryVersion: 0
     - rid: 384944775298809857
       type: {class: SurfaceCacheRenderPipelineResourceSet, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}

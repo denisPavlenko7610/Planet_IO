@@ -98,13 +98,8 @@ namespace PlanetIO.Application
                 return;
             }
 
-            int reward = _state.RefreshDay(DayProvider());
-            if (reward > 0)
-            {
-                LastStreakReward = reward;
-            }
-
-            Commit();
+			RefreshDayState();
+			Commit();
         }
 
         public RunReward ApplyRun(RunSummary summary)
@@ -114,7 +109,8 @@ namespace PlanetIO.Application
                 return default;
             }
 
-            bool[] wasComplete = SnapshotCompletion();
+			RefreshDayState();
+			bool[] wasComplete = SnapshotCompletion();
             RunReward reward = _state.ApplyRun(summary);
             ReportCompletedMissions(wasComplete);
             Commit();
@@ -164,6 +160,15 @@ namespace PlanetIO.Application
             _state.AddDust(amount);
             Commit();
         }
+
+		private void RefreshDayState()
+		{
+			int reward = _state.RefreshDay(DayProvider());
+			if (reward > 0)
+			{
+				LastStreakReward = reward;
+			}
+		}
 
         private static int CurrentUtcDay() => (int)(DateTime.UtcNow - DateTime.UnixEpoch).TotalDays;
 

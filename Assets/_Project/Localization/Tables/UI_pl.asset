@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "Magnes +50%; pr\u0119dko\u015B\u0107 -8%"
+    m_Localized: "Promie\u0144 przyci\u0105gania +50%. Pr\u0119dko\u015B\u0107 \u22128%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 ksi\u0119\u017Cyc; obra\u017Cenia +50%; pr\u0119dko\u015B\u0107 -5%"
+    m_Localized: "+1 ksi\u0119\u017Cyc. Obra\u017Cenia od ksi\u0119\u017Cyc\xF3w +50%. Pr\u0119dko\u015B\u0107 \u22125%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: "Pr\u0119dko\u015B\u0107 +12%; pokarm -10%"
+    m_Localized: "Pr\u0119dko\u015B\u0107 +12%. Masa z naturalnego pokarmu \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: "Turbo: poza map\u0105 10 s; odnowienie 40 s"
+    m_Localized: "Zryw ukrywa ci\u0119 na minimapie przez 10 s. Odnowienie: 40 s."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: "Masa za zab\xF3jstwa +20%; pokarm -10%"
+    m_Localized: "Masa ze zjedzonych planet +20%. Masa z naturalnego pokarmu \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
@@ -321,7 +321,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: Zjedzony przez {0}
+    m_Localized: "Pokonano ci\u0119. Zwyci\u0119zca: {0}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
@@ -329,7 +329,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
-    m_Localized: "+{0} XP   +{1} py\u0142u gwiezdnego"
+    m_Localized: "+{0} PD   +{1} gwiezdnego py\u0142u"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
@@ -337,7 +337,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
-    m_Localized: "Py\u0142 gwiezdny \xD72 (reklama)"
+    m_Localized: "Gwiezdny py\u0142 \xD72 (reklama)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: "Zmie\u0144"
+    m_Localized: "Zmie\u0144 (reklama)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -373,7 +373,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510019
-    m_Localized: 'Zjedz planet: {0}'
+    m_Localized: 'Zjedz planety: {0}'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510020
@@ -389,11 +389,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510023
-    m_Localized: "Wybierz ulepsze\u0144: {0}"
+    m_Localized: 'Wybierz ulepszenia: {0}'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510024
-    m_Localized: Zagraj {0} gier
+    m_Localized: 'Rozegraj partie: {0}'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510025
@@ -480,10 +480,6 @@ MonoBehaviour:
     m_Localized: Trudny
     m_Metadata:
       m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Ponowne \u0142\u0105czenie z rozgrywk\u0105\u2026"
-    m_Metadata:
-      m_Items: []
   - m_Id: 18266357037051904
     m_Localized: Zaloguj do Gier Play
     m_Metadata:
@@ -565,7 +561,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802768
-    m_Localized: "Awansujesz. Rundy daj\u0105 PD, a ka\u017Cda nowa ranga daje gwiezdny py\u0142. Wydaj go na planety w profilu."
+    m_Localized: "Masz now\u0105 rang\u0119. Za rozgrywki zdobywasz PD, a za ka\u017Cd\u0105 now\u0105 rang\u0119 dostajesz gwiezdny py\u0142. Wydaj go na planety w profilu."
     m_Metadata:
       m_Items: []
   - m_Id: 21402280185802769

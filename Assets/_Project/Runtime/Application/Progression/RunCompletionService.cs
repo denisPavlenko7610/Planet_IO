@@ -19,13 +19,8 @@ namespace PlanetIO.Application
 			_analytics = analytics ?? throw new ArgumentNullException(nameof(analytics));
 		}
 
-		public RunReward Complete(RunSummary summary, int killerTier, RunReward? restoredReward)
+		public RunReward Complete(RunSummary summary, int killerTier)
 		{
-			if (restoredReward.HasValue)
-			{
-				return restoredReward.Value;
-			}
-
 			RunReward reward = _progression.ApplyRun(summary);
 			_analytics.Track(
 				AnalyticsEvents.RunEnd,

@@ -76,10 +76,6 @@ namespace PlanetIO.UI.Hud
             }
 
             _localPlayer.PerkOfferShown += OnOfferShown;
-            if (_localPlayer.WasMigrationRestored)
-			{
-				_localPlayer.RequestRestoredOfferRpc();
-			}
 			_localPlayer.PerkOfferClosed += HideOffer;
             _localPlayer.Defeated += HideOffer;
             _localPlayer.PerksChanged += OnPerksChanged;

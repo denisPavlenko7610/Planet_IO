@@ -27,7 +27,6 @@ namespace PlanetIO
         public const string StatusLeaving = "status.leaving";
         public const string StatusFailed = "status.failed";
         public const string StatusEnterRoomCode = "status.enter_room_code";
-        public const string StatusMigrating = "status.migrating";
         public const string StatusHostLeft = "status.host_left";
         public const string StatusSearching = "status.searching";
         public const string StatusRoomFull = "status.room_full";
@@ -212,7 +211,7 @@ namespace PlanetIO
             MenuNicknamePlaceholder, MenuRandomNickname, MenuPlayWithBots, MenuCreateRoom, MenuQuickPlay, MenuJoinRoom,
             MenuRoomCodePlaceholder, MenuSettings, MenuBestScore, MenuOnline, MenuPlanet, MenuSkinLocked, MenuAdUnavailable,
             StatusReady, StatusCreatingRoom, StatusRoomCreated, StatusConnecting, StatusStartingSolo,
-            StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusMigrating, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
+            StatusLoading, StatusLeaving, StatusFailed, StatusEnterRoomCode, StatusHostLeft, StatusSearching, StatusRoomFull, StatusVersionMismatch,
             SettingsBotDifficulty, SettingsBotsOnly, DifficultyEasy, DifficultyMedium, DifficultyHard,
             SettingsTitle, SettingsMusic, SettingsSound, SettingsLanguage, SettingsHaptics, SettingsControlsSwapped, SettingsFixedJoystick, SettingsAdPrivacy, SettingsPrivacyPolicy, SettingsClose,
             SettingsPlayGamesSignIn, SettingsLeaderboards, SettingsAchievements,

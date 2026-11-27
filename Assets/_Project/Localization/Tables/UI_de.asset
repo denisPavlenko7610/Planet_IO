@@ -241,7 +241,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241810624512
-    m_Localized: "W\xE4hle einen Perk"
+    m_Localized: "W\xE4hle einen Vorteil"
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093504
@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: Magnet +50%; Tempo -8%
+    m_Localized: "Magnetradius +50 %. Tempo \u22128 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: +1 Mond; Schaden +50%; Tempo -5%
+    m_Localized: "+1 Mond. Mondschaden +50 %. Tempo \u22125 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: Tempo +12%; Nahrung -10%
+    m_Localized: "Tempo +12 %. Masse aus nat\xFCrlichem Futter \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: 'Boost: 10 s von Karte weg; Abklingzeit 40 s'
+    m_Localized: 'Boost blendet dich 10 s auf der Minikarte aus. Abklingzeit: 40 s.'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: Abschussmasse +20%; Nahrung -10%
+    m_Localized: "Masse aus gefressenen Planeten +20 %. Masse aus nat\xFCrlichem Futter \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
@@ -321,7 +321,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: Gefressen von {0}
+    m_Localized: "Besiegt von {0}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
@@ -353,7 +353,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315720
-    m_Localized: 'Serie: {0} Tage'
+    m_Localized: 'Anmeldeserie: {0} T.'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315721
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: Tauschen
+    m_Localized: "Tauschen (Werbung)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -389,7 +389,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510023
-    m_Localized: "W\xE4hle {0} Perks"
+    m_Localized: "W\xE4hle Vorteile: {0}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510024
@@ -478,10 +478,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18134015237541891
     m_Localized: Schwer
-    m_Metadata:
-      m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Verbindung zum Spiel wird wiederhergestellt\u2026"
     m_Metadata:
       m_Items: []
   - m_Id: 18266357037051904

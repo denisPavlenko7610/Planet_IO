@@ -27,9 +27,6 @@ namespace PlanetIO.Application
 		public void ConfigureSession(INetworkSessionService session) => _session = session;
 
         private bool _worldInitialized;
-        private MatchMigrationStore _migration;
-        private MigrationWorldService _migrationWorld;
-        [Inject] public void ConfigureMigration(MatchMigrationStore store, MigrationWorldService world) { _migration = store; _migrationWorld = world; }
         private bool _disposed;
 
         public GameFlowService(
@@ -58,7 +55,7 @@ namespace PlanetIO.Application
         public event Action<GameState, GameState> StateChanged;
 
         public GameState State { get; private set; } = GameState.None;
-        public bool IsGameplayActive => State == GameState.Playing && _migration?.IsRecovering != true;
+        public bool IsGameplayActive => State == GameState.Playing;
 
         public async Awaitable StartAsync(CancellationToken cancellation = default)
         {
@@ -97,11 +94,6 @@ namespace PlanetIO.Application
                 return;
             }
 
-            if (_migration?.IsRecovering == true)
-            {
-                _loadingView.Show();
-                return;
-            }
             if (State == GameState.Playing) _loadingView.Hide();
             switch (State)
             {
@@ -159,56 +151,59 @@ namespace PlanetIO.Application
             _cometSpawner.Initialize(_cometsPool);
             _enemySpawner.Initialize(_enemyPool);
 
-            if (_migration?.HasPendingWorld == true)
-            {
-                await _migrationWorld.RestoreAsync(_worldReadyState, cancellation);
-				_foodSpawner.MarkWorldReady();
-                _worldInitialized = true;
-                _worldReadyState.MarkReady();
-                return true;
-            }
-            const int spawnBatchSize = 20;
-            int pointsCount = _foodsPool.Capacity;
-            int cometsCount = _cometsPool.Capacity;
-            int enemiesCount = _enemyPool.Capacity;
-            int maxCount = Mathf.Max(pointsCount, cometsCount, enemiesCount);
-
-            for (int i = 0; i < maxCount; i++)
-            {
-                cancellation.ThrowIfCancellationRequested();
-
-                if (!CanInitializeWorld())
-                {
-                    return false;
-                }
-
-                if (i < pointsCount)
-                {
-                    _foodSpawner.CreateObject();
-                }
-
-                if (i < cometsCount)
-                {
-                    _cometSpawner.CreateObject();
-                }
-
-                if (i < enemiesCount)
-                {
-                    _enemySpawner.CreateObject();
-                }
-
-                if (i % spawnBatchSize == spawnBatchSize - 1)
-                {
-                    await Awaitable.NextFrameAsync(cancellation);
-                }
-            }
+			if (!await SpawnFreshWorldAsync(cancellation))
+			{
+				return false;
+			}
 
 			_foodSpawner.MarkWorldReady();
-            _worldInitialized = true;
-            _migrationWorld?.MarkReady();
-            _worldReadyState.MarkReady();
-            return true;
-        }
+			_worldInitialized = true;
+
+			_worldReadyState.MarkReady();
+
+			return true;
+		}
+
+		private async Awaitable<bool> SpawnFreshWorldAsync(CancellationToken cancellation)
+		{
+			const int spawnBatchSize = 20;
+			int pointsCount = _foodsPool.Capacity;
+			int cometsCount = _cometsPool.Capacity;
+			int enemiesCount = _enemyPool.Capacity;
+			int maxCount = Mathf.Max(pointsCount, cometsCount, enemiesCount);
+
+			for (int i = 0; i < maxCount; i++)
+			{
+				cancellation.ThrowIfCancellationRequested();
+
+				if (!CanInitializeWorld())
+				{
+					return false;
+				}
+
+				if (i < pointsCount)
+				{
+					_foodSpawner.CreateObject();
+				}
+
+				if (i < cometsCount)
+				{
+					_cometSpawner.CreateObject();
+				}
+
+				if (i < enemiesCount)
+				{
+					_enemySpawner.CreateObject();
+				}
+
+				if (i % spawnBatchSize == spawnBatchSize - 1)
+				{
+					await Awaitable.NextFrameAsync(cancellation);
+				}
+			}
+
+			return true;
+		}
 
         private bool CanInitializeWorld() =>
             !_disposed &&

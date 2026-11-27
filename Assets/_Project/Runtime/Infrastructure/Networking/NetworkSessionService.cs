@@ -1,5 +1,7 @@
 using RD.Foundation;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using RD.Settings;
 using VContainer;
 using Unity.Netcode;
@@ -12,7 +14,7 @@ using VContainer.Unity;
 
 namespace PlanetIO.Infrastructure.Networking
 {
-    public sealed partial class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
+    public sealed class NetworkSessionService : INetworkSessionService, IStartable, IDisposable
     {
         private const string LocalAddress = "127.0.0.1";
         private const ushort LocalPort = 7777;
@@ -26,6 +28,7 @@ namespace PlanetIO.Infrastructure.Networking
         private readonly ConnectionApprovalHandler _approvalHandler;
         private readonly ISceneFlow _sceneFlow;
         private readonly UgsSessionConnector _sessionConnector = new();
+		private readonly Dictionary<ulong, string> _approvedPlayers = new();
         private NetworkSceneManager _networkSceneManager;
 		private readonly IPlayerProfileService _playerProfileService;
 
@@ -110,9 +113,7 @@ namespace PlanetIO.Infrastructure.Networking
             Mode = startingState == NetworkSessionState.StartingHost ? NetworkSessionMode.Host : NetworkSessionMode.Client;
             SetState(startingState, startingStatus);
             _sessionConnector.RequestedBotDifficulty = _settings?.Get(GameSettingKeys.BotDifficulty) ?? 1;
-            _sessionConnector.MigrationHandler = new SessionMigrationDataHandler(_migration);
-            NgoSessionNetworkHandler handler = new(_networkManager, PrepareConnection)
-            { MigrationStarting = BeginNetworkRecovery, Restarted = RestartMigratedNetworkAsync };
+			NgoSessionNetworkHandler handler = new(_networkManager, PrepareConnection);
 
             try
             {
@@ -120,7 +121,6 @@ namespace PlanetIO.Infrastructure.Networking
                 Mode = handler.IsHost ? NetworkSessionMode.Host : NetworkSessionMode.Client;
                 CurrentRoom = new RoomConnectionSettings(session.Code ?? string.Empty, session.MaxPlayers,
                     UgsSessionConnector.ReadDifficulty(session.Properties));
-                AttachMigrationSession(session);
                 SubscribeSceneManager();
 
                 if (!handler.IsHost)
@@ -156,14 +156,13 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void PrepareConnection(bool isHost)
         {
-            if (isHost)
-            {
-                _migration.Clients.Clear();
-                _migration.LocalIdentity = _sessionConnector.LocalIdentity;
-                _migration.Clients[NetworkManager.ServerClientId] = _migration.LocalIdentity;
-                _networkManager.ConnectionApprovalCallback = ApproveMigratingConnection;
-                return;
-            }
+			if (isHost)
+			{
+				_approvedPlayers.Clear();
+				_networkManager.ConnectionApprovalCallback = ApproveRoomConnection;
+
+				return;
+			}
 
             _networkManager.ConnectionApprovalCallback = null;
             ConnectionApprovalHandler.RoomConnectionPayload payload = new()
@@ -190,9 +189,6 @@ namespace PlanetIO.Infrastructure.Networking
                 return false;
             }
 
-            _migration.StartMatch(Guid.NewGuid().ToString("N"));
-            _migration.LocalIdentity = "solo";
-            _migration.Clients[NetworkManager.ServerClientId] = "solo";
             CurrentRoom = singlePlayerRoom;
             Mode = NetworkSessionMode.SinglePlayer;
             UseLocalTransport();
@@ -284,15 +280,13 @@ namespace PlanetIO.Infrastructure.Networking
             }
 
             _shutdownRequested = true;
-            await UploadFinalMigrationSnapshotAsync();
             SetState(NetworkSessionState.ShuttingDown, "Shutting down network session");
 
             try
             {
-                await _sessionConnector.LeaveAsync();
-                await StopNetworkManagerAsync();
+				await StopNetworkManagerAsync();
+				await _sessionConnector.LeaveAsync(Mode == NetworkSessionMode.Host);
                 ResetConnectionConfiguration();
-                _migration.Clear();
                 Mode = NetworkSessionMode.None;
                 CurrentRoom = RoomConnectionSettings.Default;
                 SetProgress(0f);
@@ -313,8 +307,6 @@ namespace PlanetIO.Infrastructure.Networking
         {
             _shutdownRequested = true;
             _progressGeneration++;
-            _uploadGeneration++;
-            if (_migration != null) { _migration.RecoveryStarted -= BeginNetworkRecovery; _migration.RecoveryCompleted -= RecoveryFinished; }
             _networkManager.ConnectionApprovalCallback = null;
             Unsubscribe();
         }
@@ -381,6 +373,7 @@ namespace PlanetIO.Infrastructure.Networking
         {
             _networkManager.ConnectionApprovalCallback = null;
             _networkManager.NetworkConfig.ConnectionData = Array.Empty<byte>();
+			_approvedPlayers.Clear();
         }
 
         private static async Awaitable<bool> WaitOneFrameAsync()
@@ -490,32 +483,41 @@ namespace PlanetIO.Infrastructure.Networking
 
         private void OnClientDisconnected(ulong clientId)
         {
+			_approvedPlayers.Remove(clientId);
+
             if (clientId != _networkManager.LocalClientId || _shutdownRequested)
             {
                 return;
             }
 
-            if (CanRecoverHost())
-            {
-                BeginNetworkRecovery();
-                return;
-            }
-            string disconnectReason = _networkManager.DisconnectReason;
-            LastFailure = SessionFailureReasons.FromDisconnectReason(disconnectReason, Mode == NetworkSessionMode.Client);
+			HandleLocalDisconnect();
+		}
+
+		private void HandleLocalDisconnect()
+		{
+			if (_shutdownRequested || _recoveringFromDisconnect)
+			{
+				return;
+			}
+
+			bool inMatch = State is NetworkSessionState.Loading or NetworkSessionState.InGame;
+			string disconnectReason = _networkManager.DisconnectReason;
+			LastFailure = inMatch && Mode == NetworkSessionMode.Client
+				? SessionFailure.HostLeft
+				: SessionFailureReasons.FromDisconnectReason(disconnectReason, Mode == NetworkSessionMode.Client);
             string reason = string.IsNullOrWhiteSpace(disconnectReason)
                 ? "Connection to room closed"
                 : disconnectReason;
 
-            bool shouldReturnToMenu = State is NetworkSessionState.Loading or NetworkSessionState.InGame;
             SetState(NetworkSessionState.Failed, reason);
 
-            if (shouldReturnToMenu && !_recoveringFromDisconnect)
+			if (inMatch)
             {
-                _ = RecoverFromDisconnectAsync(reason);
+				_ = ReturnToMenuAfterDisconnectAsync(reason);
             }
         }
 
-        private async Awaitable RecoverFromDisconnectAsync(string reason)
+        private async Awaitable ReturnToMenuAfterDisconnectAsync(string reason)
         {
             _recoveringFromDisconnect = true;
             try
@@ -534,14 +536,51 @@ namespace PlanetIO.Infrastructure.Networking
             }
         }
 
+		private void ApproveRoomConnection(
+			NetworkManager.ConnectionApprovalRequest request,
+			NetworkManager.ConnectionApprovalResponse response)
+		{
+			_approvalHandler.ApproveRoomConnection(request, response, CurrentRoom);
+			if (!response.Approved || request.ClientNetworkId == NetworkManager.ServerClientId)
+			{
+				return;
+			}
+
+			ISession session = _sessionConnector.ActiveSession;
+			if (!ConnectionApprovalHandler.TryDeserializePayload(
+					request.Payload, out ConnectionApprovalHandler.RoomConnectionPayload payload) ||
+				string.IsNullOrEmpty(payload.PlayerId) ||
+				payload.PlayerId.Length > 128 ||
+				payload.PlayerId == _sessionConnector.LocalIdentity ||
+				(session != null && !session.Players.Any(player => player.Id == payload.PlayerId)) ||
+				_approvedPlayers.Any(player =>
+					player.Value == payload.PlayerId && _networkManager.ConnectedClients.ContainsKey(player.Key)))
+			{
+				ConnectionApprovalHandler.Reject(response, SessionFailureReasons.InvalidPayload);
+				return;
+			}
+
+			_approvedPlayers[request.ClientNetworkId] = payload.PlayerId;
+		}
+
         private void OnSessionStopped(bool _)
         {
             _progressGeneration++;
             IsSceneEventInProgress = false;
+
+			if (Mode == NetworkSessionMode.Client && State is (NetworkSessionState.Loading or NetworkSessionState.InGame))
+			{
+				HandleLocalDisconnect();
+			}
         }
 
         private void OnSceneEvent(SceneEvent sceneEvent)
         {
+			if (_shutdownRequested)
+			{
+				return;
+			}
+
             switch (sceneEvent.SceneEventType)
             {
                 case SceneEventType.SynchronizeComplete when sceneEvent.ClientId == _networkManager.LocalClientId && !_networkManager.IsServer:

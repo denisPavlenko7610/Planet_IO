@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "\xCDm\xE3 +50%; velocidade -8%"
+    m_Localized: "Raio de atra\xE7\xE3o +50%. Velocidade \u22128%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: +1 lua; dano +50%; velocidade -5%
+    m_Localized: "+1 lua. Dano das luas +50%. Velocidade \u22125%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: Velocidade +12%; comida -10%
+    m_Localized: "Velocidade +12%. Massa de comida natural \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: 'Turbo: fora do mapa 10 s; recarga 40 s'
+    m_Localized: "O turbo oculta voc\xEA no minimapa por 10 s. Recarga: 40 s."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -313,19 +313,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: Massa por abates +20%; comida -10%
+    m_Localized: "Massa de planetas devorados +20%. Massa de comida natural \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
-    m_Localized: "Tempo: {0}   Comidos: {1}   N\xEDvel: {2}"
+    m_Localized: "Tempo: {0}   Devorados: {1}   N\xEDvel: {2}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: Comido por {0}
+    m_Localized: "Derrotado por {0}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
-    m_Localized: Rank {0}
+    m_Localized: Ranque {0}
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315714
@@ -333,7 +333,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315715
-    m_Localized: Novo rank!
+    m_Localized: Novo ranque!
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315716
@@ -341,7 +341,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315717
-    m_Localized: Rank {0}   Poeira estelar {1}
+    m_Localized: Ranque {0}   Poeira estelar {1}
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315718
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: Trocar
+    m_Localized: "Trocar (an\u00fancio)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -478,10 +478,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18134015237541891
     m_Localized: "Dif\xEDcil"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Reconectando \xE0 partida\u2026"
     m_Metadata:
       m_Items: []
   - m_Id: 18266357037051904

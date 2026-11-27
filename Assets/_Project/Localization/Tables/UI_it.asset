@@ -257,7 +257,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "Magnete +50%; velocit\xE0 -8%"
+    m_Localized: "Raggio di attrazione +50%. Velocit\xE0 \u22128%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -265,7 +265,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 luna; danni +50%; velocit\xE0 -5%"
+    m_Localized: "+1 luna. Danni delle lune +50%. Velocit\xE0 \u22125%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -281,7 +281,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: "Velocit\xE0 +12%; cibo -10%"
+    m_Localized: "Velocit\xE0 +12%. Massa dal cibo naturale \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -297,7 +297,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: 'Turbo: fuori mappa 10 s; ricarica 40 s'
+    m_Localized: 'Lo scatto ti nasconde dalla minimappa per 10 s. Ricarica: 40 s.'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -313,7 +313,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: Massa uccisioni +20%; cibo -10%
+    m_Localized: "Massa dai pianeti divorati +20%. Massa dal cibo naturale \u221210%."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
@@ -321,7 +321,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: Mangiato da {0}
+    m_Localized: "Sconfitto da {0}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
@@ -365,7 +365,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: Cambia
+    m_Localized: "Cambia (pubblicit\u00e0)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -478,10 +478,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18134015237541891
     m_Localized: Difficile
-    m_Metadata:
-      m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Riconnessione alla partita\u2026"
     m_Metadata:
       m_Items: []
   - m_Id: 18266357037051904

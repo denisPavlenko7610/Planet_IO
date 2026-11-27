@@ -8,16 +8,24 @@ namespace PlanetIO
         public readonly int PeakTier;
         public readonly int Kills;
         public readonly int PerksPicked;
+		public readonly bool UsedEasyDifficulty;
 
-        public RunSummary(long runId, float durationSeconds, int peakScore, int peakTier, int kills, int perksPicked)
-        {
-            RunId = runId;
-            DurationSeconds = durationSeconds;
-            PeakScore = peakScore;
-            PeakTier = peakTier;
-            Kills = kills;
-            PerksPicked = perksPicked;
-        }
+		public RunSummary(long runId, float durationSeconds, int peakScore, int peakTier, int kills, int perksPicked)
+			: this(runId, durationSeconds, peakScore, peakTier, kills, perksPicked, false)
+		{
+		}
+
+		public RunSummary(
+			long runId, float durationSeconds, int peakScore, int peakTier, int kills, int perksPicked, bool usedEasyDifficulty)
+		{
+			RunId = runId;
+			DurationSeconds = durationSeconds;
+			PeakScore = peakScore;
+			PeakTier = peakTier;
+			Kills = kills;
+			PerksPicked = perksPicked;
+			UsedEasyDifficulty = usedEasyDifficulty;
+		}
     }
 
     public readonly struct RunReward

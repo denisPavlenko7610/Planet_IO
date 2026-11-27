@@ -463,10 +463,6 @@ MonoBehaviour:
     m_Key: difficulty.hard
     m_Metadata:
       m_Items: []
-  - m_Id: 18145445231841280
-    m_Key: status.migrating
-    m_Metadata:
-      m_Items: []
   - m_Id: 18266357037051904
     m_Key: settings.play_games_sign_in
     m_Metadata:

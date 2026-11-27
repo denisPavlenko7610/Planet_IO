@@ -187,11 +187,6 @@ namespace PlanetIO
 				return;
 			}
 
-			if (_migration?.IsRecovering == true)
-			{
-				StopMovement();
-				return;
-			}
 			if (_gameStateService?.IsGameplayActive != true)
 			{
 				StopMovement();
@@ -416,21 +411,21 @@ namespace PlanetIO
 		{
 			ApplyDifficulty();
 			Vector2 position = _enemyTransform.position;
-			(PlanetBody nearestPlayer, Vector2 hazardPosition, float hazardDistanceSquared, Vector2 separationAccum) =
+			(PlanetBody targetPlanet, Vector2 hazardPosition, float hazardDistanceSquared, Vector2 separationAccum) =
 				ScanSurroundings(position);
 			FoodRecord nearestFood = FindNearestFood(position);
 
 			_separationForce = separationAccum;
 
 			bool hasImmediateHazard = hazardDistanceSquared <= _hazardDistance * _hazardDistance;
-			_targetPlanet = nearestPlayer;
-			if (TryMoonRaid(nearestPlayer, hasImmediateHazard))
+			_targetPlanet = targetPlanet;
+			if (TryMoonRaid(targetPlanet, hasImmediateHazard))
 			{
 				return;
 			}
 			EnemyIntent intent = EnemyDecisionRules.ChooseIntent(
 				_enemy.Capacity,
-				nearestPlayer?.Capacity ?? 0f,
+				targetPlanet?.Capacity ?? 0f,
 				nearestFood != null,
 				hasImmediateHazard,
 				_huntSizeRatio,
@@ -442,18 +437,18 @@ namespace PlanetIO
 				case EnemyIntent.Evade:
 					Vector2 dangerPosition = hasImmediateHazard
 						? hazardPosition
-						: nearestPlayer.transform.position;
+						: targetPlanet.transform.position;
 					EvadeFrom(dangerPosition);
 					break;
 
 				case EnemyIntent.Hunt:
-					Vector2 velocity = nearestPlayer.TryGetComponent(out Rigidbody2D targetBody)
+					Vector2 velocity = targetPlanet.TryGetComponent(out Rigidbody2D targetBody)
 						? targetBody.linearVelocity
 						: Vector2.zero;
 					SetTarget(
 						WorldBounds.Clamp(
 							BotDifficultyRules.PursuitPoint(
-								nearestPlayer.transform.position,
+								targetPlanet.transform.position,
 								velocity,
 								_difficultyTuning.PredictionSeconds
 							)
@@ -472,16 +467,16 @@ namespace PlanetIO
 			}
 		}
 
-		private (PlanetBody NearestPlayer, Vector2 HazardPosition, float HazardDistanceSquared, Vector2 SeparationForce
+		private (PlanetBody TargetPlanet, Vector2 HazardPosition, float HazardDistanceSquared, Vector2 SeparationForce
 			)
 			ScanSurroundings(Vector2 position)
 		{
 			int hitCount = Physics2D.OverlapCircle(position, _awarenessRadius, _nonFoodFilter, _nearbyColliders);
 
-			PlanetBody nearestPlayer = null;
+			PlanetBody targetPlanet = null;
 			Vector2 hazardPosition = default;
 			Vector2 separationAccum = Vector2.zero;
-			float playerDistanceSquared = float.PositiveInfinity;
+			float targetDistanceSquared = float.PositiveInfinity;
 			float hazardDistanceSquared = float.PositiveInfinity;
 			float separationRadiusSquared = (_enemy.Capacity * SeparationRadiusPerUnit) *
 				(_enemy.Capacity * SeparationRadiusPerUnit);
@@ -516,14 +511,15 @@ namespace PlanetIO
 						float distance = Mathf.Sqrt(distanceSquared);
 						separationAccum += push / (distance * Mathf.Max(distance, 0.3f));
 					}
-					bool threat = otherPlanet.CanDevour(_enemy);
-					bool selectedThreat = nearestPlayer != null && nearestPlayer.CanDevour(_enemy);
-					bool preferred = (threat && !selectedThreat) ||
-						(threat == selectedThreat && distanceSquared < playerDistanceSquared);
-					if (nearestPlayer == null || preferred)
+					bool candidateIsThreat = otherPlanet.CanDevour(_enemy);
+					bool targetIsThreat = targetPlanet != null && targetPlanet.CanDevour(_enemy);
+					bool preferred = candidateIsThreat != targetIsThreat
+						? candidateIsThreat
+						: distanceSquared < targetDistanceSquared;
+					if (targetPlanet == null || preferred)
 					{
-						nearestPlayer = otherPlanet;
-						playerDistanceSquared = distanceSquared;
+						targetPlanet = otherPlanet;
+						targetDistanceSquared = distanceSquared;
 					}
 					continue;
 				}
@@ -536,7 +532,7 @@ namespace PlanetIO
 				}
 			}
 
-			return (nearestPlayer, hazardPosition, hazardDistanceSquared, separationAccum);
+			return (targetPlanet, hazardPosition, hazardDistanceSquared, separationAccum);
 		}
 
 		private readonly System.Collections.Generic.List<FoodRecord> _foodRecords = new(128);

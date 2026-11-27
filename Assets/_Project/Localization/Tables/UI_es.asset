@@ -255,7 +255,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093507
-    m_Localized: "Im\xE1n +50%; velocidad -8%"
+    m_Localized: "Radio de atracci\xF3n +50 %. Velocidad \u22128 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093508
@@ -263,7 +263,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093509
-    m_Localized: "+1 luna; da\xF1o +50%; velocidad -5%"
+    m_Localized: "+1 luna. Da\xF1o lunar +50 %. Velocidad \u22125 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093510
@@ -279,7 +279,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093513
-    m_Localized: Velocidad +12%; comida -10%
+    m_Localized: "Velocidad +12 %. Masa de alimento natural \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093514
@@ -295,7 +295,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093517
-    m_Localized: 'Turbo: fuera del mapa 10 s; recarga 40 s'
+    m_Localized: 'El turbo te oculta del minimapa durante 10 s. Recarga: 40 s.'
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093518
@@ -311,15 +311,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17768241907093521
-    m_Localized: Masa por bajas +20%; comida -10%
+    m_Localized: "Masa de planetas devorados +20 %. Masa de alimento natural \u221210 %."
     m_Metadata:
       m_Items: []
   - m_Id: 17778034084401152
-    m_Localized: 'Tiempo: {0}   Comidos: {1}   Nivel: {2}'
+    m_Localized: 'Tiempo: {0}   Devorados: {1}   Nivel: {2}'
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315712
-    m_Localized: "Te comi\xF3 {0}"
+    m_Localized: "Te derrot\u00f3 {0}"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034147315713
@@ -363,7 +363,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510017
-    m_Localized: Cambiar
+    m_Localized: "Cambiar (anuncio)"
     m_Metadata:
       m_Items: []
   - m_Id: 17778034151510018
@@ -476,10 +476,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18134015237541891
     m_Localized: "Dif\xEDcil"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 18145445231841280
-    m_Localized: "Reconectando a la partida\u2026"
     m_Metadata:
       m_Items: []
   - m_Id: 18266357037051904

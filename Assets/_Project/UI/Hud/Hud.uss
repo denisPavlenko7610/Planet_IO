@@ -1,0 +1,704 @@
+#border-warning {
+    background-image: url("/Assets/_Project/Art/UI/HUD/EdgeVignette.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: rgb(255, 38, 51);
+    opacity: 0;
+}
+
+#score-text, #session-text, #ping-text, #kill-feed, #hint-text, #score-popup, #leaderboard-text {
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 2px 0 rgba(21, 10, 51, 0.7);
+}
+
+#hud-left {
+    position: absolute;
+    left: 32px;
+    top: 16px;
+    width: 30%;
+    max-width: 420px;
+    align-items: flex-start;
+}
+
+#hud-center {
+    position: absolute;
+    left: 34%;
+    right: 34%;
+    top: 16px;
+    align-items: center;
+}
+
+#hud-right {
+    position: absolute;
+    right: 32px;
+    top: 16px;
+    align-items: flex-end;
+}
+
+#score-text {
+    font-size: 64px;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+#session-text {
+    max-width: 100%;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.92);
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+}
+
+#ping-text {
+    font-size: 24px;
+    color: white;
+    -unity-text-align: middle-right;
+    margin: 0 14px 0 0;
+    padding: 0;
+    display: none;
+}
+
+#ping-text.ping-good {
+    color: rgb(153, 255, 128);
+}
+
+#ping-text.ping-fair {
+    color: rgb(255, 214, 102);
+}
+
+#ping-text.ping-poor {
+    color: rgb(255, 96, 96);
+}
+
+#perk-strip {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.perk-chip {
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    margin: 0 6px 6px 0;
+    padding: 0;
+    border-radius: 23px;
+    border-width: 3px;
+    border-color: white;
+    font-size: 28px;
+    color: white;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+}
+
+.perk-chip--0 { background-color: rgb(255, 120, 60); }
+.perk-chip--1 { background-color: rgb(80, 170, 255); }
+.perk-chip--2 { background-color: rgb(170, 130, 255); }
+.perk-chip--3 { background-color: rgb(255, 200, 70); }
+.perk-chip--4 { background-color: rgb(255, 150, 200); }
+.perk-chip--5 { background-color: rgb(90, 210, 170); }
+.perk-chip--6 { background-color: rgb(120, 110, 200); }
+.perk-chip--7 { background-color: rgb(120, 220, 120); }
+.perk-chip--8 { background-color: rgb(235, 80, 100); }
+
+#tier-panel {
+    width: 300px;
+    max-width: 100%;
+    height: 44px;
+    margin-top: 8px;
+    flex-direction: row;
+    align-items: center;
+}
+
+#tier-text {
+    min-width: 64px;
+    font-size: 40px;
+    color: white;
+    margin: 0;
+    padding: 0;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+}
+
+#tier-bar {
+    flex-grow: 1;
+    height: 16px;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.45);
+    background-color: rgba(21, 10, 51, 0.6);
+    overflow: hidden;
+}
+
+#tier-fill {
+    width: 0;
+    height: 100%;
+    background-color: rgb(153, 255, 128);
+}
+
+.tier-2 #tier-fill {
+    background-color: rgb(115, 217, 255);
+}
+
+.tier-3 #tier-fill {
+    background-color: rgb(255, 214, 102);
+}
+
+.tier-4 #tier-fill {
+    background-color: rgb(255, 128, 77);
+}
+
+#minimap {
+    width: 180px;
+    height: 121px;
+    margin-top: 12px;
+    border-radius: 4px;
+    overflow: hidden;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.4);
+    background-color: rgba(21, 10, 51, 0.5);
+}
+
+.minimap-blip {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 5px;
+}
+
+#top-buttons {
+    flex-direction: row;
+    align-items: center;
+}
+
+#top-buttons #leave-button {
+    margin-left: 10px;
+}
+
+#leaderboard-panel {
+    min-width: 218px;
+    margin-top: 8px;
+    padding: 0;
+    opacity: 0.85;
+}
+
+#leaderboard-text {
+    font-size: 22px;
+    color: white;
+    white-space: nowrap;
+    -unity-text-align: upper-left;
+    -unity-text-outline-width: 1.5px;
+    margin: 0;
+    padding: 0;
+}
+
+#kill-feed {
+    min-height: 44px;
+    max-width: 100%;
+    font-size: 30px;
+    color: rgb(255, 230, 115);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+}
+
+#event-banner {
+    min-height: 48px;
+    max-width: 100%;
+    font-size: 36px;
+    color: rgb(255, 170, 80);
+    white-space: normal;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(21, 10, 51);
+    text-shadow: 0 3px 0 rgba(21, 10, 51, 0.8);
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+}
+
+#hint-text {
+    position: absolute;
+    left: 28%;
+    right: 28%;
+    bottom: 330px;
+    font-size: 32px;
+    color: white;
+    white-space: normal;
+    -unity-text-align: middle-center;
+    opacity: 0;
+}
+
+#score-popup {
+    position: absolute;
+    width: 320px;
+    margin-left: -160px;
+    font-size: 48px;
+    color: rgb(153, 255, 128);
+    -unity-text-align: middle-center;
+    opacity: 0;
+}
+
+.control {
+    position: absolute;
+    bottom: 70px;
+    width: 200px;
+    height: 200px;
+    -unity-background-scale-mode: scale-to-fit;
+    scale: 0.78 0.78;
+    align-items: center;
+    justify-content: center;
+    transition-property: scale;
+    transition-duration: 0.08s;
+}
+
+#stick-zone {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 55%;
+}
+
+#stick {
+    left: 148px;
+    bottom: 38px;
+    width: 264px;
+    height: 264px;
+    background-image: url("project://database/Assets/_Project/Art/UI/HUD/StickBase.png");
+    scale: 1 1;
+}
+
+#stick.stick-active {
+    background-image: url("project://database/Assets/_Project/Art/UI/HUD/StickBaseActive.png");
+}
+
+#boost-button {
+    background-image: url("project://database/Assets/_Project/Art/UI/HUD/BoostBase.png");
+    right: 180px;
+    scale: 0.95 0.95;
+}
+
+#stick-knob {
+    width: 108px;
+    height: 108px;
+    border-radius: 54px;
+    background-color: rgba(191, 153, 255, 0.22);
+    background-image: url("/Assets/_Project/Art/UI/Buttons/AtlasSources/StickRing.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#boost-icon {
+    rotate: 180deg;
+    width: 104px;
+    height: 104px;
+    background-image: url("/Assets/_Project/Art/UI/Buttons/AtlasSources/BoostTriangle.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#boost-button:active {
+    scale: 0.88 0.88;
+    background-image: url("project://database/Assets/_Project/Art/UI/HUD/BoostBaseActive.png");
+}
+
+.controls-swapped #stick-zone {
+    left: auto;
+    right: 0;
+}
+
+.controls-swapped #stick {
+    left: auto;
+    right: 148px;
+}
+
+.controls-swapped #boost-button {
+    right: auto;
+    left: 180px;
+}
+
+#perk-panel {
+    display: none;
+    position: absolute;
+    top: 174px;
+    left: 16px;
+    right: 16px;
+    align-items: center;
+}
+
+#perk-box {
+    width: 100%;
+    max-width: 980px;
+    padding: 10px 8px;
+    background-color: rgba(21, 10, 51, 0.88);
+    border-radius: 18px;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.55);
+}
+
+#perk-title {
+    font-size: 24px;
+    color: white;
+    margin: 0 0 6px 0;
+    padding: 0;
+    -unity-text-align: middle-center;
+}
+
+#perk-timer {
+    height: 5px;
+    margin: 0 6px 8px 6px;
+    border-radius: 3px;
+    background-color: rgba(8, 3, 22, 0.8);
+    overflow: hidden;
+}
+
+#perk-timer-fill {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(153, 255, 128);
+}
+
+#perk-cards {
+    flex-direction: row;
+}
+
+.perk-card {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 0;
+    margin: 0 4px;
+    min-height: 148px;
+    padding: 8px 6px;
+    align-items: center;
+    border-radius: 14px;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.7);
+    background-color: rgba(41, 20, 82, 0.96);
+}
+
+.perk-card:active {
+    background-color: rgba(86, 48, 160, 0.98);
+    border-color: rgb(255, 230, 115);
+}
+
+.perk-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.perk-chip > .perk-icon {
+    width: 30px;
+    height: 30px;
+    margin: 0;
+}
+
+.perk-name {
+    font-size: 23px;
+    color: rgb(255, 230, 115);
+    margin: 0 0 4px 0;
+    padding: 0;
+    align-self: stretch;
+    white-space: normal;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+.perk-desc {
+    font-size: 20px;
+    color: white;
+    margin: 0;
+    padding: 0;
+    align-self: stretch;
+    white-space: normal;
+    -unity-text-align: upper-center;
+}
+
+.perk-offer-visible #minimap, .perk-offer-visible #perk-strip, .perk-offer-visible #leaderboard-panel,
+.perk-offer-visible #hud-center {
+    visibility: hidden;
+}
+
+#defeat-panel {
+    display: none;
+    background-color: rgba(8, 3, 22, 0.72);
+    justify-content: center;
+    align-items: center;
+}
+
+#defeat-card {
+    width: 1180px;
+    max-width: 94%;
+    max-height: 96%;
+    padding: 30px 44px 32px 44px;
+    min-height: 0;
+    flex-shrink: 1;
+    background-color: rgba(41, 20, 82, 0.96);
+}
+
+#defeat-layout {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+#defeat-card .btn {
+    flex-shrink: 0;
+    padding-left: 34px;
+    padding-right: 34px;
+}
+
+#defeat-results {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    width: 360px;
+    min-width: 280px;
+    max-width: 100%;
+    align-items: stretch;
+    margin: 0 22px 16px 0;
+}
+
+#defeat-actions {
+    width: 460px;
+    max-width: 100%;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+#defeat-title {
+    white-space: normal;
+    -unity-text-align: middle-center;
+    font-size: 60px;
+    color: var(--danger);
+    margin: 0 0 8px 0;
+}
+
+#defeat-body {
+    font-size: 34px;
+    color: white;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 0 0 14px 0;
+}
+
+#result-details {
+    font-size: 26px;
+    color: rgb(200, 190, 230);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+#rank-row {
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    margin-bottom: 8px;
+}
+
+#rank-text {
+    min-width: 170px;
+    font-size: 34px;
+    color: rgb(255, 230, 115);
+    margin: 0 14px 0 0;
+    padding: 0;
+    -unity-font-style: bold;
+}
+
+#rank-bar {
+    flex-grow: 1;
+    height: 22px;
+    border-radius: 11px;
+    border-width: 2px;
+    border-color: rgba(191, 153, 255, 0.55);
+    background-color: rgba(8, 3, 22, 0.8);
+    overflow: hidden;
+}
+
+#rank-fill {
+    width: 0;
+    height: 100%;
+    background-color: rgb(153, 255, 128);
+}
+
+#reward-text {
+    font-size: 28px;
+    color: rgb(153, 255, 128);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+#continue-button {
+    margin-top: 10px;
+}
+
+#double-dust {
+    margin-top: 10px;
+}
+
+#defeat-leave {
+    margin-top: 14px;
+}
+
+#loading-overlay {
+    display: none;
+    background-color: rgb(21, 10, 51);
+    justify-content: center;
+    align-items: center;
+}
+
+#loading-title {
+    font-size: 48px;
+    color: white;
+}
+
+.perk-icon--0 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk0.svg"); }
+
+.perk-icon--1 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk1.svg"); }
+
+.perk-icon--2 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk2.svg"); }
+
+.perk-icon--3 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk3.svg"); }
+
+.perk-icon--4 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk4.svg"); }
+
+.perk-icon--5 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk5.svg"); }
+
+.perk-icon--6 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk6.svg"); }
+
+.perk-icon--7 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk7.svg"); }
+
+.perk-icon--8 { background-image: url("project://database/Assets/_Project/Art/UI/PerkIcons/Perk8.svg"); }
+
+#damage-popup {
+    position: absolute;
+    width: 320px;
+    margin-left: -160px;
+    font-size: 34px;
+    white-space: normal;
+    -unity-font-style: bold;
+    color: rgb(255, 95, 104);
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgb(45, 7, 22);
+    text-shadow: 0 2px 0 rgba(25, 0, 8, 0.8);
+    opacity: 0;
+}
+
+.minimap-blip--local {
+    border-width: 2px;
+    border-color: white;
+}
+
+
+#tutorial-overlay {
+    display: none;
+    background-color: rgba(8, 3, 22, 0.76);
+}
+
+#tutorial-card {
+    --tutorial-accent: rgb(179, 155, 255);
+    width: 660px;
+    max-width: 92%;
+    max-height: 94%;
+    min-height: 0;
+    flex-shrink: 1;
+    padding: 0;
+    background-color: rgb(30, 20, 56);
+    border-color: rgb(105, 81, 161);
+    border-top-color: var(--tutorial-accent);
+    border-top-width: 4px;
+}
+
+.tutorial-content {
+    align-items: center;
+    padding: 28px 34px 14px;
+}
+
+.tutorial-emblem {
+    width: 96px;
+    height: 96px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 48px;
+    border-width: 2px;
+    border-color: rgb(116, 91, 174);
+    background-color: rgb(55, 39, 96);
+}
+
+.tutorial-planet {
+    width: 68px;
+    height: 68px;
+    background-image: url("/Assets/_Project/Art/World/Planets/Planet 1@4x.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#tutorial-description {
+    align-self: stretch;
+    margin: 20px 0 24px;
+    padding: 0;
+    color: rgb(248, 244, 255);
+    font-size: 32px;
+    -unity-font-style: normal;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.tutorial-action {
+    align-self: stretch;
+    flex-shrink: 0;
+    min-height: 60px;
+    margin: 0;
+    padding: 10px 16px;
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0);
+    border-radius: 18px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+}
+
+#tutorial-continue {
+    min-height: 72px;
+    background-color: var(--tutorial-accent);
+    color: rgb(25, 15, 48);
+    font-size: 30px;
+}
+
+#tutorial-continue:hover,
+#tutorial-continue:focus {
+    background-color: rgb(211, 193, 255);
+    border-color: rgb(248, 244, 255);
+}
+
+#tutorial-skip {
+    margin-top: 4px;
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(219, 204, 250);
+    font-size: 24px;
+}
+
+#tutorial-skip:hover,
+#tutorial-skip:focus {
+    background-color: rgb(55, 39, 96);
+    border-color: var(--tutorial-accent);
+}
+
+.tutorial-action:active {
+    scale: 0.97 0.97;
+}

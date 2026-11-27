@@ -1,0 +1,121 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/_Project/UI/Shared/Common.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Hud/Hud.uss" />
+    <ui:Style src="project://database/Assets/_Project/UI/Settings/Settings.uss" />
+    <ui:Template name="Settings" src="project://database/Assets/_Project/UI/Settings/Settings.uxml" />
+    <ui:VisualElement name="hud-root" class="screen" picking-mode="Ignore">
+        <ui:VisualElement name="border-warning" class="screen" picking-mode="Ignore" />
+        <ui:VisualElement name="safe-area" class="safe" picking-mode="Ignore">
+            <ui:VisualElement name="stick-zone">
+                <ui:VisualElement name="stick" class="control" picking-mode="Ignore">
+                    <ui:VisualElement name="stick-knob" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="hud-left" picking-mode="Ignore">
+                <ui:Label name="score-text" text="0" picking-mode="Ignore" />
+                <ui:Label name="session-text" picking-mode="Ignore" />
+                <ui:VisualElement name="tier-panel" class="tier-1" picking-mode="Ignore">
+                    <ui:Label name="tier-text" text="I" picking-mode="Ignore" />
+                    <ui:VisualElement name="tier-bar" picking-mode="Ignore">
+                        <ui:VisualElement name="tier-fill" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="perk-strip" picking-mode="Ignore" />
+                <ui:VisualElement name="minimap" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="hud-center" picking-mode="Ignore">
+                <ui:Label name="kill-feed" picking-mode="Ignore" />
+                <ui:Label name="event-banner" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="hud-right" picking-mode="Ignore">
+                <ui:VisualElement name="top-buttons" picking-mode="Ignore">
+                    <ui:Label name="ping-text" picking-mode="Ignore" />
+                    <ui:Button name="settings-button" class="btn btn-hud btn-icon btn-blue">
+                        <ui:VisualElement class="btn-glyph glyph-settings" picking-mode="Ignore" />
+                    </ui:Button>
+                    <ui:Button name="leave-button" class="btn btn-hud btn-icon btn-red">
+                        <ui:VisualElement class="btn-glyph glyph-home" picking-mode="Ignore" />
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement name="leaderboard-panel" picking-mode="Ignore">
+                    <ui:Label name="leaderboard-text" enable-rich-text="true" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="hint-text" picking-mode="Ignore" />
+            <ui:Label name="score-popup" picking-mode="Ignore" />
+            <ui:Label name="damage-popup" picking-mode="Ignore" />
+            <ui:VisualElement name="boost-button" class="control">
+                <ui:VisualElement name="boost-icon" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:VisualElement name="perk-panel" picking-mode="Ignore">
+                <ui:VisualElement name="perk-box" picking-mode="Ignore">
+                    <ui:Label name="perk-title" picking-mode="Ignore" />
+                    <ui:VisualElement name="perk-timer" picking-mode="Ignore">
+                        <ui:VisualElement name="perk-timer-fill" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="perk-cards" picking-mode="Ignore">
+                        <ui:VisualElement name="perk-card-0" class="perk-card">
+                            <ui:VisualElement name="perk-icon-0" class="perk-icon" picking-mode="Ignore" />
+                            <ui:Label name="perk-name-0" class="perk-name" picking-mode="Ignore" />
+                            <ui:Label name="perk-desc-0" class="perk-desc" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="perk-card-1" class="perk-card">
+                            <ui:VisualElement name="perk-icon-1" class="perk-icon" picking-mode="Ignore" />
+                            <ui:Label name="perk-name-1" class="perk-name" picking-mode="Ignore" />
+                            <ui:Label name="perk-desc-1" class="perk-desc" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="perk-card-2" class="perk-card">
+                            <ui:VisualElement name="perk-icon-2" class="perk-icon" picking-mode="Ignore" />
+                            <ui:Label name="perk-name-2" class="perk-name" picking-mode="Ignore" />
+                            <ui:Label name="perk-desc-2" class="perk-desc" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="defeat-panel" class="screen">
+            <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+                <ui:ScrollView name="defeat-card" class="card" horizontal-scroller-visibility="Hidden">
+                    <ui:VisualElement name="defeat-layout">
+                        <ui:VisualElement name="defeat-results">
+                            <ui:Label name="defeat-title" />
+                            <ui:Label name="defeat-body" />
+                            <ui:Label name="result-details" />
+                            <ui:VisualElement name="rank-row">
+                                <ui:Label name="rank-text" />
+                                <ui:VisualElement name="rank-bar">
+                                    <ui:VisualElement name="rank-fill" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:Label name="reward-text" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="defeat-actions">
+                            <ui:Button name="play-again" class="btn btn-cta btn-yellow" />
+                            <ui:Button name="continue-button" class="btn btn-long btn-green" />
+                            <ui:Button name="double-dust" class="btn btn-long btn-blue" />
+                            <ui:Button name="defeat-leave" class="btn btn-hud btn-red" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="loading-overlay" class="screen">
+            <ui:Label name="loading-title" text="Loading Session" />
+        </ui:VisualElement>
+        <ui:VisualElement name="tutorial-overlay" class="screen" focusable="true">
+            <ui:VisualElement class="screen safe-modal" picking-mode="Ignore">
+                <ui:ScrollView name="tutorial-card" class="card" horizontal-scroller-visibility="Hidden">
+                    <ui:VisualElement class="tutorial-content">
+                        <ui:VisualElement class="tutorial-emblem" picking-mode="Ignore">
+                            <ui:VisualElement class="tutorial-planet" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:Label name="tutorial-description" />
+                        <ui:Button name="tutorial-continue" class="tutorial-action" />
+                        <ui:Button name="tutorial-skip" class="tutorial-action" />
+                    </ui:VisualElement>
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Instance template="Settings" name="settings" class="screen" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

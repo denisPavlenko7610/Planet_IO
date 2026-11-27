@@ -20,7 +20,6 @@ namespace PlanetIO
         void Unlock(AchievementKind achievement);
         void ShowLeaderboards();
         void ShowAchievements();
-        void LoadCloud(Action<CloudLoadStatus, byte[]> completed);
-        void SaveCloud(byte[] data, TimeSpan playedTime, Action<bool> completed);
-    }
+		void SyncCloud(Func<byte[], byte[]> merge, TimeSpan playedTime, Action<bool> completed);
+	}
 }
